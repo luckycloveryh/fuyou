@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Stack主题 on 小杨的博客</title><link>https://luckycloveryh.github.io/fuyou/tags/stack%E4%B8%BB%E9%A2%98/</link><description>Recent content in Stack主题 on 小杨的博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>小杨</copyright><lastBuildDate>Mon, 06 Apr 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://luckycloveryh.github.io/fuyou/tags/stack%E4%B8%BB%E9%A2%98/index.xml" rel="self" type="application/rss+xml"/><item><title>Hugo + Stack 主题完全指南</title><link>https://luckycloveryh.github.io/fuyou/p/hugo--stack-%E4%B8%BB%E9%A2%98%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/</link><pubDate>Mon, 06 Apr 2026 10:00:00 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/hugo--stack-%E4%B8%BB%E9%A2%98%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/</guid><description>&lt;img src="https://i.imgs.ovh/2026/04/06/ZQBitY.jpeg" alt="Featured image of post Hugo + Stack 主题完全指南" />&lt;h2 id="什么是-hugo">什么是 Hugo？
+&lt;/h2>&lt;p>Hugo 是一个用 Go 语言编写的静态网站生成器，具有以下特点：&lt;/p>
+&lt;ul>
+&lt;li>⚡ &lt;strong>超快的性能&lt;/strong> - 可以在几毫秒内生成数千个网页&lt;/li>
+&lt;li>📝 &lt;strong>易于使用&lt;/strong> - 简单的命令行界面&lt;/li>
+&lt;li>🎨 &lt;strong>灵活的主题系统&lt;/strong> - 丰富的社区主题可选&lt;/li>
+&lt;li>📱 &lt;strong>完全响应式&lt;/strong> - 适配所有设备&lt;/li>
+&lt;/ul>
+&lt;h2 id="stack-主题介绍">Stack 主题介绍
+&lt;/h2>&lt;p>Stack 是一个现代化的 Hugo 主题，提供了：&lt;/p>
+&lt;ol>
+&lt;li>优雅的设计&lt;/li>
+&lt;li>快速的加载速度&lt;/li>
+&lt;li>完整的功能支持&lt;/li>
+&lt;li>良好的 SEO 优化&lt;/li>
+&lt;/ol>
+&lt;h3 id="主题特性">主题特性
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">features&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">响应式设计&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">代码高亮&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">评论支持&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">搜索功能&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">暗黑模式&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="快速开始">快速开始
+&lt;/h2>&lt;h3 id="安装-hugo">安装 Hugo
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Windows 使用 choco&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">choco install hugo-extended
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># macOS 使用 homebrew&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">brew install hugo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Linux 使用 apt&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo apt-get install hugo
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="创建新博客">创建新博客
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">hugo new site my-blog
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> my-blog
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">git clone https://github.com/CaiJimmy/hugo-theme-stack themes/hugo-theme-stack
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="内容优化建议">内容优化建议
+&lt;/h2>&lt;h3 id="seo-最佳实践">SEO 最佳实践
+&lt;/h3>&lt;ul>
+&lt;li>使用有意义的标题&lt;/li>
+&lt;li>添加元描述&lt;/li>
+&lt;li>合理使用标签和分类&lt;/li>
+&lt;li>包含高质量的图片&lt;/li>
+&lt;/ul>
+&lt;h3 id="性能优化">性能优化
+&lt;/h3>&lt;ul>
+&lt;li>压缩图片&lt;/li>
+&lt;li>使用 CDN&lt;/li>
+&lt;li>启用缓存&lt;/li>
+&lt;li>最小化 CSS/JS&lt;/li>
+&lt;/ul>
+&lt;h2 id="总结">总结
+&lt;/h2>&lt;p>使用 Hugo + Stack 主题可以快速搭建一个高性能、美观的静态博客。如果你想了解更多细节，可以查阅官方文档。&lt;/p>
+&lt;hr>
+&lt;p>&lt;strong>下一篇文章预告：&lt;/strong> 如何在 Hugo 中使用自定义主题和插件&lt;/p></description></item></channel></rss>

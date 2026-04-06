@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Web UI on 小杨的博客</title><link>https://luckycloveryh.github.io/fuyou/tags/web-ui/</link><description>Recent content in Web UI on 小杨的博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>小杨</copyright><lastBuildDate>Mon, 06 Apr 2026 18:07:39 +0800</lastBuildDate><atom:link href="https://luckycloveryh.github.io/fuyou/tags/web-ui/index.xml" rel="self" type="application/rss+xml"/><item><title>Headlamp</title><link>https://luckycloveryh.github.io/fuyou/p/k8s-headlamp-web-ui/</link><pubDate>Mon, 06 Apr 2026 18:07:39 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/k8s-headlamp-web-ui/</guid><description>&lt;img src="https://i.imgs.ovh/2026/04/06/ZQGuDQ.jpeg" alt="Featured image of post Headlamp" />&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MjZjYTc0ZmI4ZmFmZThiYjcxMDM3NjY5ZWI5OTJhNDNfcTNFZEZHaGNxYXp3aThPSjY4bzdMQnBUMFlsb2owS3FfVG9rZW46SXdDVGJscW05b1lRM3J4clVnb2NjR0lMbnpkXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h2 id="headlamp-介绍">Headlamp 介绍
+&lt;/h2>&lt;p>Kubernetes 官方提供的用户管理项目是 &lt;a class="link" href="https://github.com/kubernetes-retired/dashboard" target="_blank" rel="noopener"
+>Dashboard&lt;/a>，这个项目在 2026 年就不再维护了，官方推荐使用 &lt;a class="link" href="https://github.com/kubernetes-sigs/headlamp" target="_blank" rel="noopener"
+>Headlamp&lt;/a> 来代替 Dashboard 项目。&lt;/p>
+&lt;p>Headlamp 是一款易于使用且可扩展的 Kubernetes 用户界面， 包含 Kubernetes Dashboard 的功能集（即列出和查看资源），并提供额外的扩展功能。&lt;/p>
+&lt;p>Headlamp 特性：&lt;/p>
+&lt;ul>
+&lt;li>支持集群内操作或本地桌面应用模式&lt;/li>
+&lt;li>多集群管理&lt;/li>
+&lt;li>通过插件实现功能扩展&lt;/li>
+&lt;li>与 RBAC 关联的操作权限控制（无权限时禁止删除/更新）&lt;/li>
+&lt;li>可撤销的创建/更新/删除操作&lt;/li>
+&lt;li>带文档支持的日志、执行和资源编辑器&lt;/li>
+&lt;li>读写/交互模式（操作基于权限控制）&lt;/li>
+&lt;/ul>
+&lt;h2 id="headlamp-部署">Headlamp 部署
+&lt;/h2>&lt;p>Headlamp 支持两种部署方式 ：&lt;/p>
+&lt;ol>
+&lt;li>集群内部署&lt;/li>
+&lt;li>使用桌面应用&lt;/li>
+&lt;/ol>
+&lt;p>接下来我们演示一下这两种部署方式：&lt;/p>
+&lt;h3 id="集群内部署">集群内部署
+&lt;/h3>&lt;p>集群内部署就是把 Headlamp 部署到 Kubernetes 集群中，再将 Headlamp 暴露到集群外部，我们就可以通过 web 界面管理集群了，集群内部署使用 Helm 工具即可。&lt;/p>
+&lt;p>第一步：添加 chart 仓库&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 添加仓库 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm repo add headlamp https://kubernetes-sigs.github.io/headlamp/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 搜索仓库中 chart 包&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ helm search repo headlamp
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME CHART VERSION APP VERSION DESCRIPTION
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">headlamp/headlamp 0.40.0 0.40.0 Headlamp is an easy-to-use and extensible Kuber...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 下载离线 chart 包&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm pull headlamp/headlamp --version&lt;span class="o">=&lt;/span>0.40.0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 解压 chart 包 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">tar xvf headlamp-0.40.0.tgz
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>下载离线 chart 包的目的主要是方便查看 &lt;code>values.yaml &lt;/code>中提供了哪些可以自定义的参数&lt;/p>
+&lt;p>第二步： 安装 headlamp&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">$ helm upgrade --install my-headlamp &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --set service.type&lt;span class="o">=&lt;/span>NodePort &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --namespace webui &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --create-namespace &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> headlamp
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Release &lt;span class="s2">&amp;#34;my-headlamp&amp;#34;&lt;/span> does not exist. Installing it now.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME: my-headlamp
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LAST DEPLOYED: Tue Mar &lt;span class="m">3&lt;/span> 16:51:53 &lt;span class="m">2026&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAMESPACE: webui
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">STATUS: deployed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">REVISION: &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">DESCRIPTION: Install &lt;span class="nb">complete&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">TEST SUITE: None
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NOTES:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">1. Get the application URL by running these commands:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">export&lt;/span> &lt;span class="nv">NODE_PORT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>kubectl get --namespace webui -o &lt;span class="nv">jsonpath&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;{.spec.ports[0].nodePort}&amp;#34;&lt;/span> services my-headlamp&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">export&lt;/span> &lt;span class="nv">NODE_IP&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>kubectl get nodes --namespace webui -o &lt;span class="nv">jsonpath&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;{.items[0].status.addresses[0].address}&amp;#34;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> http://&lt;span class="nv">$NODE_IP&lt;/span>:&lt;span class="nv">$NODE_PORT&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2. Get the token using
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> kubectl create token my-headlamp --namespace webui
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>第三步：访问 headlamp&lt;/p>
+&lt;ul>
+&lt;li>通过四层 Service 访问管理界面&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">$ kubectl -n webui get svc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME TYPE CLUSTER-IP EXTERNAL-IP PORT&lt;span class="o">(&lt;/span>S&lt;span class="o">)&lt;/span> AGE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">my-headlamp NodePort 10.106.59.169 &amp;lt;none&amp;gt; 80:30998/TCP 114s
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>使用任意节点 IP+30998 端口就可以看到 headlamp 登录界面 。&lt;/p>
+&lt;ul>
+&lt;li>通过 七层 Ingress 访问&lt;/li>
+&lt;/ul>
+&lt;p>修改 &lt;code>valumes.yaml&lt;/code> 中配置，按如下修改， 改为自己的域名即可。这个配置文件可以为我们创建 ingress 规则， 不过要通过 ingress 访问应用，需要集群中配置好了 Ingress Controller，根据自己安装的 Ingress Controller修改 ingressClassName 的值。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">ingress&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="c"># -- Enable ingress controller resource&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">ingressClassName&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;nginx&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">hosts&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">host&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">ui.chijinjing.cn&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">paths&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">path&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">/&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">type&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Prefix &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">tls&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">secretName&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">headlamp-tls&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">hosts&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">ui.xxhf.cc&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Headlamp 需要使用 HTTPS 协议访问，ingress 规则中启动了 TLS，我们需要创建一个 TLS 类型的 Secret，保存证书和私钥。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">kubectl -n webui &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> create secret tls headlamp-tls &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --cert&lt;span class="o">=&lt;/span>ui.xxhf.cc_bundle.crt &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --key&lt;span class="o">=&lt;/span>ui.xxhf.cc.key
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>更新 headlamp Release，使配置生效。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">$ helm upgrade --install my-headlamp --set service.type&lt;span class="o">=&lt;/span>NodePort --namespace webui --create-namespace headlamp
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Release &lt;span class="s2">&amp;#34;my-headlamp&amp;#34;&lt;/span> has been upgraded. Happy Helming!
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME: my-headlamp
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LAST DEPLOYED: Tue Mar &lt;span class="m">3&lt;/span> 17:03:13 &lt;span class="m">2026&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAMESPACE: webui
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">STATUS: deployed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">REVISION: &lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">DESCRIPTION: Upgrade &lt;span class="nb">complete&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">TEST SUITE: None
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NOTES:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">1. Get the application URL by running these commands:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> https://ui.chijinjing.cn/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2. Get the token using
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> kubectl create token my-headlamp --namespace webui
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Release 更新后可以看到 ingress 规则创建成功了&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">$ kubectl -n webui get ingress
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME CLASS HOSTS ADDRESS PORTS AGE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">my-headlamp nginx ui.chijinjing.cn 80, &lt;span class="m">443&lt;/span> 3m17s
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>使用上面的域名访问 headlamp，可以看到如下登录界面 ：&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YzM3OTMzYWUyNWI2ZDczMjU2ZWU0MGNlNTk3YTNlMTNfandHczQ1YWtZNlFCRHBGV296MHY2ZlhvQzB0RzVaQThfVG9rZW46U1FNaWJ0RUtJbzBnYUZ4c3UzNWNZZXRmbmNjXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="桌面应用部署">桌面应用部署
+&lt;/h3>&lt;p>桌面应用是通过 kubeconfig 文件连接集群，也支持多集群的管理，还是比较方便的。&lt;/p>
+&lt;p>&lt;strong>第一步：下载应用&lt;/strong>&lt;/p>
+&lt;p>主流的操作系统都支持&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=OTEwYjRlZjE1ZDgyMzNmY2JiM2MzOTEzOWU2MTJjN2RfYUtQSGtaYzFTSTY4MFJpUEJ4b081YnNrdm5xOE9IaGZfVG9rZW46U294QWJYWU10b1pXcVZ4eWt5emNXeVRnbjJiXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>我这里下载一个 windows 桌面应用： &lt;code>https://github.com/kubernetes-sigs/headlamp/releases/download/v0.40.1/Headlamp-0.40.1-win-x64.exe`` &lt;/code>&lt;/p>
+&lt;p>&lt;strong>第二步：安装&lt;/strong>&lt;/p>
+&lt;p>安装成功后可以看到如下的界面：&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NTgxMWQxYmM5NzNkNTQzMjc5OTY4ODA3YmMxNmFlMDhfSHYzTk5jVmpoWk5xSmE0TzJPZUh4ZEVmVFV1RmZWTERfVG9rZW46UmVXVGJSRHNsb3JONWt4U1VkS2NMcno2blplXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;strong>第三步： 添加&lt;/strong> **&lt;code>kubeconfig &lt;/code>**&lt;strong>文件连接集群&lt;/strong>&lt;/p>
+&lt;p>在 Kubernetes 集群中下载 kubeconfig 文件，需要确保和集群中的 kube-apiserver 网络是通的。&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YTA3MDgwM2JmMjI2OWQ4NDI3NjBlZWIxMTBhMmU1MmZfeTNvdTF5SVRsSEkwMjJTdXV4ZFFPWjh1RVdndEl4N3JfVG9rZW46VlBRc2I0dW5Tb0Y1c3F4S1hxeWM3anBxblpnXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NmU1ZTY4YjdkY2RjN2E0M2M2MjVjZGM5YWJkMTg2YTlfeHVTTGV2MXAxRDBXbGhQNkx0MkdONFdkMkFSNkRINDlfVG9rZW46VGxKZWJQVFdnb1prQmh4TDBzdWNEc0tUbllkXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h2 id="headlamp-访问">Headlamp 访问
+&lt;/h2>&lt;p>集群内部署方式访问 Headlamp 需要使用 Account token ，使用下面的命令生成一个 token，这个 token 默认有效期是一个小时。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">kubectl create token my-headlamp -n webui
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kubectl get secrets cs-admin -o &lt;span class="nv">jsonpath&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;{.data.token}&amp;#39;&lt;/span> &lt;span class="p">|&lt;/span> base64 -d
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>登录成功后可以看到如下界面 ：&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MTY3OTYwMWJiYjlmZGYzNDQ3YjMwYWViMWY4NzE2ZmVfcTlMaW81MUp5dHhxM08wQk9FWjJCSjI5ZDIweFhjVWJfVG9rZW46WVVsUWJnMUR6b21iRkd4SjAwQ2M5YnVFbmRoXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MDI1ODA0ZmY3ZDk2MjA5MWZiNDQyYzZiZDZlNDY1ODBfY1ZkNU9aSVA2RnVsMW9jdGJ3YURRZUl0M3dyNEhqRnFfVG9rZW46TFhvSWJSd25yb3Z2NWJ4dlpPZWNXbVlabjBCXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YTFmYWJmZjZmYjA4ZTQ3YzhhNGFiZWMxMzZiOWY4NDZfVHRmNmVaSkdMOFBiTFZ6T2dSRDc0dVBsOUtLSjlHd0FfVG9rZW46RWxLRmJLYWtvb091YTN4OXRZU2NMcldmbktkXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>管理功能比 Dashboard 项目丰富一些，使用体验还不错。&lt;/p></description></item></channel></rss>

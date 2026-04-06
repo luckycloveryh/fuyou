@@ -1,0 +1,430 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="深入讲解 Kubernetes 包管理工具 Helm，包括 Chart 结构、安装部署、版本管理等核心用法，适合 K8s 运维入门学习。"><meta name=keywords content="K8s Helm,Kubernetes 包管理,Chart,云原生运维"><title>18 - Helm</title>
+<link rel=canonical href=https://luckycloveryh.github.io/fuyou/p/k8s-helm-package-manager/><link rel=stylesheet href=/fuyou/scss/style.min.aa7d43ff2aecaf169cabb35a0866fe377bc87c3d12e413003d63392a658212c8.css><meta property='og:title' content="18 - Helm"><meta property='og:description' content="深入讲解 Kubernetes 包管理工具 Helm，包括 Chart 结构、安装部署、版本管理等核心用法，适合 K8s 运维入门学习。"><meta property='og:url' content='https://luckycloveryh.github.io/fuyou/p/k8s-helm-package-manager/'><meta property='og:site_name' content='小杨的博客'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='Kubernetes'><meta property='article:tag' content='K8s'><meta property='article:tag' content='Helm'><meta property='article:tag' content='包管理'><meta property='article:tag' content='云原生'><meta property='article:tag' content='运维'><meta property='article:published_time' content='2026-04-06T18:04:16+08:00'><meta property='article:modified_time' content='2026-04-06T19:40:29+08:00'><meta property='og:image' content='https://i.imgs.ovh/2026/04/06/ZQGhXU.jpeg'><meta name=twitter:title content="18 - Helm"><meta name=twitter:description content="深入讲解 Kubernetes 包管理工具 Helm，包括 Chart 结构、安装部署、版本管理等核心用法，适合 K8s 运维入门学习。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://i.imgs.ovh/2026/04/06/ZQGhXU.jpeg'><link rel=alternate type=application/json href=https://luckycloveryh.github.io/fuyou/p/k8s-helm-package-manager/index.json><div class=loading-container><div class=card><div class=loader><p>loading</p><div class=words><span class=word>buttons</span>
+<span class=word>forms</span>
+<span class=word>switches</span>
+<span class=word>cards</span>
+<span class=word>buttons</span></div></div></div></div><style>.loading-container{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(17,17,17,.98);display:flex;align-items:center;justify-content:center;z-index:999999;transition:opacity 1.2s ease}.card{--bg-color:#111;background-color:var(--bg-color);padding:1.2rem 2.5rem;border-radius:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.7)}.loader{color:#7c7c7c;font-family:poppins,system-ui,sans-serif;font-weight:500;font-size:25px;height:42px;padding:8px 12px;display:flex;align-items:center;gap:12px;border-radius:8px;white-space:nowrap}.words{overflow:hidden;position:relative;height:100%;min-width:110px}.words::after{content:"";position:absolute;inset:0;background:linear-gradient( var(--bg-color) 10%,transparent 30%,transparent 70%,var(--bg-color) 90% );z-index:20}.word{display:block;height:100%;padding-left:4px;color:#956afa;animation:spin_4991 4s infinite linear}@keyframes spin_4991{10%{transform:translateY(-102%)}25%{transform:translateY(-100%)}35%{transform:translateY(-202%)}50%{transform:translateY(-200%)}60%{transform:translateY(-302%)}75%{transform:translateY(-300%)}85%{transform:translateY(-402%)}100%{transform:translateY(-400%)}}.loading-container.fade-out{opacity:0;pointer-events:none}</style><script>document.addEventListener("DOMContentLoaded",()=>{const e=document.querySelector(".loading-container"),t=sessionStorage.getItem("visited");if(t){e.style.display="none";return}setTimeout(()=>{e.classList.add("fade-out"),setTimeout(()=>{e.style.display="none",sessionStorage.setItem("visited","true")},1200)},2500)})</script></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/fuyou/><img src=https://i.imgs.ovh/2026/04/06/ZQ1BT4.gif width=300 height=300 class=site-logo loading=lazy alt=Avatar>
+</a><span class=emoji>🌸</span></figure><div class=site-meta><h1 class=site-name><a href=/fuyou>小杨的博客</a></h1><h2 class=site-description>技术分享，日常分享</h2></div></header><ol class=menu-social><li><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com target=_blank title=Twitter rel=me><svg class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/fuyou/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>主页</span></a></li><li><a href=/fuyou/%E5%85%B3%E4%BA%8E/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>关于</span></a></li><li><a href=/fuyou/%E6%90%9C%E7%B4%A2/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>搜索</span></a></li><li><a href=/fuyou/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>归档</span></a></li><li><a href=/fuyou/%E5%8F%8B%E9%93%BE/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>友链</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#helm-基础知识>Helm 基础知识</a><ol><li><a href=#helm-是什么>Helm 是什么</a></li><li><a href=#helm-三大基本概念>Helm 三大基本概念</a></li></ol></li><li><a href=#为什么要使用-helm>为什么要使用 Helm</a></li><li><a href=#helm基本操作>Helm基本操作</a><ol><li><a href=#安装helm>安装Helm</a></li><li><a href=#chart-说明><strong>Chart 说明</strong></a></li><li><a href=#helm-部署应用>Helm 部署应用</a><ol><li><a href=#初始化仓库>初始化仓库</a></li><li><a href=#安装一个-chart>安装一个 Chart</a></li><li><a href=#自定义-chart>自定义 Chart</a></li><li><a href=#查看-release>查看 Release</a></li><li><a href=#升级-release>升级 Release</a></li><li><a href=#卸载-release>卸载 Release</a></li></ol></li><li><a href=#helm-命令>Helm 命令</a></li></ol></li><li><a href=#chartmuseum-chart-仓库>ChartMuseum (Chart 仓库)</a><ol><li><a href=#使用本地存储-httpschartmuseumcomdocsusing-with-local-filesystem-storage><a href=https://chartmuseum.com/docs/#using-with-local-filesystem-storage>使用本地存储</a></a></li><li><a href=#上传-chart-包到-仓库>上传 chart 包到 仓库</a></li></ol></li><li><a href=#附录>附录</a><ol><li><a href=#镜像>镜像</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/fuyou/p/k8s-helm-package-manager/><img src=https://i.imgs.ovh/2026/04/06/ZQGhXU.jpeg loading=lazy alt="Featured image of post 18 - Helm"></a></div><div class=article-details><header class=article-category><a href=/fuyou/categories/kubernetes-%E5%AE%9E%E6%88%98%E7%B3%BB%E5%88%97/>Kubernetes 实战系列</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/fuyou/p/k8s-helm-package-manager/>18 - Helm</a></h2><h3 class=article-subtitle>深入讲解 Kubernetes 包管理工具 Helm，包括 Chart 结构、安装部署、版本管理等核心用法，适合 K8s 运维入门学习。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>2026-04-06</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 10 分钟</time></div><div id=viewCount><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 104 0 2 2 0 00-4 0"/><path d="M21 12c-2.4 4-5.4 6-9 6s-6.6-2-9-6c2.4-4 5.4-6 9-6s6.6 2 9 6"/></svg>
+<time class=article-time--reading><span id=vercount_value_page_pv>loading...</span> 次</time></div></footer></div></header><section class=article-content><h2 id=helm-基础知识>Helm 基础知识</h2><p>Helm 目前是 Kubernetes 服务编排事实上的标准。Helm 提供了多种功能来支持 Kubernetes 的服务编排</p><h3 id=helm-是什么>Helm 是什么</h3><p>Helm 是 Kubernetes 的包管理器，类似于 Python 的 pip ，centos 的 yum 。Helm 主要用来管理 Chart 包。Helm Chart 包中包含一系列 YAML 格式的 Kubernetes 资源定义文件，以及这些资源的配置，可以通过 Helm Chart 包来整体维护这些资源。</p><p>Helm 也提供了一个 helm 命令行工具，该工具可以基于 Chart 包一键创建应用，在创建应用时，可以自定义 Chart 配置。应用发布者可以通过 Helm 打包应用、管理应用依赖关系、管理应用版本，并发布应用到软件仓库；对于使用者来说，使用 Helm 后不需要编写复杂的应用部署文件，可以非常方便地在 Kubernetes 上查找、安装、升级、回滚、卸载应用程序。</p><p>Helm 最新的版本是 v3，Helm3 以 Helm2 的核心功能为基础，对 Chart repo、发行版管理、安全性和 library Charts 进行了改进。和 Helm2 比起来，Helm3 最明显的变化是删除了 Tiller（Helm2 是一种 Client-Server 结构，客户端称为 Helm，服务器称为 Tiller）。Helm3 还新增了一些功能，并废弃或重构了 Helm2 的部分功能，与 Helm2 不再兼容。</p><p>Helm3 架构图如下：</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MjAyZGY3NzhjM2Y2YjY4N2QzZDJlZDM2ZDhkYTlkNmNfMnNZbVIxbVpIZWVYZ2cxd0hTM2ZDRlZZSHhSdEthNTFfVG9rZW46UUM1YmI0UFVHb0lLMXp4WkE5TGNLM2ptbmFnXzE3NzU0NzAwMTE6MTc3NTQ3MzYxMV9WNA" loading=lazy alt=img></p><p>上面的架构图中，核心是 Helm Client（helm命令）和 Helm Chart 包。helm 命令可以从 Chart Repository 中下载 Helm Chart 包，读取kubeconfig文件，并构建 kube-apiserver REST API 接口的 HTTP 请求。通过调用 Kubernetes 提供的 REST API 接口，将 Chart 包中包含的所有以 YAML 格式定义的 Kubernetes 资源，在 Kubernetes 集群中创建。</p><p>这些资源以 Release 的形式存在于 Kubernetes 集群中，每个 Release 又包含多个 Kubernetes 资源，例如 Deployment、Pod、Service 等。</p><h3 id=helm-三大基本概念>Helm 三大基本概念</h3><p>要学习和使用 Helm，一定要了解 Helm 中的三大基本概念，Helm 的所有操作基本都是围绕着这些概念来进行的。下面我们看一下 Helm 的三大基本概念。</p><ul><li>Chart： 代表一个 Helm 包。它包含了在 Kubernetes 集群中运行应用程序、工具或服务所需的所有 YAML 格式的资源定义文件。</li><li>Repository（仓库）： 它是用来存放和共享 Helm Chart 的地方，类似于存放源码的 GitHub 的 Repository，以及存放镜像的 Docker 的 Repository。</li><li>Release：它是运行在 Kubernetes 集群中的 Chart 的实例。一个 Chart 通常可以在同一个集群中安装多次。每一次安装都会创建一个新的 Release。</li></ul><p>在了解了上述这些概念以后，我们就可以这样来解释 Helm：</p><p>Helm 安装 <em>chart</em> 到 Kubernetes 集群中，每次安装都会创建一个新的 <em>release</em>。</p><h2 id=为什么要使用-helm>为什么要使用 Helm</h2><p>在 Helm 中，可以理解为主要包含两类文件：模板文件和配置文件。模板文件通常有多个，配置文件通常有一个。Helm 的模板文件基于text/template模板文件，提供了更加强大的模板渲染能力。Helm 可以将配置文件中的值渲染进模板文件中，最终生成一个可以部署的 Kubernetes YAML 格式的资源定义文件，如下图所示：</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YjllYTJiNDkwYjgwMGFjYWE0NTM3MmIyZjYxNzgzMjFfekUxdzZTUktGVjNiekpFVndXOVJ4TE9Rck5NaVM2S2FfVG9rZW46TDE1UWJUWTdUb1czN014b0IyemMwNlNlblJlXzE3NzU0NzAwMTE6MTc3NTQ3MzYxMV9WNA" loading=lazy alt=img></p><h2 id=helm基本操作>Helm基本操作</h2><h3 id=安装helm>安装Helm</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>wget https://get.helm.sh/helm-v3.12.3-linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>tar -xvzf helm-v3.12.3-linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>mv linux-amd64/helm /usr/bin/
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>helm version
+</span></span><span class=line><span class=cl>version.BuildInfo<span class=o>{</span>Version:<span class=s2>&#34;v3.6.3&#34;</span>, GitCommit:<span class=s2>&#34;d506314abfb5d21419df8c7e7e68012379db2354&#34;</span>, GitTreeState:<span class=s2>&#34;clean&#34;</span>, GoVersion:<span class=s2>&#34;go1.16.5&#34;</span><span class=o>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>如果执行helm version可以成功打印出 helm 命令的版本号，说明 Helm 安装成功。</p><p>Helm 各版本安装包地址见 <a class=link href=https://github.com/helm/helm/releases target=_blank rel=noopener>Helm Releases</a>。</p><p>安装完helm命令后，可以安装helm命令的自动补全脚本。假如你用的 shell 是bash，安装方法如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>helm completion bash &gt; <span class=nv>$HOME</span>/.helm-completion.bash
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s1>&#39;source $HOME/.helm-completion.bash&#39;</span> &gt;&gt; ~/.bashrc
+</span></span><span class=line><span class=cl>bash
+</span></span></code></pre></td></tr></table></div></div><h3 id=chart-说明><strong>Chart 说明</strong></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl> helm create my-chart
+</span></span><span class=line><span class=cl><span class=p>|</span>-- charts      <span class=c1># 该目录保存其他依赖的 chart（子 chart）</span>
+</span></span><span class=line><span class=cl><span class=p>|</span>-- Chart.yaml  
+</span></span><span class=line><span class=cl><span class=p>|</span>-- templates            <span class=c1># chart 配置模板，用于渲染最终的 Kubernetes YAML 文件</span>
+</span></span><span class=line><span class=cl><span class=p>|</span>   <span class=p>|</span>-- deployment.yaml  <span class=c1># Kubernetes deployment 配置    </span>
+</span></span><span class=line><span class=cl><span class=p>|</span>   <span class=p>|</span>-- _helpers.tpl     <span class=c1># 用于创建模板时的帮助类</span>
+</span></span><span class=line><span class=cl><span class=p>|</span>   <span class=p>|</span>-- hpa.yaml         <span class=c1># Kubernetes hpa 配置    </span>
+</span></span><span class=line><span class=cl><span class=p>|</span>   <span class=p>|</span>-- ingress.yaml    <span class=c1>#  Kubernetes ingress 配置</span>
+</span></span><span class=line><span class=cl><span class=p>|</span>   <span class=p>|</span>-- NOTES.txt       <span class=c1># 用户运行 helm install 时候的提示信息</span>
+</span></span><span class=line><span class=cl><span class=p>|</span>   <span class=p>|</span>-- serviceaccount.yaml  <span class=c1># Kubernetes serviceaccount 配置</span>
+</span></span><span class=line><span class=cl><span class=p>|</span>   <span class=p>|</span>-- service.yaml          <span class=c1># Kubernetes service 配置</span>
+</span></span><span class=line><span class=cl><span class=p>|</span>   <span class=sb>`</span>-- tests
+</span></span><span class=line><span class=cl><span class=p>|</span>       <span class=sb>`</span>-- test-connection.yaml
+</span></span><span class=line><span class=cl><span class=sb>`</span>-- values.yaml     <span class=c1># 定义 chart 模板中的自定义配置的默认值，可以在执行 helm install 或 helm update 的时候覆盖</span>
+</span></span></code></pre></td></tr></table></div></div><p>以上是 helm 为我们自动创建的目录结构，我们还可以在 <code>templates</code> 目录加其他 Kubernetes 对象的配置，比如 <code>ConfigMap</code>、<code>DaemonSet</code> 等。</p><p>我们查看下使用 <code>helm create</code> 命令自动生成的 <code>templates/service.yaml</code> 文件。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span>{{<span class=w> </span><span class=l>include &#34;mychart.fullname&#34; . }}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>{{- <span class=l>include &#34;mychart.labels&#34; . | nindent 4 }}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>type</span><span class=p>:</span><span class=w> </span>{{<span class=w> </span><span class=l>.Values.service.type }}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>port</span><span class=p>:</span><span class=w> </span>{{<span class=w> </span><span class=l>.Values.service.port }}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>targetPort</span><span class=p>:</span><span class=w> </span><span class=l>http</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>protocol</span><span class=p>:</span><span class=w> </span><span class=l>TCP</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>http</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>{{- <span class=l>include &#34;mychart.selectorLabels&#34; . | nindent 4 }}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>可以看到其中有很多<code>{{ }}</code> 包围的字段，这是使用的 <a class=link href=https://golang.org/pkg/text/template/ target=_blank rel=noopener>Go template</a> 创建的自定义字段，其中 <code>mychart</code> 开头的都是在 <code>_helpers.tpl</code> 中生成的定义。</p><p>例如 <code>_helpers.tpl</code> 中对 <code>chart.fullname</code> 的定义：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Plaintext data-lang=Plaintext><span class=line><span class=cl>{{/*
+</span></span><span class=line><span class=cl>Create a default fully qualified app name.
+</span></span><span class=line><span class=cl>We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+</span></span><span class=line><span class=cl>If release name contains chart name it will be used as a full name.
+</span></span><span class=line><span class=cl>*/}}
+</span></span><span class=line><span class=cl>{{- define &#34;mychart.fullname&#34; -}}
+</span></span><span class=line><span class=cl>{{- if .Values.fullnameOverride }}
+</span></span><span class=line><span class=cl>{{- .Values.fullnameOverride | trunc 63 | trimSuffix &#34;-&#34; }}
+</span></span><span class=line><span class=cl>{{- else }}
+</span></span><span class=line><span class=cl>{{- $name := default .Chart.Name .Values.nameOverride }}
+</span></span><span class=line><span class=cl>{{- if contains $name .Release.Name }}
+</span></span><span class=line><span class=cl>{{- .Release.Name | trunc 63 | trimSuffix &#34;-&#34; }}
+</span></span><span class=line><span class=cl>{{- else }}
+</span></span><span class=line><span class=cl>{{- printf &#34;%s-%s&#34; .Release.Name $name | trunc 63 | trimSuffix &#34;-&#34; }}
+</span></span><span class=line><span class=cl>{{- end }}
+</span></span><span class=line><span class=cl>{{- end }}
+</span></span><span class=line><span class=cl>{{- end }}
+</span></span></code></pre></td></tr></table></div></div><p>我们再看下 <code>values.yaml</code> 文件中有这样的一段配置：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>service</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>ClusterIP</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=m>80</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>在使用 <code>helm install</code> 或 <code>helm update</code> 时，会渲染 <code>templates/service.yaml</code> 文件中的 <code>{{ .Values.service.type }}</code> 和 <code>{{ .Values.service.port }}</code> 的值。</p><h3 id=helm-部署应用>Helm 部署应用</h3><h4 id=初始化仓库>初始化仓库</h4><p>安装完 Helm 之后，就可以使用 helm 命令添加一个 Chart 仓库。类似于用来托管 Docker 镜像的 DockerHub、用来托管代码的 GitHub，Chart 包也有一个托管平台，当前比较流行的 Chart 包托管平台是 <a class=link href="https://artifacthub.io/packages/search?kind=0" target=_blank rel=noopener>Artifact Hub</a>。</p><p>Artifact Hub 上有很多 Chart 仓库，我们可以添加需要的 Chart 仓库，这里我们添加 BitNami 提供的 Chart 仓库：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>helm repo add bitnami https://charts.bitnami.com/bitnami <span class=c1># 添加 Chart Repository</span>
+</span></span><span class=line><span class=cl>helm repo list <span class=c1># 查看添加的 Repository 列表</span>
+</span></span></code></pre></td></tr></table></div></div><p>添加完成后，我们可以通过helm search命令，来查询需要的 Chart 包。helm search支持两种不同的查询方式，这里我来介绍下。</p><ul><li>helm search repo <keyword>：从你使用 helm repo add 添加到本地 Helm 客户端中的仓库里查找。该命令基于本地数据进行搜索，无需连接外网。</li><li>helm search hub <keyword>：从 Artifact Hub 中查找并列出 Helm Charts。 Artifact Hub 中存放了大量的仓库。</li></ul><p>Helm 搜索使用模糊字符串匹配算法，所以你可以只输入名字的一部分。下面是一个helm search的示例：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># helm search repo bitnami</span>
+</span></span><span class=line><span class=cl>NAME                                                CHART VERSION        APP VERSION          DESCRIPTION                                       
+</span></span><span class=line><span class=cl>bitnami/airflow                                     16.1.6               2.7.3                Apache Airflow is a tool to express and execute...
+</span></span><span class=line><span class=cl>bitnami/apache                                      10.2.4               2.4.58               Apache HTTP Server is an open-source HTTP serve...
+</span></span><span class=line><span class=cl>bitnami/apisix                                      2.2.7                3.7.0                Apache APISIX is high-performance, real-time AP...
+</span></span><span class=line><span class=cl>bitnami/appsmith                                    2.1.8                1.9.49               Appsmith is an open <span class=nb>source</span> platform <span class=k>for</span> buildin...
+</span></span><span class=line><span class=cl>bitnami/argo-cd                                     5.2.9                2.9.2                Argo CD is a continuous delivery tool <span class=k>for</span> Kuber...
+</span></span><span class=line><span class=cl>bitnami/argo-workflows                              6.1.4                3.5.1                Argo Workflows is meant to orchestrate Kubernet...
+</span></span><span class=line><span class=cl>bitnami/aspnet-core                                 5.0.1                8.0.0                ASP.NET Core is an open-source framework <span class=k>for</span> we...
+</span></span><span class=line><span class=cl><span class=c1># ... and many more</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=安装一个-chart>安装一个 Chart</h4><p>查询到自己需要的 Helm Chart 后，就可以通过 helm install 命令来安装一个 Chart。helm install 支持从多种源进行安装：</p><ul><li>Chart 的 Repository。 <code>helm install bitnami/nginx --generate-name</code></li><li>本地的 Chart Archive，例如<code> helm install foo foo-1.0.0.tgz</code>。</li><li>一个未打包的 Chart 路径，例如<code> helm install foo path/to/foo</code>。</li><li>一个完整的 URL，例如 <code>helm install foo ``https://example.com/charts/foo-1.0.0.tgz</code>。</li></ul><p>这里，我们选择通过 bitnami/nginx Chart 包来安装一个 Nginx应用。你可以执行 helm show chart bitnami/nginx 命令，来简单了解这个 Chart 的基本信息。 或者，你也可以执行 helm show all bitnami/nginx，获取关于该 Chart 的所有信息。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># helm repo update</span>
+</span></span><span class=line><span class=cl>Hang tight <span class=k>while</span> we grab the latest from your chart repositories...
+</span></span><span class=line><span class=cl>...Successfully got an update from the <span class=s2>&#34;bitnami&#34;</span> chart repository
+</span></span><span class=line><span class=cl>Update Complete. ⎈Happy Helming!⎈
+</span></span><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># helm install bitnami/nginx --generate-name</span>
+</span></span><span class=line><span class=cl>NAME: nginx-1703602225
+</span></span><span class=line><span class=cl>LAST DEPLOYED: Tue Dec <span class=m>26</span> 22:50:28 <span class=m>2023</span>
+</span></span><span class=line><span class=cl>NAMESPACE: default
+</span></span><span class=line><span class=cl>STATUS: deployed
+</span></span><span class=line><span class=cl>REVISION: <span class=m>1</span>
+</span></span><span class=line><span class=cl>TEST SUITE: None
+</span></span><span class=line><span class=cl>NOTES:
+</span></span><span class=line><span class=cl>CHART NAME: nginx
+</span></span><span class=line><span class=cl>CHART VERSION: 15.5.1
+</span></span><span class=line><span class=cl>APP VERSION: 1.25.3
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>** Please be patient <span class=k>while</span> the chart is being deployed **
+</span></span><span class=line><span class=cl>NGINX can be accessed through the following DNS name from within your cluster:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    nginx-1703602225.default.svc.cluster.local <span class=o>(</span>port 80<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>To access NGINX from outside the cluster, follow the steps below:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1. Get the NGINX URL by running these commands:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  NOTE: It may take a few minutes <span class=k>for</span> the LoadBalancer IP to be available.
+</span></span><span class=line><span class=cl>        Watch the status with: <span class=s1>&#39;kubectl get svc --namespace default -w nginx-1703602225&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>export</span> <span class=nv>SERVICE_PORT</span><span class=o>=</span><span class=k>$(</span>kubectl get --namespace default -o <span class=nv>jsonpath</span><span class=o>=</span><span class=s2>&#34;{.spec.ports[0].port}&#34;</span> services nginx-1703602225<span class=k>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>export</span> <span class=nv>SERVICE_IP</span><span class=o>=</span><span class=k>$(</span>kubectl get svc --namespace default nginx-1703602225 -o <span class=nv>jsonpath</span><span class=o>=</span><span class=s1>&#39;{.status.loadBalancer.ingress[0].ip}&#39;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;http://</span><span class=si>${</span><span class=nv>SERVICE_IP</span><span class=si>}</span><span class=s2>:</span><span class=si>${</span><span class=nv>SERVICE_PORT</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    
+</span></span></code></pre></td></tr></table></div></div><p>在上面的例子中，我们通过安装<code>bitnami/nginx</code>这个 Chart，创建了一个 <code>nginx-1703602225-7b466f68f9-ljzx2 </code>Release。 &ndash;generate-name参数告诉 Helm 自动为这个 Release 命名。</p><p>在安装过程中，Helm 客户端会打印一些有用的信息，包括哪些资源已经被创建，Release 当前的状态，以及你是否还需要执行额外的配置步骤。</p><p>安装完之后，你可以使用 helm status 来追踪 Release 的状态。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># helm status  nginx-1703602225 </span>
+</span></span><span class=line><span class=cl>NAME: nginx-1703602225
+</span></span><span class=line><span class=cl>LAST DEPLOYED: Tue Dec <span class=m>26</span> 22:50:28 <span class=m>2023</span>
+</span></span><span class=line><span class=cl>NAMESPACE: default
+</span></span><span class=line><span class=cl>STATUS: deployed
+</span></span></code></pre></td></tr></table></div></div><p>每当你执行 helm install 的时候，都会创建一个新的发布版本。所以一个 Chart 在同一个集群里面可以被安装多次，每一个都可以被独立地管理和升级。</p><p>helm install命令会将 templates 渲染成最终的 Kubernetes 能够识别的 YAML 格式，然后安装到 Kubernetes 集群中。</p><h4 id=自定义-chart>自定义 Chart</h4><p>上面的安装方式只会使用 Chart 的默认配置选项，很多时候我们需要自定义 Chart 来指定我们想要的配置。使用 <code>helm show values </code>可以查看 Chart 中的可配置选项：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># helm show values  bitnami/nginx</span>
+</span></span><span class=line><span class=cl>global:
+</span></span><span class=line><span class=cl>  imageRegistry: <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=c1>## E.g.</span>
+</span></span><span class=line><span class=cl>  <span class=c1>## imagePullSecrets:</span>
+</span></span><span class=line><span class=cl>  <span class=c1>##   - myRegistryKeySecretName</span>
+</span></span><span class=line><span class=cl>  <span class=c1>##</span>
+</span></span><span class=line><span class=cl>  imagePullSecrets: <span class=o>[]</span>
+</span></span></code></pre></td></tr></table></div></div><p>然后，你可以使用 YAML 格式的文件，覆盖上述任意配置项，并在安装过程中使用该文件。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>nginx-values.yaml
+</span></span><span class=line><span class=cl>replicaCount: 2
+</span></span><span class=line><span class=cl>revisionHistoryLimit: 20
+</span></span><span class=line><span class=cl>updateStrategy:
+</span></span><span class=line><span class=cl>  type: RollingUpdate
+</span></span><span class=line><span class=cl>  rollingUpdate: 
+</span></span><span class=line><span class=cl>    maxSurge: 1
+</span></span><span class=line><span class=cl>    maxUnavailable: 0
+</span></span><span class=line><span class=cl>[root@node-01 18-helm]# helm install nginx-01 -f nginx-values.yaml  nginx-15.4.3.tgz 
+</span></span><span class=line><span class=cl>NAME: nginx-01
+</span></span><span class=line><span class=cl>LAST DEPLOYED: Tue Dec 26 23:10:53 2023
+</span></span><span class=line><span class=cl>NAMESPACE: default
+</span></span><span class=line><span class=cl>STATUS: deployed
+</span></span><span class=line><span class=cl>REVISION: 1
+</span></span><span class=line><span class=cl>TEST SUITE: None
+</span></span><span class=line><span class=cl>NOTES:
+</span></span><span class=line><span class=cl>CHART NAME: nginx
+</span></span><span class=line><span class=cl>CHART VERSION: 15.4.3
+</span></span><span class=line><span class=cl>APP VERSION: 1.25.3
+</span></span></code></pre></td></tr></table></div></div><p>上述命令将为 Nginx 修改副本数为2，revision的历史记录保存20条，修改了滚动更新的策略。Chart 中的其他默认配置保持不变。</p><p>安装过程中，有两种传递配置数据的方式。</p><ul><li><code>-f，--values</code>：使用 YAML 文件覆盖配置。可以指定多次，优先使用最右边的文件。</li><li><code>--set</code>：通过命令行的方式对指定配置项进行覆盖。</li></ul><p>如果同时使用两种方式，则 <code>--set</code> 中的值会被合并到 <code>--values</code> 中，但是 <code>--set</code> 中的值优先级更高。在<code>--set</code>中覆盖的内容会被保存在 ConfigMap 中。你可以通过 helm get values 来查看指定 Release 中</p><p><code>--set</code> 设置的值。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># helm get values  nginx-01 </span>
+</span></span><span class=line><span class=cl>USER-SUPPLIED VALUES:
+</span></span><span class=line><span class=cl>replicaCount: <span class=m>2</span>
+</span></span><span class=line><span class=cl>revisionHistoryLimit: <span class=m>20</span>
+</span></span><span class=line><span class=cl>updateStrategy:
+</span></span><span class=line><span class=cl>  rollingUpdate:
+</span></span><span class=line><span class=cl>    maxSurge: <span class=m>1</span>
+</span></span><span class=line><span class=cl>    maxUnavailable: <span class=m>0</span>
+</span></span><span class=line><span class=cl>  type: RollingUpdate
+</span></span></code></pre></td></tr></table></div></div><p>我们看一下 <code>--set</code> 的格式和限制</p><p>&ndash;set 选项使用0或多个 key-value 对。最简单的用法类似于&ndash;set name=value，等价于下面这个 YAML 格式：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>value</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>多个值之间使用逗号分割，因此&ndash;set a=b,c=d 的 YAML 表示是：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>a</span><span class=p>:</span><span class=w> </span><span class=l>b</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>c</span><span class=p>:</span><span class=w> </span><span class=l>d</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>&ndash;set还支持更复杂的表达式。例如，&ndash;set outer.inner=value 被转换成了：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>outer</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>inner</span><span class=p>:</span><span class=w> </span><span class=l>value</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>列表使用花括号{}来表示。例如，&ndash;set name={a, b, c} 被转换成了：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>name</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=l>a</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=l>b</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=l>c</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=查看-release>查看 Release</h4><p>通过helm list可以查看当前集群、当前 Namespace 下安装的 Release 列表：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># helm ls </span>
+</span></span><span class=line><span class=cl>NAME                    NAMESPACE        REVISION        UPDATED                                        STATUS          CHART               APP VERSION
+</span></span><span class=line><span class=cl>nginx-01                default          <span class=m>1</span>               2023-12-26 23:10:53.412289417 +0800 CST        deployed        nginx-15.4.3        1.25.3     
+</span></span><span class=line><span class=cl>nginx-1703602225        default          <span class=m>1</span>               2023-12-26 22:50:28.610489775 +0800 CST        deployed        nginx-15.5.1        1.25.3
+</span></span></code></pre></td></tr></table></div></div><p>可以看到，我们创建了两个 Release，这些 Release 位于 default 命名空间中。上述命令，也列出了 Release 的更新时间、状态、Chart 的版本等。</p><h4 id=升级-release>升级 Release</h4><p>部署完应用之后，后续还可能升级应用，可以通过helm upgrade命令来升级应用。升级操作会基于已有的 Release，根据提供的信息进行升级。Helm 在更新时，只会变更有更改的内容。</p><p>例如，这里我们升级 nginx-01 ，变更它的 Root 密码：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># helm upgrade nginx-01 bitnami/nginx --set containerPorts.http=&#39;80&#39;</span>
+</span></span><span class=line><span class=cl>Release <span class=s2>&#34;nginx-01&#34;</span> has been upgraded. Happy Helming!
+</span></span><span class=line><span class=cl>NAME: nginx-01
+</span></span><span class=line><span class=cl>LAST DEPLOYED: Tue Dec <span class=m>26</span> 23:23:29 <span class=m>2023</span>
+</span></span><span class=line><span class=cl>NAMESPACE: default
+</span></span><span class=line><span class=cl>STATUS: deployed
+</span></span><span class=line><span class=cl>REVISION: <span class=m>2</span>
+</span></span></code></pre></td></tr></table></div></div><p>在上面的例子中，nginx-01 这个 Release 使用相同的 Chart 进行升级，但更新了 容器监听的端口号。</p><p>我们可以使用 <code>helm get values </code>命令，来看看配置值是否真的生效了：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># helm get values  nginx-01</span>
+</span></span><span class=line><span class=cl>USER-SUPPLIED VALUES:
+</span></span><span class=line><span class=cl>containerPorts:
+</span></span><span class=line><span class=cl>  http: <span class=m>80</span>
+</span></span></code></pre></td></tr></table></div></div><p>可以看到 containerPorts.http 的新值已经被部署到集群中了。</p><p>假如发布失败，我们也很容易通过 <code>helm rollback [RELEASE] [REVISION]</code> 命令，回滚到之前的发布版本。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># helm rollback nginx-01 </span>
+</span></span><span class=line><span class=cl>Rollback was a success! Happy Helming!
+</span></span></code></pre></td></tr></table></div></div><p>上面这条命令将我们的 nginx-01 回滚到了它最初的版本。Release 版本其实是一个增量修订（revision）。 每当发生了一次安装、升级或回滚操作，revision 的值就会加1。第一次 revision 的值永远是1。</p><p>我们可以使用 helm history [RELEASE] 命令来查看一个特定 Release 的修订版本号：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># helm history nginx-01</span>
+</span></span><span class=line><span class=cl>REVISION        UPDATED                         STATUS            CHART               APP VERSION        DESCRIPTION     
+</span></span><span class=line><span class=cl><span class=m>1</span>               Tue Dec <span class=m>26</span> 23:10:53 <span class=m>2023</span>        superseded        nginx-15.4.3        1.25.3             Install <span class=nb>complete</span>
+</span></span><span class=line><span class=cl><span class=m>2</span>               Tue Dec <span class=m>26</span> 23:23:29 <span class=m>2023</span>        superseded        nginx-15.5.1        1.25.3             Upgrade <span class=nb>complete</span>
+</span></span><span class=line><span class=cl><span class=m>3</span>               Tue Dec <span class=m>26</span> 23:27:41 <span class=m>2023</span>        deployed          nginx-15.4.3        1.25.3             Rollback to <span class=m>1</span>   
+</span></span></code></pre></td></tr></table></div></div><h4 id=卸载-release>卸载 Release</h4><p>你可以使用<code>helm uninstall</code>命令卸载一个 Release：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># helm uninstall nginx-01 </span>
+</span></span><span class=line><span class=cl>release <span class=s2>&#34;nginx-01&#34;</span> uninstalled
+</span></span></code></pre></td></tr></table></div></div><p>上述命令会从 Kubernetes 卸载 nginx-01， 它将删除和该版本关联的所有资源（Service、Deployment、Pod、ConfigMap 等），包括该 Release 的所有版本历史。</p><h3 id=helm-命令>Helm 命令</h3><p>Helm 常用命令如下：</p><ul><li><code>helm create</code>：在本地创建新的 chart；</li><li><code>helm intall</code>：安装 chart；</li><li><code>helm list</code>：列出所有 release；</li><li><code>helm repo</code>：列出、增加、更新、删除 chart 仓库；</li><li><code>helm rollback</code>：回滚 release 到历史版本；</li><li><code>helm pull</code>：拉取远程 chart 到本地；</li><li><code>helm search</code>：使用关键词搜索 chart；</li><li><code>helm uninstall</code>：卸载 release；</li><li><code>helm upgrade</code>：升级 release；</li></ul><p>使用 <code>helm -h</code> 可以查看 Helm 命令行使用详情，也可以参考 <a class=link href=https://helm.sh/zh/docs/helm/helm/ target=_blank rel=noopener>Helm 文档</a>。</p><h2 id=chartmuseum-chart-仓库>ChartMuseum (Chart 仓库)</h2><h3 id=使用本地存储-httpschartmuseumcomdocsusing-with-local-filesystem-storage><a class=link href=https://chartmuseum.com/docs/#using-with-local-filesystem-storage target=_blank rel=noopener>使用本地存储</a></h3><p>Make sure you have read-write access to <code>./chartstorage</code> (will create if doesn’t exist on first upload)</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>./chartmuseum --debug --port<span class=o>=</span><span class=m>8080</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --storage<span class=o>=</span><span class=s2>&#34;local&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  --storage-local-rootdir<span class=o>=</span><span class=s2>&#34;./chartstorage&#34;</span>
+</span></span><span class=line><span class=cl>helm repo add my-repo http://127.0.0.1:8080 
+</span></span><span class=line><span class=cl>helm plugin install https://github.com/chartmuseum/helm-push
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>helm cm-push nginx-15.4.3.tgz  my-repo
+</span></span></code></pre></td></tr></table></div></div><p><a class=link href=https://chartmuseum.com/docs/# target=_blank rel=noopener>ChartMuseum 官网</a></p><h3 id=上传-chart-包到-仓库>上传 chart 包到 仓库</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 下载 插件</span>
+</span></span><span class=line><span class=cl>wget https://github.com/chartmuseum/helm-push/releases/download/v0.10.4/helm-push_0.10.4_linux_amd64.tar.gz
+</span></span><span class=line><span class=cl>mkdir /root/.local/share/helm/plugins/helm-push -p
+</span></span><span class=line><span class=cl>tar xvf helm-push_0.10.4_linux_amd64.tar.gz  -C /root/.local/share/helm/plugins/helm-push
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 上传 chart 包</span>
+</span></span><span class=line><span class=cl>helm cm-push nginx-15.4.3.tgz  my-repo
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 更新仓库 </span>
+</span></span><span class=line><span class=cl>helm repo update my-repo
+</span></span><span class=line><span class=cl><span class=o>[</span>root@node-01 18-helm<span class=o>]</span><span class=c1># helm search repo my-repo</span>
+</span></span><span class=line><span class=cl>NAME                 CHART VERSION        APP VERSION        DESCRIPTION                                       
+</span></span><span class=line><span class=cl>my-repo/nginx        15.4.3               1.25.3             NGINX Open Source is a web server that can be a...
+</span></span></code></pre></td></tr></table></div></div><h2 id=附录>附录</h2><h3 id=镜像>镜像</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>registry.cn-beijing.aliyuncs.com/xxhf/nginx:1.27.0-debian-12-r5
+</span></span></code></pre></td></tr></table></div></div></section><footer class=article-footer><section class=article-tags><a href=/fuyou/tags/kubernetes/>Kubernetes</a>
+<a href=/fuyou/tags/k8s/>K8s</a>
+<a href=/fuyou/tags/helm/>Helm</a>
+<a href=/fuyou/tags/%E5%8C%85%E7%AE%A1%E7%90%86/>包管理</a>
+<a href=/fuyou/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/>云原生</a>
+<a href=/fuyou/tags/%E8%BF%90%E7%BB%B4/>运维</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>本作品采用 CC BY-NC-SA 4.0 许可协议</span></section><section class=article-lastmod><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<span>最后更新于 2026-04-06 19:40 +0800</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/fuyou/p/k8s-efk-logging-solution/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGmFX.jpeg loading=lazy data-key=k8s-efk-logging-solution data-hash=https://i.imgs.ovh/2026/04/06/ZQGmFX.jpeg></div><div class=article-details><h2 class=article-title>20 - 日志方案_EFK</h2></div></a></article><article class=has-image><a href=/fuyou/p/k8s-kube-prometheus-deployment/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGXam.jpeg loading=lazy data-key=k8s-kube-prometheus-deployment data-hash=https://i.imgs.ovh/2026/04/06/ZQGXam.jpeg></div><div class=article-details><h2 class=article-title>19-监控 - kube-prometheus 部署</h2></div></a></article><article class=has-image><a href=/fuyou/p/k8s-monitoring-metrics-prometheus/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGxhF.jpeg loading=lazy data-key=k8s-monitoring-metrics-prometheus data-hash=https://i.imgs.ovh/2026/04/06/ZQGxhF.jpeg></div><div class=article-details><h2 class=article-title>19-监控</h2></div></a></article><article class=has-image><a href=/fuyou/p/k8s-headlamp-web-ui/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGuDQ.jpeg loading=lazy data-key=k8s-headlamp-web-ui data-hash=https://i.imgs.ovh/2026/04/06/ZQGuDQ.jpeg></div><div class=article-details><h2 class=article-title>Headlamp</h2></div></a></article><article class=has-image><a href=/fuyou/p/k8s-cluster-security/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGI2H.jpeg loading=lazy data-key=k8s-cluster-security data-hash=https://i.imgs.ovh/2026/04/06/ZQGI2H.jpeg></div><div class=article-details><h2 class=article-title>17-集群安全</h2></div></a></article></div></div></aside>...<div class=comment></div><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 小杨</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.26.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/fuyou/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script><style>body{background:url(https://luckycloveryh.github.io/fuyou/background/jinlin.png)no-repeat 50% 0;background-size:cover;background-attachment:fixed}.article-details{position:relative;z-index:1}.article-title,.article-title a{color:var(--card-text-color-main)!important}.search-form input{background-color:var(--card-background)!important;color:var(--card-text-color-main)!important;border-color:var(--card-separator-color)!important}.search-form button{background-color:transparent!important;color:var(--card-text-color-secondary)!important}</style><script src=https://luckycloveryh.github.io/fuyou/background/sakura.js></script><div id=particles-js></div><script src=https://luckycloveryh.github.io/fuyou/background/particles.min.js></script><script>particlesJS.load("particles-js","https://luckycloveryh.github.io/fuyou/background/particlesjs-config.json",function(){console.log("particles.js loaded - callback")})</script><style>#particles-js{position:fixed;top:0;left:0;width:100%;z-index:-1}</style><style>@font-face{font-family:瑞美加张清平硬笔行书;src:url(https://luckycloveryh.github.io/fuyou/font/%E7%91%9E%E7%BE%8E%E5%8A%A0%E5%BC%A0%E6%B8%85%E5%B9%B3%E7%A1%AC%E7%AC%94%E8%A1%8C%E4%B9%A6.ttf)format('truetype')}:root{--base-font-family:'瑞美加张清平硬笔行书';--code-font-family:'瑞美加张清平硬笔行书'}</style><style>#TableOfContents>ul,ol{ul, ol { display: none; } .open { display: block; }}</style><script>function initTocHide(){let e=document.querySelector(".widget--toc");if(!e)return;window.addEventListener("scroll",function(){let n=document.querySelectorAll(".open");n.length>0&&n.forEach(e=>{e.classList.remove("open")});let t=document.querySelector(".active-class");if(!t)return;t.children.length>1&&t.children[1].classList.add("open");let e=t.parentElement;do e.classList.add("open"),e=e.parentElement.parentElement;while(e!==void 0&&(e.localName==="ul"||e.localName==="ol"))})}initTocHide()</script><style>#backTopBtn{display:none;position:fixed;bottom:30px;z-index:99;cursor:pointer;width:30px;height:30px;background-image:url(https://luckycloveryh.github.io/fuyou/icons/backTop.svg)}</style><script>function initScrollTop(){let t=document.querySelector(".right-sidebar");if(!t)return;let e=document.createElement("div");e.id="backTopBtn",e.onclick=backToTop,t.appendChild(e),window.onscroll=function(){document.body.scrollTop>20||document.documentElement.scrollTop>20?e.style.display="block":e.style.display="none"}}function backToTop(){window.scrollTo({top:0,behavior:"smooth"})}initScrollTop()</script><style>.highlight{max-height:400px;overflow:hidden}.code-show{max-height:none!important}.code-more-box{width:100%;padding-top:78px;background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0)),to(#fff));position:absolute;left:0;right:0;bottom:0;z-index:1}.code-more-btn{display:block;margin:auto;width:44px;height:22px;background:#f0f0f5;border-top-left-radius:8px;border-top-right-radius:8px;padding-top:6px;cursor:pointer}.code-more-img{cursor:pointer!important;display:block;margin:auto;width:22px;height:16px}</style><script>function initCodeMoreBox(){let e=document.querySelectorAll(".highlight");if(!e)return;e.forEach(e=>{if(e.scrollHeight<=e.clientHeight)return;let t=document.createElement("div");t.classList.add("code-more-box");let n=document.createElement("span");n.classList.add("code-more-btn"),n.addEventListener("click",()=>{e.classList.add("code-show"),t.style.display="none",window.dispatchEvent(new Event("resize"))});let s=document.createElement("img");s.classList.add("code-more-img"),s.src="https://luckycloveryh.github.io/fuyou/icons/codeMore.png",n.appendChild(s),t.appendChild(n),e.appendChild(t)})}initCodeMoreBox()</script><script>const cdnPath="https://cdn.jsdelivr.net/gh/letere-gzj/live2d-widget-v3@main",config={path:{homePath:"/",modelPath:cdnPath+"/Resources/",cssPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu.css",tipsJsonPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu-tips.json",tipsJsPath:cdnPath+"/waifu-tips.js",live2dCorePath:cdnPath+"/Core/live2dcubismcore.js",live2dSdkPath:cdnPath+"/live2d-sdk.js"},tools:["hitokoto","asteroids","express","switch-model","switch-texture","photo","info","quit"],drag:{enable:!0,direction:["x","y"]},switchType:"order"};function loadExternalResource(e,t){return new Promise((n,s)=>{let o;t==="css"?(o=document.createElement("link"),o.rel="stylesheet",o.href=e):t==="js"&&(o=document.createElement("script"),o.src=e),o&&(o.onload=()=>n(e),o.onerror=()=>s(e),document.head.appendChild(o))})}let live2dInitialized=!1;function initLive2d(){if(live2dInitialized)return;screen.width>=768&&Promise.all([loadExternalResource(config.path.cssPath,"css"),loadExternalResource(config.path.live2dCorePath,"js"),loadExternalResource(config.path.live2dSdkPath,"js"),loadExternalResource(config.path.tipsJsPath,"js")]).then(()=>{initWidget({waifuPath:config.path.tipsJsonPath,cdnPath:config.path.modelPath,tools:config.tools,dragEnable:config.drag.enable,dragDirection:config.drag.direction,switchType:config.switchType}),live2dInitialized=!0}).catch(e=>{console.error("Failed to load live2d:",e)})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",initLive2d):initLive2d()</script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css><div id=aplayer></div><script src=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js></script><script>const staticDir="https://luckycloveryh.github.io/fuyou/",ap=new APlayer({container:document.getElementById("aplayer"),fixed:!0,lrcType:3,audio:[{name:"爱别等",artist:"洪卓立",url:staticDir+"music/爱别等-洪卓立/song.mp3",cover:staticDir+"music/爱别等-洪卓立/cover.jpg",lrc:staticDir+"music/爱别等-洪卓立/lyric.lrc"},{name:"查无此字",artist:"林奕匡",url:staticDir+"music/查无此字-林奕匡/song.mp3",cover:staticDir+"music/查无此字-林奕匡/cover.jpg",lrc:staticDir+"music/查无此字-林奕匡/lyric.lrc"},{name:"初初",artist:"古巨基",url:staticDir+"music/初初-古巨基/song.mp3",cover:staticDir+"music/初初-古巨基/cover.jpg",lrc:staticDir+"music/初初-古巨基/lyric.lrc"},{name:"多此一爱",artist:"陈柏宇",url:staticDir+"music/多此一爱-陈柏宇/song.mp3",cover:staticDir+"music/多此一爱-陈柏宇/cover.jpg",lrc:staticDir+"music/多此一爱-陈柏宇/lyric.lrc"},{name:"乖乖报到",artist:"MC 张天赋",url:staticDir+"music/乖乖报到-MC 张天赋/song.mp3",cover:staticDir+"music/乖乖报到-MC 张天赋/cover.jpg",lrc:staticDir+"music/乖乖报到-MC 张天赋/lyric.lrc"},{name:"还记得",artist:"周柏豪",url:staticDir+"music/还记得-周柏豪/song.mp3",cover:staticDir+"music/还记得-周柏豪/cover.jpg",lrc:staticDir+"music/还记得-周柏豪/lyric.lrc"},{name:"泼墨桃花",artist:"林峯",url:staticDir+"music/泼墨桃花-林峯/song.mp3",cover:staticDir+"music/泼墨桃花-林峯/cover.jpg",lrc:staticDir+"music/泼墨桃花-林峯/lyric.lrc"},{name:"摄氏零度",artist:"张敬轩",url:staticDir+"music/摄氏零度-张敬轩/song.mp3",cover:staticDir+"music/摄氏零度-张敬轩/cover.jpg",lrc:staticDir+"music/摄氏零度-张敬轩/lyric.lrc"},{name:"下一位前度",artist:"林家谦",url:staticDir+"music/下一位前度-林家谦/song.mp3",cover:staticDir+"music/下一位前度-林家谦/cover.jpg",lrc:staticDir+"music/下一位前度-林家谦/lyric.lrc"},{name:"这个故事教训我们",artist:"李克勤",url:staticDir+"music/这个故事教训我们-李克勤/song.mp3",cover:staticDir+"music/这个故事教训我们-李克勤/cover.jpg",lrc:staticDir+"music/这个故事教训我们-李克勤/lyric.lrc"},{name:"最后祝福",artist:"黄宗泽",url:staticDir+"music/最后祝福-黄宗泽/song.mp3",cover:staticDir+"music/最后祝福-黄宗泽/cover.jpg",lrc:staticDir+"music/最后祝福-黄宗泽/lyric.lrc"}]})</script><script>window.addEventListener("beforeunload",()=>{if(typeof ap=="undefined")return;const e={index:ap.list.index,currentTime:ap.audio.currentTime,paused:ap.paused};sessionStorage.setItem("playInfo",JSON.stringify(e))}),window.addEventListener("load",()=>{if(typeof ap=="undefined")return;if(window._pjaxNavigating)return;const e=JSON.parse(sessionStorage.getItem("playInfo"));if(!e)return;ap.list.switch(e.index),setTimeout(()=>{ap.seek(e.currentTime),e.paused||ap.play()},500)}),document.addEventListener("pjax:send",()=>{window._pjaxNavigating=!0}),document.addEventListener("pjax:complete",()=>{window._pjaxNavigating=!1})</script><script src=https://cdn.jsdelivr.net/npm/pjax/pjax.min.js></script><script>let pjaxInitialized=!1;window.addEventListener("load",()=>{if(pjaxInitialized)return;if(pjaxInitialized=!0,typeof Pjax=="undefined"){console.error("PJAX未加载");return}var e=new Pjax({selectors:[".main-container",".js-Pjax"],switches:{".main-container":"innerHTML"}});window.pjax=e,e._handleResponse=e.handleResponse,e.handleResponse=function(t,n,s,o){if(n.responseText.match("<html")){if(t){let e=(new DOMParser).parseFromString(t,"text/html"),n=e.body.className;document.body.setAttribute("class",n)}e._handleResponse(t,n,s,o)}},document.addEventListener("pjax:complete",()=>{try{window.Stack&&window.Stack.init&&window.Stack.init()}catch(e){console.warn("Stack初始化失败:",e)}try{typeof renderKaTeX=="function"&&renderKaTeX()}catch(e){console.warn("KaTeX渲染失败:",e)}})})</script><div class=js-Pjax><script>(function(){let t=document.querySelector(".comment");if(!t)return;let e=document.createElement("script");e.setAttribute("src","https://giscus.app/client.js"),e.setAttribute("data-repo",""),e.setAttribute("data-repo-id",""),e.setAttribute("data-category",""),e.setAttribute("data-category-id",""),e.setAttribute("data-mapping",""),e.setAttribute("data-strict",""),e.setAttribute("data-reactions-enabled","1"),e.setAttribute("data-emit-metadata","0"),e.setAttribute("data-input-position",""),e.setAttribute("data-theme",""),e.setAttribute("data-lang",""),e.async=!0,e.crossOrigin="anonymous",t.appendChild(e)})(document)</script></div><script>async function renderKaTeX(){let e=document.querySelector(".math-katex");if(!e)return;for(;typeof renderMathInElement!="function";)await delay(500);renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],ignoredClasses:["gist"]})}function delay(e){return new Promise(t=>{setTimeout(t,e)})}document.addEventListener("pjax:complete",()=>{renderKaTeX()})</script><script src=https://luckycloveryh.github.io/fuyou/js/topbar.min.js></script><script>topbar.config({barColors:{0:"rgba(255, 255, 255, 1)",1.0:"rgba(0, 149, 234, 1)"}}),document.addEventListener("pjax:send",()=>{topbar.show()}),document.addEventListener("pjax:complete",()=>{topbar.hide()})</script><script defer src=https://cn.vercount.one/js></script><script>function showHideView(){let e=document.querySelectorAll("#viewCount");if(e){let t=document.querySelector(".article-page");t||e.forEach(e=>{e.style.display="none"})}}showHideView()</script><div id=jsi-flying-fish-container class=flying-fish-container></div><style>.flying-fish-container{width:100%;height:200px;position:fixed;z-index:0;pointer-events:none;bottom:0;left:0;opacity:.6}.flying-fish-container canvas{display:block;pointer-events:none}</style><script src=https://luckycloveryh.github.io/fuyou/js/flying-fish.js></script><script>window.addEventListener("load",function(){typeof RENDERER!="undefined"&&document.getElementById("jsi-flying-fish-container")&&RENDERER.init()}),document.addEventListener("pjax:complete",function(){typeof RENDERER!="undefined"&&RENDERER.setup()})</script></body></html>

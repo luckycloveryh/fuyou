@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>底层原理 on 小杨的博客</title><link>https://luckycloveryh.github.io/fuyou/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/</link><description>Recent content in 底层原理 on 小杨的博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>小杨</copyright><lastBuildDate>Mon, 06 Apr 2026 17:55:53 +0800</lastBuildDate><atom:link href="https://luckycloveryh.github.io/fuyou/tags/%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86/index.xml" rel="self" type="application/rss+xml"/><item><title>15-底层原理</title><link>https://luckycloveryh.github.io/fuyou/p/k8s-underlying-principle/</link><pubDate>Mon, 06 Apr 2026 17:55:53 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/k8s-underlying-principle/</guid><description>&lt;img src="https://i.imgs.ovh/2026/04/06/ZQGlE4.jpeg" alt="Featured image of post 15-底层原理" />&lt;h2 id="控制面组件工作原理">控制面组件工作原理
+&lt;/h2>&lt;h3 id="etcdhttpsgithubcometcd-ioetcdreleases">&lt;a class="link" href="https://github.com/etcd-io/etcd/releases" target="_blank" rel="noopener"
+>Etcd&lt;/a>
+&lt;/h3>&lt;h4 id="安装">安装
+&lt;/h4>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="nv">ETCD_VER&lt;/span>&lt;span class="o">=&lt;/span>v3.5.21
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># choose either URL&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">GITHUB_URL&lt;/span>&lt;span class="o">=&lt;/span>https://github.com/etcd-io/etcd/releases/download
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">DOWNLOAD_URL&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">GOOGLE_URL&lt;/span>&lt;span class="si">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rm -f /tmp/etcd-&lt;span class="si">${&lt;/span>&lt;span class="nv">ETCD_VER&lt;/span>&lt;span class="si">}&lt;/span>-linux-amd64.tar.gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rm -rf /tmp/etcd-download-test &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> mkdir -p /tmp/etcd-download-test
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl -L &lt;span class="si">${&lt;/span>&lt;span class="nv">DOWNLOAD_URL&lt;/span>&lt;span class="si">}&lt;/span>/&lt;span class="si">${&lt;/span>&lt;span class="nv">ETCD_VER&lt;/span>&lt;span class="si">}&lt;/span>/etcd-&lt;span class="si">${&lt;/span>&lt;span class="nv">ETCD_VER&lt;/span>&lt;span class="si">}&lt;/span>-linux-amd64.tar.gz -o /tmp/etcd-&lt;span class="si">${&lt;/span>&lt;span class="nv">ETCD_VER&lt;/span>&lt;span class="si">}&lt;/span>-linux-amd64.tar.gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">tar xzvf /tmp/etcd-&lt;span class="si">${&lt;/span>&lt;span class="nv">ETCD_VER&lt;/span>&lt;span class="si">}&lt;/span>-linux-amd64.tar.gz -C /tmp/etcd-download-test --strip-components&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/tmp/etcd-download-test/etcd --version
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/tmp/etcd-download-test/etcdctl version
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="启动服务">启动服务
+&lt;/h4>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># ./etcd&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">WARNING: Package &lt;span class="s2">&amp;#34;github.com/golang/protobuf/protoc-gen-go/generator&amp;#34;&lt;/span> is deprecated.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> A future release of golang/protobuf will delete this package,
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> which has long been excluded from the compatibility promise.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="列出集群成员">列出集群成员
+&lt;/h4>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># ./etcdctl --endpoints=localhost:2379 member list --write-out=table &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+------------------+---------+---------+-----------------------+-----------------------+------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span> ID &lt;span class="p">|&lt;/span> STATUS &lt;span class="p">|&lt;/span> NAME &lt;span class="p">|&lt;/span> PEER ADDRS &lt;span class="p">|&lt;/span> CLIENT ADDRS &lt;span class="p">|&lt;/span> IS LEARNER &lt;span class="p">|&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+------------------+---------+---------+-----------------------+-----------------------+------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span> 8e9e05c52164694d &lt;span class="p">|&lt;/span> started &lt;span class="p">|&lt;/span> default &lt;span class="p">|&lt;/span> http://localhost:2380 &lt;span class="p">|&lt;/span> http://localhost:2379 &lt;span class="p">|&lt;/span> &lt;span class="nb">false&lt;/span> &lt;span class="p">|&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+------------------+---------+---------+-----------------------+-----------------------+------------+
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="写入操作">写入操作
+&lt;/h4>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 写入数据&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./etcdctl --endpoints&lt;span class="o">=&lt;/span>localhost:2379 put /key1 val1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">OK
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 读取数据&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./etcdctl --endpoints&lt;span class="o">=&lt;/span>localhost:2379 get /key1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/key1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">val1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 按 Key 的前缀查询数据&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./etcdctl --endpoints&lt;span class="o">=&lt;/span>localhost:2379 get --prefix /
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/key1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">val1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 只显示键值&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./etcdctl --endpoints&lt;span class="o">=&lt;/span>localhost:2379 get --prefix / --keys-only
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/key1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># watch key 变化 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./etcdctl --endpoints&lt;span class="o">=&lt;/span>localhost:2379 watch --prefix /
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./etcdctl --endpoints&lt;span class="o">=&lt;/span>localhost:2379 put /name k1s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./etcdctl --endpoints&lt;span class="o">=&lt;/span>localhost:2379 put /name k2s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./etcdctl --endpoints&lt;span class="o">=&lt;/span>localhost:2379 put /name k3s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./etcdctl --endpoints&lt;span class="o">=&lt;/span>localhost:2379 put /name k4s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./etcdctl --endpoints&lt;span class="o">=&lt;/span>localhost:2379 get /name -wjson
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./etcdctl --endpoints&lt;span class="o">=&lt;/span>localhost:2379 watch --prefix /name --rev &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PUT
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/name
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">k1s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PUT
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/name
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">k2s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PUT
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/name
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">k3s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PUT
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/name
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">k4s
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="灾备">灾备
+&lt;/h4>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 声明 环境变量&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">ETCDCTL_API&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">ENDPOINTS&lt;/span>&lt;span class="o">=&lt;/span>localhost:2379
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 备份 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ etcdctl --endpoints&lt;span class="o">=&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">ENDPOINTS&lt;/span>&lt;span class="si">}&lt;/span> snapshot save /data/etcd_backup_dir/etcd-snapshot.db
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 还原&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ etcdutl --data-dir&lt;span class="o">=&lt;/span>/data/etcd/etcd-restore snapshot restore /data/etcd_backup_dir/etcd-snapshot.db
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="kubernetes-数据如何保存在-etcd-中">Kubernetes 数据如何保存在 etcd 中
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">ETCDCTL_API&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">在pod里面访问
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kubectl &lt;span class="nb">exec&lt;/span> -it etcd-master-01 -n kube-system -- sh
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">etcdctl --endpoints https://localhost:2379 --cert /etc/kubernetes/pki/etcd/server.crt --key /etc/kubernetes/pki/etcd/server.key --cacert /etc/kubernetes/pki/etcd/ca.crt get --keys-only --prefix /
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">etcdctl --endpoints https://localhost:2379 --cert /etc/kubernetes/pki/etcd/server.crt --key /etc/kubernetes/pki/etcd/server.key --cacert /etc/kubernetes/pki/etcd/ca.crt get --keys-only --prefix /registry/pods/default/redis-pv-sts-0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">etcdctl --endpoints https://localhost:2379 --cert /etc/kubernetes/pki/etcd/server.crt --key /etc/kubernetes/pki/etcd/server.key --cacert /etc/kubernetes/pki/etcd/ca.crt get /registry/pods/default/redis-pv-sts-0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">etcdctl --endpoints https://localhost:2379 --cert /etc/kubernetes/pki/etcd/server.crt --key /etc/kubernetes/pki/etcd/server.key --cacert /etc/kubernetes/pki/etcd/ca.crt get /registry/configmaps/default/info
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Etcd 备份脚本&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/bin/bash
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">ETCDCTL_PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;/usr/local/bin/etcdctl&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">ENDPOINTS&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;https://192.168.200.153:2379&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">ETCD_DATA_DIR&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;/var/lib/etcd&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">BACKUP_DIR&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;/var/backups/kube_etcd/etcd-&lt;/span>&lt;span class="k">$(&lt;/span>date +%Y-%m-%d-%H-%M-%S&lt;span class="k">)&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">KEEPBACKUPNUMBER&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;5&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">ETCDBACKUPPERIOD&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;30&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">ETCDBACKUPSCIPT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;/usr/local/bin/kube-scripts&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">ETCDBACKUPHOUR&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">ETCDCTL_CERT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;/etc/ssl/etcd/ssl/admin-master1.pem&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">ETCDCTL_KEY&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;/etc/ssl/etcd/ssl/admin-master1-key.pem&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">ETCDCTL_CA_FILE&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;/etc/ssl/etcd/ssl/ca.pem&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> ! -d &lt;span class="nv">$BACKUP_DIR&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> mkdir -p &lt;span class="nv">$BACKUP_DIR&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">ETCDCTL_API&lt;/span>&lt;span class="o">=&lt;/span>2&lt;span class="p">;&lt;/span>&lt;span class="nv">$ETCDCTL_PATH&lt;/span> backup --data-dir &lt;span class="nv">$ETCD_DATA_DIR&lt;/span> --backup-dir &lt;span class="nv">$BACKUP_DIR&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sleep &lt;span class="m">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">ETCDCTL_API&lt;/span>&lt;span class="o">=&lt;/span>3&lt;span class="p">;&lt;/span>&lt;span class="nv">$ETCDCTL_PATH&lt;/span> --endpoints&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$ENDPOINTS&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> snapshot save &lt;span class="nv">$BACKUP_DIR&lt;/span>/snapshot.db &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --cacert&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$ETCDCTL_CA_FILE&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --cert&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$ETCDCTL_CERT&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --key&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$ETCDCTL_KEY&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span> &amp;gt; /dev/null
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sleep &lt;span class="m">3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> &lt;span class="nv">$BACKUP_DIR&lt;/span>/../&lt;span class="p">;&lt;/span>ls -lt &lt;span class="p">|&lt;/span>awk &lt;span class="s1">&amp;#39;{if(NR &amp;gt; &amp;#39;&lt;/span>&lt;span class="nv">$KEEPBACKUPNUMBER&lt;/span>&lt;span class="s1">&amp;#39;){print &amp;#34;rm -rf &amp;#34;$9}}&amp;#39;&lt;/span>&lt;span class="p">|&lt;/span>sh
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="o">[[&lt;/span> ! &lt;span class="nv">$ETCDBACKUPHOUR&lt;/span> &lt;span class="o">]]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">time&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;*/&lt;/span>&lt;span class="nv">$ETCDBACKUPPERIOD&lt;/span>&lt;span class="s2"> * * * *&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">[[&lt;/span> &lt;span class="nv">0&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="nv">$ETCDBACKUPPERIOD&lt;/span> &lt;span class="o">]]&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">time&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;* */&lt;/span>&lt;span class="nv">$ETCDBACKUPHOUR&lt;/span>&lt;span class="s2"> * * *&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">time&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;*/&lt;/span>&lt;span class="nv">$ETCDBACKUPPERIOD&lt;/span>&lt;span class="s2"> */&lt;/span>&lt;span class="nv">$ETCDBACKUPHOUR&lt;/span>&lt;span class="s2"> * * *&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">crontab -l &lt;span class="p">|&lt;/span> grep -v &lt;span class="s1">&amp;#39;#&amp;#39;&lt;/span> &amp;gt; /tmp/file
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$time&lt;/span>&lt;span class="s2"> sh &lt;/span>&lt;span class="nv">$ETCDBACKUPSCIPT&lt;/span>&lt;span class="s2">/etcd-backup.sh&amp;#34;&lt;/span> &amp;gt;&amp;gt; /tmp/file &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> awk &lt;span class="s1">&amp;#39; !x[$0]++{print &amp;gt; &amp;#34;/tmp/file&amp;#34;}&amp;#39;&lt;/span> /tmp/file
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">crontab /tmp/file
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rm -rf /tmp/file
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="kube-apiserver">kube-apiserver
+&lt;/h3>&lt;h3 id="kube-controller-manager">kube-controller-manager
+&lt;/h3>&lt;h3 id="kube-scheduler">kube-scheduler
+&lt;/h3>&lt;h2 id="kubelet">kubelet
+&lt;/h2>&lt;h2 id="cri-----csi----cni-介绍">CRI CSI CNI 介绍
+&lt;/h2>&lt;h3 id="cri">CRI
+&lt;/h3>&lt;p>容器运行时接口&lt;/p>
+&lt;h3 id="cni">CNI
+&lt;/h3>&lt;p>容器网络接口&lt;/p>
+&lt;h3 id="csi">CSI
+&lt;/h3>&lt;p>容器存储接口&lt;/p>
+&lt;p>阿里云CSI： &lt;a class="link" href="https://www.alibabacloud.com/help/zh/ack/ack-managed-and-ack-dedicated/user-guide/csi-overview-1/" target="_blank" rel="noopener"
+>https://www.alibabacloud.com/help/zh/ack/ack-managed-and-ack-dedicated/user-guide/csi-overview-1/&lt;/a>&lt;/p>
+&lt;h2 id="ref">Ref
+&lt;/h2>&lt;p>容器运行时 Containerd 安装与使用: &lt;a class="link" href="https://mp.weixin.qq.com/s/d44ngzDbW_ublUsw-KrCJQ" target="_blank" rel="noopener"
+>https://mp.weixin.qq.com/s/d44ngzDbW_ublUsw-KrCJQ&lt;/a>&lt;/p>
+&lt;p>CRI 客户端 crictl 命令介绍: &lt;a class="link" href="https://mp.weixin.qq.com/s/DYHSP8s-3PCUkVF-ierZtg" target="_blank" rel="noopener"
+>https://mp.weixin.qq.com/s/DYHSP8s-3PCUkVF-ierZtg&lt;/a>&lt;/p>
+&lt;p>容器命令行工具 nerdctl: &lt;a class="link" href="https://mp.weixin.qq.com/s/OIC1M0FYd9IJJEKt2Yi6sQ" target="_blank" rel="noopener"
+>https://mp.weixin.qq.com/s/OIC1M0FYd9IJJEKt2Yi6sQ&lt;/a>&lt;/p>
+&lt;p>Kubernetes 集群备份 - Velero: &lt;a class="link" href="https://mp.weixin.qq.com/s/7k2Eit-zIb3ZZfWMweSQaQ" target="_blank" rel="noopener"
+>https://mp.weixin.qq.com/s/7k2Eit-zIb3ZZfWMweSQaQ&lt;/a>&lt;/p>
+&lt;p>MinIO on Kuberntes: &lt;a class="link" href="https://mp.weixin.qq.com/s/3UzDr3VmNxexED7hoST2sA" target="_blank" rel="noopener"
+>https://mp.weixin.qq.com/s/3UzDr3VmNxexED7hoST2sA&lt;/a>&lt;/p></description></item></channel></rss>

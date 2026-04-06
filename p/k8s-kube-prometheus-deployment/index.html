@@ -1,0 +1,712 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="详细讲解 Kubernetes 监控栈 kube-prometheus 的完整部署流程，包含 Prometheus、Grafana、Alertmanager 等组件的配置与运维。"><meta name=keywords content="K8s kube-prometheus,Prometheus 部署,Kubernetes 监控,云原生运维"><title>19-监控 - kube-prometheus 部署</title>
+<link rel=canonical href=https://luckycloveryh.github.io/fuyou/p/k8s-kube-prometheus-deployment/><link rel=stylesheet href=/fuyou/scss/style.min.aa7d43ff2aecaf169cabb35a0866fe377bc87c3d12e413003d63392a658212c8.css><meta property='og:title' content="19-监控 - kube-prometheus 部署"><meta property='og:description' content="详细讲解 Kubernetes 监控栈 kube-prometheus 的完整部署流程，包含 Prometheus、Grafana、Alertmanager 等组件的配置与运维。"><meta property='og:url' content='https://luckycloveryh.github.io/fuyou/p/k8s-kube-prometheus-deployment/'><meta property='og:site_name' content='小杨的博客'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='Kubernetes'><meta property='article:tag' content='K8s'><meta property='article:tag' content='监控'><meta property='article:tag' content='kube-prometheus'><meta property='article:tag' content='Prometheus'><meta property='article:tag' content='Grafana'><meta property='article:tag' content='云原生'><meta property='article:tag' content='运维'><meta property='article:published_time' content='2026-04-06T18:12:54+08:00'><meta property='article:modified_time' content='2026-04-06T19:40:29+08:00'><meta property='og:image' content='https://i.imgs.ovh/2026/04/06/ZQGXam.jpeg'><meta name=twitter:title content="19-监控 - kube-prometheus 部署"><meta name=twitter:description content="详细讲解 Kubernetes 监控栈 kube-prometheus 的完整部署流程，包含 Prometheus、Grafana、Alertmanager 等组件的配置与运维。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://i.imgs.ovh/2026/04/06/ZQGXam.jpeg'><link rel=alternate type=application/json href=https://luckycloveryh.github.io/fuyou/p/k8s-kube-prometheus-deployment/index.json><div class=loading-container><div class=card><div class=loader><p>loading</p><div class=words><span class=word>buttons</span>
+<span class=word>forms</span>
+<span class=word>switches</span>
+<span class=word>cards</span>
+<span class=word>buttons</span></div></div></div></div><style>.loading-container{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(17,17,17,.98);display:flex;align-items:center;justify-content:center;z-index:999999;transition:opacity 1.2s ease}.card{--bg-color:#111;background-color:var(--bg-color);padding:1.2rem 2.5rem;border-radius:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.7)}.loader{color:#7c7c7c;font-family:poppins,system-ui,sans-serif;font-weight:500;font-size:25px;height:42px;padding:8px 12px;display:flex;align-items:center;gap:12px;border-radius:8px;white-space:nowrap}.words{overflow:hidden;position:relative;height:100%;min-width:110px}.words::after{content:"";position:absolute;inset:0;background:linear-gradient( var(--bg-color) 10%,transparent 30%,transparent 70%,var(--bg-color) 90% );z-index:20}.word{display:block;height:100%;padding-left:4px;color:#956afa;animation:spin_4991 4s infinite linear}@keyframes spin_4991{10%{transform:translateY(-102%)}25%{transform:translateY(-100%)}35%{transform:translateY(-202%)}50%{transform:translateY(-200%)}60%{transform:translateY(-302%)}75%{transform:translateY(-300%)}85%{transform:translateY(-402%)}100%{transform:translateY(-400%)}}.loading-container.fade-out{opacity:0;pointer-events:none}</style><script>document.addEventListener("DOMContentLoaded",()=>{const e=document.querySelector(".loading-container"),t=sessionStorage.getItem("visited");if(t){e.style.display="none";return}setTimeout(()=>{e.classList.add("fade-out"),setTimeout(()=>{e.style.display="none",sessionStorage.setItem("visited","true")},1200)},2500)})</script></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/fuyou/><img src=https://i.imgs.ovh/2026/04/06/ZQ1BT4.gif width=300 height=300 class=site-logo loading=lazy alt=Avatar>
+</a><span class=emoji>🌸</span></figure><div class=site-meta><h1 class=site-name><a href=/fuyou>小杨的博客</a></h1><h2 class=site-description>技术分享，日常分享</h2></div></header><ol class=menu-social><li><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com target=_blank title=Twitter rel=me><svg class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/fuyou/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>主页</span></a></li><li><a href=/fuyou/%E5%85%B3%E4%BA%8E/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>关于</span></a></li><li><a href=/fuyou/%E6%90%9C%E7%B4%A2/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>搜索</span></a></li><li><a href=/fuyou/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>归档</span></a></li><li><a href=/fuyou/%E5%8F%8B%E9%93%BE/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>友链</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#prometheus-架构介绍>Prometheus 架构介绍</a></li><li><a href=#prometheus-安装>Prometheus 安装</a></li><li><a href=#云原生应用监控>云原生应用监控</a><ol><li><a href=#监控数据来源>监控数据来源</a></li><li><a href=#什么是-servicemonitor>什么是 ServiceMonitor</a></li><li><a href=#监控-example-app-应用>监控 example-app 应用</a></li><li><a href=#监控-etcd>监控 etcd</a></li></ol></li><li><a href=#非云原生应用监控>非云原生应用监控</a><ol><li><ol><li><a href=#配置-mysql-exporter>配置 mysql-exporter</a></li><li><a href=#配置-抓取目标>配置 抓取目标</a></li></ol></li></ol></li><li><a href=#blackboxhttpsgithubcomprometheusblackbox_exporter-黑盒监控><a href=https://github.com/prometheus/blackbox_exporter>Blackbox</a> 黑盒监控</a><ol><li><a href=#prometheus-静态配置>Prometheus 静态配置</a></li></ol></li><li><a href=#配置告警>配置告警</a><ol><li><a href=#路由规则>路由规则</a></li><li><a href=#配置钉钉告警>配置钉钉告警</a></li></ol></li><li><a href=#prometheus-高可用>Prometheus 高可用</a></li></ol></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/fuyou/p/k8s-kube-prometheus-deployment/><img src=https://i.imgs.ovh/2026/04/06/ZQGXam.jpeg loading=lazy alt="Featured image of post 19-监控 - kube-prometheus 部署"></a></div><div class=article-details><header class=article-category><a href=/fuyou/categories/kubernetes-%E5%AE%9E%E6%88%98%E7%B3%BB%E5%88%97/>Kubernetes 实战系列</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/fuyou/p/k8s-kube-prometheus-deployment/>19-监控 - kube-prometheus 部署</a></h2><h3 class=article-subtitle>详细讲解 Kubernetes 监控栈 kube-prometheus 的完整部署流程，包含 Prometheus、Grafana、Alertmanager 等组件的配置与运维。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>2026-04-06</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 13 分钟</time></div><div id=viewCount><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 104 0 2 2 0 00-4 0"/><path d="M21 12c-2.4 4-5.4 6-9 6s-6.6-2-9-6c2.4-4 5.4-6 9-6s6.6 2 9 6"/></svg>
+<time class=article-time--reading><span id=vercount_value_page_pv>loading...</span> 次</time></div></footer></div></header><section class=article-content><h2 id=prometheus-架构介绍>Prometheus 架构介绍</h2><p>Prometheus是一个开源的系统监控和报警框架，其本身也是一个时间序列数据库（Time Series Database，TSDB），它的设计灵感来源于Google的Borgmon，就像Kubernetes是基于Borg系统开源的。</p><p>Prometheus 被称为下一代的监控平台，具有很多和“老牌”监控不一样的特性，比如</p><ul><li>一个多维的数据模型，具有由指标名称和键-值对标识的时间序列数据。</li><li>使用PromQL查询和聚合数据，可以非常灵活地对数据进行检索。</li><li>不依赖额外的数据存储，Prometheus本身就是一个时序数据库，提供本地存储和分布式存储，并且每个Prometheus都是自治的。</li><li>应用程序暴露Metrics接口，Prometheus通过基于HTTP的Pull模型采集数据。</li><li>同时可以使用PushGateway进行Push数据。</li><li>Prometheus同时支持动态服务和静态配置发现目标机器。</li><li>支持多种图形和仪表盘，和Grafana堪称“绝配”。</li></ul><p>Prometheus生态系统由多个组件组成，其架构如下：</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NGVlZjRlYjQ0OGU5MzU4MDdmODg3MjViODBmYmI3MzBfcVBPTHA0RmV2SDZ0NnJPSXEzcHY0eDNyNnY1WWFBZUlfVG9rZW46V0lZZWJ2NHRNbzF5VW94RkxkRWNQUlFPbkJnXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><ul><li>Prometheus Server：Prometheus生态最重要的组件，主要用于抓取和存储时间序列数据，同时提供数据的查询和告警策略的配置管理。</li><li>Alertmanager：Prometheus生态用于告警的组件，Prometheus Server会将告警发送给Alertmanager，Alertmanager根据路由配置将告警信息发送给指定的人或组。Alertmanager支持邮件、Webhook、微信、钉钉、短信等媒介进行告警通知。</li><li>Push Gateway：Prometheus本身是通过Pull的方式拉取数据的，但是有些监控数据可能是短期的，如果没有采集数据可能会出现丢失。Push Gateway可以用来解决此类问题，它可以用来接收数据，也就是客户端可以通过Push的方式将数据推送到PushGateway，之后Prometheus可以通过Pull拉取该数据。</li><li>Exporter：主要用来采集监控数据，比如主机的监控数据可以通过node_exporter采集，MySQL的监控数据可以通过mysql_exporter采集，之后Exporter暴露一个接口，比如/metrics，Prometheus可以通过该接口采集到数据。</li><li>PromQL：PromQL其实不算Prometheus的组件，它是用来查询数据的一种语法，比如可以通过SQL语句查询数据库的数据，通过LogQL语句查询Loki的数据，通过PromQL语句查询Prometheus的数据。</li><li>Service Discovery：用来发现监控目标的自动发现，常用的有基于Kubernetes、Consul、Eureka、文件的自动发现等。</li><li>Grafana：用于展示数据，便于数据的查询和观测。</li></ul><h2 id=prometheus-安装>Prometheus 安装</h2><p>Prometheus 有多种安装方式，比如二进制安装、容器安装和 Kubernetes 集群中安装，将 Prometheus 安装到Kubernetes 集群中也是官方推荐的部署方式。</p><p>将Prometheus安装到Kubernetes集群也有很多方式，比如 Helm、Operator 等，Prometheus 也是支持上述安装方式的。但是Prometheus是一个生态系统，有很多组件都需要安装，并且也有很多监控需要单独配置，于是Prometheus 官方开源了一个 <a class=link href=https://github.com/prometheus-operator/kube-prometheus/ target=_blank rel=noopener>kube-prometheus</a> 项目，该项目不仅仅是用来安装 Prometheus 的，也包含很多其他的组件，如下所示：</p><ul><li>Prometheus Operator</li><li>高可用的 Prometheus</li><li>高可用的 Alertmanager</li><li>主机监控 Node Exporter</li><li>Prometheus Adapter</li><li>容器监控 kube-state-metrics</li><li>图形化展示 Grafana</li></ul><p>具体可以通过<code>``https://github.com/prometheus-operator/kube-prometheus/``</code>找到该项目进行查看。有了<code>kube-prometheus</code>项目，安装也变得非常简单，只需要两条命令即可。</p><p>首先需要通过该项目地址找到和自己Kubernetes版本对应的Kube Prometheus Stack的版本，我们使用的 kubernetes 1.32.2 ，那么对应的 Kube Prometheus Stack 版本是 release-0.15 。</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZDVhOWJkMjdiM2U4ZmRmMmJjYzdmYTllMTM1ZTI5NThfOXI1Rk5RNVZEcWpXRlFOOGU1bDJHVEZsSkpuNzlhM29fVG9rZW46Uk1sSWJHNlg3b2IwVHh4V1pKRWNka2UxbmpoXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><p>从 github 下载 对应分支的代码</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 下载源码 </span>
+</span></span><span class=line><span class=cl><span class=c1># git clone -b release-0.15 https://github.com/prometheus-operator/kube-prometheus.git </span>
+</span></span><span class=line><span class=cl><span class=c1># 创建命名空间和CR</span>
+</span></span><span class=line><span class=cl>kubectl  create -f manifests-orig/setup
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 部署相关组件 </span>
+</span></span><span class=line><span class=cl>kubectl apply -f manifests-orig/
+</span></span></code></pre></td></tr></table></div></div><p>查看 Prometheus 容器的状态</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@master-01 ~<span class=o>]</span><span class=c1># kubectl  get pods  -n monitoring </span>
+</span></span><span class=line><span class=cl>NAME                                   READY   STATUS    RESTARTS   AGE
+</span></span><span class=line><span class=cl>alertmanager-main-0                    2/2     Running   <span class=m>0</span>          41h
+</span></span><span class=line><span class=cl>alertmanager-main-1                    2/2     Running   <span class=m>0</span>          41h
+</span></span><span class=line><span class=cl>alertmanager-main-2                    2/2     Running   <span class=m>0</span>          41h
+</span></span><span class=line><span class=cl>blackbox-exporter-d989f64d9-9x7dn      3/3     Running   <span class=m>0</span>          41h
+</span></span><span class=line><span class=cl>grafana-8665b584b-bb2jr                1/1     Running   <span class=m>0</span>          41h
+</span></span><span class=line><span class=cl>kube-state-metrics-76ddfbb447-j7clv    3/3     Running   <span class=m>0</span>          41h
+</span></span><span class=line><span class=cl>node-exporter-bcp2h                    2/2     Running   <span class=m>0</span>          41h
+</span></span><span class=line><span class=cl>node-exporter-gn26s                    2/2     Running   <span class=m>0</span>          41h
+</span></span><span class=line><span class=cl>node-exporter-xw6p7                    2/2     Running   <span class=m>0</span>          41h
+</span></span><span class=line><span class=cl>prometheus-adapter-599c88b6c4-6b8vv    1/1     Running   <span class=m>0</span>          41h
+</span></span><span class=line><span class=cl>prometheus-adapter-599c88b6c4-s62n2    1/1     Running   <span class=m>0</span>          41h
+</span></span><span class=line><span class=cl>prometheus-k8s-0                       2/2     Running   <span class=m>0</span>          41h
+</span></span><span class=line><span class=cl>prometheus-k8s-1                       2/2     Running   <span class=m>0</span>          41h
+</span></span><span class=line><span class=cl>prometheus-operator-6b64df5498-6xrxt   2/2     Running   <span class=m>0</span>          41h
+</span></span></code></pre></td></tr></table></div></div><p>为了后期更新方便，这里按照类型把相关对象的资源清单文件 放在不同的目录下，命令如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>mkdir alertmanager grafana kubeStateMetrics nodeExporter prometheusAdapter prometheusOperator prometheus blackboxExporter kubernetesControlPlane
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>mv alertmanager-* alertmanager
+</span></span><span class=line><span class=cl>mv grafana-* grafana
+</span></span><span class=line><span class=cl>mv kubeStateMetrics-* kubeStateMetrics
+</span></span><span class=line><span class=cl>mv nodeExporter-* nodeExporter
+</span></span><span class=line><span class=cl>mv prometheusAdapter-* prometheusAdapter 
+</span></span><span class=line><span class=cl>mv prometheusOperator-* prometheusOperator 
+</span></span><span class=line><span class=cl>mv prometheus-* prometheus
+</span></span><span class=line><span class=cl>mv blackboxExporter-* blackboxExporter
+</span></span><span class=line><span class=cl>mv kubernetesControlPlane-* kubernetesControlPlane
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@master-01 manifests<span class=o>]</span><span class=c1># ll</span>
+</span></span><span class=line><span class=cl>total <span class=m>40</span>
+</span></span><span class=line><span class=cl>drwxr-xr-x <span class=m>2</span> root root  <span class=m>313</span> Dec <span class=m>19</span> 16:28 alertmanager
+</span></span><span class=line><span class=cl>drwxr-xr-x <span class=m>2</span> root root <span class=m>4096</span> Dec <span class=m>12</span> 16:13 blackboxExporter
+</span></span><span class=line><span class=cl>drwxr-xr-x <span class=m>2</span> root root <span class=m>4096</span> Dec <span class=m>19</span> 16:32 grafana
+</span></span><span class=line><span class=cl>-rw-r--r-- <span class=m>1</span> root root <span class=m>4361</span> Aug  <span class=m>8</span> 00:12 kubePrometheus-prometheusRule.yaml
+</span></span><span class=line><span class=cl>drwxr-xr-x <span class=m>2</span> root root <span class=m>4096</span> Dec <span class=m>12</span> 16:13 kubernetesControlPlane
+</span></span><span class=line><span class=cl>drwxr-xr-x <span class=m>2</span> root root <span class=m>4096</span> Dec <span class=m>12</span> 16:12 kubeStateMetrics
+</span></span><span class=line><span class=cl>drwxr-xr-x <span class=m>2</span> root root  <span class=m>314</span> Dec <span class=m>12</span> 16:12 nodeExporter
+</span></span><span class=line><span class=cl>drwxr-xr-x <span class=m>2</span> root root <span class=m>4096</span> Dec <span class=m>19</span> 16:35 prometheus
+</span></span><span class=line><span class=cl>drwxr-xr-x <span class=m>2</span> root root <span class=m>4096</span> Dec <span class=m>12</span> 16:12 prometheusAdapter
+</span></span><span class=line><span class=cl>drwxr-xr-x <span class=m>2</span> root root <span class=m>4096</span> Dec <span class=m>12</span> 16:12 prometheusOperator
+</span></span><span class=line><span class=cl>drwxr-xr-x <span class=m>2</span> root root <span class=m>4096</span> Aug  <span class=m>8</span> 00:12 setup
+</span></span></code></pre></td></tr></table></div></div><p>安装成功后就可以访问 Grafana 和 Prometheus Web UI</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@master-01 manifests<span class=o>]</span><span class=c1># kubectl  -n monitoring  get svc </span>
+</span></span><span class=line><span class=cl>NAME                    TYPE        CLUSTER-IP       EXTERNAL-IP   PORT<span class=o>(</span>S<span class=o>)</span>                         AGE
+</span></span><span class=line><span class=cl>grafana                 NodePort    10.100.55.197    &lt;none&gt;        3000:30030/TCP                  24h               24h
+</span></span><span class=line><span class=cl>prometheus-k8s          NodePort    10.100.108.119   &lt;none&gt;        9090:30090/TCP,8080:31180/TCP   24h
+</span></span></code></pre></td></tr></table></div></div><p>Grafana 和 Prometheus Web UI 默认使用 ClusterIP，我们需要将SVC的类型修改为 NodePort。</p><p>Grafana 默认用户名、密码均为 admin</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MWVmM2EzMjM2YzY4MzM2MGFkNWYzM2Y5NzY3YTU1NzBfMU54dkJBWmNhNXkyMW4wcUJPb2RJazJJUGxFS2E1TTdfVG9rZW46UkJXVWJacGJIb00wbTV4VGtMamNSS3NrbkxiXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><p>Kube-promethues 项目默认已经添加了常用的监控目标。</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NjU1OTkzYzU1YWQyNThkZGY1NzIwNThkMWZlYjEwNDRfMUtXZ0ZEUFBPR3NDTGh6VVBxVGwwaWN3NjdxTzNyb2ZfVG9rZW46TWx6WGIwRWlGb3ZySjh4em03bmM5ZlhlbnNjXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><h2 id=云原生应用监控>云原生应用监控</h2><h3 id=监控数据来源>监控数据来源</h3><p>从Prometheus的架构中了解到，Prometheus通常采用<code>Pull</code>的形式来拉取数据，也就意味着被监控应用只要有一个能获取到监控数据的接口，就可以采集到监控数据。</p><p>基于云原生理念开发的程序自己会暴露<code>Metrics</code>接口，就像Kubernetes本身的组件、Etcd等，都有一个<code>/metrics</code>接口，Prometheus 只需要请求这个接口即可获取到相关数据。</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=OTI3MTRlZDNmMTdkMjNjMzg5MWNiY2I3YzAyMGU4NDhfcUhwZHBwWUVRQ0RUTGhEVVIwNDJtclVTVllod0ZsR0xfVG9rZW46RGd3amJpTnRNb1ZDQTJ4VzR3MmNmZ1pjbmdoXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><h3 id=什么是-servicemonitor>什么是 ServiceMonitor</h3><p>如果使用二进制的方式安装 Prometheus，用户需要通过 Prometheus 的一个配置文件来配置需要监控哪些数据，或者配置一些告警策略。这个配置文件的维护非常麻烦，特别是监控项非常多的情况下，很容易出现配置错误，而在Kubernetes上部署Prometheus，可以不用去维护这个配置文件，而是通过一个叫<code>ServiceMonitor</code> 的资源来自动发现监控目标并动态生成配置。</p><h3 id=监控-example-app-应用>监控 example-app 应用</h3><ol><li>部署应用</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>apps/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Deployment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>example-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>replicas</span><span class=p>:</span><span class=w> </span><span class=m>3</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>example-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>example-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>containers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>example-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>registry.cn-beijing.aliyuncs.com/xxhf/instrumented_app </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>web</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>          </span><span class=nt>containerPort</span><span class=p>:</span><span class=w> </span><span class=m>8080</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><ol><li>为应用创建 SVC</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>example-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>example-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>example-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>web</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=m>8080</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><ol><li>创建 serviceMonitor</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>monitoring.coreos.com/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>ServiceMonitor</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>example-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>team</span><span class=p>:</span><span class=w> </span><span class=l>frontend</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app.kubernetes.io/part-of</span><span class=p>:</span><span class=w> </span><span class=l>kube-prometheus</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>jobLabel</span><span class=p>:</span><span class=w> </span><span class=l>app.kubernetes.io/name</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>example-app</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespaceSelector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchNames</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>default </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>endpoints</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=l>web</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><ol><li>验证</li></ol><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=M2E1Zjk2M2NjZjg2YjkxMDNjODIwZWY4NmZmMDlhNjZfaWplRDFiOTFtZ0Iybks3TU9LNzhhZVlGdTRYWkhUckFfVG9rZW46T3EwSmJqbVBsb1IxY2N4OHduTGNQcTVVbjRxXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><h3 id=监控-etcd>监控 etcd</h3><ol><li>创建 etcd svc</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Service</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>kube-etcd</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>kube-etcd</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>kube-system</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>ports</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>http-metrics</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=m>2381</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>protocol</span><span class=p>:</span><span class=w> </span><span class=l>TCP</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>targetPort</span><span class=p>:</span><span class=w> </span><span class=m>2381</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>component</span><span class=p>:</span><span class=w> </span><span class=l>etcd</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>ClusterIP</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><ol><li>创建 serviceMonitor</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>monitoring.coreos.com/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>ServiceMonitor</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>kube-etcd </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>kube-system</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app.kubernetes.io/part-of</span><span class=p>:</span><span class=w> </span><span class=l>kube-prometheus</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>jobLabel</span><span class=p>:</span><span class=w> </span><span class=l>component</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>kube-etcd </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespaceSelector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchNames</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>kube-system </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>endpoints</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>port</span><span class=p>:</span><span class=w> </span><span class=l>http-metrics</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><ol><li>验证抓取目标是否生效</li></ol><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NWMyZTQxZjBkZThjMGUzM2E1MmMxZGRkNjM2NzM1MzFfREE1OUg1cGZsQ1BpRGtCUEFFV2dNZnRtNmlQZGI4VmZfVG9rZW46WkpKa2I2Tkp0b3dQbjJ4bTNzQmNmbDhDbjJlXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>推荐修改/etc/kubernetes/manifests/kube-controller-manager.yaml 
+</span></span><span class=line><span class=cl>/etc/kubernetes/manifests/kube-scheduler.yaml
+</span></span><span class=line><span class=cl>/etc/kubernetes/manifests/etcd.yaml
+</span></span></code></pre></td></tr></table></div></div><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MDQzY2JjMTc1M2U1M2JiZTU2NzRmODAzMDQ1ZDMwODRfNUd5Njk0OXJDaGFadFJQSzZYOUMzSjIzTEFITFoxWnZfVG9rZW46V29HU2I4TldYb0c5QkV4bUNTMGNjb0p4bmxiXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><ol><li>为 etcd 配置 dashboard</li></ol><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NDFjNWQ3NTQ4NTZjMGRmNDhhYmQzOWU4M2Y5MDNiM2ZfZ2V0elVhbHczY0xWaGRaeElubEQwVFdHWUJPWkt2eFFfVG9rZW46SWlWVmJrM0cyb0paaDF4UW85V2NVOEI4blJoXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=N2JkZmU5OWRlYjc1NzUzOTEzNWEzMTdjMjBlNDBlNjJfbHdHUmQ3TXg3SGh5cFV5TjBQQVNiUXEwbHd6a1lUT1hfVG9rZW46QnBFbGJBNU5BbzVSMm94ZDdXQWNadHRKbk1jXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><h2 id=非云原生应用监控>非云原生应用监控</h2><h4 id=配置-mysql-exporter>配置 mysql-exporter</h4><p>非云原生应用的监控需要安装对应的 exporter，我们看一下如何实现 MySQL 的监控。</p><ol><li><a class=link href=https://github.com/prometheus/mysqld_exporter target=_blank rel=noopener>安装 mysql-exporter</a></li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>wget https://github.com/prometheus/mysqld_exporter/releases/download/v0.16.0/mysqld_exporter-0.16.0.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>tar xvf mysqld_exporter-0.16.0.linux-amd64.tar.gz  -C /usr/local/
+</span></span><span class=line><span class=cl>ln -s /usr/local/mysqld_exporter-0.16.0.linux-amd64  /usr/local/mysqld_exporter
+</span></span><span class=line><span class=cl><span class=nb>cd</span> /usr/local/mysqld_exporter
+</span></span></code></pre></td></tr></table></div></div><ol><li>创建授权</li></ol><p>MySQL</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>dnf -y install mariadb-server mariadb
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now mariadb
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>CREATE USER <span class=s1>&#39;exporter&#39;</span>@<span class=s1>&#39;localhost&#39;</span> IDENTIFIED BY <span class=s1>&#39;UPKeH%EsT4syjA&#39;</span> WITH MAX_USER_CONNECTIONS 3<span class=p>;</span>
+</span></span><span class=line><span class=cl>GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO <span class=s1>&#39;exporter&#39;</span>@<span class=s1>&#39;localhost&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>nohup ./mysqld_exporter <span class=p>&amp;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>curl 192.168.5.110:9104/metrics
+</span></span></code></pre></td></tr></table></div></div><p>MariaDB</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-SQL data-lang=SQL></code></pre></td></tr></table></div></div><p>连接 mysql 需要用户名、密码，所以下载之后，首先要创建配置文件，把用户名、密码以及mysql服务器地址，这些基本信息填进去。</p><p>在 <code>mysqld_exporter</code> 的目录下，创建一个 <code>.my.cnf</code> 的文件，内容参考下面的内容：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>client<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>host</span><span class=o>=</span>127.0.0.1
+</span></span><span class=line><span class=cl><span class=nv>port</span><span class=o>=</span><span class=m>3306</span>
+</span></span><span class=line><span class=cl><span class=nv>user</span><span class=o>=</span>exporter
+</span></span><span class=line><span class=cl><span class=nv>password</span><span class=o>=</span>3HdexTlk3nOw0k!3Nji
+</span></span></code></pre></td></tr></table></div></div><ol><li>启动 mysql_exporter</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>./mysqld_exporter
+</span></span></code></pre></td></tr></table></div></div><p>mysql_exporter 默认监听 9104 端口，请求 mysql_exporter 对外暴露的 metrics 接口。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@db-srv mysqld_exporter<span class=o>]</span><span class=c1># curl 127.0.0.1:9104/metrics </span>
+</span></span><span class=line><span class=cl><span class=c1># HELP go_gc_duration_seconds A summary of the wall-time pause (stop-the-world) duration in garbage collection cycles.</span>
+</span></span><span class=line><span class=cl><span class=c1># TYPE go_gc_duration_seconds summary</span>
+</span></span><span class=line><span class=cl>go_gc_duration_seconds<span class=o>{</span><span class=nv>quantile</span><span class=o>=</span><span class=s2>&#34;0&#34;</span><span class=o>}</span> 4.5418e-05
+</span></span><span class=line><span class=cl>go_gc_duration_seconds<span class=o>{</span><span class=nv>quantile</span><span class=o>=</span><span class=s2>&#34;0.25&#34;</span><span class=o>}</span> 4.7015e-05
+</span></span><span class=line><span class=cl>go_gc_duration_seconds<span class=o>{</span><span class=nv>quantile</span><span class=o>=</span><span class=s2>&#34;0.5&#34;</span><span class=o>}</span> 4.8137e-05
+</span></span><span class=line><span class=cl>... ...
+</span></span></code></pre></td></tr></table></div></div><h4 id=配置-抓取目标>配置 抓取目标</h4><p>我们需要在 Prometheus 配置文件中添加一个 Job，用来配置抓取 mysql-exporter metric endpoint， 有两种配置方式，一种是使用 prometheus-operator 提供 CRD ScrapeConfig ，另一种方法是让prometheus 加载外部配置文件。</p><p>tar/monitor/19-monitor/kube-prometheus/manifests/custom-config</p><p><strong>第一种方法：</strong></p><p>修改 prometheus</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>scrapeConfigSelector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>prometheus</span><span class=p>:</span><span class=w> </span><span class=l>system-monitoring-prometheus</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>添加抓取目标</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>monitoring.coreos.com/v1alpha1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>ScrapeConfig</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>static-config</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>monitoring</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>prometheus</span><span class=p>:</span><span class=w> </span><span class=l>system-monitoring-prometheus </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>staticConfigs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>job</span><span class=p>:</span><span class=w> </span><span class=l>mysql</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>targets</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span>- <span class=m>192.168.11.42</span><span class=p>:</span><span class=m>9104</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>验证</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YjE1Yzg2ODVlMjE4MGIzMmVjODU2ZDJiZGNjNGZjZmZfRms0SEV0SUdJcG1CWWZXSzlnakxPNERCWUNobmRsbEhfVG9rZW46RVRXVGJzWkJSb2g1YTF4dzRteWNmOEE4bjRnXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><p><strong>第二种方法：</strong></p><p>配置 prometheus 抓取 <code>mysqld_exporter</code> 暴露的 metrics 信息。</p><p>我们前面配置监控目标时，用的都是ServiceMonitor，但是ServiceMonitor可能会有一些限制。比如，如果没有安装Prometheus Operator，可能就无法使用ServiceMonitor，另外并不是所有的监控都能使用ServiceMonitor进行配置，或者使用ServiceMonitor配置显得过于繁琐。此处我们使用 prometheus 默认的配置文件，添加一个抓取mysql 的 job。</p><p>首先创建一个空文件，然后通过该文件创建一个 Secret，这个 Secret 可作为 Prometheus 的静态配置：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>$ touch additional-scrape-configs.yaml
+</span></span><span class=line><span class=cl>$ kubectl  -n monitoring  create secret generic additional-scrape-configs --from-file<span class=o>=</span>additional-scrape-configs.yaml
+</span></span></code></pre></td></tr></table></div></div><p>创建完 Secret后，需要编辑 Prometheus 的配置，加载我们自己创建的外部配置文件 。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl> kubectl edit prometheus -n monitoring k8s
+</span></span></code></pre></td></tr></table></div></div><p>添加以下 配置文件 ，不需要重启 Prometheus 即可生效。之后在<code> additional-scrape-configs.yaml</code> 文件内添加我们需要的静态配置即可。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>additionalScrapeConfigs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>additional-scrape-configs     </span><span class=w> </span><span class=c># secret-name </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>key</span><span class=p>:</span><span class=w> </span><span class=l>additional-scrape-configs.yaml </span><span class=w> </span><span class=c># key </span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=Y2RhMWQwNzI5OTBhMDc0ZTI4ZmNlZWM2MzU2OGUwMDNfSTNFUHh1V2lHMFlYTk9uY09wdlJ2bmdtTkk0YnM3T3dfVG9rZW46TWZYc2JMWWFFbzd0RlB4djNQNWNwMmRibnRnXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>additional-scrape-configs.yaml
+</span></span><span class=line><span class=cl>- job_name: mysql
+</span></span><span class=line><span class=cl>  static_configs:
+</span></span><span class=line><span class=cl>    - targets:
+</span></span><span class=line><span class=cl>      - 192.168.11.42:9104
+</span></span></code></pre></td></tr></table></div></div><p>可以看到此处的内容和传统配置的内容一致，只需要添加对应的job即可。之后通过该文件更新该 Secret：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># kubectl  -n monitoring  create secret generic additional-scrape-configs --from-file=additional-scrape-configs.yaml --dry-run=client -o yaml | kubectl  -n monitoring  apply -f - </span>
+</span></span></code></pre></td></tr></table></div></div><p>在 prometheus 的配置文件中可以验证 job 已经添加成功。</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ODg1NzRlOGVjOTU1N2UwNWNlM2U3MDlmYmZjZWNkN2ZfSVdOc0QySG1WTGlyY2ZSUUUxZXhwUEdTSEpQZmRxZjdfVG9rZW46UmlhSWJmak1Fb2E3SXB4ejZuaWN5Mkltbk9mXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><p>在 Targets 中也可以看到 mysql</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ODkyNzg0YzNkZGYwMGU1YzY3Mzg1MTRiMzQ5YmEwNWFfS1dXWEtCM2V4UTlRQkVlS0cxejBjeDRsbHlLQUdHYlVfVG9rZW46UGJ3cWJieDNGb1VIa0J4cFVTRmNGS0tPbm9mXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><p>最后在 Grafana 中创建 Dashboard，导入 MySQL Dashboard <code>14057</code> 。</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YmQ3YTFiZDk4OTU2M2MxNTg4Y2UwMTRmZjNjODhlZWZfalBkalpINlJGS3VQN01HeUFXZW5vdXFzM1I3YlpmcEZfVG9rZW46SFhZOGJyRkozb3V1RjZ4bnNJWGNhSnl4blAxXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><h2 id=blackboxhttpsgithubcomprometheusblackbox_exporter-黑盒监控><a class=link href=https://github.com/prometheus/blackbox_exporter target=_blank rel=noopener>Blackbox</a> 黑盒监控</h2><p>对 Etcd 或MySQL 的监控是监控应用本身，也就是程序内部的一些指标，这类监控关注的是原因，一般为出现问题的根本原因，此类监控称为白盒监控。还有一类监控关注的是现象，比如某个网站突然慢了，或者打不开了。此类告警是站在用户的角度看到的东西，比较关注现象，表示正在发生的问题，这类监控称为黑盒监控。</p><p>白盒监控可以通过Exporter采集数据，黑盒监控也可以通过Exporter采集数据，新版本的PrometheusStack已经默认安装了Blackbox Exporter，可以用其采集某个域名、接口或者TCP连接的状态、是否可用等。</p><h3 id=prometheus-静态配置>Prometheus 静态配置</h3><p>前面几个小节配置监控目标时，用的都是ServiceMonitor，但是ServiceMonitor可能会有一些限制。比如，如果没有安装Prometheus Operator，可能就无法使用ServiceMonitor，另外并不是所有的监控都能使用ServiceMonitor进行配置，或者使用ServiceMonitor配置显得过于繁琐。</p><p>在 <code>additional-scrape-configs.yaml</code> 文件内继续添加以下静态配置，用于黑盒监控的配置：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl>- <span class=nt>job_name</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;blackbox-web&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>metrics_path</span><span class=p>:</span><span class=w> </span><span class=l>/probe</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>params</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>module</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>http_2xx] </span><span class=w> </span><span class=c># Look for a HTTP 200 response.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>static_configs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>targets</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>http://prometheus.io   </span><span class=w> </span><span class=c># Target to probe with http.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>https://prometheus.io  </span><span class=w> </span><span class=c># Target to probe with https.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=l>http://www.xinxianghf.cn </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>relabel_configs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>source_labels</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>__address__]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>target_label</span><span class=p>:</span><span class=w> </span><span class=l>__param_target</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>source_labels</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>__param_target]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>target_label</span><span class=p>:</span><span class=w> </span><span class=l>instance</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>target_label</span><span class=p>:</span><span class=w> </span><span class=l>__address__</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>replacement</span><span class=p>:</span><span class=w> </span><span class=l>blackbox-exporter:19115 </span><span class=w> </span><span class=c># The blackbox exporter&#39;s real hostname:port.</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>可以看到此处的内容和传统配置的内容一致，只需要添加对应的job即可。之后通过该文件更新该Secret：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>kubectl  -n monitoring  create secret generic additional-scrape-configs --from-file<span class=o>=</span>additional-scrape-configs.yaml --dry-run<span class=o>=</span>client -o yaml <span class=p>|</span> kubectl  -n monitoring  replace  -f - 
+</span></span></code></pre></td></tr></table></div></div><p>验证配置文件 是否生效</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NWZhMzE3NDM4ZGQ0ZTJhZTI4ZjIzZDVkMjQxY2RjZDZfSU9vRExDeGZYRjJEcGlHZUc3YkdpMkpQMDFEZXVWbUhfVG9rZW46VkZaRGI5UTlOb1liNXZ4WWRHcmNPRkxMbjBjXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><p>检查 Targets</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YTQ2MjEzYjg0M2U2MjU0MTM0MjY2MTQxMDFiYWZkZDdfYXJZa2lvT2JxTlkzRjBDdWZYOUc3NlRoVzdSQkg0UDRfVG9rZW46Vmp0R2JEMXlxb2gxN0R4Q2FYZmNadmIxbjllXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><p>登录 Grafana，导入Dashboard 13659，导入完成后，稍等一分钟即可在 Prometheus Web UI 看到该配置。</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NDNiNTg0ODczNGNhZmIwZDdiYTQzOGEzNjA5MDBmNzdfM3FaZElUNnUwWFVaeWxmQWh2VWhlSnQ4VzYwSmdWMFFfVG9rZW46Q3c1RGJvOUdtbzg2akl4S2JybGNLSW5rbnpnXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><h2 id=配置告警>配置告警</h2><p>从配置文件可以看出，<code>Alertmanager </code>的配置主要分为5大块：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>global</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># The smarthost and SMTP sender used for mail notifications.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>smtp_smarthost</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;localhost:25&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>smtp_from</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;alertmanager@example.org&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>smtp_auth_username</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;alertmanager&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>smtp_auth_password</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;password&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># The directory from which notification templates are read.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>templates</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=s1>&#39;/etc/alertmanager/template/*.tmpl&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># The root route on which each incoming alert enters.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>route</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>group_by</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s1>&#39;job&#39;</span><span class=p>,</span><span class=w> </span><span class=s1>&#39;namespace&#39;</span><span class=p>,</span><span class=w> </span><span class=s1>&#39;alertname&#39;</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>group_wait</span><span class=p>:</span><span class=w> </span><span class=l>30s</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>group_interval</span><span class=p>:</span><span class=w> </span><span class=l>5m</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>repeat_interval</span><span class=p>:</span><span class=w> </span><span class=l>3h</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># A default receiver</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>receiver</span><span class=p>:</span><span class=w> </span><span class=l>default-team-mails</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># All the above attributes are inherited by all child routes and can</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># overwritten on each.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># The child route trees.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routes</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>receiver</span><span class=p>:</span><span class=w> </span><span class=l>team-X-pager</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>match_re</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>job</span><span class=p>:</span><span class=w> </span><span class=l>node_exporter </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>continue</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>receiver</span><span class=p>:</span><span class=w> </span><span class=l>team-X-pager</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>match_re</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>job</span><span class=p>:</span><span class=w> </span><span class=l>mysqld_exporter</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>continue</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>receiver</span><span class=p>:</span><span class=w> </span><span class=l>team-DB-pager</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>match_re</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>job</span><span class=p>:</span><span class=w> </span><span class=l>.*</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>continue</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>inhibit_rules</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>source_matchers</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>severity=&#34;critical&#34;]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>target_matchers</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>severity=&#34;warning&#34;]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>equal</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=l>alertname, cluster, service]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>receivers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;team-X-mails&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>email_configs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>to</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;team-X+alerts@example.org&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;team-X-pager&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>email_configs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>to</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;team-X+alerts-critical@example.org&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;team-Y-pager&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>pagerduty_configs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>service_key</span><span class=p>:</span><span class=w> </span><span class=l>&lt;team-Y-key&gt;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=s1>&#39;team-DB-pager&#39;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>pagerduty_configs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>service_key</span><span class=p>:</span><span class=w> </span><span class=l>&lt;team-DB-key&gt;</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><ul><li>Global：全局配置，主要进行一些通用的配置，比如邮件通知的账号、密码、SMTP服务器、微信告警等。Global块配置下的配置选项在本配置文件内的所有配置项下可见，但是文件内其他位置的子配置可以覆盖Global配置。</li><li>Templates：用于放置自定义模板的位置。</li><li>Route：告警路由配置，用于告警信息的分组路由，可以将不同分组的告警发送给不同的收件人。比如将数据库告警发送给DBA，服务器告警发送给OPS。</li><li>Inhibit_rules：告警抑制，主要用于减少告警的次数，防止“告警轰炸”。比如某个宿主机宕机，可能会引起容器重建、漂移、服务不可用等一系列问题，如果每个异常均有告警，会一次性发送很多告警，造成告警轰炸，并且也会干扰定位问题的思路，所以可以使用告警抑制，屏蔽由宿主机宕机引来的其他问题，只发送宿主机宕机的消息即可。</li><li>Receivers：告警收件人配置，每个receiver都有一个名字，经过route分组并且路由后需要指定一个receiver，就在此处配置。</li></ul><h3 id=路由规则>路由规则</h3><p>Alertmanager 的配置比较复杂且经常需要变更，我们详细看一下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>route</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>group_by</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s1>&#39;job&#39;</span><span class=p>,</span><span class=w> </span><span class=s1>&#39;namespace&#39;</span><span class=p>,</span><span class=w> </span><span class=s1>&#39;alertname&#39;</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>group_wait</span><span class=p>:</span><span class=w> </span><span class=l>30s</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>group_interval</span><span class=p>:</span><span class=w> </span><span class=l>5m</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>repeat_interval</span><span class=p>:</span><span class=w> </span><span class=l>3h</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># A default receiver</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>receiver</span><span class=p>:</span><span class=w> </span><span class=l>default-team-mails</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># The child route trees.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>routes</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>receiver</span><span class=p>:</span><span class=w> </span><span class=l>team-X-pager</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>match_re</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>job</span><span class=p>:</span><span class=w> </span><span class=l>node_exporter </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>continue</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>receiver</span><span class=p>:</span><span class=w> </span><span class=l>team-X-pager</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>match_re</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>job</span><span class=p>:</span><span class=w> </span><span class=l>mysqld_exporter</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>continue</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=nt>receiver</span><span class=p>:</span><span class=w> </span><span class=l>team-DB-pager</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>match_re</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>job</span><span class=p>:</span><span class=w> </span><span class=l>.*</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>continue</span><span class=p>:</span><span class=w> </span><span class=kc>true</span><span class=w> 
+</span></span></span></code></pre></td></tr></table></div></div><p>从配置文件可以看出，路由配置块的顶级配置由<code>route</code>开始，它是整个路由的入口，称作根路由。每一条告警进来后，都先进入route，之后根据告警自身的标签和<code>route.group_by</code>配置的字段进行分组。比如可以根据job、alertname或者其他自定义的标签名称进行分组，分组后进入子路由（通过<code>route.routes</code>配置子路由），进一步进行更加细粒度的划分，比如job名称包含<code>mysql</code>的发送给DBA组。</p><p>Route 常用的配置：</p><ul><li>receiver：告警的通知目标，需要和receivers配置中的name进行匹配。需要注意的是，route.routes下也可以有receiver配置，优先级高于route.receiver配置的默认接收人，当告警没有匹配到子路由时，会使用route.receiver进行通知，比如上述配置中的 default-team-mails。</li><li>group_by：分组配置，值类型为列表。比如配置成[&lsquo;job&rsquo;, &lsquo;severity&rsquo;]，代表告警信息包含job和severity标签的会进行分组，且标签的key和value都相同才会被分到一组。</li><li>continue：决定匹配到第一个路由后，是否继续后续匹配。默认为false，即匹配到第一个子节点后停止继续匹配。</li><li>match：一对一匹配规则，比如match配置的为job: mysql，那么具有job=mysql的告警会进入该路由。</li><li>match_re：和match类似，只不过match_re是正则匹配。</li><li>matchers：这是Alertmanager 0.22版本新添加的一个配置项，用于替换match和match_re。</li><li>group_wait：告警通知等待，值类型为字符串。若一组新的告警产生，则会等group_wait后再发送通知，该功能主要用于当告警在很短时间内接连产生时，在group_wait内合并为单一的告警后再发送，防止告警过多，默认值为30s。</li><li>group_interval：同一组告警通知后，如果有新的告警添加到该组中，再次发送告警通知的时间，默认值为5m。</li><li>repeat_interval：如果一条告警通知已成功发送，且在间隔repeat_interval后，该告警仍然未被设置为resolved，则会再次发送该告警通知，默认值为4h。</li></ul><p>以上即为Alertmanager常用的路由配置，可以看到 Alertmanager 的路由和匹配规则非常灵活，通过不同的路由嵌套和匹配规则可以达到不同的通知效果。</p><h3 id=配置钉钉告警>配置钉钉告警</h3><p>Alertmanager 的配置文件是通过 Secret 进行存储的，其原始文件为 <code>alertmanager-secret.yaml</code>，内容大致如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Secret</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app.kubernetes.io/component</span><span class=p>:</span><span class=w> </span><span class=l>alert-router</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app.kubernetes.io/instance</span><span class=p>:</span><span class=w> </span><span class=l>main</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app.kubernetes.io/name</span><span class=p>:</span><span class=w> </span><span class=l>alertmanager</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app.kubernetes.io/part-of</span><span class=p>:</span><span class=w> </span><span class=l>kube-prometheus</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app.kubernetes.io/version</span><span class=p>:</span><span class=w> </span><span class=m>0.28.1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>alertmanager-main</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>namespace</span><span class=p>:</span><span class=w> </span><span class=l>monitoring</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>stringData</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>alertmanager.yaml</span><span class=p>:</span><span class=w> </span><span class=p>|-</span><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>    &#34;global&#34;:
+</span></span></span><span class=line><span class=cl><span class=sd>      &#34;resolve_timeout&#34;: &#34;5m&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>    &#34;receivers&#34;:
+</span></span></span><span class=line><span class=cl><span class=sd>    - &#34;name&#34;: &#34;dingtalk&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>      webhook_configs:
+</span></span></span><span class=line><span class=cl><span class=sd>        - url: http://192.168.11.58:8060/dingtalk/webhook/send
+</span></span></span><span class=line><span class=cl><span class=sd>          send_resolved: true
+</span></span></span><span class=line><span class=cl><span class=sd>
+</span></span></span><span class=line><span class=cl><span class=sd>    &#34;route&#34;:
+</span></span></span><span class=line><span class=cl><span class=sd>      &#34;group_by&#34;:
+</span></span></span><span class=line><span class=cl><span class=sd>      - &#34;namespace&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>      - &#34;job&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>      - &#34;alertname&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>      &#34;group_interval&#34;: &#34;5m&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>      &#34;group_wait&#34;: &#34;30s&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>      &#34;receiver&#34;: &#34;dingtalk&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>      &#34;repeat_interval&#34;: &#34;12h&#34;
+</span></span></span><span class=line><span class=cl><span class=sd>      &#34;routes&#34;:
+</span></span></span><span class=line><span class=cl><span class=sd>       - receiver: &#39;dingtalk&#39;
+</span></span></span><span class=line><span class=cl><span class=sd>         matchers:
+</span></span></span><span class=line><span class=cl><span class=sd>         - alertname =~ &#34;InfoInhibitor|Watchdog&#34;</span><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>Opaque</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>修改后重新应用， alertmanager 会自动加载新的配置文件 。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>kubectl apply -f alertmanager-secret.yaml
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>修改之后需要去webhook配置文件中配置config.yaml配置文件的报警模版和关键词
+</span></span></code></pre></td></tr></table></div></div><p>等一会就可以在钉钉上收到告警消息了。</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MGZiOWRiNzVhNmZmODUzZGE4ZDQ5MmY0OTkwMTY2YWNfek84RjZUcUM4NjIwS1hka0NFSjNqRjdRRHlwVkZNZEhfVG9rZW46SXdpVGJEamJpb1ExVGF4RlRkdWNLa2M0bnNnXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p><h2 id=prometheus-高可用>Prometheus 高可用</h2><ul><li>多 prometheus 实例</li><li>Thanos</li><li>VictoriaMetrics</li></ul><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=N2I2YWM3Y2Q3OTZhMmNjZjI5N2JmMTgzYjA3MGQ3NjJfSkN3T3J4R2VlUzI3MWlJbkxpajVPWG9XejBtNjJqd1hfVG9rZW46STYxYmJ2UFZ3b2Q2ajV4WlRRQWNVdzNJbmRjXzE3NzU0NzA0ODY6MTc3NTQ3NDA4Nl9WNA" loading=lazy alt=img></p></section><footer class=article-footer><section class=article-tags><a href=/fuyou/tags/kubernetes/>Kubernetes</a>
+<a href=/fuyou/tags/k8s/>K8s</a>
+<a href=/fuyou/tags/%E7%9B%91%E6%8E%A7/>监控</a>
+<a href=/fuyou/tags/kube-prometheus/>Kube-Prometheus</a>
+<a href=/fuyou/tags/prometheus/>Prometheus</a>
+<a href=/fuyou/tags/grafana/>Grafana</a>
+<a href=/fuyou/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/>云原生</a>
+<a href=/fuyou/tags/%E8%BF%90%E7%BB%B4/>运维</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>本作品采用 CC BY-NC-SA 4.0 许可协议</span></section><section class=article-lastmod><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<span>最后更新于 2026-04-06 19:40 +0800</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/fuyou/p/k8s-monitoring-metrics-prometheus/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGxhF.jpeg loading=lazy data-key=k8s-monitoring-metrics-prometheus data-hash=https://i.imgs.ovh/2026/04/06/ZQGxhF.jpeg></div><div class=article-details><h2 class=article-title>19-监控</h2></div></a></article><article class=has-image><a href=/fuyou/p/k8s-efk-logging-solution/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGmFX.jpeg loading=lazy data-key=k8s-efk-logging-solution data-hash=https://i.imgs.ovh/2026/04/06/ZQGmFX.jpeg></div><div class=article-details><h2 class=article-title>20 - 日志方案_EFK</h2></div></a></article><article class=has-image><a href=/fuyou/p/k8s-headlamp-web-ui/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGuDQ.jpeg loading=lazy data-key=k8s-headlamp-web-ui data-hash=https://i.imgs.ovh/2026/04/06/ZQGuDQ.jpeg></div><div class=article-details><h2 class=article-title>Headlamp</h2></div></a></article><article class=has-image><a href=/fuyou/p/k8s-helm-package-manager/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGhXU.jpeg loading=lazy data-key=k8s-helm-package-manager data-hash=https://i.imgs.ovh/2026/04/06/ZQGhXU.jpeg></div><div class=article-details><h2 class=article-title>18 - Helm</h2></div></a></article><article class=has-image><a href=/fuyou/p/k8s-cluster-security/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGI2H.jpeg loading=lazy data-key=k8s-cluster-security data-hash=https://i.imgs.ovh/2026/04/06/ZQGI2H.jpeg></div><div class=article-details><h2 class=article-title>17-集群安全</h2></div></a></article></div></div></aside>...<div class=comment></div><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 小杨</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.26.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/fuyou/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script><style>body{background:url(https://luckycloveryh.github.io/fuyou/background/jinlin.png)no-repeat 50% 0;background-size:cover;background-attachment:fixed}.article-details{position:relative;z-index:1}.article-title,.article-title a{color:var(--card-text-color-main)!important}.search-form input{background-color:var(--card-background)!important;color:var(--card-text-color-main)!important;border-color:var(--card-separator-color)!important}.search-form button{background-color:transparent!important;color:var(--card-text-color-secondary)!important}</style><script src=https://luckycloveryh.github.io/fuyou/background/sakura.js></script><div id=particles-js></div><script src=https://luckycloveryh.github.io/fuyou/background/particles.min.js></script><script>particlesJS.load("particles-js","https://luckycloveryh.github.io/fuyou/background/particlesjs-config.json",function(){console.log("particles.js loaded - callback")})</script><style>#particles-js{position:fixed;top:0;left:0;width:100%;z-index:-1}</style><style>@font-face{font-family:瑞美加张清平硬笔行书;src:url(https://luckycloveryh.github.io/fuyou/font/%E7%91%9E%E7%BE%8E%E5%8A%A0%E5%BC%A0%E6%B8%85%E5%B9%B3%E7%A1%AC%E7%AC%94%E8%A1%8C%E4%B9%A6.ttf)format('truetype')}:root{--base-font-family:'瑞美加张清平硬笔行书';--code-font-family:'瑞美加张清平硬笔行书'}</style><style>#TableOfContents>ul,ol{ul, ol { display: none; } .open { display: block; }}</style><script>function initTocHide(){let e=document.querySelector(".widget--toc");if(!e)return;window.addEventListener("scroll",function(){let n=document.querySelectorAll(".open");n.length>0&&n.forEach(e=>{e.classList.remove("open")});let t=document.querySelector(".active-class");if(!t)return;t.children.length>1&&t.children[1].classList.add("open");let e=t.parentElement;do e.classList.add("open"),e=e.parentElement.parentElement;while(e!==void 0&&(e.localName==="ul"||e.localName==="ol"))})}initTocHide()</script><style>#backTopBtn{display:none;position:fixed;bottom:30px;z-index:99;cursor:pointer;width:30px;height:30px;background-image:url(https://luckycloveryh.github.io/fuyou/icons/backTop.svg)}</style><script>function initScrollTop(){let t=document.querySelector(".right-sidebar");if(!t)return;let e=document.createElement("div");e.id="backTopBtn",e.onclick=backToTop,t.appendChild(e),window.onscroll=function(){document.body.scrollTop>20||document.documentElement.scrollTop>20?e.style.display="block":e.style.display="none"}}function backToTop(){window.scrollTo({top:0,behavior:"smooth"})}initScrollTop()</script><style>.highlight{max-height:400px;overflow:hidden}.code-show{max-height:none!important}.code-more-box{width:100%;padding-top:78px;background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0)),to(#fff));position:absolute;left:0;right:0;bottom:0;z-index:1}.code-more-btn{display:block;margin:auto;width:44px;height:22px;background:#f0f0f5;border-top-left-radius:8px;border-top-right-radius:8px;padding-top:6px;cursor:pointer}.code-more-img{cursor:pointer!important;display:block;margin:auto;width:22px;height:16px}</style><script>function initCodeMoreBox(){let e=document.querySelectorAll(".highlight");if(!e)return;e.forEach(e=>{if(e.scrollHeight<=e.clientHeight)return;let t=document.createElement("div");t.classList.add("code-more-box");let n=document.createElement("span");n.classList.add("code-more-btn"),n.addEventListener("click",()=>{e.classList.add("code-show"),t.style.display="none",window.dispatchEvent(new Event("resize"))});let s=document.createElement("img");s.classList.add("code-more-img"),s.src="https://luckycloveryh.github.io/fuyou/icons/codeMore.png",n.appendChild(s),t.appendChild(n),e.appendChild(t)})}initCodeMoreBox()</script><script>const cdnPath="https://cdn.jsdelivr.net/gh/letere-gzj/live2d-widget-v3@main",config={path:{homePath:"/",modelPath:cdnPath+"/Resources/",cssPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu.css",tipsJsonPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu-tips.json",tipsJsPath:cdnPath+"/waifu-tips.js",live2dCorePath:cdnPath+"/Core/live2dcubismcore.js",live2dSdkPath:cdnPath+"/live2d-sdk.js"},tools:["hitokoto","asteroids","express","switch-model","switch-texture","photo","info","quit"],drag:{enable:!0,direction:["x","y"]},switchType:"order"};function loadExternalResource(e,t){return new Promise((n,s)=>{let o;t==="css"?(o=document.createElement("link"),o.rel="stylesheet",o.href=e):t==="js"&&(o=document.createElement("script"),o.src=e),o&&(o.onload=()=>n(e),o.onerror=()=>s(e),document.head.appendChild(o))})}let live2dInitialized=!1;function initLive2d(){if(live2dInitialized)return;screen.width>=768&&Promise.all([loadExternalResource(config.path.cssPath,"css"),loadExternalResource(config.path.live2dCorePath,"js"),loadExternalResource(config.path.live2dSdkPath,"js"),loadExternalResource(config.path.tipsJsPath,"js")]).then(()=>{initWidget({waifuPath:config.path.tipsJsonPath,cdnPath:config.path.modelPath,tools:config.tools,dragEnable:config.drag.enable,dragDirection:config.drag.direction,switchType:config.switchType}),live2dInitialized=!0}).catch(e=>{console.error("Failed to load live2d:",e)})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",initLive2d):initLive2d()</script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css><div id=aplayer></div><script src=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js></script><script>const staticDir="https://luckycloveryh.github.io/fuyou/",ap=new APlayer({container:document.getElementById("aplayer"),fixed:!0,lrcType:3,audio:[{name:"爱别等",artist:"洪卓立",url:staticDir+"music/爱别等-洪卓立/song.mp3",cover:staticDir+"music/爱别等-洪卓立/cover.jpg",lrc:staticDir+"music/爱别等-洪卓立/lyric.lrc"},{name:"查无此字",artist:"林奕匡",url:staticDir+"music/查无此字-林奕匡/song.mp3",cover:staticDir+"music/查无此字-林奕匡/cover.jpg",lrc:staticDir+"music/查无此字-林奕匡/lyric.lrc"},{name:"初初",artist:"古巨基",url:staticDir+"music/初初-古巨基/song.mp3",cover:staticDir+"music/初初-古巨基/cover.jpg",lrc:staticDir+"music/初初-古巨基/lyric.lrc"},{name:"多此一爱",artist:"陈柏宇",url:staticDir+"music/多此一爱-陈柏宇/song.mp3",cover:staticDir+"music/多此一爱-陈柏宇/cover.jpg",lrc:staticDir+"music/多此一爱-陈柏宇/lyric.lrc"},{name:"乖乖报到",artist:"MC 张天赋",url:staticDir+"music/乖乖报到-MC 张天赋/song.mp3",cover:staticDir+"music/乖乖报到-MC 张天赋/cover.jpg",lrc:staticDir+"music/乖乖报到-MC 张天赋/lyric.lrc"},{name:"还记得",artist:"周柏豪",url:staticDir+"music/还记得-周柏豪/song.mp3",cover:staticDir+"music/还记得-周柏豪/cover.jpg",lrc:staticDir+"music/还记得-周柏豪/lyric.lrc"},{name:"泼墨桃花",artist:"林峯",url:staticDir+"music/泼墨桃花-林峯/song.mp3",cover:staticDir+"music/泼墨桃花-林峯/cover.jpg",lrc:staticDir+"music/泼墨桃花-林峯/lyric.lrc"},{name:"摄氏零度",artist:"张敬轩",url:staticDir+"music/摄氏零度-张敬轩/song.mp3",cover:staticDir+"music/摄氏零度-张敬轩/cover.jpg",lrc:staticDir+"music/摄氏零度-张敬轩/lyric.lrc"},{name:"下一位前度",artist:"林家谦",url:staticDir+"music/下一位前度-林家谦/song.mp3",cover:staticDir+"music/下一位前度-林家谦/cover.jpg",lrc:staticDir+"music/下一位前度-林家谦/lyric.lrc"},{name:"这个故事教训我们",artist:"李克勤",url:staticDir+"music/这个故事教训我们-李克勤/song.mp3",cover:staticDir+"music/这个故事教训我们-李克勤/cover.jpg",lrc:staticDir+"music/这个故事教训我们-李克勤/lyric.lrc"},{name:"最后祝福",artist:"黄宗泽",url:staticDir+"music/最后祝福-黄宗泽/song.mp3",cover:staticDir+"music/最后祝福-黄宗泽/cover.jpg",lrc:staticDir+"music/最后祝福-黄宗泽/lyric.lrc"}]})</script><script>window.addEventListener("beforeunload",()=>{if(typeof ap=="undefined")return;const e={index:ap.list.index,currentTime:ap.audio.currentTime,paused:ap.paused};sessionStorage.setItem("playInfo",JSON.stringify(e))}),window.addEventListener("load",()=>{if(typeof ap=="undefined")return;if(window._pjaxNavigating)return;const e=JSON.parse(sessionStorage.getItem("playInfo"));if(!e)return;ap.list.switch(e.index),setTimeout(()=>{ap.seek(e.currentTime),e.paused||ap.play()},500)}),document.addEventListener("pjax:send",()=>{window._pjaxNavigating=!0}),document.addEventListener("pjax:complete",()=>{window._pjaxNavigating=!1})</script><script src=https://cdn.jsdelivr.net/npm/pjax/pjax.min.js></script><script>let pjaxInitialized=!1;window.addEventListener("load",()=>{if(pjaxInitialized)return;if(pjaxInitialized=!0,typeof Pjax=="undefined"){console.error("PJAX未加载");return}var e=new Pjax({selectors:[".main-container",".js-Pjax"],switches:{".main-container":"innerHTML"}});window.pjax=e,e._handleResponse=e.handleResponse,e.handleResponse=function(t,n,s,o){if(n.responseText.match("<html")){if(t){let e=(new DOMParser).parseFromString(t,"text/html"),n=e.body.className;document.body.setAttribute("class",n)}e._handleResponse(t,n,s,o)}},document.addEventListener("pjax:complete",()=>{try{window.Stack&&window.Stack.init&&window.Stack.init()}catch(e){console.warn("Stack初始化失败:",e)}try{typeof renderKaTeX=="function"&&renderKaTeX()}catch(e){console.warn("KaTeX渲染失败:",e)}})})</script><div class=js-Pjax><script>(function(){let t=document.querySelector(".comment");if(!t)return;let e=document.createElement("script");e.setAttribute("src","https://giscus.app/client.js"),e.setAttribute("data-repo",""),e.setAttribute("data-repo-id",""),e.setAttribute("data-category",""),e.setAttribute("data-category-id",""),e.setAttribute("data-mapping",""),e.setAttribute("data-strict",""),e.setAttribute("data-reactions-enabled","1"),e.setAttribute("data-emit-metadata","0"),e.setAttribute("data-input-position",""),e.setAttribute("data-theme",""),e.setAttribute("data-lang",""),e.async=!0,e.crossOrigin="anonymous",t.appendChild(e)})(document)</script></div><script>async function renderKaTeX(){let e=document.querySelector(".math-katex");if(!e)return;for(;typeof renderMathInElement!="function";)await delay(500);renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],ignoredClasses:["gist"]})}function delay(e){return new Promise(t=>{setTimeout(t,e)})}document.addEventListener("pjax:complete",()=>{renderKaTeX()})</script><script src=https://luckycloveryh.github.io/fuyou/js/topbar.min.js></script><script>topbar.config({barColors:{0:"rgba(255, 255, 255, 1)",1.0:"rgba(0, 149, 234, 1)"}}),document.addEventListener("pjax:send",()=>{topbar.show()}),document.addEventListener("pjax:complete",()=>{topbar.hide()})</script><script defer src=https://cn.vercount.one/js></script><script>function showHideView(){let e=document.querySelectorAll("#viewCount");if(e){let t=document.querySelector(".article-page");t||e.forEach(e=>{e.style.display="none"})}}showHideView()</script><div id=jsi-flying-fish-container class=flying-fish-container></div><style>.flying-fish-container{width:100%;height:200px;position:fixed;z-index:0;pointer-events:none;bottom:0;left:0;opacity:.6}.flying-fish-container canvas{display:block;pointer-events:none}</style><script src=https://luckycloveryh.github.io/fuyou/js/flying-fish.js></script><script>window.addEventListener("load",function(){typeof RENDERER!="undefined"&&document.getElementById("jsi-flying-fish-container")&&RENDERER.init()}),document.addEventListener("pjax:complete",function(){typeof RENDERER!="undefined"&&RENDERER.setup()})</script></body></html>

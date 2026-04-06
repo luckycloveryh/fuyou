@@ -1,0 +1,315 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="深入讲解 Kubernetes 日志方案 EFK（Elasticsearch + Fluentd + Kibana）的架构、部署与运维，解决容器日志收集与分析问题。"><meta name=keywords content="K8s EFK,Kubernetes 日志,Elasticsearch,Fluentd,Kibana,云原生运维"><title>20 - 日志方案_EFK</title>
+<link rel=canonical href=https://luckycloveryh.github.io/fuyou/p/k8s-efk-logging-solution/><link rel=stylesheet href=/fuyou/scss/style.min.aa7d43ff2aecaf169cabb35a0866fe377bc87c3d12e413003d63392a658212c8.css><meta property='og:title' content="20 - 日志方案_EFK"><meta property='og:description' content="深入讲解 Kubernetes 日志方案 EFK（Elasticsearch + Fluentd + Kibana）的架构、部署与运维，解决容器日志收集与分析问题。"><meta property='og:url' content='https://luckycloveryh.github.io/fuyou/p/k8s-efk-logging-solution/'><meta property='og:site_name' content='小杨的博客'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='Kubernetes'><meta property='article:tag' content='K8s'><meta property='article:tag' content='日志'><meta property='article:tag' content='EFK'><meta property='article:tag' content='Elasticsearch'><meta property='article:tag' content='Fluentd'><meta property='article:tag' content='Kibana'><meta property='article:tag' content='云原生'><meta property='article:tag' content='运维'><meta property='article:published_time' content='2026-04-06T18:15:04+08:00'><meta property='article:modified_time' content='2026-04-06T19:40:29+08:00'><meta property='og:image' content='https://i.imgs.ovh/2026/04/06/ZQGmFX.jpeg'><meta name=twitter:title content="20 - 日志方案_EFK"><meta name=twitter:description content="深入讲解 Kubernetes 日志方案 EFK（Elasticsearch + Fluentd + Kibana）的架构、部署与运维，解决容器日志收集与分析问题。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://i.imgs.ovh/2026/04/06/ZQGmFX.jpeg'><link rel=alternate type=application/json href=https://luckycloveryh.github.io/fuyou/p/k8s-efk-logging-solution/index.json><div class=loading-container><div class=card><div class=loader><p>loading</p><div class=words><span class=word>buttons</span>
+<span class=word>forms</span>
+<span class=word>switches</span>
+<span class=word>cards</span>
+<span class=word>buttons</span></div></div></div></div><style>.loading-container{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(17,17,17,.98);display:flex;align-items:center;justify-content:center;z-index:999999;transition:opacity 1.2s ease}.card{--bg-color:#111;background-color:var(--bg-color);padding:1.2rem 2.5rem;border-radius:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.7)}.loader{color:#7c7c7c;font-family:poppins,system-ui,sans-serif;font-weight:500;font-size:25px;height:42px;padding:8px 12px;display:flex;align-items:center;gap:12px;border-radius:8px;white-space:nowrap}.words{overflow:hidden;position:relative;height:100%;min-width:110px}.words::after{content:"";position:absolute;inset:0;background:linear-gradient( var(--bg-color) 10%,transparent 30%,transparent 70%,var(--bg-color) 90% );z-index:20}.word{display:block;height:100%;padding-left:4px;color:#956afa;animation:spin_4991 4s infinite linear}@keyframes spin_4991{10%{transform:translateY(-102%)}25%{transform:translateY(-100%)}35%{transform:translateY(-202%)}50%{transform:translateY(-200%)}60%{transform:translateY(-302%)}75%{transform:translateY(-300%)}85%{transform:translateY(-402%)}100%{transform:translateY(-400%)}}.loading-container.fade-out{opacity:0;pointer-events:none}</style><script>document.addEventListener("DOMContentLoaded",()=>{const e=document.querySelector(".loading-container"),t=sessionStorage.getItem("visited");if(t){e.style.display="none";return}setTimeout(()=>{e.classList.add("fade-out"),setTimeout(()=>{e.style.display="none",sessionStorage.setItem("visited","true")},1200)},2500)})</script></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/fuyou/><img src=https://i.imgs.ovh/2026/04/06/ZQ1BT4.gif width=300 height=300 class=site-logo loading=lazy alt=Avatar>
+</a><span class=emoji>🌸</span></figure><div class=site-meta><h1 class=site-name><a href=/fuyou>小杨的博客</a></h1><h2 class=site-description>技术分享，日常分享</h2></div></header><ol class=menu-social><li><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com target=_blank title=Twitter rel=me><svg class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/fuyou/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>主页</span></a></li><li><a href=/fuyou/%E5%85%B3%E4%BA%8E/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>关于</span></a></li><li><a href=/fuyou/%E6%90%9C%E7%B4%A2/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>搜索</span></a></li><li><a href=/fuyou/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>归档</span></a></li><li><a href=/fuyou/%E5%8F%8B%E9%93%BE/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>友链</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#pod-日志收集>Pod 日志收集</a></li><li><a href=#集群级别日志架构>集群级别日志架构</a><ol><li><a href=#使用节点级日志代理>使用节点级日志代理</a></li><li><a href=#使用边车容器运行日志代理-httpskubernetesiozh-cndocsconceptscluster-administrationloggingsidecar-container-with-logging-agent-sidecar>使用边车容器运行日志代理<a href=https://kubernetes.io/zh-cn/docs/concepts/cluster-administration/logging/#sidecar-container-with-logging-agent> </a>sidecar</a></li><li><a href=#从应用中直接暴露日志目录>从应用中直接暴露日志目录</a></li></ol></li><li><a href=#efk>EFK</a><ol><li><a href=#elasticsearch-httpswwwelasticcoguideenelasticsearchreference717rpmhtml><a href=https://www.elastic.co/guide/en/elasticsearch/reference/7.17/rpm.html>Elasticsearch</a></a></li><li><a href=#kibanahttpswwwelasticcoguideenkibana717rpmhtml><a href=https://www.elastic.co/guide/en/kibana/7.17/rpm.html>Kibana</a></a></li><li><a href=#filebeathttpswwwelasticcoguideenbeatsfilebeat717setup-repositorieshtml><a href=https://www.elastic.co/guide/en/beats/filebeat/7.17/setup-repositories.html>Filebeat</a></a></li></ol></li><li><a href=#efk-on-kubernetes>EFK on Kubernetes</a><ol><li><a href=#安装-elasticsearch>安装 ElasticSearch</a></li><li><a href=#安装-kibana>安装 Kibana</a></li><li><a href=#安装-filebeat>安装 Filebeat</a></li></ol></li><li><a href=#附录>附录：</a><ol><li><a href=#集群-cluster>集群 Cluster</a></li><li><a href=#节点--node>节点 node</a></li><li><a href=#索引--index>索引 index</a></li><li><a href=#分片--shard>分片 shard</a></li><li><a href=#xpack--安全开启-elasticsearch-验证>Xpack 安全，开启 elasticsearch 验证</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/fuyou/p/k8s-efk-logging-solution/><img src=https://i.imgs.ovh/2026/04/06/ZQGmFX.jpeg loading=lazy alt="Featured image of post 20 - 日志方案_EFK"></a></div><div class=article-details><header class=article-category><a href=/fuyou/categories/kubernetes-%E5%AE%9E%E6%88%98%E7%B3%BB%E5%88%97/>Kubernetes 实战系列</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/fuyou/p/k8s-efk-logging-solution/>20 - 日志方案_EFK</a></h2><h3 class=article-subtitle>深入讲解 Kubernetes 日志方案 EFK（Elasticsearch + Fluentd + Kibana）的架构、部署与运维，解决容器日志收集与分析问题。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>2026-04-06</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 6 分钟</time></div><div id=viewCount><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 104 0 2 2 0 00-4 0"/><path d="M21 12c-2.4 4-5.4 6-9 6s-6.6-2-9-6c2.4-4 5.4-6 9-6s6.6 2 9 6"/></svg>
+<time class=article-time--reading><span id=vercount_value_page_pv>loading...</span> 次</time></div></footer></div></header><section class=article-content><h2 id=pod-日志收集>Pod 日志收集</h2><p>应用程序和系统日志可以帮助我们了解集群内部的运行情况，日志对于我们调试问题和监视集群情况也是非常有用的。而且大部分的应用都会有日志记录，对于传统的应用大部分都会写入到本地的日志文件之中。对于容器化应用程序来说则更简单，<strong>只需要将日志信息写入到</strong> <strong>stdout</strong> <strong>和</strong> <strong>stderr</strong> <strong>即可</strong>，容器默认情况下就会把这些日志输出到宿主机上的一个 JSON 文件之中，同样我们也可以通过 docker logs 或者 kubectl logs 来查看到对应的日志信息。</p><p>但是，通常来说容器引擎或运行时提供的功能不足以记录完整的日志信息，比如，如果容器崩溃了、Pod 被驱逐了或者节点挂掉了，我们仍然也希望访问应用程序的日志。所以，日志应该独立于节点、Pod 或容器的生命周期，这种设计方式被称为 cluster-level-logging，即完全独立于 Kubernetes 系统，需要自己提供单独的日志后端存储、分析和查询工具。</p><p>Kubernetes 中大多数的 Pod 日志被输出到控制台，在宿主机的文件系统每个Pod会创建一个存放日志的文件夹<code>/var/log/pods/</code>这里会存放所有这个节点运行的Pod的日志，但是这个文件夹下一般都是软连接，由于Kubernetes 底层的 CRI 容器运行时可以使用很多所以日志本身并不存放在这个文件夹，以下为容器运行时真正存放日志目录：</p><ul><li>container log: <code>/var/log/containers/*.log</code></li><li>Pod log：<code>/var/log/pods</code></li></ul><h2 id=集群级别日志架构>集群级别日志架构</h2><ul><li>使用在每个节点上运行的节点级日志记录代理。</li><li>在应用程序的 Pod 中，包含专门记录日志的边车（Sidecar）容器。</li><li>将日志直接从应用程序中推送到日志记录后端。</li></ul><h3 id=使用节点级日志代理>使用节点级日志代理</h3><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NDMwODliZGMxZmQxMWM4ZmY0YWUzOTJlNWM0ODE2M2NfbkJ6d25wVnJBc2pqNjRneGk2dFlBaW9EZ2MwcHRMNjNfVG9rZW46QUdNUmJVcHVxb25iZll4TndURmNNTEpjbmNmXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA" loading=lazy alt=img></p><p>可以通过在每个节点上使用 <strong>节点级的<strong><strong>日志记录</strong></strong>代理</strong> 来实现集群级日志记录。 日志记录代理是一种用于暴露日志或将日志推送到后端的专用工具。 通常，日志记录代理程序是一个容器，它可以访问包含该节点上所有应用程序容器的日志文件的目录。</p><p>由于日志记录代理必须在每个节点上运行，推荐以 <code>DaemonSet</code> 的形式运行该代理。</p><p>节点级日志在每个节点上仅创建一个代理，不需要对节点上的应用做修改。</p><p>容器向标准输出和标准错误输出写出数据，但在格式上并不统一。 节点级代理收集这些日志并将其进行转发以完成汇总。</p><h3 id=使用边车容器运行日志代理-httpskubernetesiozh-cndocsconceptscluster-administrationloggingsidecar-container-with-logging-agent-sidecar>使用边车容器运行日志代理<a class=link href=https://kubernetes.io/zh-cn/docs/concepts/cluster-administration/logging/#sidecar-container-with-logging-agent target=_blank rel=noopener> </a>sidecar</h3><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MDNjODBjODY5YTY4MzE4MDg3Y2ZhZTU5YTNjN2NhMTBfdVhWZkJkencwQUhOd2JGeGJlWkRJTDlkRFNSOExITlZfVG9rZW46TXRwaWJPaElib21MUWZ4S1I0WGNsYW9HbmNmXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA" loading=lazy alt=img></p><h3 id=从应用中直接暴露日志目录>从应用中直接暴露日志目录</h3><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZWIxMjc4YjY0OTZlNGJjNzZjYjkzZjQwOWYxMjEwNjhfMEhZaGNYck83eFoxUDE0OHJvSDdNRmxXb1RWMVpjZmNfVG9rZW46Q3VQWGJGYVdCb2JFbVl4RXdNZGNvT2ZMbmFiXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA" loading=lazy alt=img></p><h2 id=efk>EFK</h2><p>Yum 仓库</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl> vim /etc/yum.repos.d/elasic.repo
+</span></span><span class=line><span class=cl><span class=o>[</span>elasticsearch<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>name</span><span class=o>=</span>Elasticsearch repository <span class=k>for</span> 7.x packages
+</span></span><span class=line><span class=cl><span class=nv>baseurl</span><span class=o>=</span>https://artifacts.elastic.co/packages/7.x/yum
+</span></span><span class=line><span class=cl><span class=nv>gpgcheck</span><span class=o>=</span><span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=nv>gpgkey</span><span class=o>=</span>https://artifacts.elastic.co/GPG-KEY-elasticsearch
+</span></span><span class=line><span class=cl><span class=nv>enabled</span><span class=o>=</span><span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=nv>autorefresh</span><span class=o>=</span><span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=nv>type</span><span class=o>=</span>rpm-md
+</span></span></code></pre></td></tr></table></div></div><h3 id=elasticsearch-httpswwwelasticcoguideenelasticsearchreference717rpmhtml><a class=link href=https://www.elastic.co/guide/en/elasticsearch/reference/7.17/rpm.html target=_blank rel=noopener>Elasticsearch</a></h3><p>Elasticsearch 是一个开源的分布式搜索和分析引擎，建立在 Apache Lucene 库之上。它提供了一个高性能、可伸缩和全文搜索能力强大的分布式系统，适用于处理大规模数据集的搜索、分析和近实时数据处理。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.17.16-x86_64.rpm
+</span></span><span class=line><span class=cl>rpm --install elasticsearch-7.17.16-x86_64.rpm
+</span></span></code></pre></td></tr></table></div></div><p>检查集群状态</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 列出节点健康状态</span>
+</span></span><span class=line><span class=cl>curl -XGET 127.0.0.1:9200/_cat/health?v
+</span></span><span class=line><span class=cl><span class=c1># 显示cluster状态</span>
+</span></span><span class=line><span class=cl>curl -XGET 127.0.0.1:9200/_cluster/health<span class=se>\?</span>pretty
+</span></span><span class=line><span class=cl><span class=c1># 列出 master节点</span>
+</span></span><span class=line><span class=cl>curl -XGET 127.0.0.1:9200/_cat/master?v
+</span></span><span class=line><span class=cl><span class=c1># 列出节点及利用率</span>
+</span></span><span class=line><span class=cl>curl -XGET 127.0.0.1:9200/_cat/nodes?v
+</span></span><span class=line><span class=cl><span class=c1># 显示索引 </span>
+</span></span><span class=line><span class=cl>curl localhost:9200/_cat/indices?v
+</span></span></code></pre></td></tr></table></div></div><h3 id=kibanahttpswwwelasticcoguideenkibana717rpmhtml><a class=link href=https://www.elastic.co/guide/en/kibana/7.17/rpm.html target=_blank rel=noopener>Kibana</a></h3><p>Kibana是一个开源的数据可视化和分析平台，与Elasticsearch紧密集成。它提供了一个直观的Web界面，让用户能够轻松地探索、分析和可视化存储在Elasticsearch中的数据。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>wget https://artifacts.elastic.co/downloads/kibana/kibana-7.17.16-x86_64.rpm
+</span></span></code></pre></td></tr></table></div></div><h3 id=filebeathttpswwwelasticcoguideenbeatsfilebeat717setup-repositorieshtml><a class=link href=https://www.elastic.co/guide/en/beats/filebeat/7.17/setup-repositories.html target=_blank rel=noopener>Filebeat</a></h3><p>Filebeat是一个轻量级的开源日志数据收集器，由Elasticsearch提供支持。它专门用于收集、解析和发送日志文件和其他结构化数据到Elasticsearch或Logstash等目标系统进行处理和分析。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=c># ============================== Filebeat inputs ===============================</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>filebeat.inputs</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># Each - is an input. Most options can be set at the input level, so</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># you can use different inputs for various configurations.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># Below are the input specific configurations.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># filestream is an input for collecting log messages from files.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>- <span class=nt>type</span><span class=p>:</span><span class=w> </span><span class=l>filestream</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># Unique ID among all inputs, an ID is required.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>id</span><span class=p>:</span><span class=w> </span><span class=l>my-filestream-id</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># Change to true to enable this input configuration.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>enabled</span><span class=p>:</span><span class=w> </span><span class=kc>false</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># Paths that should be crawled and fetched. Glob based paths.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>paths</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span>- <span class=l>/var/log/*.log</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c>#- c:\programdata\elasticsearch\logs\*</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># ================================== Outputs ===================================</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># Configure what output to use when sending the data collected by the beat.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># ---------------------------- Elasticsearch Output ----------------------------</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>output.elasticsearch</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># Array of hosts to connect to.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>hosts</span><span class=p>:</span><span class=w> </span><span class=p>[</span><span class=s2>&#34;localhost:9200&#34;</span><span class=p>]</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c># Protocol - either `http` (default) or `https`.</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c>#protocol: &#34;https&#34;</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h2 id=efk-on-kubernetes>EFK on Kubernetes</h2><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YTIxMTRiYTFlMjM0ZmIzNTM3ODY4YTU3ZDM0MWYxNzhfb0p0VDQ2Qk5JYXEzampaMlJGd3NVQmVPa2t4dzVhMEZfVG9rZW46Qm5JSWI3b1JHb09EY3V4QWRYMGNSMktvbmdnXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA" loading=lazy alt=img></p><h3 id=安装-elasticsearch>安装 ElasticSearch</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># Add the Elastic Helm charts repo</span>
+</span></span><span class=line><span class=cl>helm repo add elastic https://helm.elastic.co
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查询版本 我们使用 7.17.3</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@master-01 ~<span class=o>]</span><span class=c1># helm search repo  elastic/elasticsearch  -l</span>
+</span></span><span class=line><span class=cl>NAME                         CHART VERSION        APP VERSION        DESCRIPTION                                  
+</span></span><span class=line><span class=cl>elastic/elasticsearch        8.5.1                8.5.1              Official Elastic helm chart <span class=k>for</span> Elasticsearch
+</span></span><span class=line><span class=cl>elastic/elasticsearch        7.17.3               7.17.3             Official Elastic helm chart <span class=k>for</span> Elasticsearch
+</span></span><span class=line><span class=cl>elastic/elasticsearch        7.17.1               7.17.1             Official Elastic helm chart <span class=k>for</span> Elasticsearch
+</span></span><span class=line><span class=cl>elastic/elasticsearch        7.16.3               7.16.3             Official Elastic helm chart <span class=k>for</span> Elasticsearch
+</span></span><span class=line><span class=cl>elastic/elasticsearch        7.16.2               7.16.2             Official Elastic helm chart <span class=k>for</span> Elasticsearch
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@master-01 ~<span class=o>]</span><span class=c1>#  helm pull elastic/elasticsearch --version=7.17.3</span>
+</span></span></code></pre></td></tr></table></div></div><p>修改 values</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash></code></pre></td></tr></table></div></div><p>安装</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@master-01 20-log<span class=o>]</span><span class=c1># helm upgrade --install els -n logging -f elasticsearch/els-values.yaml  ./elasticsearch --create-namespace --namespace logging  </span>
+</span></span><span class=line><span class=cl>NAME: els
+</span></span><span class=line><span class=cl>LAST DEPLOYED: Sat Nov <span class=m>18</span> 20:17:57 <span class=m>2023</span>
+</span></span><span class=line><span class=cl>NAMESPACE: logging
+</span></span><span class=line><span class=cl>STATUS: deployed
+</span></span><span class=line><span class=cl>REVISION: <span class=m>1</span>
+</span></span><span class=line><span class=cl>NOTES:
+</span></span><span class=line><span class=cl>1. Watch all cluster members come up.
+</span></span><span class=line><span class=cl>  $ kubectl get pods --namespace<span class=o>=</span>logging -l <span class=nv>app</span><span class=o>=</span>elasticsearch-master -w2. Test cluster health using Helm test.
+</span></span><span class=line><span class=cl>  $ helm --namespace<span class=o>=</span>logging <span class=nb>test</span> els
+</span></span></code></pre></td></tr></table></div></div><p>集群验证</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@master-01 20-log<span class=o>]</span><span class=c1># kubectl get pods --namespace=logging -o wide </span>
+</span></span><span class=line><span class=cl>NAME                     READY   STATUS    RESTARTS   AGE   IP               NODE        NOMINATED NODE   READINESS GATES
+</span></span><span class=line><span class=cl>elasticsearch-master-0   1/1     Running   <span class=m>0</span>          99s   10.244.171.24    worker-01   &lt;none&gt;           &lt;none&gt;
+</span></span><span class=line><span class=cl>elasticsearch-master-1   1/1     Running   <span class=m>0</span>          74s   10.244.184.101   master-01   &lt;none&gt;           &lt;none&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@master-01 20-log<span class=o>]</span><span class=c1># curl 10.244.37.199:9200/_cluster/health?pretty</span>
+</span></span><span class=line><span class=cl><span class=o>{</span><span class=s2>&#34;cluster_name&#34;</span>:<span class=s2>&#34;elasticsearch&#34;</span>,<span class=s2>&#34;status&#34;</span>:<span class=s2>&#34;green&#34;</span>,<span class=s2>&#34;timed_out&#34;</span>:false,<span class=s2>&#34;number_of_nodes&#34;</span>:2,<span class=s2>&#34;number_of_data_nodes&#34;</span>:2,<span class=s2>&#34;active_primary_shards&#34;</span>:1,<span class=s2>&#34;active_shards&#34;</span>:2,<span class=s2>&#34;relocating_shards&#34;</span>:0,<span class=s2>&#34;initializing_shards&#34;</span>:0,<span class=s2>&#34;unassigned_shards&#34;</span>:0,<span class=s2>&#34;delayed_unassigned_shards&#34;</span>:0,<span class=s2>&#34;number_of_pending_tasks&#34;</span>:0,<span class=s2>&#34;number_of_in_flight_fetch&#34;</span>:0,<span class=s2>&#34;task_max_waiting_in_queue_millis&#34;</span>:0,<span class=s2>&#34;active_shards_percent_as_number&#34;</span>:100.0<span class=o>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=安装-kibana>安装 Kibana</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@master-01 20-log<span class=o>]</span><span class=c1># helm search repo  elastic/kibana -l</span>
+</span></span><span class=line><span class=cl>NAME                  CHART VERSION        APP VERSION        DESCRIPTION                           
+</span></span><span class=line><span class=cl>elastic/kibana        8.5.1                8.5.1              Official Elastic helm chart <span class=k>for</span> Kibana
+</span></span><span class=line><span class=cl>elastic/kibana        7.17.3               7.17.3             Official Elastic helm chart <span class=k>for</span> Kibana
+</span></span><span class=line><span class=cl>elastic/kibana        7.17.1               7.17.1             Official Elastic helm chart <span class=k>for</span> Kibana
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 拉取 chart</span>
+</span></span><span class=line><span class=cl>helm pull elastic/kibana --version<span class=o>=</span>7.17.3
+</span></span><span class=line><span class=cl><span class=o>[</span>root@master-01 20-log<span class=o>]</span><span class=c1># helm -n logging upgrade --install  kibana -f kibana/kibana-values.yaml  ./kibana</span>
+</span></span><span class=line><span class=cl>NAME: kibana
+</span></span><span class=line><span class=cl>LAST DEPLOYED: Sat Nov <span class=m>18</span> 20:49:28 <span class=m>2023</span>
+</span></span><span class=line><span class=cl>NAMESPACE: logging
+</span></span><span class=line><span class=cl>STATUS: deployed
+</span></span><span class=line><span class=cl>REVISION: <span class=m>1</span>
+</span></span><span class=line><span class=cl>TEST SUITE: None
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 更新</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@master-01 20-log<span class=o>]</span><span class=c1># helm -n logging upgrade kibana -f kibana/kibana-values.yaml  ./kibana</span>
+</span></span><span class=line><span class=cl>Release <span class=s2>&#34;kibana&#34;</span> has been upgraded. Happy Helming!
+</span></span><span class=line><span class=cl>NAME: kibana
+</span></span><span class=line><span class=cl>LAST DEPLOYED: Sat Nov <span class=m>18</span> 21:14:34 <span class=m>2023</span>
+</span></span><span class=line><span class=cl>NAMESPACE: logging
+</span></span><span class=line><span class=cl>STATUS: deployed
+</span></span><span class=line><span class=cl>REVISION: <span class=m>2</span>
+</span></span><span class=line><span class=cl>TEST SUITE: None
+</span></span></code></pre></td></tr></table></div></div><p>修改 Kibana SVC 使用 NodePort</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>type: NodePort
+</span></span></code></pre></td></tr></table></div></div><h3 id=安装-filebeat>安装 Filebeat</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@master-01 20-log<span class=o>]</span><span class=c1># helm search repo  elastic/filebeat  -l</span>
+</span></span><span class=line><span class=cl>NAME                    CHART VERSION        APP VERSION        DESCRIPTION                             
+</span></span><span class=line><span class=cl>elastic/filebeat        8.5.1                8.5.1              Official Elastic helm chart <span class=k>for</span> Filebeat
+</span></span><span class=line><span class=cl>elastic/filebeat        7.17.3               7.17.3             Official Elastic helm chart <span class=k>for</span> Filebeat
+</span></span><span class=line><span class=cl>elastic/filebeat        7.17.1               7.17.1             Official Elastic helm chart <span class=k>for</span> Filebeat
+</span></span><span class=line><span class=cl>elastic/filebeat        7.16.3               7.16.3             Official Elastic helm chart <span class=k>for</span> Filebeat
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@master-01 20-log<span class=o>]</span><span class=c1># helm pull elastic/filebeat --version=7.17.3</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@master-01 20-log<span class=o>]</span><span class=c1># helm -n logging install filebeat  -f filebeat/filebeat-values-1.yaml  ./filebeat</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>NAME: filebeat
+</span></span><span class=line><span class=cl>LAST DEPLOYED: Sat Nov <span class=m>18</span> 21:53:15 <span class=m>2023</span>
+</span></span><span class=line><span class=cl>NAMESPACE: logging
+</span></span><span class=line><span class=cl>STATUS: deployed
+</span></span><span class=line><span class=cl>REVISION: <span class=m>1</span>
+</span></span><span class=line><span class=cl>TEST SUITE: None
+</span></span><span class=line><span class=cl>NOTES:
+</span></span><span class=line><span class=cl>1. Watch all containers come up.
+</span></span><span class=line><span class=cl>  $ kubectl get pods --namespace<span class=o>=</span>logging -l <span class=nv>app</span><span class=o>=</span>filebeat-filebeat -w
+</span></span></code></pre></td></tr></table></div></div><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YjI3YWUxZDJjZDlkMjlhYTQwNGY3OTYyNTAzM2QzYmVfbUR3NExGWmh1TVhnT1puMEo4MGVVRmRudmwycUgyc2ZfVG9rZW46QlJxYWJHdnllb1ZPeEp4WWcwWGNLR1BobnZnXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA" loading=lazy alt=img></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=l>https://artifacthub.io/packages/helm/elastic/elasticsearch</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>https://artifacthub.io/packages/helm/elastic/kibana</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>https://artifacthub.io/packages/helm/fluent/fluentd</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>helm repo add elastic https://helm.elastic.co</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NTFhMjFhNTBmZjFiZDJjMDIyZGIzYmIwOTZmOTQ5YWJfYzcwR0JaN2hrOTVpcXRLNGdJNmhEb1RYT1VGSHFoUnJfVG9rZW46SVh2ZGI5OTdUb0tCdG54cDdlTmNWQlEzbmhmXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA" loading=lazy alt=img></p><h2 id=附录>附录：</h2><p>Elasticsearch 基础概念</p><h3 id=集群-cluster>集群 Cluster</h3><p>Elasticsearch 集群是一组 Elasticsearch 节点的集合。节点根据用途不同会划分出不同的角色，且节点之间相互通信。Elasticsearch集群常用于处理大规模数据集，目的是实现容错和高可用。Elasticsearch 集群需要一个唯一标识的集群名称来防止不必要的节点加入。</p><h3 id=节点--node>节点 node</h3><p>节点是指一个Elasticsearch实例，更确切地说，它是一个Elasticsearch进程。节点可以部署到物理机或者虚拟机上。每当Elasticsearch启动时，节点就会开始运行。每个节点都有唯一标识的名称，在部署多节点集群环境的时候我们要注意不要写错节点名称。</p><h3 id=索引--index>索引 index</h3><p>索引是 Elasticsearch 中用于存储和管理相关数据的逻辑容器。<strong>索引可以看作数据库中的一个表</strong>，它包含了一组具有相似结构的文档。在 Elasticsearch 中，数据以JSON格式的文档存储在索引内。每个索引具有唯一的名称，以便在执行搜索、更新和删除操作时进行引用。索引的名称可以由用户自定义，但必须全部小写。</p><h3 id=分片--shard>分片 shard</h3><p>分片包含索引数据的一个子集，并且其本身具有完整的功能和独立性，可以将分片近似看作“独立索引“，分片是Elasticsearch 分布式存储的基石，是底层的基本读写单元。分片的目的是分割巨大的索引，将数据分散到集群内各处。</p><p>分片分为主分片和副本分片，一般情况，一个主分片有多个副本分片。主分片负责处理写入请求和存储数据，副本分片只负责存储数据，是主分片的拷贝，文档会存储在具体的某个主分片和副本分片上。</p><p><img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NGI3ZWNhYmRkMGU3NTdlY2M0ZGRlM2Y3NWE4MTk4YjZfTGdISnl3bjVqWGR0UVZNYVlUTVA1T3d5emhoWEFWTFdfVG9rZW46QnA0S2I2WE1xbzBHTXp4MlJURWNXSWp0bkJjXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA" loading=lazy alt=img></p><h3 id=xpack--安全开启-elasticsearch-验证>Xpack 安全，开启 elasticsearch 验证</h3><p><a class=link href=https://www.elastic.co/guide/en/elasticsearch/reference/7.16/security-minimal-setup.html target=_blank rel=noopener>https://www.elastic.co/guide/en/elasticsearch/reference/7.16/security-minimal-setup.html</a></p></section><footer class=article-footer><section class=article-tags><a href=/fuyou/tags/kubernetes/>Kubernetes</a>
+<a href=/fuyou/tags/k8s/>K8s</a>
+<a href=/fuyou/tags/%E6%97%A5%E5%BF%97/>日志</a>
+<a href=/fuyou/tags/efk/>EFK</a>
+<a href=/fuyou/tags/elasticsearch/>Elasticsearch</a>
+<a href=/fuyou/tags/fluentd/>Fluentd</a>
+<a href=/fuyou/tags/kibana/>Kibana</a>
+<a href=/fuyou/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/>云原生</a>
+<a href=/fuyou/tags/%E8%BF%90%E7%BB%B4/>运维</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>本作品采用 CC BY-NC-SA 4.0 许可协议</span></section><section class=article-lastmod><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<span>最后更新于 2026-04-06 19:40 +0800</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/fuyou/p/k8s-kube-prometheus-deployment/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGXam.jpeg loading=lazy data-key=k8s-kube-prometheus-deployment data-hash=https://i.imgs.ovh/2026/04/06/ZQGXam.jpeg></div><div class=article-details><h2 class=article-title>19-监控 - kube-prometheus 部署</h2></div></a></article><article class=has-image><a href=/fuyou/p/k8s-monitoring-metrics-prometheus/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGxhF.jpeg loading=lazy data-key=k8s-monitoring-metrics-prometheus data-hash=https://i.imgs.ovh/2026/04/06/ZQGxhF.jpeg></div><div class=article-details><h2 class=article-title>19-监控</h2></div></a></article><article class=has-image><a href=/fuyou/p/k8s-headlamp-web-ui/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGuDQ.jpeg loading=lazy data-key=k8s-headlamp-web-ui data-hash=https://i.imgs.ovh/2026/04/06/ZQGuDQ.jpeg></div><div class=article-details><h2 class=article-title>Headlamp</h2></div></a></article><article class=has-image><a href=/fuyou/p/k8s-helm-package-manager/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGhXU.jpeg loading=lazy data-key=k8s-helm-package-manager data-hash=https://i.imgs.ovh/2026/04/06/ZQGhXU.jpeg></div><div class=article-details><h2 class=article-title>18 - Helm</h2></div></a></article><article class=has-image><a href=/fuyou/p/k8s-cluster-security/><div class=article-image><img src=https://i.imgs.ovh/2026/04/06/ZQGI2H.jpeg loading=lazy data-key=k8s-cluster-security data-hash=https://i.imgs.ovh/2026/04/06/ZQGI2H.jpeg></div><div class=article-details><h2 class=article-title>17-集群安全</h2></div></a></article></div></div></aside>...<div class=comment></div><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 小杨</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.26.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/fuyou/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script><style>body{background:url(https://luckycloveryh.github.io/fuyou/background/jinlin.png)no-repeat 50% 0;background-size:cover;background-attachment:fixed}.article-details{position:relative;z-index:1}.article-title,.article-title a{color:var(--card-text-color-main)!important}.search-form input{background-color:var(--card-background)!important;color:var(--card-text-color-main)!important;border-color:var(--card-separator-color)!important}.search-form button{background-color:transparent!important;color:var(--card-text-color-secondary)!important}</style><script src=https://luckycloveryh.github.io/fuyou/background/sakura.js></script><div id=particles-js></div><script src=https://luckycloveryh.github.io/fuyou/background/particles.min.js></script><script>particlesJS.load("particles-js","https://luckycloveryh.github.io/fuyou/background/particlesjs-config.json",function(){console.log("particles.js loaded - callback")})</script><style>#particles-js{position:fixed;top:0;left:0;width:100%;z-index:-1}</style><style>@font-face{font-family:瑞美加张清平硬笔行书;src:url(https://luckycloveryh.github.io/fuyou/font/%E7%91%9E%E7%BE%8E%E5%8A%A0%E5%BC%A0%E6%B8%85%E5%B9%B3%E7%A1%AC%E7%AC%94%E8%A1%8C%E4%B9%A6.ttf)format('truetype')}:root{--base-font-family:'瑞美加张清平硬笔行书';--code-font-family:'瑞美加张清平硬笔行书'}</style><style>#TableOfContents>ul,ol{ul, ol { display: none; } .open { display: block; }}</style><script>function initTocHide(){let e=document.querySelector(".widget--toc");if(!e)return;window.addEventListener("scroll",function(){let n=document.querySelectorAll(".open");n.length>0&&n.forEach(e=>{e.classList.remove("open")});let t=document.querySelector(".active-class");if(!t)return;t.children.length>1&&t.children[1].classList.add("open");let e=t.parentElement;do e.classList.add("open"),e=e.parentElement.parentElement;while(e!==void 0&&(e.localName==="ul"||e.localName==="ol"))})}initTocHide()</script><style>#backTopBtn{display:none;position:fixed;bottom:30px;z-index:99;cursor:pointer;width:30px;height:30px;background-image:url(https://luckycloveryh.github.io/fuyou/icons/backTop.svg)}</style><script>function initScrollTop(){let t=document.querySelector(".right-sidebar");if(!t)return;let e=document.createElement("div");e.id="backTopBtn",e.onclick=backToTop,t.appendChild(e),window.onscroll=function(){document.body.scrollTop>20||document.documentElement.scrollTop>20?e.style.display="block":e.style.display="none"}}function backToTop(){window.scrollTo({top:0,behavior:"smooth"})}initScrollTop()</script><style>.highlight{max-height:400px;overflow:hidden}.code-show{max-height:none!important}.code-more-box{width:100%;padding-top:78px;background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0)),to(#fff));position:absolute;left:0;right:0;bottom:0;z-index:1}.code-more-btn{display:block;margin:auto;width:44px;height:22px;background:#f0f0f5;border-top-left-radius:8px;border-top-right-radius:8px;padding-top:6px;cursor:pointer}.code-more-img{cursor:pointer!important;display:block;margin:auto;width:22px;height:16px}</style><script>function initCodeMoreBox(){let e=document.querySelectorAll(".highlight");if(!e)return;e.forEach(e=>{if(e.scrollHeight<=e.clientHeight)return;let t=document.createElement("div");t.classList.add("code-more-box");let n=document.createElement("span");n.classList.add("code-more-btn"),n.addEventListener("click",()=>{e.classList.add("code-show"),t.style.display="none",window.dispatchEvent(new Event("resize"))});let s=document.createElement("img");s.classList.add("code-more-img"),s.src="https://luckycloveryh.github.io/fuyou/icons/codeMore.png",n.appendChild(s),t.appendChild(n),e.appendChild(t)})}initCodeMoreBox()</script><script>const cdnPath="https://cdn.jsdelivr.net/gh/letere-gzj/live2d-widget-v3@main",config={path:{homePath:"/",modelPath:cdnPath+"/Resources/",cssPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu.css",tipsJsonPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu-tips.json",tipsJsPath:cdnPath+"/waifu-tips.js",live2dCorePath:cdnPath+"/Core/live2dcubismcore.js",live2dSdkPath:cdnPath+"/live2d-sdk.js"},tools:["hitokoto","asteroids","express","switch-model","switch-texture","photo","info","quit"],drag:{enable:!0,direction:["x","y"]},switchType:"order"};function loadExternalResource(e,t){return new Promise((n,s)=>{let o;t==="css"?(o=document.createElement("link"),o.rel="stylesheet",o.href=e):t==="js"&&(o=document.createElement("script"),o.src=e),o&&(o.onload=()=>n(e),o.onerror=()=>s(e),document.head.appendChild(o))})}let live2dInitialized=!1;function initLive2d(){if(live2dInitialized)return;screen.width>=768&&Promise.all([loadExternalResource(config.path.cssPath,"css"),loadExternalResource(config.path.live2dCorePath,"js"),loadExternalResource(config.path.live2dSdkPath,"js"),loadExternalResource(config.path.tipsJsPath,"js")]).then(()=>{initWidget({waifuPath:config.path.tipsJsonPath,cdnPath:config.path.modelPath,tools:config.tools,dragEnable:config.drag.enable,dragDirection:config.drag.direction,switchType:config.switchType}),live2dInitialized=!0}).catch(e=>{console.error("Failed to load live2d:",e)})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",initLive2d):initLive2d()</script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css><div id=aplayer></div><script src=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js></script><script>const staticDir="https://luckycloveryh.github.io/fuyou/",ap=new APlayer({container:document.getElementById("aplayer"),fixed:!0,lrcType:3,audio:[{name:"爱别等",artist:"洪卓立",url:staticDir+"music/爱别等-洪卓立/song.mp3",cover:staticDir+"music/爱别等-洪卓立/cover.jpg",lrc:staticDir+"music/爱别等-洪卓立/lyric.lrc"},{name:"查无此字",artist:"林奕匡",url:staticDir+"music/查无此字-林奕匡/song.mp3",cover:staticDir+"music/查无此字-林奕匡/cover.jpg",lrc:staticDir+"music/查无此字-林奕匡/lyric.lrc"},{name:"初初",artist:"古巨基",url:staticDir+"music/初初-古巨基/song.mp3",cover:staticDir+"music/初初-古巨基/cover.jpg",lrc:staticDir+"music/初初-古巨基/lyric.lrc"},{name:"多此一爱",artist:"陈柏宇",url:staticDir+"music/多此一爱-陈柏宇/song.mp3",cover:staticDir+"music/多此一爱-陈柏宇/cover.jpg",lrc:staticDir+"music/多此一爱-陈柏宇/lyric.lrc"},{name:"乖乖报到",artist:"MC 张天赋",url:staticDir+"music/乖乖报到-MC 张天赋/song.mp3",cover:staticDir+"music/乖乖报到-MC 张天赋/cover.jpg",lrc:staticDir+"music/乖乖报到-MC 张天赋/lyric.lrc"},{name:"还记得",artist:"周柏豪",url:staticDir+"music/还记得-周柏豪/song.mp3",cover:staticDir+"music/还记得-周柏豪/cover.jpg",lrc:staticDir+"music/还记得-周柏豪/lyric.lrc"},{name:"泼墨桃花",artist:"林峯",url:staticDir+"music/泼墨桃花-林峯/song.mp3",cover:staticDir+"music/泼墨桃花-林峯/cover.jpg",lrc:staticDir+"music/泼墨桃花-林峯/lyric.lrc"},{name:"摄氏零度",artist:"张敬轩",url:staticDir+"music/摄氏零度-张敬轩/song.mp3",cover:staticDir+"music/摄氏零度-张敬轩/cover.jpg",lrc:staticDir+"music/摄氏零度-张敬轩/lyric.lrc"},{name:"下一位前度",artist:"林家谦",url:staticDir+"music/下一位前度-林家谦/song.mp3",cover:staticDir+"music/下一位前度-林家谦/cover.jpg",lrc:staticDir+"music/下一位前度-林家谦/lyric.lrc"},{name:"这个故事教训我们",artist:"李克勤",url:staticDir+"music/这个故事教训我们-李克勤/song.mp3",cover:staticDir+"music/这个故事教训我们-李克勤/cover.jpg",lrc:staticDir+"music/这个故事教训我们-李克勤/lyric.lrc"},{name:"最后祝福",artist:"黄宗泽",url:staticDir+"music/最后祝福-黄宗泽/song.mp3",cover:staticDir+"music/最后祝福-黄宗泽/cover.jpg",lrc:staticDir+"music/最后祝福-黄宗泽/lyric.lrc"}]})</script><script>window.addEventListener("beforeunload",()=>{if(typeof ap=="undefined")return;const e={index:ap.list.index,currentTime:ap.audio.currentTime,paused:ap.paused};sessionStorage.setItem("playInfo",JSON.stringify(e))}),window.addEventListener("load",()=>{if(typeof ap=="undefined")return;if(window._pjaxNavigating)return;const e=JSON.parse(sessionStorage.getItem("playInfo"));if(!e)return;ap.list.switch(e.index),setTimeout(()=>{ap.seek(e.currentTime),e.paused||ap.play()},500)}),document.addEventListener("pjax:send",()=>{window._pjaxNavigating=!0}),document.addEventListener("pjax:complete",()=>{window._pjaxNavigating=!1})</script><script src=https://cdn.jsdelivr.net/npm/pjax/pjax.min.js></script><script>let pjaxInitialized=!1;window.addEventListener("load",()=>{if(pjaxInitialized)return;if(pjaxInitialized=!0,typeof Pjax=="undefined"){console.error("PJAX未加载");return}var e=new Pjax({selectors:[".main-container",".js-Pjax"],switches:{".main-container":"innerHTML"}});window.pjax=e,e._handleResponse=e.handleResponse,e.handleResponse=function(t,n,s,o){if(n.responseText.match("<html")){if(t){let e=(new DOMParser).parseFromString(t,"text/html"),n=e.body.className;document.body.setAttribute("class",n)}e._handleResponse(t,n,s,o)}},document.addEventListener("pjax:complete",()=>{try{window.Stack&&window.Stack.init&&window.Stack.init()}catch(e){console.warn("Stack初始化失败:",e)}try{typeof renderKaTeX=="function"&&renderKaTeX()}catch(e){console.warn("KaTeX渲染失败:",e)}})})</script><div class=js-Pjax><script>(function(){let t=document.querySelector(".comment");if(!t)return;let e=document.createElement("script");e.setAttribute("src","https://giscus.app/client.js"),e.setAttribute("data-repo",""),e.setAttribute("data-repo-id",""),e.setAttribute("data-category",""),e.setAttribute("data-category-id",""),e.setAttribute("data-mapping",""),e.setAttribute("data-strict",""),e.setAttribute("data-reactions-enabled","1"),e.setAttribute("data-emit-metadata","0"),e.setAttribute("data-input-position",""),e.setAttribute("data-theme",""),e.setAttribute("data-lang",""),e.async=!0,e.crossOrigin="anonymous",t.appendChild(e)})(document)</script></div><script>async function renderKaTeX(){let e=document.querySelector(".math-katex");if(!e)return;for(;typeof renderMathInElement!="function";)await delay(500);renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],ignoredClasses:["gist"]})}function delay(e){return new Promise(t=>{setTimeout(t,e)})}document.addEventListener("pjax:complete",()=>{renderKaTeX()})</script><script src=https://luckycloveryh.github.io/fuyou/js/topbar.min.js></script><script>topbar.config({barColors:{0:"rgba(255, 255, 255, 1)",1.0:"rgba(0, 149, 234, 1)"}}),document.addEventListener("pjax:send",()=>{topbar.show()}),document.addEventListener("pjax:complete",()=>{topbar.hide()})</script><script defer src=https://cn.vercount.one/js></script><script>function showHideView(){let e=document.querySelectorAll("#viewCount");if(e){let t=document.querySelector(".article-page");t||e.forEach(e=>{e.style.display="none"})}}showHideView()</script><div id=jsi-flying-fish-container class=flying-fish-container></div><style>.flying-fish-container{width:100%;height:200px;position:fixed;z-index:0;pointer-events:none;bottom:0;left:0;opacity:.6}.flying-fish-container canvas{display:block;pointer-events:none}</style><script src=https://luckycloveryh.github.io/fuyou/js/flying-fish.js></script><script>window.addEventListener("load",function(){typeof RENDERER!="undefined"&&document.getElementById("jsi-flying-fish-container")&&RENDERER.init()}),document.addEventListener("pjax:complete",function(){typeof RENDERER!="undefined"&&RENDERER.setup()})</script></body></html>
