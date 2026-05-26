@@ -1,0 +1,909 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Pod on 小杨的博客</title><link>https://luckycloveryh.github.io/fuyou/tags/pod/</link><description>Recent content in Pod on 小杨的博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>小杨</copyright><lastBuildDate>Mon, 06 Apr 2026 16:56:11 +0800</lastBuildDate><atom:link href="https://luckycloveryh.github.io/fuyou/tags/pod/index.xml" rel="self" type="application/rss+xml"/><item><title>04-Pod：Kubernetes 里最核心的概念</title><link>https://luckycloveryh.github.io/fuyou/p/k8s-pod-core-concept/</link><pubDate>Mon, 06 Apr 2026 16:56:11 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/k8s-pod-core-concept/</guid><description>&lt;img src="https://i.imgs.ovh/2026/04/06/ZQGMEL.jpeg" alt="Featured image of post 04-Pod：Kubernetes 里最核心的概念" />&lt;h2 id="介绍-pod">介绍 Pod
+&lt;/h2>&lt;h3 id="为什么要有-pod">为什么要有 Pod
+&lt;/h3>&lt;p>Pod 这个词原意是“豌豆荚”，后来又延伸出“舱室”“太空舱”等含义，你可以看一下这张图片，形象地来说 Pod 就是包含了很多组件、成员的一种结构。&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MjM3ODE0Mjc2YjAwZGVlYWZhYjQ3MzJiYTgyZDcxYTBfcUhlTEVZNnljNWNiUHFPZXRjQVJ4czJqc2lVQlk2aGFfVG9rZW46Q0hsQWJTU0Ixbzh0SEF4bFdXcmNLQ1NMbkRkXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>为了解决多应用联合运行的问题，同时还要不破坏容器的隔离，就需要在容器外面再建立一个**“&lt;strong>收纳舱&lt;/strong>”**，让多个容器既保持相对独立，又能够小范围共享网络、存储等资源，而且永远是“绑在一起”的状态。&lt;/p>
+&lt;h3 id="pod-是-kubernetes-的核心对象">Pod 是 Kubernetes 的核心对象
+&lt;/h3>&lt;p>因为 Pod 是对容器的“打包”，里面的容器是一个整体，总是能够一起调度、一起运行，绝不会出现分离的情况，而且 Pod 属于 Kubernetes，可以在不触碰下层容器的情况下任意定制修改。所以有了 Pod 这个抽象概念，Kubernetes 在集群级别上管理应用就会“得心应手”了。&lt;/p>
+&lt;p>Kubernetes 让 Pod 去编排处理容器，然后把 Pod 作为应用调度部署的最小单位，Pod 也因此成为了 Kubernetes 世界里的“原子”，基于Pod 就可以构建出更多更复杂的业务形态了。&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MTE1ODg2NGJlZGE5MjViZWQwYmUzMDhiMmY5OGUxZThfR1NXZVlLTmhIM1JJODVxSU40S1VOblZqUXFudTE1SkRfVG9rZW46TXpIS2IyWUtmbzdtTjJ4OEQ1WmNkVGRYblpkXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h2 id="如何使用-yaml-描述-pod">如何使用 YAML 描述 Pod
+&lt;/h2>&lt;p>用命令 &lt;code>kubectl explain&lt;/code> 来查看资源对象的详细说明，所以接下来我们一起看看写 YAML 时 Pod 里的一些常用字段。&lt;/p>
+&lt;p>因为 Pod 也是 API 对象，所以它也必然具有 apiVersion、kind、metadata、spec 这四个基本组成部分。&lt;/p>
+&lt;p>“apiVersion”和“kind”这两个字段很简单，对于 Pod 来说分别是固定的值 v1 和 Pod，而一般来说，“metadata”里应该有 name 和 labels 这两个字段。&lt;/p>
+&lt;p>下面这段 YAML 代码就描述了一个简单的 Pod，名字是“busy-pod”，再附加上一些标签：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">v1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Pod&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">metadata&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">busy-pod&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">labels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">owner&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">xxhf&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">env&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">dev&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">region&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">beijing&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">tier&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">back&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>“metadata”一般写上 name 和 labels 就足够了，而“spec”字段由于需要管理、维护 Pod 这个Kubernetes 的基本调度单元，里面有非常多的关键信息。&lt;/p>
+&lt;p>“containers”是一个数组，里面的每一个元素又是一个 container 对象，也就是容器。&lt;/p>
+&lt;p>和 Pod 一样，container 对象也必须要有一个 name 表示名字，然后当然还要有一个 image 字段来说明它使用的镜像，这两个字段是必须要有的，否则 Kubernetes 会报告数据验证错误。&lt;/p>
+&lt;p>container 对象的其他字段基本上都可以和我们学过的 Docker、容器技术对应，理解起来难度不大，我们看几个较常用的：&lt;/p>
+&lt;ul>
+&lt;li>ports：列出容器对外暴露的端口，和 Docker 的 -p 参数有点像。&lt;/li>
+&lt;li>imagePullPolicy：指定镜像的拉取策略，可以是 Always/Never/IfNotPresent，一般默认是 IfNotPresent，也就是说只有本地不存在才会远程拉取镜像，可以减少网络消耗。&lt;/li>
+&lt;li>env：定义 Pod 的环境变量，和 Dockerfile 里的 ENV 指令类似。&lt;/li>
+&lt;li>command：定义容器启动时要执行的命令，相当于 Dockerfile 里的 ENTRYPOINT 指令。&lt;/li>
+&lt;li>args：它是 command 运行时的参数，相当于 Dockerfile 里的 CMD 指令，这两个命令和Docker 的含义不同，要特别注意。&lt;/li>
+&lt;/ul>
+&lt;p>现在我们来编写“busy-pod”的 spec 部分，添加 env、command、args 等字段：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">spec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">containers&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">busybox:latest&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">busy&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">imagePullPolicy&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">IfNotPresent&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">env&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">name&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">value&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;xinxianghf&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">address&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">value&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;beijing&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">command&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">/bin/echo&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">args&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="s2">&amp;#34;NAME=$(name), ADDRESS=$(address)&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>这里我们为 Pod 指定使用镜像 busybox:latest，拉取策略是 IfNotPresent ，然后定义了 name 和 address 两个环境变量，启动命令是 /bin/echo，参数里输出刚才定义的环境变量。&lt;/p>
+&lt;p>把这份 YAML 文件和 Docker 命令对比一下，你就可以看出，YAML 在 spec.containers 字段里用“声明式”把容器的运行状态描述得非常清晰准确，要比 docker run 那长长的命令行要整洁的多，对人、对机器都非常友好。&lt;/p>
+&lt;p>完整的 YAML 描述：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">v1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Pod&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">metadata&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">busy-pod&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">labels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">owner&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">xxhf&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">env&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">dev&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">region&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">beijing&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">tier&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">back&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">spec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">containers&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">busybox:latest&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">busy&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">imagePullPolicy&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">IfNotPresent&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">env&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">name&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">value&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;xinxianghf&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">address&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">value&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;beijing&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">command&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">/bin/echo&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">args&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="s2">&amp;#34;NAME=$(name), ADDRESS=$(address)&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="如何使用-kubectl-操作-pod">如何使用 kubectl 操作 Pod
+&lt;/h2>&lt;p>有了描述 Pod 的 YAML 文件，现在我们看一下用来操作 Pod 的 kubectl 命令。&lt;/p>
+&lt;p>&lt;code>kubectl apply&lt;/code>、&lt;code>kubectl delete &lt;/code>这两个命令可以使用&lt;code>-f&lt;/code>参数指定 YAML 文件创建或者删除 Pod， 例如&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">kubectl apply -f busy-pod.yml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kubectl delete -f busy-pod.yml
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>不过，因为我们在 YAML 里定义了“name”字段，所以也可以在删除的时候直接指定名字来删除：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">kubectl delete pod busy-pod
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>和 Docker 不一样，Kubernetes 的 Pod 不会在前台运行，只能在后台（相当于默认使用了参数 -d)，所以输出信息不能直接看到。 我们可以用命令 kubectl logs，它会把 Pod 的标准输出流信息展示给我们，在这里就会显示出预设的两个环境变量的值：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 04-pod&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl logs busy-pod &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">NAME&lt;/span>&lt;span class="o">=&lt;/span>xinxianghf, &lt;span class="nv">ADDRESS&lt;/span>&lt;span class="o">=&lt;/span>beijing
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>使用命令 kubectl get pod 可以查看 Pod 列表和运行状态：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master1 3.2&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl get pod&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME READY STATUS RESTARTS AGE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">busy-pod 0/1 CrashLoopBackOff &lt;span class="m">6&lt;/span> &lt;span class="o">(&lt;/span>2m34s ago&lt;span class="o">)&lt;/span> 8m4s
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>你会发现这个 Pod 运行有点不正常，状态是“CrashLoopBackOff”，那么我们可以使用命令 &lt;code>kubectl describe &lt;/code>来检查它的详细状态，它在调试排错时很有用：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">kubectl describe pod busy-pod
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NDIwMTIxMTU0ZjY0MWY2NDc1OGE3NzdjYTYyNGM3NTZfVkl4cHVkUnFOUFRoc3FlWkZuUDV3Vm1CNUFHTTBYM3pfVG9rZW46Unkyc2JlTHVRb0VkMW54QnRWemMxTHJoblNkXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>通常需要关注的是末尾的“Events”部分，它显示的是 Pod 运行过程中的一些关键节点事件。对于这个 busy-pod，因为它只执行了一条 echo 命令就退出了，而 Kubernetes 默认会重启Pod，所以就会进入一个反复停止 - 启动的循环错误状态。&lt;/p>
+&lt;p>因为 Kubernetes 里运行的应用大部分都是不会主动退出的服务，所以我们可以把这个 busypod 删掉，启动一个 Nginx 服务，这才是大多数 Pod 的工作方式。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">v1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Pod&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">metadata&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">nginx-pod&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">labels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">owner&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">xxhf&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">env&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">dev&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">spec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">containers&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">nginx:1.22.1 &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">nginx &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">imagePullPolicy&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">IfNotPresent&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">ports&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">containerPort&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">80&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="l">kubectl apply -f nginx-pod.yml &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>启动之后，我们再用 kubectl get pod 来查看状态，就会发现它已经是“Running”状态了：&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NmZmZmZlZDljY2Q2ODAzOTg2YzliOWEyZmVhYTM5YjBfeEc5RTRNMnlrR2JwUWhjSXFQSmRvM1E2NHpFaVRibWpfVG9rZW46Qm9uUmJoOURub2s2TXV4d1lCSGNXdjJybnpjXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>命令 &lt;code>kubectl logs&lt;/code> 也能够输出 Nginx 的运行日志：&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZDMzYmY4NmFkZGM4YjViMjBiMzllYmU3NTI0NzRjYTZfRFBxZUxKc0FrTW1ETmR3Z0xBQjVTYjhMWm02cVZkMHVfVG9rZW46RnZtQ2J6bDJ0b2pZcTl4R2RuTWNTMGtmbm9nXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>另外，kubectl 也提供与 docker 类似的 cp 和 exec 命令，kubectl cp 可以把本地文件拷贝进 Pod，kubectl exec 是进入 Pod 内部执行 Shell 命令，用法也差不多。&lt;/p>
+&lt;p>比如我有一个“a.txt”文件，那么就可以使用 kubectl cp 拷贝进 Pod 的“/tmp”目录里：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="l">echo &amp;#34;demo&amp;#34; &amp;gt;&amp;gt; a.txt&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="l">kubectl cp a.txt nginx-pod:/tmp&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>不过 kubectl exec 的命令格式与 Docker 有一点小差异，需要在 Pod 后面加上 &amp;ndash;，把kubectl 的命令与 Shell 命令分隔开，使用时需要注意一下：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="l">kubectl exec -it nginx-pod -- sh&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=Zjk1MDBmMzAzZWVlNDE1MzMxMGQxYzMzZDllY2QxZDVfNkdPVVdIVEtlVFY2QWR1Q2JCVUFLVUNaT2cyYnpIVDBfVG9rZW46RFBKMmJjYk5kb2IxWnF4VU9DTmN5c0RqbmJlXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h2 id="使用标签组织-pod">使用标签组织 Pod
+&lt;/h2>&lt;p>例如，对于微服务架构，部署的微服务数量可以轻松超过20个甚至更多。这些组件可能是副本（部署同一组件的多个副本）和多个不同的发布版本（stable、beta、canary等）同时运行。这样一来可能会导致我们在系统中拥有数百个pod，如果没有可以有效组织这些组件的机制，将会导致产生巨大的混乱。&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MmU2Y2ViODdjOWFmYTQ0OTgwZTFhOTdkNWUwNDVmZjNfSXJyQnZmSDdUdzFseEw0RnU4QTIwcFV0QTBRRk1HZHRfVG9rZW46SUZqTmJxUDJLb1R4aDR4NlpjYWMxckkyblBiXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>我们需要一种能够基于任意标准将pod组织成更小群体的方式，这样一来处理系统的每个开发人员和系统管理员都可以轻松地看到哪个pod是什么。此外，我们希望通过一次操作对属于某个组的所有pod进行操作，而不必单独为每个pod执行操作。&lt;/p>
+&lt;p>通过标签来组织pod和所有其他Kubernetes对象。&lt;/p>
+&lt;h3 id="介绍标签">介绍标签
+&lt;/h3>&lt;p>标签是一种简单却功能强大的Kubernetes特性，不仅可以组织pod，也可以组织所有其他的Kubernetes资源。详细来讲，标签是可以附加到资源的任意键值对，用以选择具有该确切标签的资源（这是通过标签选择器完成的）。只要标签的key在资源内是唯一的，一个资源便可以拥有多个标签。通常在我们创建资源时就会将标签附加到资源上，但之后我们也可以再添加其他标签，或者修改现有标签的值，而无须重新创建资源。&lt;/p>
+&lt;p>通过给pod添加标签，可以得到一个更组织化的系统，以便我们理解。此时每个pod都标有两个标签：&lt;/p>
+&lt;ul>
+&lt;li>app，它指定pod属于哪个应用、组件或微服务。&lt;/li>
+&lt;li>env，它显示在pod中运行的环境是 dev、production 还是 qa 。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZjY3NmE5ZWI0ZGQ0YWRiNzhmMDAyODVlMDgzM2Y5NDhfbk1lSmx5eG56Z3BQWEpDZ0tKOXA1UUlPbHpGYjZrd1lfVG9rZW46VWVCZWJqb25Lb05LME94OFhvbGNxWXZabnVmXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="创建-pod-时指定标签">创建 pod 时指定标签
+&lt;/h3>&lt;p>kubectl get pods命令默认不会列出任何标签，但我们可以使用&amp;ndash;showlabels选项来查看：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">kubectl get pod --show-labels
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>如果你只对某些标签感兴趣，可以使用 -L 选项指定它们并将它们分别显示在自己的列中，而不是列出所有标签。接下来我们再次列出所有pod，并将附加到pod 的标签列展示如下：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 04-pod&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl get pods -L env&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME READY STATUS RESTARTS AGE ENV
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">busy-pod 0/1 CrashLoopBackOff &lt;span class="m">6&lt;/span> &lt;span class="o">(&lt;/span>48s ago&lt;span class="o">)&lt;/span> 6m34s dev
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nginx 1/1 Running &lt;span class="m">0&lt;/span> 2m18s dev
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nginx-pod 1/1 Running &lt;span class="m">0&lt;/span> 82s dev
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ngx-pro 1/1 Running &lt;span class="m">0&lt;/span> 45s fat
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="修改现有pod的标签">修改现有pod的标签
+&lt;/h3>&lt;p>标签也可以在现有pod上进行添加和修改。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 04-pod&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl get pods nginx-pod --show-labels&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME READY STATUS RESTARTS AGE LABELS
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nginx-pod 1/1 Running &lt;span class="m">0&lt;/span> 3m26s &lt;span class="nv">env&lt;/span>&lt;span class="o">=&lt;/span>dev,owner&lt;span class="o">=&lt;/span>xxhf
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 04-pod&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl label pod nginx-pod tier=front&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pod/nginx-pod labeled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 04-pod&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl get pods nginx-pod --show-labels&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME READY STATUS RESTARTS AGE LABELS
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nginx-pod 1/1 Running &lt;span class="m">0&lt;/span> 4m52s &lt;span class="nv">env&lt;/span>&lt;span class="o">=&lt;/span>dev,owner&lt;span class="o">=&lt;/span>xxhf,tier&lt;span class="o">=&lt;/span>front
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>修改标签&lt;/p>
+&lt;p>注意 在更改现有标签时，需要使用 &lt;code>--overwrite&lt;/code> 选项。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 04-pod&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl label pod nginx-pod env=production --overwrite&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pod/nginx-pod labeled
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>再次列出pod以查看更新后的标签：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 04-pod&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl get pods nginx-pod --show-labels&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME READY STATUS RESTARTS AGE LABELS
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nginx-pod 1/1 Running &lt;span class="m">0&lt;/span> 6m27s &lt;span class="nv">env&lt;/span>&lt;span class="o">=&lt;/span>production,owner&lt;span class="o">=&lt;/span>xxhf,tier&lt;span class="o">=&lt;/span>front
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="标签选择运算符">标签选择运算符
+&lt;/h3>&lt;p>目前支持两种类型的选择算符：&lt;strong>基于等值的&lt;/strong>和&lt;strong>基于集合的&lt;/strong>。&lt;/p>
+&lt;h4 id="基于等值">&lt;strong>基于等值&lt;/strong>
+&lt;/h4>&lt;p>&lt;strong>基于等值&lt;/strong>或&lt;strong>基于不等值&lt;/strong>的需求允许按标签键和值进行过滤。 匹配对象必须满足所有指定的标签约束，尽管它们也可能具有其他标签。 可接受的运算符有 &lt;code>=&lt;/code>、&lt;code>==&lt;/code> 和 &lt;code>!=&lt;/code> 三种。 前两个表示&lt;strong>相等&lt;/strong>（并且是同义词），而后者表示&lt;strong>不相等&lt;/strong>。例如：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Plaintext" data-lang="Plaintext">&lt;span class="line">&lt;span class="cl">environment = production
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">tier != frontend
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="基于集合">&lt;strong>基于集合&lt;/strong>
+&lt;/h4>&lt;p>&lt;strong>基于集合&lt;/strong>的标签需求允许你通过一组值来过滤键。 支持三种操作符：&lt;code>in&lt;/code>、&lt;code>notin&lt;/code> 和 &lt;code>exists&lt;/code>（只可以用在键标识符上）。例如：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Plaintext" data-lang="Plaintext">&lt;span class="line">&lt;span class="cl">environment in (production, qa)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">tier notin (frontend, backend)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> partition
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">!partition
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="按标签选择pod">按标签选择Pod
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-JSON" data-lang="JSON">&lt;span class="line">&lt;span class="cl">&lt;span class="err">kubectl&lt;/span> &lt;span class="err">get&lt;/span> &lt;span class="err">pods&lt;/span> &lt;span class="err">-l&lt;/span> &lt;span class="err">tier=front&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">kubectl&lt;/span> &lt;span class="err">get&lt;/span> &lt;span class="err">pods&lt;/span> &lt;span class="err">-l&lt;/span> &lt;span class="err">&amp;#39;environment&lt;/span> &lt;span class="err">in&lt;/span> &lt;span class="err">(production,&lt;/span> &lt;span class="err">qa)&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">kubectl&lt;/span> &lt;span class="err">get&lt;/span> &lt;span class="err">pods&lt;/span> &lt;span class="err">-l&lt;/span> &lt;span class="err">&amp;#39;environment,environment&lt;/span> &lt;span class="err">notin&lt;/span> &lt;span class="err">(frontend)&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="使用命名空间组织-pod----namespace-">使用命名空间组织 Pod ( namespace )
+&lt;/h2>&lt;p>Kubernetes 的命名空间并不是一个实体对象，只是一个&lt;strong>逻辑上的概念&lt;/strong>。它可以把集群切分成一个个彼此独立的区域，然后我们把对象放到这些区域里，就实现了类似容器技术里 namespace 的隔离效果，应用只能在自己的命名空间里分配资源和运行，不会干扰到其他命名空间里的应用。&lt;/p>
+&lt;p>在一个 K8s 集群中，命名空间可以划分为两种类型：系统级命名空间和用户自定义命名空&lt;/p>
+&lt;p>间。&lt;/p>
+&lt;p>系统级的命名空间是 K8s 集群默认创建的命名空间，主要用来隔离系统级的对象和业务对&lt;/p>
+&lt;p>象，系统级的命名空间下面四种。&lt;/p>
+&lt;ol>
+&lt;li>default：默认命名空间，也就是在不指定命名空间时的默认命名空间。&lt;/li>
+&lt;li>kube-system：K8s 系统级组件的命名空间，所有 K8s 的关键组件（例如 kube-proxy、&lt;/li>
+&lt;/ol>
+&lt;p>coredns、metric-server 等）都在这个命名空间下。&lt;/p>
+&lt;ol>
+&lt;li>kube-public：开放的命名空间，所有的用户都可以读取，这个命名空间是一个约定，但不是必须。&lt;/li>
+&lt;li>kube-node-lease：和集群扩展相关的命名空间。&lt;/li>
+&lt;/ol>
+&lt;p>在这几个命名空间中，除了 default 命名空间，你都不应该将业务应用部署在其他系统默认创建的命名空间下，也不要尝试去删除它们，这可能会导致集群异常。&lt;/p>
+&lt;p>在一个 K8s 集群中，你可以使用 kubectl get ns 命令来查看 K8s 的命名空间：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl get ns &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME STATUS AGE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">default Active 41d
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-node-lease Active 41d
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-public Active 41d
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-system Active 41d
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">middleware Active 5d21h
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>创建命名空间&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">kubectl create namespace dev-ns
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>获取命名空间详细信息&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl describe ns dev-ns &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Name: dev-ns
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Labels: kubernetes.io/metadata.name&lt;span class="o">=&lt;/span>dev-ns
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Annotations: &amp;lt;none&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Status: Active
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">No resource quota.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">No LimitRange resource.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>将 Pod 运行在指定的命名空间中&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 04-pod&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl -n dev-ns apply -f nginx-pod.yaml &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pod/nginx-pod created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 04-pod&lt;span class="o">]&lt;/span>&lt;span class="c1"># &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 04-pod&lt;span class="o">]&lt;/span>&lt;span class="c1"># &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 04-pod&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl -n dev-ns get pods &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME READY STATUS RESTARTS AGE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nginx-pod 1/1 Running &lt;span class="m">0&lt;/span> 6s
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="pod-停止和移除">Pod 停止和移除
+&lt;/h2>&lt;p>按名称删除&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">kubectl delete pod nginx-pod
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>使用标签选择器删除&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">kubectl get pods --show-labels
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kubectl delete pods -l &lt;span class="nv">env&lt;/span>&lt;span class="o">=&lt;/span>dev
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>删除命名空间所有 Pod&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">kubectl delete namespace dev-ns
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="特殊类型的容器">特殊类型的容器
+&lt;/h2>&lt;h3 id="pause-容器">Pause 容器
+&lt;/h3>&lt;p>在Kubernetes中，pause 容器作为你的 pod 中所有容器的“父容器”。pause 容器有两个核心职责。首先，它是 pod 中Linux 名称空间共享的基础。其次，启用了PID(进程ID)命名空间共享后，它为每个pod充当 PID 1，并接收僵尸进程。&lt;/p>
+&lt;p>当检查你的 Kubernetes 集群的节点时，在节点上执行容器查看命令，你可能会注意到一些被称为“暂停”（pause）的容器，例如：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># nerdctl -n k8s.io ps | grep pause&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">37ed7c409708 registry.aliyuncs.com/google_containers/pause:3.8 &lt;span class="s2">&amp;#34;/pause&amp;#34;&lt;/span> &lt;span class="m">20&lt;/span> minutes ago Up k8s://kube-system/coredns-668d6bf9bc-jj82q
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">5933b8af499d registry.aliyuncs.com/google_containers/pause:3.8 &lt;span class="s2">&amp;#34;/pause&amp;#34;&lt;/span> &lt;span class="m">20&lt;/span> minutes ago Up k8s://kube-system/coredns-668d6bf9bc-7dx9p
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">24abd7734ae0 registry.aliyuncs.com/google_containers/pause:3.8 &lt;span class="s2">&amp;#34;/pause&amp;#34;&lt;/span> &lt;span class="m">20&lt;/span> minutes ago Up k8s://kube-system/calico-kube-controllers-77969b7d87-skzk4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>你会疑惑这些容器并不是你创建的。是的，这些容器是 Kubernetes”免费赠送“的。&lt;/p>
+&lt;p>Kubernetes 中的 pause 容器有时候也称为 &lt;code>infra&lt;/code> 容器，它与用户容器”捆绑“运行在同一个 Pod 中，最大的作用是维护 Pod 网络协议栈。&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YzUwODcwNzIxYzFhZTU3ZGVlZDE3NTFlNzI3YzM0OGRfNlBSUGRRdVRVaTR6cVBtbHJvM3N3ZDJ6WWR3ck5WQ2xfVG9rZW46QlpQUWJYTm1Eb0FEblJ4aXQwdmM2WElHbkNoXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>启动一个Pod 可以看到同时启动两个 docker 容器&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-JSON" data-lang="JSON">&lt;span class="line">&lt;span class="cl">&lt;span class="p">[&lt;/span>&lt;span class="err">root@worker&lt;/span>&lt;span class="mi">-01&lt;/span> &lt;span class="err">~&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="err">#&lt;/span> &lt;span class="err">nerdctl&lt;/span> &lt;span class="err">-n&lt;/span> &lt;span class="err">k&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="err">s.io&lt;/span> &lt;span class="err">ps&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">CONTAINER&lt;/span> &lt;span class="err">ID&lt;/span> &lt;span class="err">IMAGE&lt;/span> &lt;span class="err">COMMAND&lt;/span> &lt;span class="err">CREATED&lt;/span> &lt;span class="err">STATUS&lt;/span> &lt;span class="err">PORTS&lt;/span> &lt;span class="err">NAMES&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">d&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="err">a&lt;/span>&lt;span class="mi">76&lt;/span>&lt;span class="err">bd&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="err">fd&lt;/span>&lt;span class="mi">93&lt;/span> &lt;span class="err">docker.io/library/nginx:&lt;/span>&lt;span class="mf">1.22&lt;/span>&lt;span class="err">.&lt;/span>&lt;span class="mi">1&lt;/span> &lt;span class="s2">&amp;#34;/docker-entrypoint.…&amp;#34;&lt;/span> &lt;span class="mi">5&lt;/span> &lt;span class="err">seconds&lt;/span> &lt;span class="err">ago&lt;/span> &lt;span class="err">Up&lt;/span> &lt;span class="err">k&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="err">s:&lt;/span>&lt;span class="c1">//default/nginx-pod/nginx
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="err">d&lt;/span>&lt;span class="mf">0e49&lt;/span>&lt;span class="err">f&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="err">fa&lt;/span>&lt;span class="mi">6&lt;/span>&lt;span class="err">a&lt;/span>&lt;span class="mi">6&lt;/span> &lt;span class="err">registry.aliyuncs.com/google_containers/pause:&lt;/span>&lt;span class="mf">3.8&lt;/span> &lt;span class="s2">&amp;#34;/pause&amp;#34;&lt;/span> &lt;span class="mi">14&lt;/span> &lt;span class="err">seconds&lt;/span> &lt;span class="err">ago&lt;/span> &lt;span class="err">Up&lt;/span> &lt;span class="err">k&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="err">s:&lt;/span>&lt;span class="c1">//default/nginx-pod
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>使用 nsenter -t 22376 -n ip a 可以看到两个容器是共享同一个 network 命名空间&lt;/p>
+&lt;p>使用&lt;code> ls -l /proc/22471/ns&lt;/code> 命令查看每个容器的 Namespace，可以看到 Pod 内是共享 net 和 ipc namespace 的。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-JSON" data-lang="JSON">&lt;span class="line">&lt;span class="cl">&lt;span class="err">lrwxrwxrwx&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="err">root&lt;/span> &lt;span class="err">root&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="err">Nov&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="mi">10&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="mi">21&lt;/span> &lt;span class="err">ipc&lt;/span> &lt;span class="err">-&amp;gt;&lt;/span> &lt;span class="err">ipc:&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">4026532262&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">lrwxrwxrwx&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="err">root&lt;/span> &lt;span class="err">root&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="err">Nov&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="mi">10&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="mi">21&lt;/span> &lt;span class="err">mnt&lt;/span> &lt;span class="err">-&amp;gt;&lt;/span> &lt;span class="err">mnt:&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">4026532332&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">lrwxrwxrwx&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="err">root&lt;/span> &lt;span class="err">root&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="err">Nov&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="mi">10&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="mi">21&lt;/span> &lt;span class="err">net&lt;/span> &lt;span class="err">-&amp;gt;&lt;/span> &lt;span class="err">net:&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">4026532265&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">lrwxrwxrwx&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="err">root&lt;/span> &lt;span class="err">root&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="err">Nov&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="mi">10&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="mi">21&lt;/span> &lt;span class="err">pid&lt;/span> &lt;span class="err">-&amp;gt;&lt;/span> &lt;span class="err">pid:&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">4026532334&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">lrwxrwxrwx&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="err">root&lt;/span> &lt;span class="err">root&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="err">Nov&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="mi">10&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="mi">35&lt;/span> &lt;span class="err">user&lt;/span> &lt;span class="err">-&amp;gt;&lt;/span> &lt;span class="err">user:&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">4026531837&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">lrwxrwxrwx&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="err">root&lt;/span> &lt;span class="err">root&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="err">Nov&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="mi">10&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="mi">21&lt;/span> &lt;span class="err">uts&lt;/span> &lt;span class="err">-&amp;gt;&lt;/span> &lt;span class="err">uts:&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">4026532333&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">lrwxrwxrwx&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="mi">65535&lt;/span> &lt;span class="mi">65535&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="err">Nov&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="mi">10&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="mi">21&lt;/span> &lt;span class="err">ipc&lt;/span> &lt;span class="err">-&amp;gt;&lt;/span> &lt;span class="err">ipc:&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">4026532262&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">lrwxrwxrwx&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="mi">65535&lt;/span> &lt;span class="mi">65535&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="err">Nov&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="mi">10&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="mi">35&lt;/span> &lt;span class="err">mnt&lt;/span> &lt;span class="err">-&amp;gt;&lt;/span> &lt;span class="err">mnt:&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">4026532260&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">lrwxrwxrwx&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="mi">65535&lt;/span> &lt;span class="mi">65535&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="err">Nov&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="mi">10&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="mi">21&lt;/span> &lt;span class="err">net&lt;/span> &lt;span class="err">-&amp;gt;&lt;/span> &lt;span class="err">net:&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">4026532265&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">lrwxrwxrwx&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="mi">65535&lt;/span> &lt;span class="mi">65535&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="err">Nov&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="mi">10&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="mi">35&lt;/span> &lt;span class="err">pid&lt;/span> &lt;span class="err">-&amp;gt;&lt;/span> &lt;span class="err">pid:&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">4026532263&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">lrwxrwxrwx&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="mi">65535&lt;/span> &lt;span class="mi">65535&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="err">Nov&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="mi">10&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="mi">35&lt;/span> &lt;span class="err">user&lt;/span> &lt;span class="err">-&amp;gt;&lt;/span> &lt;span class="err">user:&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">4026531837&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">lrwxrwxrwx&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="mi">65535&lt;/span> &lt;span class="mi">65535&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="err">Nov&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="mi">10&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="mi">35&lt;/span> &lt;span class="err">uts&lt;/span> &lt;span class="err">-&amp;gt;&lt;/span> &lt;span class="err">uts:&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">4026532261&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>演示 pause 容器用途&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 1. 启动 pause 容器&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nerdctl run -d --name pause &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -p 8880:80 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --ipc&lt;span class="o">=&lt;/span>shareable &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> registry.aliyuncs.com/google_containers/pause:3.8
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 2. 启动 nginx 共享 pause 的网络和 IPC&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nerdctl run -d --name nginx-pause &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --net&lt;span class="o">=&lt;/span>container:pause &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --ipc&lt;span class="o">=&lt;/span>container:pause &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --pid&lt;span class="o">=&lt;/span>container:pause &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> registry.cn-beijing.aliyuncs.com/xxhf/nginx:1.22.1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 3. 启动 centos 共享 pause 的网络和 IPC&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nerdctl run -it --name rocky-pause &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --net&lt;span class="o">=&lt;/span>container:pause &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --ipc&lt;span class="o">=&lt;/span>container:pause &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --pid&lt;span class="o">=&lt;/span>container:pause &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> registry.cn-beijing.aliyuncs.com/xxhf/rockylinux:9 sh
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NDE0ZDhhYmE1YjY2OGQxYjg3NzE3MmEyYTcyNTQyNzRfQjkxUVNCUlA5SE9VNk9aMlY0aE04UFhHN3RSak5qcGtfVG9rZW46RGVLTmJYbTJVb29oc1h4MHNvZWNtSjh0bktkXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="init-containers">Init Containers
+&lt;/h3>&lt;h4 id="什么是-init-containers">什么是 init Containers
+&lt;/h4>&lt;p>&lt;a class="link" href="https://kubernetes.io/docs/concepts/abstractions/pod/" target="_blank" rel="noopener"
+>Pod&lt;/a> 能够具有多个容器，应用运行在容器里面，但是它也可能有一个或多个先于应用容器启动的 Init 容器。&lt;/p>
+&lt;p>Init 容器与普通的容器非常像，除了如下两点：&lt;/p>
+&lt;ul>
+&lt;li>Init 容器总是运行到成功完成为止。&lt;/li>
+&lt;li>每个 Init 容器都必须在下一个 Init 容器启动之前成功完成。&lt;/li>
+&lt;/ul>
+&lt;p>如果 Pod 的 Init 容器失败，Kubernetes 会不断地重启该 Pod，直到 Init 容器成功为止。然而，如果 Pod 对应的 &lt;code>restartPolicy&lt;/code> 为 Never，它不会重新启动。&lt;/p>
+&lt;h3 id="init-容器能做什么">&lt;strong>Init 容器能做什么？&lt;/strong>
+&lt;/h3>&lt;p>因为 Init 容器具有与应用程序容器分离的单独镜像，所以它们的启动相关代码具有如下优势：&lt;/p>
+&lt;ul>
+&lt;li>等待其他模块 Ready：这个可以用来解决服务之间的依赖问题，比如我们有一个 Web 服务，该服务又依赖于另外一个数据库服务，但是在我们启动这个 Web 服务的时候我们并不能保证依赖的这个数据库服务就已经启动起来了，所以可能会出现一段时间内 Web 服务连接数据库异常。要解决这个问题的话我们就可以在 Web 服务的 Pod 中使用一个&lt;code>InitContainer&lt;/code>，在这个初始化容器中去检查数据库是否已经准备好了，准备好了过后初始化容器就结束退出，然后我们的主容器 Web 服务被启动起来，这个时候去连接数据库就不会有问题了。&lt;/li>
+&lt;li>做初始化配置：比如集群里检测所有已经存在的成员节点，为主容器准备好集群的配置信息，这样主容器起来后就能用这个配置信息加入集群。&lt;/li>
+&lt;li>其它场景：如将&lt;code>Pod&lt;/code>注册到一个中央数据库、配置中心等。&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">v1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Pod&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">metadata&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">myapp-pod&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">labels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">app.kubernetes.io/name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">MyApp&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">spec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">containers&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">myapp-container&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">busybox:latest&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">command&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s1">&amp;#39;sh&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s1">&amp;#39;-c&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s1">&amp;#39;echo The app is running! &amp;amp;&amp;amp; sleep 3600&amp;#39;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">initContainers&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">init-myservice&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">busybox:1.28&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">command&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s1">&amp;#39;sh&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s1">&amp;#39;-c&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">init-mydb&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">busybox:1.28&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">command&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s1">&amp;#39;sh&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s1">&amp;#39;-c&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>在 Pod 启动过程中，Init 容器会按顺序在网络和数据卷初始化之后启动。每个容器必须在下一个容器启动之前成功退出。如果由于运行时或失败退出，将导致容器启动失败，它会根据 Pod 的 &lt;code>restartPolicy&lt;/code> 指定的策略进行重试。然而，如果 Pod 的 &lt;code>restartPolicy&lt;/code> 设置为 Always，Init 容器失败时会使用 &lt;code>RestartPolicy&lt;/code> 策略。&lt;/p>
+&lt;p>在所有的 Init 容器没有成功之前，Pod 将不会变成 &lt;code>Ready&lt;/code> 状态。正在初始化中的 Pod 处于 &lt;code>Pending&lt;/code> 状态，但应该会将 &lt;code>Initializing&lt;/code> 状态设置为 true。&lt;/p>
+&lt;p>如果 Pod 重启，所有 Init 容器必须重新执行。&lt;/p>
+&lt;p>对 Init 容器 spec 的修改被限制在容器 image 字段，修改其他字段都不会生效。更改 Init 容器的 image 字段，等价于重启该 Pod。&lt;/p>
+&lt;p>因为 Init 容器可能会被 重启、重试或者重新执行，所以 Init 容器的代码应该是 &lt;strong>幂等&lt;/strong> 的。&lt;/p>
+&lt;h2 id="pod-生命周期">Pod 生命周期
+&lt;/h2>&lt;h3 id="pod-阶段">Pod 阶段
+&lt;/h3>&lt;p>Pod 的 &lt;code>status&lt;/code> 字段是一个 PodStatus 对象，其中包含一个 &lt;code>phase&lt;/code> 字段。&lt;/p>
+&lt;p>Pod 的阶段（Phase）是 Pod 在其生命周期中所处位置的简单概述。&lt;/p>
+&lt;p>下面是 &lt;code>phase&lt;/code> 可能的值：&lt;/p>
+&lt;p>Pod 遵循预定义的生命周期，起始于 &lt;code>Pending&lt;/code> 阶段， 如果至少其中有一个主要容器正常启动，则进入 &lt;code>Running&lt;/code>，之后取决于 Pod 中是否有容器以失败状态结束而进入 &lt;code>Succeeded&lt;/code> 或者 &lt;code>Failed&lt;/code> 阶段。&lt;/p>
+&lt;p>在 Pod 运行期间，&lt;code>kubelet&lt;/code> 能够重启容器以处理一些失效场景。 在 Pod 内部，Kubernetes 跟踪不同容器的状态并确定使 Pod 重新变得健康所需要采取的动作。&lt;/p>
+&lt;p>Pod 在其生命周期中只会被调度一次。 一旦 Pod 被调度（分派）到某个节点，Pod 会一直在该节点运行，直到Pod 停止或者被终止。&lt;/p>
+&lt;p>下面是 &lt;code>phase&lt;/code> 的可能取值：&lt;/p>
+&lt;ul>
+&lt;li>挂起（Pending）：Pod 信息已经提交给了集群，但是还没有被调度器调度到合适的节点或者 Pod 里的镜像正在下载&lt;/li>
+&lt;li>运行中（Running）：该 Pod 已经绑定到了一个节点上，Pod 中所有的容器都已被创建。至少有一个容器正在运行，或者正处于启动或重启状态&lt;/li>
+&lt;li>成功（Succeeded）：Pod 中的所有容器都被成功终止，并且不会再重启&lt;/li>
+&lt;li>失败（Failed）：Pod 中的所有容器都已终止了，并且至少有一个容器是因为失败终止。也就是说，容器以非&lt;code>0&lt;/code>状态退出或者被系统终止&lt;/li>
+&lt;li>未知（Unknown）：因为某些原因无法取得 Pod 的状态，通常是因为与 Pod 所在主机通信失败导致的&lt;/li>
+&lt;/ul>
+&lt;h3 id="容器状态">容器状态
+&lt;/h3>&lt;p>一旦调度器将 Pod 分派给某个节点，&lt;code>kubelet&lt;/code> 就通过容器运行时开始为 Pod 创建容器。容器的状态有三种：&lt;code>Waiting&lt;/code>（等待）、&lt;code>Running&lt;/code>（运行中）和 &lt;code>Terminated&lt;/code>（已终止）。&lt;/p>
+&lt;ul>
+&lt;li>Waiting （等待）&lt;/li>
+&lt;/ul>
+&lt;p>如果容器并不处在 Running 或 Terminated 状态之一，它就处在 Waiting 状态。 处于 Waiting 状态的容器仍在运行它完成启动所需要的操作：例如， 从某个容器镜像仓库拉取容器镜像，或者向容器应用 Secret 数据等等。 当你使用 kubectl 来查询包含 Waiting 状态的容器的 Pod 时，你也会看到一个 Reason 字段，其中给出了容器处于等待状态的原因。&lt;/p>
+&lt;ul>
+&lt;li>Running（运行中）&lt;/li>
+&lt;/ul>
+&lt;p>Running 状态表明容器正在执行状态并且没有问题发生。 如果配置了 postStart 回调，那么该回调已经执行且已完成。 如果你使用 kubectl 来查询包含 Running 状态的容器的 Pod 时， 你也会看到关于容器进入 Running 状态的信息。&lt;/p>
+&lt;ul>
+&lt;li>Terminated（已终止）&lt;/li>
+&lt;/ul>
+&lt;p>处于 Terminated 状态的容器已经开始执行并且或者正常结束或者因为某些原因失败。 如果你使用 kubectl 来查询包含 Terminated 状态的容器的 Pod 时， 你会看到容器进入此状态的原因、退出代码以及容器执行期间的起止时间。&lt;/p>
+&lt;p>如果容器配置了 preStop 回调，则该回调会在容器进入 Terminated 状态之前执行。&lt;/p>
+&lt;h3 id="容器重启策略">容器重启策略
+&lt;/h3>&lt;p>Pod 的 &lt;code>spec&lt;/code> 中包含一个 &lt;code>restartPolicy&lt;/code> 字段，其可能取值包括 Always、OnFailure 和 Never。默认值是 Always。&lt;/p>
+&lt;p>&lt;code>restartPolicy&lt;/code> 适用于 Pod 中的所有容器。&lt;code>restartPolicy&lt;/code> 仅针对同一节点上 &lt;code>kubelet&lt;/code> 的容器重启动作。当 Pod 中的容器退出时，&lt;code>kubelet&lt;/code> 会按指数回退方式计算重启的延迟（10s、20s、40s、&amp;hellip;），其最长延迟为 5 分钟。&lt;/p>
+&lt;h3 id="容器生命周期回调hook-----钩子函数">&lt;strong>容器生命周期&lt;strong>&lt;strong>回调&lt;/strong>&lt;/strong>(Hook)&lt;/strong> &lt;strong>钩子函数&lt;/strong>
+&lt;/h3>&lt;p>有两个回调暴露给容器：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>PostStart&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>这个回调在容器被创建之后立即被执行。 但是，不能保证回调会在容器入口点（ENTRYPOINT）之前执行。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>PreStop&lt;/code> # 优雅退出&lt;/li>
+&lt;/ul>
+&lt;p>在容器被终止之前，此回调会被调用。在容器终止之前调用，常用于在容器结束前优雅的释放资源。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">v1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Pod&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">metadata&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">lifecycle-demo&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">spec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">containers&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">lifecycle-demo-container&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">nginx:1.22.1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">lifecycle&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">postStart&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">exec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">command&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;/bin/sh&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;-c&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;echo Hello from the postStart handler &amp;gt; /usr/share/message&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">preStop&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">exec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">command&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;/usr/sbin/nginx&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s2">&amp;#34;-s&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s2">&amp;#34;quit&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>postStart 指的是，在容器启动后，立刻执行一个指定的操作。需要明确的是，postStart 定义的操作，虽然是在 Docker 容器 ENTRYPOINT 执行之后，但它并不严格保证顺序。也就是说，在 postStart 启动时，ENTRYPOINT 有可能还没有结束。当然，如果 postStart 执行超时或者错误，Kubernetes 会在该 Pod 的 Events 中报出该容器启动失败的错误信息，导致 Pod 也处于失败的状态。&lt;/p>
+&lt;p>preStop 发生的时机，则是容器被杀死之前（比如，收到了 SIGKILL 信号）。而需要明确的是，preStop 操作的执行，是同步的。所以，它会阻塞当前的容器杀死流程，直到这个 Hook 定义操作完成之后，才允许容器被杀死，这跟 postStart 不一样。&lt;/p>
+&lt;p>所以，在这个例子中，我们在容器成功启动之后，在 /usr/share/message 里写入了一句“欢迎信息”（即 postStart 定义的操作）。而在这个容器被删除之前，我们则先调用了 nginx 的退出指令（即 preStop 定义的操作），从而实现了容器的“优雅退出”。&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YjY4NzFiZWJmYzBhODdhODc4MTk0ZmRmY2RlODM0ODNfczVOcU5iemx4Y2o5SVZMVlFFT29EWjUyVHdCT2FBSmxfVG9rZW46RmxIWWJrcEhrb2oyUTB4V2xCSmNSa2JqbmRnXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MTcyOGM3ZDQ2YzZiMjRjMzg1NTg1NTgzYzYxM2FiMGJfd3Y4SUs2dm1LajhJbkFRYWhmTkpKbER3dm00MTMwc2xfVG9rZW46V1N0aGI4dG54b2kzMkR4VHluNmNudnRJbmJlXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h2 id="附录">附录
+&lt;/h2>&lt;h3 id="kubectl-命令补全">Kubectl 命令补全
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">dnf -y install bash-completion
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;source &amp;lt;(kubectl completion bash)&amp;#34;&lt;/span> &amp;gt;&amp;gt; ~/.bashrc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">source&lt;/span> ~/.bashrc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bash
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="restartpolicy">&lt;code>restartPolicy&lt;/code>
+&lt;/h3>&lt;p>Pod通过&lt;code>restartPolicy&lt;/code>字段指定重启策略，重启策略类型为：Always、OnFailure 和 Never，默认为 Always。&lt;/p>
+&lt;p>&lt;code>restartPolicy&lt;/code> 仅指通过同一节点上的 kubelet 重新启动容器。&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>重启策略&lt;/th>
+&lt;th>说明&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Always&lt;/td>
+&lt;td>当容器失效时，由kubelet自动重启该容器， 默认&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>OnFailure&lt;/td>
+&lt;td>当容器终止运行且退出码不为0时，由kubelet自动重启该容器&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Never&lt;/td>
+&lt;td>不论容器运行状态如何，kubelet都不会重启该容器&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h3 id="nerdctl--run-参数">Nerdctl run 参数
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Go" data-lang="Go">&lt;span class="line">&lt;span class="cl">&lt;span class="o">--&lt;/span>&lt;span class="nx">net&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="nx">container&lt;/span>&lt;span class="p">:&amp;lt;&lt;/span>&lt;span class="nx">container_name&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>&lt;span class="err">：&lt;/span>&lt;span class="nx">容器与另一个指定容器共享网络命名空间&lt;/span>&lt;span class="err">。&lt;/span>&lt;span class="nx">这意味着两个容器共享相同的网络栈&lt;/span>&lt;span class="err">，&lt;/span>&lt;span class="nx">可以直接通信&lt;/span>&lt;span class="err">。&lt;/span>&lt;span class="nx">使用此模式时&lt;/span>&lt;span class="err">，&lt;/span>&lt;span class="nx">两个容器可以看到彼此的网络接口和端口&lt;/span>&lt;span class="err">。&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">--&lt;/span>&lt;span class="nx">ipc&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="nx">container&lt;/span>&lt;span class="p">:&amp;lt;&lt;/span>&lt;span class="nx">container_name&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>&lt;span class="err">：&lt;/span>&lt;span class="nx">容器与另一个指定容器共享IPC命名空间&lt;/span>&lt;span class="err">。&lt;/span>&lt;span class="nx">这使得两个容器可以直接进行IPC通信&lt;/span>&lt;span class="err">，&lt;/span>&lt;span class="nx">共享相同的IPC资源&lt;/span>&lt;span class="err">。&lt;/span>&lt;span class="nx">例如&lt;/span>&lt;span class="err">，&lt;/span>&lt;span class="nx">可以使用这个选项在容器之间共享内存段&lt;/span>&lt;span class="err">。&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">--&lt;/span>&lt;span class="nx">pid&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="nx">container&lt;/span>&lt;span class="p">:&amp;lt;&lt;/span>&lt;span class="nx">container_name&lt;/span>&lt;span class="p">&amp;gt;&lt;/span>&lt;span class="err">：&lt;/span>&lt;span class="nx">容器与另一个指定容器共享PID命名空间&lt;/span>&lt;span class="err">。&lt;/span>&lt;span class="nx">这使得两个容器可以共享相同的进程命名空间&lt;/span>&lt;span class="err">，&lt;/span>&lt;span class="nx">进程在两个容器之间是可见的&lt;/span>&lt;span class="err">。&lt;/span>&lt;span class="nx">例如&lt;/span>&lt;span class="err">，&lt;/span>&lt;span class="nx">可以使用此选项在一个容器中监视和管理另一个容器的进程&lt;/span>&lt;span class="err">。&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YTEwYzZmNDZjMGNhYWMyOGRmZjU4ZGVhNDlhY2ZiMGVfanVOdjA3dndOUnROTThHdTRpYkhRc3pLeXpmME9kYUJfVG9rZW46TVVZS2IwaTNUb2lSR3R4MDNEdWNqdXBzbmVkXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZWYwMjM4ZmZhNmQyYzZiMzRkOTdhNGRhMGJhZjk0YjZfSWF6ZHlqTU1iUFBkSU92MVUwWkVzY09hbjEwV1Bkd2VfVG9rZW46SnJvdmJqTkJib1U1TU54dUtZT2NtQjZzbmNoXzE3NzU0NzEwMzU6MTc3NTQ3NDYzNV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl"> kubectl &lt;span class="nb">set&lt;/span> env daemonset/calico-node -n kube-system &lt;span class="nv">IP_AUTODETECTION_METHOD&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">interface&lt;/span>&lt;span class="o">=&lt;/span>ens192
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

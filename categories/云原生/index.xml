@@ -1,0 +1,1026 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>云原生 on 小杨的博客</title><link>https://luckycloveryh.github.io/fuyou/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/</link><description>Recent content in 云原生 on 小杨的博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>小杨</copyright><lastBuildDate>Mon, 06 Apr 2026 16:05:38 +0800</lastBuildDate><atom:link href="https://luckycloveryh.github.io/fuyou/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/index.xml" rel="self" type="application/rss+xml"/><item><title>Kubernetes 安装部署</title><link>https://luckycloveryh.github.io/fuyou/p/kubernetes-%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/</link><pubDate>Mon, 06 Apr 2026 16:05:38 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/kubernetes-%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/</guid><description>&lt;img src="https://i.imgs.ovh/2026/04/06/ZQGDqn.jpeg" alt="Featured image of post Kubernetes 安装部署" />&lt;h2 id="kubeadm-简介">Kubeadm 简介
+&lt;/h2>&lt;p>为了简化 Kubernetes 的部署工作，让它能够更“接地气”，社区里就出现了一个专门用来在集群中安装 Kubernetes 的工具，名字就叫“kubeadm”，意思就是“Kubernetes 管理员”。&lt;/p>
+&lt;p>Kubeadm 是用容器和镜像来封装 Kubernetes 的各种组件，但它的目标不是单机部署，而是要能够轻松地在集群环境里部署 Kubernetes，并且让这个集群接近甚至达到生产级质量。&lt;/p>
+&lt;h2 id="1-环境准备--master-和-worker-都-执行-">1. 环境准备 ( Master 和 Worker 都 执行 )
+&lt;/h2>&lt;h3 id="11-所需服务器">1.1 所需服务器
+&lt;/h3>&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>角色&lt;/th>
+&lt;th>主机名&lt;/th>
+&lt;th>IP&lt;/th>
+&lt;th>最小配置&lt;/th>
+&lt;th>建议配置&lt;/th>
+&lt;th>操作系统&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Master 节点&lt;/td>
+&lt;td>master-01&lt;/td>
+&lt;td>10.206.0.15&lt;/td>
+&lt;td>2C4G&lt;/td>
+&lt;td>2C4G&lt;/td>
+&lt;td>Rockylinux 9.4&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Worker 节点&lt;/td>
+&lt;td>worker-01&lt;/td>
+&lt;td>10.206.0.9&lt;/td>
+&lt;td>2C2G&lt;/td>
+&lt;td>2C4G&lt;/td>
+&lt;td>Rockylinux 9.4&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>所谓的多节点集群，要求服务器应该有两台或者更多，为了简化我们只取最小值，所以这个Kubernetes 集群就只有两台主机，一台是 Master 节点，另一台是 Worker 节点。当然，在完全掌握了 kubeadm 的用法之后，你可以在这个集群里添加更多的节点。 Master 节点需要运行 apiserver、etcd、scheduler、controller-manager 等组件，管理整个集群，所以对配置要求比较高，至少是 2 核 CPU、4GB 的内存。&lt;/p>
+&lt;p>而 Worker 节点没有管理工作，只运行业务应用，所以配置可以低一些，为了节省资源可以给它分配 2 核 CPU 和 2GB 的内存。&lt;/p>
+&lt;p>基于模拟生产环境的考虑，在 Kubernetes 集群之外还需要有一台起辅助作用的服务器。它的名字叫 Console，意思是控制台，我们要在上面安装命令行工具 &lt;strong>kubectl&lt;/strong>，所有对Kubernetes 集群的管理命令都是从这台主机发出去的。这也比较符合实际情况，因为安全的原因，集群里的主机部署好之后应该尽量少直接登录上去操作。要提醒你的是，Console 这台主机只是逻辑上的概念，不一定要是独立，完全可以复用 Master/Worker 节点作为控制。&lt;/p>
+&lt;h3 id="12-配置主机名">1.2 配置主机名
+&lt;/h3>&lt;p>主机名不是必须要修改，在真实环境中只要主机名不一样即可，为了学习时方便，还是建议修改。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">hostnamectl set-hostname master-01
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">hostnamectl set-hostname worker-01
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="13-关闭防火墙">1.3 关闭防火墙
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 关闭防火墙，并禁止开机自动运行 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl disable --now firewalld
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="14-关闭-selinux">1.4 关闭 SELinux
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 设置 SELinux 的执行模式。0 表示关闭 SELinux。&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">setenforce &lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 修改 SELinux 配置文件 /etc/selinux/config ，禁用 SELinux &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sed -i &lt;span class="s1">&amp;#39;s#SELINUX=enforcing#SELINUX=disabled#g&amp;#39;&lt;/span> /etc/selinux/config
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="15-关闭交换分区">1.5 关闭交换分区
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">swapoff -a&lt;span class="p">;&lt;/span> sed -i &lt;span class="s1">&amp;#39;/swap/d&amp;#39;&lt;/span> /etc/fstab
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="16-配置时钟同步">1.6 配置时钟同步
+&lt;/h3>&lt;p>保证所有的服务器的时间一致&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">yum -y install chrony
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 修改配置文件 /etc/chrony.conf ，添加如下行 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">server ntp.aliyun.com iburst
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">server ntp1.aliyun.com iburst
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">server ntp2.aliyun.com iburst
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 启动服务 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl restart chronyd
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl &lt;span class="nb">enable&lt;/span> chronyd
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 检查状态 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">chronyc tracking
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="17-修改内核参数">1.7 修改内核参数
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">cat &amp;gt;&amp;gt;/etc/sysctl.d/kubernetes.conf&lt;span class="s">&amp;lt;&amp;lt;EOF
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">net.bridge.bridge-nf-call-ip6tables = 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">net.bridge.bridge-nf-call-iptables = 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">net.ipv4.ip_forward = 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">EOF&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sysctl --system
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># net.ipv4.ip_forward = 1 启用了IPv4的IP转发功能，允许服务器作为网络路由器转发数据包。&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># net.bridge.bridge-nf-call-iptables = 1 当使用网络桥接技术时，将数据包传递到iptables进行处理。&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="18-配置-hosts-本地解析">1.8 配置 hosts 本地解析
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">cat &amp;gt; /etc/hosts &lt;span class="s">&amp;lt;&amp;lt;EOF
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">127.0.0.1 localhost localhost.localdomain localhost4 localhost4.localdomain4
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">::1 localhost localhost.localdomain localhost6 localhost6.localdomain6
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">10.7.0.15 master-01
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">10.7.4.13 worker-01
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">EOF&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="19-安装-容器运行时----containerd">1.9 安装 容器运行时 Containerd
+&lt;/h3>&lt;p>k8s 从 v1.24 版本开始取消了对 Docker 容器运行时的支持，默认使用 Containerd，虽然这是k8s多年的心愿，但对于用户来说并没有益处，还需要额外学习 Containerd 相关的命令，神仙打架，殃及池鱼啊。&lt;/p>
+&lt;p>Containerd 的二进制安装方式有点麻烦，我们就直接使用 docker 公司提供的 yum 仓库安装， containerd 是 Docker 公司捐献给 CNCF 的。&lt;/p>
+&lt;p>安装 containerd&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">dnf install -y yum-utils
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 使用 阿里云仓库 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dnf config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#官方镜像&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 安装 containerd &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dnf -y install containerd.io-1.7.29
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>修改 containerd 配置文件&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 创建默认配置文件&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> /etc/containerd
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mv config.toml config.toml.orig
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">containerd config default &amp;gt; /etc/containerd/config.toml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 修改 Containerd cgroup 配置&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sed -i &lt;span class="s2">&amp;#34;s#SystemdCgroup\ \=\ false#SystemdCgroup\ \=\ true#g&amp;#34;&lt;/span> /etc/containerd/config.toml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># grep -i SystemdCgroup /etc/containerd/config.toml&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># SystemdCgroup = true # false 改为 true &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 修改 sandbox 沙箱镜像地址（就是 pause 镜像地址），国外就不用修改&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sed -i &lt;span class="s2">&amp;#34;s#registry.k8s.io#registry.aliyuncs.com/google_containers#g&amp;#34;&lt;/span> /etc/containerd/config.toml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># grep -i sandbox_image /etc/containerd/config.toml&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># sandbox_image = &amp;#34;registry.aliyuncs.com/google_containers/pause:3.8&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 修改镜像仓库 从 registry.k8s.io 修改为 阿里云 &lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=Y2MyY2Q4ZmExYmVjMmVmYjE5YjFjNzc2MDc2ZjdhNzRfNnB5U0VsaVAwOEJyb2pzZzAwUUZ6NGszSE1kVjlZUUNfVG9rZW46VXZzTmIzZWoyb0RxdTJ4ZkVUOWM0aGpEbnZnXzE3NzU0NzA5Mzc6MTc3NTQ3NDUzN19WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>启动 containerd 服务&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">systemctl &lt;span class="nb">enable&lt;/span> --now containerd
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">systemctl status containerd
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ctr version
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;blockquote>
+&lt;p>二进制安装 containerd 的步骤大概是：&lt;/p>
+&lt;ul>
+&lt;li>安装 containerd&lt;/li>
+&lt;li>安装 runc&lt;/li>
+&lt;li>安装 CNI plugins&lt;/li>
+&lt;/ul>
+&lt;p>这个步骤可以帮助我们理解是容器是如何创建出来的，但初学者可以先忽略。&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="110-安装-kubeadm-和-k8s-组件">1.10 安装 kubeadm 和 k8s 组件
+&lt;/h3>&lt;p>k8s 官方的仓库访问受限，我们使用阿里云的仓库&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">cat &lt;span class="s">&amp;lt;&amp;lt;EOF | tee /etc/yum.repos.d/kubernetes.repo
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">[kubernetes]
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">name=Kubernetes
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">baseurl=https://mirrors.aliyun.com/kubernetes-new/core/stable/v1.32/rpm/
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">enabled=1
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">gpgcheck=1
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">gpgkey=https://mirrors.aliyun.com/kubernetes-new/core/stable/v1.32/rpm/repodata/repomd.xml.key
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">EOF&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#官方仓库&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cat &lt;span class="s">&amp;lt;&amp;lt;EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">[kubernetes]
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">name=Kubernetes
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">baseurl=https://pkgs.k8s.io/core:/stable:/v1.32/rpm/
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">enabled=1
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">gpgcheck=1
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">gpgkey=https://pkgs.k8s.io/core:/stable:/v1.32/rpm/repodata/repomd.xml.key
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">EOF&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#国外版仓库安装&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">dnf install -y kubeadm kubelet kubectl --disableexcludes&lt;span class="o">=&lt;/span>kubernetes
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>安装&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">dnf install -y kubeadm-1.32.2 kubelet-1.32.2 kubectl-1.32.2
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>启动服务&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">systemctl &lt;span class="nb">enable&lt;/span> --now kubelet
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="2-master-节点初始化-只在-master-节点执行">2. Master 节点初始化 (只在 master 节点执行)
+&lt;/h2>&lt;h3 id="21-生成-kubeadm-初始化的配置文件">2.1 生成 kubeadm 初始化的配置文件
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="l">kubeadm config print init-defaults &amp;gt; kubeadm-config.yaml&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="22-修改配置文件">2.2 修改配置文件
+&lt;/h3>&lt;p>默认生成的kubeadm初始化配置文件 &lt;code> kubeadm-config.yaml&lt;/code> 需要修改以下内容：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">localAPIEndpoint&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">advertiseAddress&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">10.206.0.12&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 修改为 master节点IP地址，如果使用公有云，配置虚机的内网地址 &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">bindPort&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">6443&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nn">...&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">... &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">imageRepository&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">registry.aliyuncs.com/google_containers&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 修改为阿里云镜像仓库 &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">ClusterConfiguration&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kubernetesVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">1.32.2&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># # 需要安装的 k8s 版本号&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">networking&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">dnsDomain&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">cluster.local&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">serviceSubnet&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">10.96.0.0&lt;/span>&lt;span class="l">/12&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">podSubnet&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">10.244.0.0&lt;/span>&lt;span class="l">/16&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 添加 pod 网络 CIDR 地址&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>完整的&lt;code>kubeadm-config.yaml&lt;/code> 配置文件内容如下：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">kubeadm.k8s.io/v1beta4&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">bootstrapTokens&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="nt">groups&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">system:bootstrappers:kubeadm:default-node-token&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">token&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">abcdef.0123456789abcdef&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">ttl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">24h0m0s&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">usages&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">signing&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">authentication&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">InitConfiguration&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">localAPIEndpoint&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">advertiseAddress&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">10.206.0.12&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 修改为 master节点IP地址，如果使用公有云，配置虚机的内网地址 &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">bindPort&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">6443&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">nodeRegistration&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">criSocket&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">unix:///var/run/containerd/containerd.sock&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">imagePullPolicy&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">IfNotPresent&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">imagePullSerial&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">master-01 &lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># master 节点主机名&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">taints&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">null&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">timeouts&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">controlPlaneComponentHealthCheck&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">4m0s&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">discovery&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">5m0s&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">etcdAPICall&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">2m0s&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">kubeletHealthCheck&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">4m0s&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">kubernetesAPICall&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">1m0s&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">tlsBootstrap&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">5m0s&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">upgradeManifests&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">5m0s&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nn">---&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">apiServer&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{}&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">kubeadm.k8s.io/v1beta4&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">caCertificateValidityPeriod&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">87600h0m0s&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">certificateValidityPeriod&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">8760h0m0s&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">certificatesDir&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">/etc/kubernetes/pki&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">clusterName&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">kubernetes&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">controllerManager&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{}&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">dns&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{}&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">encryptionAlgorithm&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">RSA-2048&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">etcd&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">local&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">dataDir&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">/var/lib/etcd&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">imageRepository&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">registry.aliyuncs.com/google_containers&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 修改为阿里云镜像仓库 &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">ClusterConfiguration&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kubernetesVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">1.32.2&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 需要安装的 k8s 版本号&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">networking&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">dnsDomain&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">cluster.local&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">serviceSubnet&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">10.96.0.0&lt;/span>&lt;span class="l">/12&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">podSubnet&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">10.244.0.0&lt;/span>&lt;span class="l">/16 &lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 添加 pod 网络 CIDR 地址&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">proxy&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{}&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">scheduler&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{}&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="23-下载集群初始化所需镜像">2.3 下载集群初始化所需镜像
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 查看 Kubernetes 初始化需要用到的镜像 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubeadm config --config=kubeadm-config.yaml images list&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">registry.aliyuncs.com/google_containers/kube-apiserver:v1.32.2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">registry.aliyuncs.com/google_containers/kube-controller-manager:v1.32.2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">registry.aliyuncs.com/google_containers/kube-scheduler:v1.32.2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">registry.aliyuncs.com/google_containers/kube-proxy:v1.32.2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">registry.aliyuncs.com/google_containers/coredns:v1.11.3
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">registry.aliyuncs.com/google_containers/pause:3.10
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">registry.aliyuncs.com/google_containers/etcd:3.5.16-0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 下载初始化需要用的镜像 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubeadm config --config=kubeadm-config.yaml images pull &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>config/images&lt;span class="o">]&lt;/span> Pulled registry.aliyuncs.com/google_containers/kube-apiserver:v1.32.2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>config/images&lt;span class="o">]&lt;/span> Pulled registry.aliyuncs.com/google_containers/kube-controller-manager:v1.32.2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>config/images&lt;span class="o">]&lt;/span> Pulled registry.aliyuncs.com/google_containers/kube-scheduler:v1.32.2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>config/images&lt;span class="o">]&lt;/span> Pulled registry.aliyuncs.com/google_containers/kube-proxy:v1.32.2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>config/images&lt;span class="o">]&lt;/span> Pulled registry.aliyuncs.com/google_containers/coredns:v1.11.3
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>config/images&lt;span class="o">]&lt;/span> Pulled registry.aliyuncs.com/google_containers/pause:3.10
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>config/images&lt;span class="o">]&lt;/span> Pulled registry.aliyuncs.com/google_containers/etcd:3.5.16-0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 查看下载后的镜像 使用 ctr 命令&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># ctr -n k8s.io image list &lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="24-集群初始化">2.4 集群初始化
+&lt;/h3>&lt;p>执行 &lt;code>kubeadm init&lt;/code> 命令来初始化集群&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">kubeadm init --config&lt;span class="o">=&lt;/span>kubeadm-config.yaml
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>如果初始化成功，我们可以看到如下信息：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">Your Kubernetes control-plane has initialized successfully!
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">To start using your cluster, you need to run the following as a regular user:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> mkdir -p &lt;span class="nv">$HOME&lt;/span>/.kube
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sudo cp -i /etc/kubernetes/admin.conf &lt;span class="nv">$HOME&lt;/span>/.kube/config
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sudo chown &lt;span class="k">$(&lt;/span>id -u&lt;span class="k">)&lt;/span>:&lt;span class="k">$(&lt;/span>id -g&lt;span class="k">)&lt;/span> &lt;span class="nv">$HOME&lt;/span>/.kube/config
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Alternatively, &lt;span class="k">if&lt;/span> you are the root user, you can run:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">export&lt;/span> &lt;span class="nv">KUBECONFIG&lt;/span>&lt;span class="o">=&lt;/span>/etc/kubernetes/admin.conf
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">You should now deploy a pod network to the cluster.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Run &lt;span class="s2">&amp;#34;kubectl apply -f [podnetwork].yaml&amp;#34;&lt;/span> with one of the options listed at:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> https://kubernetes.io/docs/concepts/cluster-administration/addons/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Then you can join any number of worker nodes by running the following on each as root:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kubeadm join 10.206.0.12:6443 --token abcdef.0123456789abcdef &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --discovery-token-ca-cert-hash sha256:b6552d7e230e0b22b813b4a632d2154b713f97ce34894a93d59edb6e2b24bcbf
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="25-配置-kubectl-的认证文件">2.5 配置 kubectl 的认证文件
+&lt;/h3>&lt;p>在 master 节点 执行以下 3 条命令，会生成文件 &lt;code>$HOME/.kube/config&lt;/code> ，kubectl 需要使用此文件连接集群。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">mkdir -p &lt;span class="nv">$HOME&lt;/span>/.kube
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo cp -i /etc/kubernetes/admin.conf &lt;span class="nv">$HOME&lt;/span>/.kube/config
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo chown &lt;span class="k">$(&lt;/span>id -u&lt;span class="k">)&lt;/span>:&lt;span class="k">$(&lt;/span>id -g&lt;span class="k">)&lt;/span> &lt;span class="nv">$HOME&lt;/span>/.kube/config
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="26-验证集群">2.6 验证集群
+&lt;/h3>&lt;p>执行 &lt;code>kubectl get nodes&lt;/code> 命令，可以看到 &lt;code>master-01&lt;/code> 节点已经成功加入集群。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl get nodes &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME STATUS ROLES AGE VERSION
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">master-01 NotReady control-plane 68s v1.32.2
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="3-worker-节点加入集群-在-worker-节点执行">3. Worker 节点加入集群 （在 worker 节点执行）
+&lt;/h2>&lt;p>在 worker 节点 只需要执行在集群初始化成功输出的 kubeadm join 命令即可。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">kubeadm join 10.206.0.12:6443 --token abcdef.0123456789abcdef &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --discovery-token-ca-cert-hash sha256:b6552d7e230e0b22b813b4a632d2154b713f97ce34894a93d59edb6e2b24bcbf
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>执行成功后输出如下：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">... ...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">This node has joined the cluster:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">* Certificate signing request was sent to apiserver and a response was received.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">* The Kubelet was informed of the new secure connection details.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Run &lt;span class="s1">&amp;#39;kubectl get nodes&amp;#39;&lt;/span> on the control-plane to see this node join the cluster.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>返回 master 节点 执行 &lt;code>kubectl get nodes&lt;/code> 命令，可以发现 worker 节点也成功加入了集群。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl get nodes &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME STATUS ROLES AGE VERSION
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">master-01 NotReady control-plane 4m39s v1.32.2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">worker-01 NotReady &amp;lt;none&amp;gt; 2m2s v1.32.2
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>如果大家仔细观察会发现上面节点的状态是 &lt;code>NotReady&lt;/code> ， 没有就绪，在这种状态下集群 还无法正常工作，我们需要在集群中安装一个网络插件，才可以让节点的状态变成 &lt;code>Ready&lt;/code>。&lt;/p>
+&lt;h2 id="4-安装网络插件-在-master-节点执行">4. 安装网络插件 （在 master 节点执行）
+&lt;/h2>&lt;p>我们使用 Calico 网络插件，calico 用到的镜像在 hub.docker.com 上，国内需要配置加速器，或者导入离线镜像。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 导入镜像, ctr 是 containerd 的客户端命令&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ctr -n k8s.io image import calico-3.29.2.image
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 下载 calico YAML 文件 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl https://raw.githubusercontent.com/projectcalico/calico/v3.29.2/manifests/calico.yaml -O
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 安装 calico 插件 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kubectl create -f calico.yaml
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>执行以下命令检查 calico 是否安装成功&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl -n kube-system get pods -o wide &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">calico-kube-controllers-77969b7d87-ftjnt 1/1 Running &lt;span class="m">0&lt;/span> 4m40s 10.244.184.66 master-01 &amp;lt;none&amp;gt; &amp;lt;none&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">calico-node-jlknl 1/1 Running &lt;span class="m">0&lt;/span> 4m40s 10.206.0.10 worker-01 &amp;lt;none&amp;gt; &amp;lt;none&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">calico-node-knkhg 1/1 Running &lt;span class="m">0&lt;/span> 4m40s 10.206.0.12 master-01 &amp;lt;none&amp;gt; &amp;lt;none&amp;gt;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Calico 安装成功后，再次检查节点状态显示为 Ready。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl get nodes &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME STATUS ROLES AGE VERSION
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">master-01 Ready control-plane 57m v1.32.2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">worker-01 Ready &amp;lt;none&amp;gt; 54m v1.32.2
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>国外最新安装&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 1. 安装 Tigera Operator 和 CRDs&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.29.2/manifests/tigera-operator.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 2. 安装 Operator CRDs（如果上面没包含，或单独跑）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.29.2/manifests/operator-crds.yaml # 通常 tigera-operator.yaml 已包含&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 3. 创建自定义资源（自定义 Calico 配置，这里用默认即可）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 下载模板&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl -O https://raw.githubusercontent.com/projectcalico/calico/v3.29.2/manifests/custom-resources.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 如果你的 podSubnet 不是默认的 192.168.0.0/16，需要编辑 custom-resources.yaml 中的 installation.spec.calicoNetwork.ipPools.cidr&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 例如你的 kubeadm 用的是 10.244.0.0/16，就改成：&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># cidr: 10.244.0.0/16&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#应用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kubectl create -f custom-resources.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kubectl apply -f custom-resources.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 问题edit之后会默认运行起来&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kubectl edit installation default
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>云虚拟主机需要开放安全组，添加对应内网ip端口&lt;/strong>&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YmNiMzI5NzE1ZjUyZmVkYzgxNGJhNWYyZTNkMGZhNDBfY0NGcUdWRzJaN1hyamdlMFNBUk9GMW5SUDhySTBDbWRfVG9rZW46S3FCUWJJeTRYb2VUYW14MVVhWWM1VWp4bmlkXzE3NzU0NzA5Mzc6MTc3NTQ3NDUzN19WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h2 id="5-验证集群安装结果">5. 验证集群安装结果
+&lt;/h2>&lt;p>控制面组件状态显示 &lt;code>Healthy&lt;/code>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl"> &lt;span class="o">[&lt;/span>root@master-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl get cs &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Warning: v1 ComponentStatus is deprecated in v1.19+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME STATUS MESSAGE ERROR
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">controller-manager Healthy ok
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">scheduler Healthy ok
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">etcd-0 Healthy ok
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>所有 Pod 状态为 &lt;code>Running &lt;/code>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl get pods -A &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAMESPACE NAME READY STATUS RESTARTS AGE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-system calico-kube-controllers-77969b7d87-ftjnt 1/1 Running &lt;span class="m">0&lt;/span> 7m27s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-system calico-node-jlknl 1/1 Running &lt;span class="m">0&lt;/span> 7m27s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-system calico-node-knkhg 1/1 Running &lt;span class="m">0&lt;/span> 7m27s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-system coredns-6766b7b6bb-brh9d 1/1 Running &lt;span class="m">0&lt;/span> 58m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-system coredns-6766b7b6bb-q7pj7 1/1 Running &lt;span class="m">0&lt;/span> 58m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-system etcd-master-01 1/1 Running &lt;span class="m">1&lt;/span> 58m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-system kube-apiserver-master-01 1/1 Running &lt;span class="m">1&lt;/span> 58m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-system kube-controller-manager-master-01 1/1 Running &lt;span class="m">1&lt;/span> 58m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-system kube-proxy-498gc 1/1 Running &lt;span class="m">0&lt;/span> 58m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-system kube-proxy-bbqcf 1/1 Running &lt;span class="m">0&lt;/span> 55m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kube-system kube-scheduler-master-01 1/1 Running &lt;span class="m">1&lt;/span> 58m
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="6-常见故障处理">6. 常见故障处理
+&lt;/h2>&lt;h3 id="61-镜像拉取失败">6.1 镜像拉取失败
+&lt;/h3>&lt;p>如果 Pod 状态显示 &lt;code>ImagePullBackOff&lt;/code>，表示容器所有的节点 镜像拉取失败，需要到对应节点上手动拉取镜像或者导入离线镜像即可。&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZDVlMmFkMzcwODUzYzBlZDFlOWUyM2Y0MDcwZDNlN2VfeVpUcXU4dmZEZGRJTlp6b2FNMnYyd29taXJrc3V6UUJfVG9rZW46WWx2UWJKYjJvb01td1B4dVFaTGNXbE5kbjJiXzE3NzU0NzA5Mzc6MTc3NTQ3NDUzN19WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="62-master-节点初始化失败">6.2 Master 节点初始化失败
+&lt;/h3>&lt;p>在 master 节点初始化过程中，常见的故障是 卡在如下界面，此处是正在等待 kube-apiserver 启动成功，如果apiserver启动失败，这里会一直等待，直到4分钟超时会有报错。 排错的时候需要查看 messages 日志定位具体原因，在初始化的过程中建议打开一个shell 终端运行 &lt;code>tail -f /var/log/messages&lt;/code> 命令，注意观察报错信息。&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NTg1NWY1OGE4ZDYwMjNmZGQxZTc1OTYzZDFjOTA0ZmJfUDh4UWpCS3VlV3lvSFh5ZDJYNWFqVWdWbTl5U1FHQVRfVG9rZW46UUhnWGJQNXp2b3VtYnF4YlR0VmN5WklGbm9kXzE3NzU0NzA5Mzc6MTc3NTQ3NDUzN19WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="63-worker-节点加入集群失败">6.3 Worker 节点加入集群失败
+&lt;/h3>&lt;p>Worker 节点在加入集群过程中需要成功运行 kubelet 服务，再连接 kube-apiserver，任何一步失败都无法加入集群，因此在执行 kubeadm join 时也需要打开一个shell 终端运行 &lt;code>tail -f /var/log/messages&lt;/code> 命令，观察日志中的报错信息。&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MmMxMjUxMzc4ZTk4N2FhNTU2M2Y4ZDg3ZTU2ZDBhNzRfT3hDc3RDcTVrWEpnRlJ1NXJMU2N0S2Y4empURUZTaDRfVG9rZW46VjlyWmJ3M2tGb1lwemN4VkU5OWNObVJXbkJoXzE3NzU0NzA5Mzc6MTc3NTQ3NDUzN19WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="64-重置集群">6.4 重置集群
+&lt;/h3>&lt;p>如果找到了报错原因，需要重新初始化集群或是worker节点重新加入集群， 都需要先执行&lt;code> kubeadm reset&lt;/code> 命令，再执行 &lt;code>kubeadm init&lt;/code> 或是 &lt;code>kubeadm join&lt;/code>。&lt;/p>
+&lt;h3 id="65-重新生成-join-命令">6.5 重新生成 join 命令
+&lt;/h3>&lt;p>初始化时生成的 kubeadm join 命令，有效期是 24 小时，超时后命令中的token 就失效了，如果 24小时后有节点加入集群， 我们需要执行以下命令，重新生成可用的 token 。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubeadm token create --print-join-command&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kubeadm join 10.206.0.12:6443 --token sabx6g.kyas4pu9guhio7iv --discovery-token-ca-cert-hash sha256:b6552d7e230e0b22b813b4a632d2154b713f97ce34894a93d59edb6e2b24bcbf
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="参考文档">参考文档
+&lt;/h2>&lt;p>Containerd 官网： &lt;a class="link" href="https://containerd.io/" target="_blank" rel="noopener"
+>https://containerd.io/&lt;/a>&lt;/p>
+&lt;p>Containerd 官方文档： &lt;a class="link" href="https://github.com/containerd/containerd/blob/main/docs/getting-started.md" target="_blank" rel="noopener"
+>https://github.com/containerd/containerd/blob/main/docs/getting-started.md&lt;/a>&lt;/p>
+&lt;p>Kubeadm 官方文档： &lt;a class="link" href="https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/" target="_blank" rel="noopener"
+>https://kubernetes.io/zh-cn/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/&lt;/a>&lt;/p>
+&lt;p>Calico 官方文档： &lt;a class="link" href="https://docs.tigera.io/calico/latest/getting-started/kubernetes/self-managed-onprem/onpremises#install-calico" target="_blank" rel="noopener"
+>https://docs.tigera.io/calico/latest/getting-started/kubernetes/self-managed-onprem/onpremises#install-calico&lt;/a>&lt;/p>
+&lt;p>Kubernetes 每年更新证书和99年证书: &lt;a class="link" href="https://mp.weixin.qq.com/s/oWVZsTdeS-4coEBqwRLF_g" target="_blank" rel="noopener"
+>https://mp.weixin.qq.com/s/oWVZsTdeS-4coEBqwRLF_g&lt;/a>&lt;/p>
+&lt;h2 id="containerd-容器运行时-使用">Containerd 容器运行时 使用
+&lt;/h2>&lt;p>&lt;a class="link" href="https://mp.weixin.qq.com/s/d44ngzDbW_ublUsw-KrCJQ" target="_blank" rel="noopener"
+>容器运行时 Containerd 安装与使用&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://mp.weixin.qq.com/s/DYHSP8s-3PCUkVF-ierZtg" target="_blank" rel="noopener"
+>CRI 客户端 crictl 命令介绍&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="https://mp.weixin.qq.com/s/OIC1M0FYd9IJJEKt2Yi6sQ" target="_blank" rel="noopener"
+>容器命令行工具 nerdctl&lt;/a>&lt;/p></description></item><item><title>Kubernetes 核心原理：RESTful API 与 Raft 算法详解</title><link>https://luckycloveryh.github.io/fuyou/p/kubernetes-%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86restful-api-%E4%B8%8E-raft-%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/</link><pubDate>Mon, 06 Apr 2026 16:05:37 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/kubernetes-%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86restful-api-%E4%B8%8E-raft-%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3/</guid><description>&lt;img src="https://i.imgs.ovh/2026/04/06/ZQGeIb.jpeg" alt="Featured image of post Kubernetes 核心原理：RESTful API 与 Raft 算法详解" />&lt;h2 id="restful-api">Restful API
+&lt;/h2>&lt;p>Restful 是目前最流行的 API 设计规范，用于 Web 数据接口的设计。
+RESTful 的核心思想就是，客户端发出的数据操作指令都是&amp;quot;动词 + 宾语&amp;quot;的结构。比如，GET /articles这个命令，GET是动词，/articles是宾语。
+动词通常就是五种 HTTP 方法，对应 CRUD 操作。&lt;/p>
+&lt;ul>
+&lt;li>GET：读取（Read）&lt;/li>
+&lt;li>POST：新建（Create）&lt;/li>
+&lt;li>PUT：更新（Update）&lt;/li>
+&lt;li>PATCH：更新（Update），通常是部分更新&lt;/li>
+&lt;li>DELETE：删除（Delete）
+根据 HTTP 规范，动词一律大写。&lt;/li>
+&lt;/ul>
+&lt;p>curl -XGET 127.0.0.1:8080/books&lt;/p>
+&lt;p>curl -XPOST &lt;br>
+-H &amp;lsquo;Content-Type: application/json&amp;rsquo; &lt;br>
+-d &amp;lsquo;{
+&amp;ldquo;title&amp;rdquo;: &amp;ldquo;Three-Body&amp;rdquo;,
+&amp;ldquo;author&amp;rdquo;: &amp;ldquo;Liucixin&amp;rdquo;
+}&amp;rsquo; http://127.0.0.1:8080/books&lt;/p>
+&lt;p>curl -XDELETE http://127.0.0.1:8080/books/1&lt;/p>
+&lt;p>curl -XPATCH &lt;br>
+-H &amp;lsquo;Content-Type: application/json&amp;rsquo; &lt;br>
+-d &amp;lsquo;{
+&amp;ldquo;title&amp;rdquo;: &amp;ldquo;The Three-Body&amp;rdquo;
+}&amp;rsquo; http://127.0.0.1:8080/books/2&lt;/p>
+&lt;p>curl -XGET 127.0.0.1:80/api/v1/books/3&lt;/p>
+&lt;p>状态码&lt;/p>
+&lt;ul>
+&lt;li>1xx：相关信息&lt;/li>
+&lt;li>2xx：操作成功&lt;/li>
+&lt;li>3xx：重定向&lt;/li>
+&lt;li>4xx：客户端错误&lt;/li>
+&lt;li>5xx：服务器错误&lt;/li>
+&lt;/ul>
+&lt;h2 id="raft">Raft
+&lt;/h2>&lt;p>&lt;a class="link" href="https://thesecretlivesofdata.com/raft/" target="_blank" rel="noopener"
+>https://thesecretlivesofdata.com/raft/&lt;/a>&lt;/p></description></item><item><title>Kubernetes 核心组件全解析：从入门到精通</title><link>https://luckycloveryh.github.io/fuyou/p/kubernetes-%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E5%85%A8%E8%A7%A3%E6%9E%90%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A/</link><pubDate>Mon, 06 Apr 2026 16:05:34 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/kubernetes-%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6%E5%85%A8%E8%A7%A3%E6%9E%90%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E7%B2%BE%E9%80%9A/</guid><description>&lt;img src="https://i.imgs.ovh/2026/04/06/ZQGEaq.jpeg" alt="Featured image of post Kubernetes 核心组件全解析：从入门到精通" />&lt;ul>
+&lt;li>
+&lt;h2 id="什么是容器编排">什么是容器编排
+&lt;/h2>&lt;p>容器技术的核心概念是容器、镜像、仓库，使用这三大基本要素我们就可以轻松地完成应用的打包、分发工作，实现“一次构建，到处运行”的梦想。&lt;/p>
+&lt;p>不过，当我们熟练地掌握了容器技术，信心满满地要在服务器集群里大规模实施的时候，却会发现容器技术的创新只是解决了运维部署工作中一个很小的问题。现实生产环境的复杂程度实在是太高了，除了最基本的安装，还会有各式各样的需求，比如服务发现、负载均衡、状态监控、健康检查、扩容缩容、应用迁移、高可用等等。&lt;/p>
+&lt;p>虽然容器技术开启了云原生时代，但它也只走出了一小步，再继续前进就无能为力了，因为这已经不再是隔离一两个进程的普通问题，而是要隔离数不清的进程，还有它们之间互相通信、互相协作的超级问题，困难程度是指数级别的上升。&lt;/p>
+&lt;p>这些容器之上的管理、调度工作，就是这些年最流行的词汇：“容器编排”（Container Orchestration）。&lt;/p>
+&lt;p>容器编排这个词听起来好像挺高大上，但如果你理解了之后就会发现其实也并不神秘。像我们在 Docker 课里使用 &lt;code>Docker Compose&lt;/code> 部署 WordPress 网站的时候，就是一种在单机环境下的容器编排。&lt;/p>
+&lt;p>面对单机上的几个容器，&lt;code>Docker Compose&lt;/code> 还可以应付，但如果规模上到几百台服务器、成千上万的容器，处理它们之间的复杂联系就必须要依靠计算机了，而目前计算机用来调度管理的“事实标准”就是 Kubernetes。&lt;/p>
+&lt;h2 id="什么是-kubernetes">什么是 Kubernetes
+&lt;/h2>&lt;p>Kubernetes 背后有 Borg 系统十多年生产环境经验的支持，技术底蕴深厚，理论水平也非常高，一经推出就引起了轰动。然后在 2015 年，Google 又联合 Linux 基金会成立了CNCF（Cloud Native Computing Foundation，云原生基金会），并把 Kubernetes 捐献出来作为种子项目。&lt;/p>
+&lt;p>有了 Google 和 Linux 这两大家族的保驾护航，再加上宽容开放的社区，作为 CNCF 的“头把交椅”，Kubernetes 旗下很快就汇集了众多行业精英，仅用了两年的时间就打败了同期的竞争对手 Apache Mesos 和 Docker Swarm，成为了这个领域的唯一霸主。&lt;/p>
+&lt;p>那么，Kubernetes 到底能够为我们做什么呢？ 简单来说，&lt;strong>Kubernetes 就是一个生产级别的容器编排平台和集群管理系统&lt;/strong>，不仅能够创建、调度容器，还能够监控、管理服务器，它凝聚了 Google 等大公司和开源社区的集体智慧，从而让中小型公司也可以具备轻松运维海量计算节点——也就是“云计算”的能力。&lt;/p>
+&lt;p>Kubernetes 的官网（https://kubernetes.io/zh/），里面有非常详细的文档，包括概念解释、入门教程、参考手册等等，最难得的是它有全中文版本，我们阅读起来完全不会有语言障碍，如果你有时间可以多上去看看，及时获取官方第一手知识。&lt;/p>
+&lt;h2 id="云原生时代的操作系统">云原生时代的操作系统
+&lt;/h2>&lt;p>Kubernetes 是一个生产级别的容器编排平台和集群管理系统，能够创建、调度容器，监控、管理服务器。 容器是什么？容器是软件，是应用，是进程。服务器是什么？服务器是硬件，是 CPU、内存、硬盘、网卡。那么，既可以管理软件，也可以管理硬件，这样的东西应该是什么？这就是一个操作系统（Operating System）！&lt;/p>
+&lt;p>没错，从某种角度来看，Kubernetes 可以说是一个集群级别的操作系统，主要功能就是资源管理和作业调度。但 Kubernetes 不是运行在单机上管理单台计算资源和进程，而是运行在多台服务器上管理几百几千台的计算资源，以及在这些资源上运行的上万上百万的进程，规模要大得多。&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZDBmOTZhNTAxYzJkN2Y5N2ZmNTBmZjE4OTExZDQwZTNfQW95aWt3RnE3Q1h3cjh2MnNMS2pkUExTbVFDNUlvWXlfVG9rZW46TGFSQmJkR0pXb0JSU0p4TWllYWMzM0pmbk9CXzE3NzU0NzA4NjE6MTc3NTQ3NDQ2MV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>所以，你可以把 Kubernetes 与 Linux 对比起来学习，而这个新的操作系统里自然会有一系列新名词、新术语，你也需要使用新的思维方式来考虑问题。&lt;/p>
+&lt;h3 id="kubernetes-的基本架构">Kubernetes 的基本架构
+&lt;/h3>&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YjkyNzkzZjM2ODEwZTAyMThiZjExMmExNDc3NjkzODVfN0sySTRQMFRDUjYxaHBCenI0cE4xc1hmekNLaFg3Q2ZfVG9rZW46WW5zVmJmOEhVb0RyWG14ZjZSa2MzdnlqbkJoXzE3NzU0NzA4NjE6MTc3NTQ3NDQ2MV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>Kubernetes 采用的是 “控制面 / 数据面”（Control Plane / Data Plane）架构，集群里的计算机被称为“节点”（Node），可以是实机也可以是虚机，少量的节点用作控制面来执行集群的管理维护工作，其他的大部分节点都被划归数据面，用来跑业务应用。&lt;/p>
+&lt;p>控制面的节点在 Kubernetes 里叫做&lt;code> Master Node&lt;/code>，一般简称为 Master，它是整个集群里最重要的部分，可以说是 Kubernetes 的大脑和心脏。&lt;/p>
+&lt;p>数据面的节点叫做 &lt;code>Worker Node&lt;/code>，一般就简称为 Worker 或者 Node，相当于 Kubernetes 的手和脚，在 Master 的指挥下干活 。&lt;/p>
+&lt;p>Node 的数量非常多，构成了一个资源池，Kubernetes 就在这个池里分配资源，调度应用。因为资源被“池化”了，所以管理也就变得比较简单，可以在集群中任意添加或者删除节点。&lt;/p>
+&lt;p>在这张架构图里，我们还可以看到有一个 kubectl，它就是 Kubernetes 的客户端工具，用来操作 Kubernetes，但它位于集群之外，理论上不属于集群。&lt;/p>
+&lt;p>可以使用命令 kubectl get node 来查看 Kubernetes 的节点状态：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="p">[&lt;/span>&lt;span class="l">root@master1 ~]# kubectl get nodes &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="l">NAME STATUS ROLES AGE VERSION&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="l">master1 Ready control-plane,master 34m v1.23.15&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="l">node1 Ready worker 34m v1.23.15&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>可以看到当前集群中有一个控制面的 Master 节点和一个数据面的 Worker 节点，如果集群规模较小，也可以把 Master 和 Worker 部署在一个节点上。&lt;/p>
+&lt;h3 id="节点内部的结构">节点内部的结构
+&lt;/h3>&lt;p>Kubernetes 的节点内部也具有复杂的结构，是由很多的模块构成的，这些模块又可以分成组件（Component）和插件（Addon）两类。&lt;/p>
+&lt;p>组件实现了 Kubernetes 的核心功能特性，没有这些组件 Kubernetes 就无法启动，而插件则是 Kubernetes 的一些附加功能，属于“锦上添花”，不安装也不会影响 Kubernetes 的正常运行。&lt;/p>
+&lt;h3 id="master-里的组件有哪些">Master 里的组件有哪些
+&lt;/h3>&lt;p>&lt;strong>Master&lt;/strong> &lt;strong>里有 4 个组件，分别是 apiserver、&lt;strong>&lt;strong>etcd&lt;/strong>&lt;/strong>、scheduler、controller-manager。&lt;/strong>&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=M2YxMTkzY2EwZDVmODQ0MWM4ZjllNmVjYWQwY2RhOTlfY2gzSXlmYkluejdhT2FqN2ttNngxTzBXcWE2emhQdXJfVG9rZW46S2hSaWI1anR1b2F5OW14SkxJZ2M2anVHbjk0XzE3NzU0NzA4NjE6MTc3NTQ3NDQ2MV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;code>kube-apiserver&lt;/code> 是 Master 节点——同时也是整个 Kubernetes 系统的唯一入口，它对外公开了一系列的 RESTful API，并且加上了验证、授权等功能，所有其他组件都只能和它直接通信，可以说是 Kubernetes 里的联络员。&lt;/p>
+&lt;p>&lt;code>etcd`` &lt;/code>是一个高可用的分布式 Key-Value 数据库，用来持久化存储系统里的各种资源对象和状态，相当于 Kubernetes 里的配置管理员。注意它只与 apiserver 有直接联系，也就是说任何其他组件想要读写 etcd 里的数据都必须经过 apiserver。&lt;/p>
+&lt;p>&lt;code>kube-scheduler&lt;/code> 负责容器的编排工作，检查节点的资源状态，把 Pod 调度到最适合的节点上运行，相当于部署人员。因为节点状态和 Pod 信息都存储在 etcd 里，所以 scheduler 必须通过apiserver 才能获得。&lt;/p>
+&lt;p>&lt;code>kube-controller-manager&lt;/code> 负责维护容器和节点等资源的状态，实现故障检测、服务迁移、应用伸缩等功能，相当于监控运维人员。同样地，它也必须通过 apiserver 获得存储在 etcd 里的信息，才能够实现对资源的各种操作。&lt;/p>
+&lt;p>这 4 个组件也都被容器化了，运行在集群的 Pod 里，我们可以用 kubectl 来查看它们的状态，使用命令：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="p">[&lt;/span>&lt;span class="l">root@master1 ~]# kubectl -n kube-system get pods &lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="l">NAME READY STATUS RESTARTS AGE&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="l">kube-apiserver-master1 1/1 Running 0 53m&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="l">kube-controller-manager-master1 1/1 Running 0 53m&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="l">kube-scheduler-master1 1/1 Running 0 53m&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NDcxOGUwNGI2ZTVkMzVmYWM0NGI5MjkyZjUyZjkyM2NfbXlJOXptWWs3ZGg2cGFCVG9PSTMxOXlrVFBkVHFTNEJfVG9rZW46QXNxeWJ6ZGdpb0R0OWd4cmZ5cWNpRHpXbktkXzE3NzU0NzA4NjE6MTc3NTQ3NDQ2MV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>注意命令行里要用 -n kube-system 参数，表示检查“kube-system”名字空间里的 Pod，至于名字空间是什么，我们后面会讲到。&lt;/p>
+&lt;h3 id="node-里的组件有哪些">Node 里的组件有哪些
+&lt;/h3>&lt;p>Master 里的 kube-apiserver、kube-scheduler 等组件需要获取节点的各种信息才能够作出管理决策，那这些信息该怎么来呢？ 这就需要 Node 里的 3 个组件了，分别是 kubelet、kube-proxy、container-runtime。&lt;/p>
+&lt;p>kubelet 是 Node 的代理，负责管理 Node 相关的绝大部分操作，Node 上只有它能够与 kube-apiserver 通信，实现状态报告、命令下发、启停容器等功能，相当于是 Node 上的一个“小管家”。&lt;/p>
+&lt;p>kube-proxy 的作用有点特别，它是 Node 的网络代理，只负责管理容器的网络通信，简单来说就是为 Pod 转发 TCP/UDP 数据包，相当于是专职的“小邮差”。&lt;/p>
+&lt;p>第三个组件 container-runtime 我们就比较熟悉了，它是容器和镜像的实际使用者，在 kubelet 的指挥下创建容器，管理 Pod 的生命周期，是真正干活的“苦力”。&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YWM5MGU0YmU4MTI2YTIxY2Y0MTlmMzc5M2RlMGIyYzhfUHg1T0htMTdlVjFsbmMzd1FKRHpoZUhEbFlBVUdGN3dfVG9rZW46VmVhbmJLTDhCb3RNWnV4ZUxIUGNYNUpWbk5iXzE3NzU0NzA4NjE6MTc3NTQ3NDQ2MV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>我们一定要注意，因为 Kubernetes 的定位是容器编排平台，所以它没有限定 container runtime 必须是 Docker，完全可以替换成任何符合标准的其他容器运行时，例如 containerd、CRI-O 等等，只不过在这里我们使用的是 Docker。&lt;/p>
+&lt;p>这 3 个组件中只有 kube-proxy 被容器化了，而 kubelet 因为必须要管理整个节点，容器化会限制它的能力，所以它必须在 container-runtime 之外运行。&lt;/p>
+&lt;p>现在，我们再把 Node 里的组件和 Master 里的组件放在一起来看，就能够明白 Kubernetes 的大致工作流程了：&lt;/p>
+&lt;ul>
+&lt;li>每个 Node 上的 kubelet 会定期向 kube-apiserver 上报节点状态，kube-apiserver 再存到 etcd 里。&lt;/li>
+&lt;li>每个 Node 上的 kube-proxy 实现了 TCP/UDP 反向代理，让容器对外提供稳定的服务。&lt;/li>
+&lt;li>kube-scheduler 通过 kube-apiserver 得到当前的节点状态，调度 Pod，然后 kube-apiserver 下发命令给某 个 Node 上的 kubelet，kubelet 调用 container-runtime 启动容器。&lt;/li>
+&lt;li>controller-manager 也通过 kube-apiserver 得到实时的节点状态，监控可能的异常情况，再使用相应的手段去调节恢复。&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MmE4MmQyNGM0ZjRmNTA1NzBiY2NlMjAyODJiZjEyYzZfVzF3bm9SMVd3RDBMVUdzb0tWWGp6dXhzS0Y1SjJEVGNfVG9rZW46VlcwUGIzMnJzb09WcFJ4R3hjV2NWbk5ibnJkXzE3NzU0NzA4NjE6MTc3NTQ3NDQ2MV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>其实，这和我们在 Kubernetes 出现之前的操作流程也差不了多少，但 Kubernetes 的高明之处就在于把这些都抽象化规范化了。&lt;/p>
+&lt;p>于是，这些组件就好像是无数个不知疲倦的运维工程师，把原先繁琐低效的人力工作搬进了高效的计算机里，就能够随时发现集群里的变化和异常，再互相协作，维护集群的健康状态。&lt;/p>
+&lt;h3 id="插件addons有哪些">插件（Addons）有哪些
+&lt;/h3>&lt;p>只要服务器节点上运行了 kube-apiserver、kube-scheduler、kube-controller-manager、etcd、kubelet、kube-proxy、container-runtime 组件，就可以说是一个功能齐全的 Kubernetes 集群了。&lt;/p>
+&lt;p>由于 Kubernetes 本身的设计非常灵活，所以就有大量的插件用来扩展、增强它对应用和集群的管理能力。&lt;/p>
+&lt;p>常用的插件有：&lt;/p>
+&lt;ul>
+&lt;li>DNS: 负责为整个集群提供DNS服务；&lt;/li>
+&lt;li>Ingress Controller：为服务提供外网入口；&lt;/li>
+&lt;li>MetricsServer：提供资源监控；&lt;/li>
+&lt;li>Dashboard：提供GUI；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul></description></item></channel></rss>

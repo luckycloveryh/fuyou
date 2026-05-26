@@ -1,0 +1,833 @@
+<style>
+  body {
+    background: url({{ (resources.Get "background/jinlin.png").Permalink }}) no-repeat center top;
+    background-size: cover;
+    background-attachment: fixed;
+  }
+
+  @media (max-width: 767px) {
+    body {
+      background-attachment: scroll;
+      background-position: center top;
+    }
+  }
+
+  .article-details {
+      position: relative;
+      z-index: 1;
+  }
+
+  .article-title,
+  .article-title a {
+      color: var(--card-text-color-main) !important;
+  }
+
+  /* 搜索框跟随主题变量，不再强制颜色 */
+  .search-form input {
+      background-color: var(--card-background) !important;
+      color: var(--card-text-color-main) !important;
+      border-color: var(--card-separator-color) !important;
+  }
+  .search-form button {
+      background-color: transparent !important;
+      color: var(--card-text-color-secondary) !important;
+  }
+
+  .left-sidebar .site-name,
+  .left-sidebar .site-name a,
+  .left-sidebar .site-description,
+  .left-sidebar #main-menu li a,
+  .left-sidebar #main-menu li.current a,
+  .left-sidebar #dark-mode-toggle,
+  .left-sidebar #i18n-switch,
+  .left-sidebar .menu-social svg,
+  .right-sidebar .widget-icon svg,
+  .right-sidebar .widget-title,
+  .site-footer {
+      color: #fff !important;
+      stroke: #fff !important;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+  }
+
+  .left-sidebar #main-menu li a:hover,
+  .left-sidebar .site-name a:hover {
+      color: #fff !important;
+      opacity: 0.9;
+  }
+</style>
+
+
+<script src={{ (resources.Get "background/sakura.js").Permalink }}></script>
+
+
+<div id="particles-js"></div>
+
+<script src={{ (resources.Get "background/particles.min.js").Permalink }}></script>
+<script>
+  particlesJS.load('particles-js', {{ (resources.Get "background/particlesjs-config.json").Permalink }}, function() {
+    console.log('particles.js loaded - callback');
+  });
+</script>
+
+<style>
+  #particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: -1;
+  }
+</style>
+
+
+<style>
+  @font-face {
+    font-family: '瑞美加张清平硬笔行书';
+    src: url({{ (resources.Get "font/瑞美加张清平硬笔行书.ttf").Permalink }}) format('truetype');
+  }
+
+  :root {
+    --base-font-family: '瑞美加张清平硬笔行书';
+    --code-font-family: '瑞美加张清平硬笔行书';
+  }
+</style>
+
+<style>
+    #TableOfContents > ul, ol {
+        ul, ol {
+            display: none;
+        }
+        .open {
+            display: block;
+        }
+    }
+</style>
+
+<script>
+    function initTocHide() {
+        // 判断是否存在文章目录
+        let toc = document.querySelector(".widget--toc");
+        if (!toc) {
+            return;
+        }
+        // 监听滚动
+        if (window.fuyouTocScrollHandler) {
+            window.removeEventListener('scroll', window.fuyouTocScrollHandler);
+        }
+
+        window.fuyouTocScrollHandler = function() {
+            //清除class值
+            let openUl = document.querySelectorAll(".open");
+            if (openUl.length > 0) {
+              openUl.forEach((ul) => {
+                ul.classList.remove("open")
+              })
+            }
+            // 获取active-class
+            let currentLi = document.querySelector(".active-class");
+            if (!currentLi) {
+                return
+            }
+            // 展示子ul
+            if (currentLi.children.length > 1) {
+                currentLi.children[1].classList.add("open")
+            }
+            // 展示父ul
+            let ul = currentLi.parentElement;
+            do {
+                ul.classList.add("open");
+                ul = ul.parentElement.parentElement
+            } while (ul !== undefined && (ul.localName === 'ul' || ul.localName === 'ol'))
+        };
+        window.addEventListener('scroll', window.fuyouTocScrollHandler, { passive: true });
+    }
+    initTocHide()
+</script>
+
+<style>
+    #backTopBtn {
+        display: none;
+        position: fixed;
+        right: 30px;
+        bottom: 30px;
+        z-index: 99;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        background-image: url({{ (resources.Get "icons/backTop.svg").Permalink }});
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+    }
+
+    @media (max-width: 767px) {
+        #backTopBtn {
+            right: 14px;
+            bottom: calc(82px + env(safe-area-inset-bottom));
+            width: 42px;
+            height: 42px;
+            border: 0;
+            border-radius: 50%;
+            background-color: rgba(35, 35, 35, 0.74);
+            background-size: 22px 22px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+        }
+    }
+</style>
+
+<script>
+    /**
+     * 滚动回顶部初始化
+     */
+    function initScrollTop() {
+        let btn = document.getElementById("backTopBtn");
+        // 添加返回顶部按钮到右侧边栏
+        if (!btn) {
+            btn = document.createElement("button");
+            btn.id = "backTopBtn";
+            btn.type = "button";
+            btn.setAttribute("aria-label", "Back to top");
+            btn.onclick = backToTop;
+            document.body.appendChild(btn);
+        }
+        // 滚动监听
+        if (window.fuyouBackTopHandler) {
+            window.removeEventListener("scroll", window.fuyouBackTopHandler);
+        }
+
+        window.fuyouBackTopHandler = function() {
+            // 当网页向下滑动 20px 出现"返回顶部" 按钮
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                btn.style.display = "block";
+            } else {
+                btn.style.display = "none";
+            }
+        };
+        window.addEventListener("scroll", window.fuyouBackTopHandler, { passive: true });
+        window.fuyouBackTopHandler();
+    }
+
+    /**
+     * 返回顶部
+     */
+    function backToTop(){
+        window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+
+    initScrollTop();
+</script>
+
+
+<style>
+    .highlight {
+        /* 你可以根据需要调整这个高度 */
+        max-height: 400px;
+        overflow: hidden;
+    }
+
+    .code-show {
+        max-height: none !important;
+    }
+
+    .code-more-box {
+        width: 100%;
+        padding-top: 78px;
+        background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(255, 255, 255, 0)), to(#fff));
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+    }
+
+    .code-more-btn {
+        display: block;
+        margin: auto;
+        width: 44px;
+        height: 22px;
+        background: #f0f0f5;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        padding-top: 6px;
+        cursor: pointer;
+    }
+
+    .code-more-img {
+        cursor: pointer !important;
+        display: block;
+        margin: auto;
+        width: 22px;
+        height: 16px;
+    }
+</style>
+
+<script>
+  function initCodeMoreBox() {
+    let codeBlocks = document.querySelectorAll(".highlight");
+    if (!codeBlocks) {
+      return;
+    }
+    codeBlocks.forEach(codeBlock => {
+      // 校验是否overflow
+      if (codeBlock.scrollHeight <= codeBlock.clientHeight) {
+        return;
+      }
+      // 元素初始化
+      // codeMoreBox
+      let codeMoreBox = document.createElement('div');
+      codeMoreBox.classList.add('code-more-box');
+      // codeMoreBtn
+      let codeMoreBtn = document.createElement('span');
+      codeMoreBtn.classList.add('code-more-btn');
+      codeMoreBtn.addEventListener('click', () => {
+        codeBlock.classList.add('code-show');
+        codeMoreBox.style.display = 'none';
+        // 触发resize事件，重新计算目录位置
+        window.dispatchEvent(new Event('resize'))
+      })
+      // img
+      let img = document.createElement('img');
+      img.classList.add('code-more-img');
+      img.src = {{ (resources.Get "icons/codeMore.png").Permalink }}
+      // 元素添加
+      codeMoreBtn.appendChild(img);
+      codeMoreBox.appendChild(codeMoreBtn);
+      codeBlock.appendChild(codeMoreBox)
+    })
+  }
+  
+  initCodeMoreBox();
+</script>
+
+
+<!-- 【live2d-widget-v3 配置】 -->
+<script>
+    const cdnPath = "https://cdn.jsdelivr.net/gh/letere-gzj/live2d-widget-v3@main";
+    const config = {
+        // 资源路径
+        path: {
+            homePath: "/",
+            modelPath: cdnPath + "/Resources/",
+            cssPath: {{ (resources.Get "waifu/waifu.css").Permalink }},
+            tipsJsonPath: {{ (resources.Get "waifu/waifu-tips.json").Permalink }},
+            tipsJsPath: cdnPath + "/waifu-tips.js",
+            live2dCorePath: cdnPath + "/Core/live2dcubismcore.js",
+            live2dSdkPath: cdnPath + "/live2d-sdk.js"
+        },
+        // 工具栏
+        tools: ["hitokoto", "asteroids", "express", "switch-model", "switch-texture", "photo", "info", "quit"],
+        // 模型拖拽
+        drag: {
+            enable: true,
+            direction: ["x", "y"]
+        },
+        // 模型切换(order: 顺序切换，random: 随机切换)
+        switchType: "order"
+    }
+
+    // 异步加载资源
+    function loadExternalResource(url, type) {
+        return new Promise((resolve, reject) => {
+            let tag;
+            if (type === "css") {
+                tag = document.createElement("link");
+                tag.rel = "stylesheet";
+                tag.href = url;
+            }
+            else if (type === "js") {
+                tag = document.createElement("script");
+                tag.src = url;
+            }
+            if (tag) {
+                tag.onload = () => resolve(url);
+                tag.onerror = () => reject(url);
+                document.head.appendChild(tag);
+            }
+        });
+    }
+
+    // 初始化live2d模型（仅加载一次）
+    let live2dInitialized = false;
+    function initLive2d() {
+        if (live2dInitialized) return;
+
+        if (screen.width >= 768) {
+            Promise.all([
+                loadExternalResource(config.path.cssPath, "css"),
+                loadExternalResource(config.path.live2dCorePath, "js"),
+                loadExternalResource(config.path.live2dSdkPath, "js"),
+                loadExternalResource(config.path.tipsJsPath, "js")
+            ]).then(() => {
+                initWidget({
+                    waifuPath: config.path.tipsJsonPath,
+                    cdnPath: config.path.modelPath,
+                    tools: config.tools,
+                    dragEnable: config.drag.enable,
+                    dragDirection: config.drag.direction,
+                    switchType: config.switchType
+                });
+                live2dInitialized = true;
+            }).catch(err => {
+                console.error('Failed to load live2d:', err);
+            });
+        }
+    }
+
+    // 页面首次加载时初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLive2d);
+    } else {
+        initLive2d();
+    }
+</script>
+
+
+
+
+<!-- 【custom.html】 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
+<style>
+  @media (max-width: 767px) {
+    .aplayer.aplayer-fixed,
+    .aplayer.aplayer-fixed .aplayer-body {
+      max-width: 100vw;
+    }
+
+    .aplayer.aplayer-fixed .aplayer-body {
+      padding-right: 18px;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .aplayer.aplayer-fixed .aplayer-info {
+      width: calc(100vw - 66px);
+    }
+
+    .aplayer.aplayer-fixed .aplayer-lrc {
+      display: none !important;
+    }
+  }
+</style>
+<div id="aplayer"></div>
+<script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
+
+<script>
+(function () {
+    const staticDir = {{ .Site.Home.Permalink }};
+    const container = document.getElementById('aplayer');
+
+    if (!container || window.ap) {
+        return;
+    }
+
+    window.ap = new APlayer({
+        container,
+        fixed: true,
+        lrcType: 3,
+        audio: [
+            {
+                name: '爱别等',
+                artist: '洪卓立',
+                url: staticDir + 'music/爱别等-洪卓立/song.mp3',
+                cover: staticDir + 'music/爱别等-洪卓立/cover.jpg',
+                lrc: staticDir + 'music/爱别等-洪卓立/lyric.lrc',
+            },
+            {
+                name: '查无此字',
+                artist: '林奕匡',
+                url: staticDir + 'music/查无此字-林奕匡/song.mp3',
+                cover: staticDir + 'music/查无此字-林奕匡/cover.jpg',
+                lrc: staticDir + 'music/查无此字-林奕匡/lyric.lrc',
+            },
+            {
+                name: '初初',
+                artist: '古巨基',
+                url: staticDir + 'music/初初-古巨基/song.mp3',
+                cover: staticDir + 'music/初初-古巨基/cover.jpg',
+                lrc: staticDir + 'music/初初-古巨基/lyric.lrc',
+            },
+            {
+                name: '多此一爱',
+                artist: '陈柏宇',
+                url: staticDir + 'music/多此一爱-陈柏宇/song.mp3',
+                cover: staticDir + 'music/多此一爱-陈柏宇/cover.jpg',
+                lrc: staticDir + 'music/多此一爱-陈柏宇/lyric.lrc',
+            },
+            {
+                name: '乖乖报到',
+                artist: 'MC 张天赋',
+                url: staticDir + 'music/乖乖报到-MC 张天赋/song.mp3',
+                cover: staticDir + 'music/乖乖报到-MC 张天赋/cover.jpg',
+                lrc: staticDir + 'music/乖乖报到-MC 张天赋/lyric.lrc',
+            },
+            {
+                name: '还记得',
+                artist: '周柏豪',
+                url: staticDir + 'music/还记得-周柏豪/song.mp3',
+                cover: staticDir + 'music/还记得-周柏豪/cover.jpg',
+                lrc: staticDir + 'music/还记得-周柏豪/lyric.lrc',
+            },
+            {
+                name: '泼墨桃花',
+                artist: '林峯',
+                url: staticDir + 'music/泼墨桃花-林峯/song.mp3',
+                cover: staticDir + 'music/泼墨桃花-林峯/cover.jpg',
+                lrc: staticDir + 'music/泼墨桃花-林峯/lyric.lrc',
+            },
+            {
+                name: '摄氏零度',
+                artist: '张敬轩',
+                url: staticDir + 'music/摄氏零度-张敬轩/song.mp3',
+                cover: staticDir + 'music/摄氏零度-张敬轩/cover.jpg',
+                lrc: staticDir + 'music/摄氏零度-张敬轩/lyric.lrc',
+            },
+            {
+                name: '下一位前度',
+                artist: '林家谦',
+                url: staticDir + 'music/下一位前度-林家谦/song.mp3',
+                cover: staticDir + 'music/下一位前度-林家谦/cover.jpg',
+                lrc: staticDir + 'music/下一位前度-林家谦/lyric.lrc',
+            },
+            {
+                name: '这个故事教训我们',
+                artist: '李克勤',
+                url: staticDir + 'music/这个故事教训我们-李克勤/song.mp3',
+                cover: staticDir + 'music/这个故事教训我们-李克勤/cover.jpg',
+                lrc: staticDir + 'music/这个故事教训我们-李克勤/lyric.lrc',
+            },
+            {
+                name: '最后祝福',
+                artist: '黄宗泽',
+                url: staticDir + 'music/最后祝福-黄宗泽/song.mp3',
+                cover: staticDir + 'music/最后祝福-黄宗泽/cover.jpg',
+                lrc: staticDir + 'music/最后祝福-黄宗泽/lyric.lrc',
+            }
+        ]
+    });
+})();
+</script>
+
+
+<!-- 【音乐状态保存】仅处理真正刷新/关闭页面的情况，PJAX切换不需要处理 -->
+<script>
+    // 页面真正卸载前（刷新/关闭）保存播放状态
+    window.addEventListener('beforeunload', () => {
+        if (!window.ap) return;
+        const playInfo = {
+            index: window.ap.list.index,
+            currentTime: window.ap.audio.currentTime,
+            paused: window.ap.paused
+        };
+        sessionStorage.setItem('playInfo', JSON.stringify(playInfo));
+    });
+
+    // 页面真正加载后（刷新/首次进入）恢复播放状态
+    window.addEventListener('load', () => {
+        if (!window.ap) return;
+        // 只在非PJAX跳转时恢复（PJAX切换APlayer不会中断，无需恢复）
+        if (window._pjaxNavigating) return;
+        const playInfo = JSON.parse(sessionStorage.getItem('playInfo'));
+        if (!playInfo) return;
+        window.ap.list.switch(playInfo.index);
+        setTimeout(() => {
+            window.ap.seek(playInfo.currentTime);
+            if (!playInfo.paused) {
+                const playPromise = window.ap.play();
+                if (playPromise && typeof playPromise.catch === 'function') {
+                    playPromise.catch(() => {});
+                }
+            }
+        }, 500);
+    });
+
+    // 标记PJAX跳转中，避免load事件误恢复
+    document.addEventListener('pjax:send', () => {
+        window._pjaxNavigating = true;
+    });
+    document.addEventListener('pjax:complete', () => {
+        window._pjaxNavigating = false;
+    });
+</script>
+
+
+<!-- 【无刷新切换配置】 -->
+<script>
+    window.fuyouPjaxInitialized = window.fuyouPjaxInitialized || false;
+
+    function reinitFuyouPageScripts() {
+        try {
+            if (window.Stack && window.Stack.init) {
+                window.Stack.init();
+            }
+        } catch(e) {
+            console.warn('Stack初始化失败:', e);
+        }
+
+        try {
+            if (typeof initTocHide === 'function') initTocHide();
+            if (typeof initScrollTop === 'function') initScrollTop();
+            if (typeof initCodeMoreBox === 'function') initCodeMoreBox();
+            if (typeof showHideView === 'function') showHideView();
+            if (typeof renderKaTeX === 'function') renderKaTeX();
+        } catch(e) {
+            console.warn('页面脚本重新初始化失败:', e);
+        }
+
+        try {
+            if (typeof RENDERER !== 'undefined') {
+                RENDERER.setup();
+            }
+        } catch(e) {
+            console.warn('底部小鱼初始化失败:', e);
+        }
+    }
+
+    function shouldFuyouHandleLink(event, link) {
+        if (!link || event.defaultPrevented) return false;
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return false;
+        if (link.target && link.target !== '_self') return false;
+        if (link.hasAttribute('download')) return false;
+
+        const url = new URL(link.href, window.location.href);
+        if (url.origin !== window.location.origin) return false;
+        if (!url.pathname.startsWith({{ .Site.Home.RelPermalink }})) return false;
+        if (url.pathname === window.location.pathname && url.search === window.location.search) return false;
+        if (url.hash && url.pathname === window.location.pathname && url.search === window.location.search) return false;
+
+        return true;
+    }
+
+    async function fuyouLoadPage(url, pushState) {
+        document.dispatchEvent(new CustomEvent('pjax:send'));
+        window._pjaxNavigating = true;
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'fuyou-pjax'
+                },
+                credentials: 'same-origin'
+            });
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status);
+            }
+
+            const html = await response.text();
+            const nextDocument = new DOMParser().parseFromString(html, 'text/html');
+            const nextContainer = nextDocument.querySelector('.main-container');
+            const currentContainer = document.querySelector('.main-container');
+
+            if (!nextContainer || !currentContainer) {
+                window.location.href = url;
+                return;
+            }
+
+            document.title = nextDocument.title;
+            document.body.className = nextDocument.body.className;
+            currentContainer.replaceWith(nextContainer);
+
+            const currentPjaxBlocks = document.querySelectorAll('.js-Pjax');
+            const nextPjaxBlocks = nextDocument.querySelectorAll('.js-Pjax');
+            currentPjaxBlocks.forEach((block, index) => {
+                if (nextPjaxBlocks[index]) {
+                    block.replaceWith(nextPjaxBlocks[index]);
+                }
+            });
+
+            if (pushState) {
+                history.pushState({ fuyouPjax: true }, '', url);
+            }
+
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            reinitFuyouPageScripts();
+            document.dispatchEvent(new CustomEvent('pjax:complete'));
+        } catch (error) {
+            console.warn('无刷新切换失败，回退到普通跳转:', error);
+            window.location.href = url;
+        } finally {
+            window._pjaxNavigating = false;
+        }
+    }
+
+    window.addEventListener('load', () => {
+        if (window.fuyouPjaxInitialized) return;
+        window.fuyouPjaxInitialized = true;
+        history.replaceState({ fuyouPjax: true }, '', window.location.href);
+
+        document.addEventListener('click', (event) => {
+            const link = event.target.closest && event.target.closest('a[href]');
+            if (!shouldFuyouHandleLink(event, link)) {
+                return;
+            }
+            event.preventDefault();
+            fuyouLoadPage(link.href, true);
+        });
+
+        window.addEventListener('popstate', () => {
+            fuyouLoadPage(window.location.href, false);
+        });
+
+        window.pjax = {
+            refresh: function() {},
+            loadUrl: function(url) {
+                fuyouLoadPage(url, true);
+            }
+        };
+    });
+</script>
+
+<!-- 【Giscus评论支持】 -->
+{{- with .Site.Params.comments.giscus -}}
+<div class="js-Pjax">
+<script>
+    (function () {
+        let comment = document.querySelector(".comment");
+        if (!comment) {
+            return
+        }
+        let script = document.createElement('script');
+        script.setAttribute('src', 'https://giscus.app/client.js');
+        script.setAttribute('data-repo', '{{- .repo -}}');
+        script.setAttribute('data-repo-id', '{{- .repoId -}}');
+        script.setAttribute('data-category', '{{- .category -}}');
+        script.setAttribute('data-category-id', '{{- .categoryId -}}');
+        script.setAttribute('data-mapping', '{{- .mapping -}}');
+        script.setAttribute('data-strict', '{{- .strict -}}');
+        script.setAttribute('data-reactions-enabled', '{{- .reactionsEnabled -}}');
+        script.setAttribute('data-emit-metadata', '{{- .emitMetadata -}}');
+        script.setAttribute('data-input-position', '{{- .inputPosition -}}');
+        script.setAttribute('data-theme', '{{- .theme -}}');
+        script.setAttribute('data-lang', '{{- .lang -}}');
+        script.async = true;
+        script.crossOrigin = "anonymous";
+        comment.appendChild(script)
+    })(document);
+</script>
+</div>
+{{- end -}}
+
+
+<script>
+    async function renderKaTeX() {
+        // 判断当前页面是否有KateX
+        let katex = document.querySelector(".math-katex");
+        if (!katex) {
+            return;
+        }
+        // 等待函数加载成功后，再执行渲染方法
+        while (typeof renderMathInElement !== 'function') {
+            await delay(500);
+        }        
+        // KaTeX渲染方法
+        renderMathInElement(document.body, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ],
+            ignoredClasses: ["gist"]
+        });
+    }
+    
+    /**
+     * 同步延迟
+     */
+    function delay(time) {
+        return new Promise(resolve => {
+            setTimeout(resolve, time)
+        })
+    }
+
+    document.addEventListener('pjax:complete', () => {
+        renderKaTeX();
+    })
+</script>
+
+<!-- 【进度条支持】 -->
+{{ with resources.Get "js/topbar.min.js" }}
+    <script src={{ .Permalink }}></script>
+{{ end }}
+<script>
+    topbar.config({
+        barColors: {
+            '0': 'rgba(255, 255, 255, 1)',
+            '1.0': 'rgba(0, 149, 234, 1)'
+        }
+    })
+
+    document.addEventListener('pjax:send', () => {
+        topbar.show();
+    })
+
+    document.addEventListener('pjax:complete', () => {
+        topbar.hide();
+    })
+</script>
+
+
+
+<!-- vercount的脚本；若用不蒜子，则更换成不蒜子的脚本就好 -->
+<script defer src="https://cn.vercount.one/js"></script>
+
+<script>
+    function showHideView() {
+        // 判断是否存在vercount标签
+        let viewCounts = document.querySelectorAll("#viewCount");
+        if (viewCounts) {
+            // 判断是否为文章页
+            let article =  document.querySelector(".article-page");
+            if (!article) {
+                viewCounts.forEach(ele => {
+                    ele.style.display = 'none';
+                });
+            }
+        }
+    }
+    
+    showHideView();
+</script>
+
+
+<!-- 【底部小鱼特效】 -->
+<div id="jsi-flying-fish-container" class="flying-fish-container"></div>
+
+<style>
+  .flying-fish-container {
+    width: 100%;
+    height: 200px;
+    position: fixed;
+    z-index: 0;
+    pointer-events: none;
+    bottom: 0;
+    left: 0;
+    opacity: 0.6;
+  }
+  .flying-fish-container canvas {
+    display: block;
+    pointer-events: none;
+  }
+
+  @media (max-width: 767px) {
+    .flying-fish-container {
+      height: 96px;
+      opacity: 0.38;
+    }
+  }
+</style>
+
+{{ with resources.Get "js/flying-fish.js" }}
+<script src="{{ .Permalink }}"></script>
+{{ end }}
+<script>
+  window.addEventListener('load', function() {
+    if (typeof RENDERER !== 'undefined' && document.getElementById('jsi-flying-fish-container')) {
+      RENDERER.init();
+    }
+  });
+  // PJAX切换页面后重新初始化canvas尺寸
+  document.addEventListener('pjax:complete', function() {
+    if (typeof RENDERER !== 'undefined') {
+      RENDERER.setup();
+    }
+  });
+</script>

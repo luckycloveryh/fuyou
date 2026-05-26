@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>EFK on 小杨的博客</title><link>https://luckycloveryh.github.io/fuyou/tags/efk/</link><description>Recent content in EFK on 小杨的博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>小杨</copyright><lastBuildDate>Mon, 06 Apr 2026 18:15:04 +0800</lastBuildDate><atom:link href="https://luckycloveryh.github.io/fuyou/tags/efk/index.xml" rel="self" type="application/rss+xml"/><item><title>20 - 日志方案_EFK</title><link>https://luckycloveryh.github.io/fuyou/p/k8s-efk-logging-solution/</link><pubDate>Mon, 06 Apr 2026 18:15:04 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/k8s-efk-logging-solution/</guid><description>&lt;img src="https://i.imgs.ovh/2026/04/06/ZQGmFX.jpeg" alt="Featured image of post 20 - 日志方案_EFK" />&lt;h2 id="pod-日志收集">Pod 日志收集
+&lt;/h2>&lt;p>应用程序和系统日志可以帮助我们了解集群内部的运行情况，日志对于我们调试问题和监视集群情况也是非常有用的。而且大部分的应用都会有日志记录，对于传统的应用大部分都会写入到本地的日志文件之中。对于容器化应用程序来说则更简单，&lt;strong>只需要将日志信息写入到&lt;/strong> &lt;strong>stdout&lt;/strong> &lt;strong>和&lt;/strong> &lt;strong>stderr&lt;/strong> &lt;strong>即可&lt;/strong>，容器默认情况下就会把这些日志输出到宿主机上的一个 JSON 文件之中，同样我们也可以通过 docker logs 或者 kubectl logs 来查看到对应的日志信息。&lt;/p>
+&lt;p>但是，通常来说容器引擎或运行时提供的功能不足以记录完整的日志信息，比如，如果容器崩溃了、Pod 被驱逐了或者节点挂掉了，我们仍然也希望访问应用程序的日志。所以，日志应该独立于节点、Pod 或容器的生命周期，这种设计方式被称为 cluster-level-logging，即完全独立于 Kubernetes 系统，需要自己提供单独的日志后端存储、分析和查询工具。&lt;/p>
+&lt;p>Kubernetes 中大多数的 Pod 日志被输出到控制台，在宿主机的文件系统每个Pod会创建一个存放日志的文件夹&lt;code>/var/log/pods/&lt;/code>这里会存放所有这个节点运行的Pod的日志，但是这个文件夹下一般都是软连接，由于Kubernetes 底层的 CRI 容器运行时可以使用很多所以日志本身并不存放在这个文件夹，以下为容器运行时真正存放日志目录：&lt;/p>
+&lt;ul>
+&lt;li>container log: &lt;code>/var/log/containers/*.log&lt;/code>&lt;/li>
+&lt;li>Pod log：&lt;code>/var/log/pods&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;h2 id="集群级别日志架构">集群级别日志架构
+&lt;/h2>&lt;ul>
+&lt;li>使用在每个节点上运行的节点级日志记录代理。&lt;/li>
+&lt;li>在应用程序的 Pod 中，包含专门记录日志的边车（Sidecar）容器。&lt;/li>
+&lt;li>将日志直接从应用程序中推送到日志记录后端。&lt;/li>
+&lt;/ul>
+&lt;h3 id="使用节点级日志代理">使用节点级日志代理
+&lt;/h3>&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NDMwODliZGMxZmQxMWM4ZmY0YWUzOTJlNWM0ODE2M2NfbkJ6d25wVnJBc2pqNjRneGk2dFlBaW9EZ2MwcHRMNjNfVG9rZW46QUdNUmJVcHVxb25iZll4TndURmNNTEpjbmNmXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>可以通过在每个节点上使用 &lt;strong>节点级的&lt;strong>&lt;strong>日志记录&lt;/strong>&lt;/strong>代理&lt;/strong> 来实现集群级日志记录。 日志记录代理是一种用于暴露日志或将日志推送到后端的专用工具。 通常，日志记录代理程序是一个容器，它可以访问包含该节点上所有应用程序容器的日志文件的目录。&lt;/p>
+&lt;p>由于日志记录代理必须在每个节点上运行，推荐以 &lt;code>DaemonSet&lt;/code> 的形式运行该代理。&lt;/p>
+&lt;p>节点级日志在每个节点上仅创建一个代理，不需要对节点上的应用做修改。&lt;/p>
+&lt;p>容器向标准输出和标准错误输出写出数据，但在格式上并不统一。 节点级代理收集这些日志并将其进行转发以完成汇总。&lt;/p>
+&lt;h3 id="使用边车容器运行日志代理-httpskubernetesiozh-cndocsconceptscluster-administrationloggingsidecar-container-with-logging-agent-sidecar">使用边车容器运行日志代理&lt;a class="link" href="https://kubernetes.io/zh-cn/docs/concepts/cluster-administration/logging/#sidecar-container-with-logging-agent" target="_blank" rel="noopener"
+> &lt;/a> sidecar
+&lt;/h3>&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MDNjODBjODY5YTY4MzE4MDg3Y2ZhZTU5YTNjN2NhMTBfdVhWZkJkencwQUhOd2JGeGJlWkRJTDlkRFNSOExITlZfVG9rZW46TXRwaWJPaElib21MUWZ4S1I0WGNsYW9HbmNmXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="从应用中直接暴露日志目录">从应用中直接暴露日志目录
+&lt;/h3>&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZWIxMjc4YjY0OTZlNGJjNzZjYjkzZjQwOWYxMjEwNjhfMEhZaGNYck83eFoxUDE0OHJvSDdNRmxXb1RWMVpjZmNfVG9rZW46Q3VQWGJGYVdCb2JFbVl4RXdNZGNvT2ZMbmFiXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h2 id="efk">EFK
+&lt;/h2>&lt;p>Yum 仓库&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> vim /etc/yum.repos.d/elasic.repo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>elasticsearch&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">name&lt;/span>&lt;span class="o">=&lt;/span>Elasticsearch repository &lt;span class="k">for&lt;/span> 7.x packages
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">baseurl&lt;/span>&lt;span class="o">=&lt;/span>https://artifacts.elastic.co/packages/7.x/yum
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgcheck&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgkey&lt;/span>&lt;span class="o">=&lt;/span>https://artifacts.elastic.co/GPG-KEY-elasticsearch
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">enabled&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">autorefresh&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">type&lt;/span>&lt;span class="o">=&lt;/span>rpm-md
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="elasticsearch-httpswwwelasticcoguideenelasticsearchreference717rpmhtml">&lt;a class="link" href="https://www.elastic.co/guide/en/elasticsearch/reference/7.17/rpm.html" target="_blank" rel="noopener"
+>Elasticsearch &lt;/a>
+&lt;/h3>&lt;p>Elasticsearch 是一个开源的分布式搜索和分析引擎，建立在 Apache Lucene 库之上。它提供了一个高性能、可伸缩和全文搜索能力强大的分布式系统，适用于处理大规模数据集的搜索、分析和近实时数据处理。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.17.16-x86_64.rpm
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rpm --install elasticsearch-7.17.16-x86_64.rpm
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>检查集群状态&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 列出节点健康状态&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl -XGET 127.0.0.1:9200/_cat/health?v
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 显示cluster状态&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl -XGET 127.0.0.1:9200/_cluster/health&lt;span class="se">\?&lt;/span>pretty
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 列出 master节点&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl -XGET 127.0.0.1:9200/_cat/master?v
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 列出节点及利用率&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl -XGET 127.0.0.1:9200/_cat/nodes?v
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 显示索引 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">curl localhost:9200/_cat/indices?v
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="kibanahttpswwwelasticcoguideenkibana717rpmhtml">&lt;a class="link" href="https://www.elastic.co/guide/en/kibana/7.17/rpm.html" target="_blank" rel="noopener"
+>Kibana&lt;/a>
+&lt;/h3>&lt;p>Kibana是一个开源的数据可视化和分析平台，与Elasticsearch紧密集成。它提供了一个直观的Web界面，让用户能够轻松地探索、分析和可视化存储在Elasticsearch中的数据。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">wget https://artifacts.elastic.co/downloads/kibana/kibana-7.17.16-x86_64.rpm
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="filebeathttpswwwelasticcoguideenbeatsfilebeat717setup-repositorieshtml">&lt;a class="link" href="https://www.elastic.co/guide/en/beats/filebeat/7.17/setup-repositories.html" target="_blank" rel="noopener"
+>Filebeat&lt;/a>
+&lt;/h3>&lt;p>Filebeat是一个轻量级的开源日志数据收集器，由Elasticsearch提供支持。它专门用于收集、解析和发送日志文件和其他结构化数据到Elasticsearch或Logstash等目标系统进行处理和分析。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="c"># ============================== Filebeat inputs ===============================&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">filebeat.inputs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># Each - is an input. Most options can be set at the input level, so&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># you can use different inputs for various configurations.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># Below are the input specific configurations.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># filestream is an input for collecting log messages from files.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>- &lt;span class="nt">type&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">filestream&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="c"># Unique ID among all inputs, an ID is required.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">id&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">my-filestream-id&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="c"># Change to true to enable this input configuration.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">enabled&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">false&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="c"># Paths that should be crawled and fetched. Glob based paths.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">paths&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">/var/log/*.log&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="c">#- c:\programdata\elasticsearch\logs\*&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># ================================== Outputs ===================================&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># Configure what output to use when sending the data collected by the beat.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="c"># ---------------------------- Elasticsearch Output ----------------------------&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">output.elasticsearch&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="c"># Array of hosts to connect to.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">hosts&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s2">&amp;#34;localhost:9200&amp;#34;&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="c"># Protocol - either `http` (default) or `https`.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="c">#protocol: &amp;#34;https&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="efk-on-kubernetes">EFK on Kubernetes
+&lt;/h2>&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YTIxMTRiYTFlMjM0ZmIzNTM3ODY4YTU3ZDM0MWYxNzhfb0p0VDQ2Qk5JYXEzampaMlJGd3NVQmVPa2t4dzVhMEZfVG9rZW46Qm5JSWI3b1JHb09EY3V4QWRYMGNSMktvbmdnXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="安装-elasticsearch">安装 ElasticSearch
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Add the Elastic Helm charts repo&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm repo add elastic https://helm.elastic.co
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 查询版本 我们使用 7.17.3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm search repo elastic/elasticsearch -l&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME CHART VERSION APP VERSION DESCRIPTION
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elastic/elasticsearch 8.5.1 8.5.1 Official Elastic helm chart &lt;span class="k">for&lt;/span> Elasticsearch
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elastic/elasticsearch 7.17.3 7.17.3 Official Elastic helm chart &lt;span class="k">for&lt;/span> Elasticsearch
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elastic/elasticsearch 7.17.1 7.17.1 Official Elastic helm chart &lt;span class="k">for&lt;/span> Elasticsearch
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elastic/elasticsearch 7.16.3 7.16.3 Official Elastic helm chart &lt;span class="k">for&lt;/span> Elasticsearch
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elastic/elasticsearch 7.16.2 7.16.2 Official Elastic helm chart &lt;span class="k">for&lt;/span> Elasticsearch
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 ~&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm pull elastic/elasticsearch --version=7.17.3&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>修改 values&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>安装&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 20-log&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm upgrade --install els -n logging -f elasticsearch/els-values.yaml ./elasticsearch --create-namespace --namespace logging &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME: els
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LAST DEPLOYED: Sat Nov &lt;span class="m">18&lt;/span> 20:17:57 &lt;span class="m">2023&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAMESPACE: logging
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">STATUS: deployed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">REVISION: &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NOTES:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">1. Watch all cluster members come up.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> $ kubectl get pods --namespace&lt;span class="o">=&lt;/span>logging -l &lt;span class="nv">app&lt;/span>&lt;span class="o">=&lt;/span>elasticsearch-master -w2. Test cluster health using Helm test.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> $ helm --namespace&lt;span class="o">=&lt;/span>logging &lt;span class="nb">test&lt;/span> els
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>集群验证&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 20-log&lt;span class="o">]&lt;/span>&lt;span class="c1"># kubectl get pods --namespace=logging -o wide &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME READY STATUS RESTARTS AGE IP NODE NOMINATED NODE READINESS GATES
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elasticsearch-master-0 1/1 Running &lt;span class="m">0&lt;/span> 99s 10.244.171.24 worker-01 &amp;lt;none&amp;gt; &amp;lt;none&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elasticsearch-master-1 1/1 Running &lt;span class="m">0&lt;/span> 74s 10.244.184.101 master-01 &amp;lt;none&amp;gt; &amp;lt;none&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 20-log&lt;span class="o">]&lt;/span>&lt;span class="c1"># curl 10.244.37.199:9200/_cluster/health?pretty&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">{&lt;/span>&lt;span class="s2">&amp;#34;cluster_name&amp;#34;&lt;/span>:&lt;span class="s2">&amp;#34;elasticsearch&amp;#34;&lt;/span>,&lt;span class="s2">&amp;#34;status&amp;#34;&lt;/span>:&lt;span class="s2">&amp;#34;green&amp;#34;&lt;/span>,&lt;span class="s2">&amp;#34;timed_out&amp;#34;&lt;/span>:false,&lt;span class="s2">&amp;#34;number_of_nodes&amp;#34;&lt;/span>:2,&lt;span class="s2">&amp;#34;number_of_data_nodes&amp;#34;&lt;/span>:2,&lt;span class="s2">&amp;#34;active_primary_shards&amp;#34;&lt;/span>:1,&lt;span class="s2">&amp;#34;active_shards&amp;#34;&lt;/span>:2,&lt;span class="s2">&amp;#34;relocating_shards&amp;#34;&lt;/span>:0,&lt;span class="s2">&amp;#34;initializing_shards&amp;#34;&lt;/span>:0,&lt;span class="s2">&amp;#34;unassigned_shards&amp;#34;&lt;/span>:0,&lt;span class="s2">&amp;#34;delayed_unassigned_shards&amp;#34;&lt;/span>:0,&lt;span class="s2">&amp;#34;number_of_pending_tasks&amp;#34;&lt;/span>:0,&lt;span class="s2">&amp;#34;number_of_in_flight_fetch&amp;#34;&lt;/span>:0,&lt;span class="s2">&amp;#34;task_max_waiting_in_queue_millis&amp;#34;&lt;/span>:0,&lt;span class="s2">&amp;#34;active_shards_percent_as_number&amp;#34;&lt;/span>:100.0&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="安装-kibana">安装 Kibana
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 20-log&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm search repo elastic/kibana -l&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME CHART VERSION APP VERSION DESCRIPTION
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elastic/kibana 8.5.1 8.5.1 Official Elastic helm chart &lt;span class="k">for&lt;/span> Kibana
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elastic/kibana 7.17.3 7.17.3 Official Elastic helm chart &lt;span class="k">for&lt;/span> Kibana
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elastic/kibana 7.17.1 7.17.1 Official Elastic helm chart &lt;span class="k">for&lt;/span> Kibana
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 拉取 chart&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm pull elastic/kibana --version&lt;span class="o">=&lt;/span>7.17.3
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 20-log&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm -n logging upgrade --install kibana -f kibana/kibana-values.yaml ./kibana&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME: kibana
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LAST DEPLOYED: Sat Nov &lt;span class="m">18&lt;/span> 20:49:28 &lt;span class="m">2023&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAMESPACE: logging
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">STATUS: deployed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">REVISION: &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">TEST SUITE: None
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 更新&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 20-log&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm -n logging upgrade kibana -f kibana/kibana-values.yaml ./kibana&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Release &lt;span class="s2">&amp;#34;kibana&amp;#34;&lt;/span> has been upgraded. Happy Helming!
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME: kibana
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LAST DEPLOYED: Sat Nov &lt;span class="m">18&lt;/span> 21:14:34 &lt;span class="m">2023&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAMESPACE: logging
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">STATUS: deployed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">REVISION: &lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">TEST SUITE: None
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>修改 Kibana SVC 使用 NodePort&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">type: NodePort
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="安装-filebeat">安装 Filebeat
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 20-log&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm search repo elastic/filebeat -l&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME CHART VERSION APP VERSION DESCRIPTION
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elastic/filebeat 8.5.1 8.5.1 Official Elastic helm chart &lt;span class="k">for&lt;/span> Filebeat
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elastic/filebeat 7.17.3 7.17.3 Official Elastic helm chart &lt;span class="k">for&lt;/span> Filebeat
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elastic/filebeat 7.17.1 7.17.1 Official Elastic helm chart &lt;span class="k">for&lt;/span> Filebeat
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">elastic/filebeat 7.16.3 7.16.3 Official Elastic helm chart &lt;span class="k">for&lt;/span> Filebeat
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 20-log&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm pull elastic/filebeat --version=7.17.3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@master-01 20-log&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm -n logging install filebeat -f filebeat/filebeat-values-1.yaml ./filebeat&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME: filebeat
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LAST DEPLOYED: Sat Nov &lt;span class="m">18&lt;/span> 21:53:15 &lt;span class="m">2023&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAMESPACE: logging
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">STATUS: deployed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">REVISION: &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">TEST SUITE: None
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NOTES:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">1. Watch all containers come up.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> $ kubectl get pods --namespace&lt;span class="o">=&lt;/span>logging -l &lt;span class="nv">app&lt;/span>&lt;span class="o">=&lt;/span>filebeat-filebeat -w
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YjI3YWUxZDJjZDlkMjlhYTQwNGY3OTYyNTAzM2QzYmVfbUR3NExGWmh1TVhnT1puMEo4MGVVRmRudmwycUgyc2ZfVG9rZW46QlJxYWJHdnllb1ZPeEp4WWcwWGNLR1BobnZnXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="l">https://artifacthub.io/packages/helm/elastic/elasticsearch&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="l">https://artifacthub.io/packages/helm/elastic/kibana&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="l">https://artifacthub.io/packages/helm/fluent/fluentd&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="l">helm repo add elastic https://helm.elastic.co&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NTFhMjFhNTBmZjFiZDJjMDIyZGIzYmIwOTZmOTQ5YWJfYzcwR0JaN2hrOTVpcXRLNGdJNmhEb1RYT1VGSHFoUnJfVG9rZW46SVh2ZGI5OTdUb0tCdG54cDdlTmNWQlEzbmhmXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h2 id="附录">附录：
+&lt;/h2>&lt;p>Elasticsearch 基础概念&lt;/p>
+&lt;h3 id="集群-cluster">集群 Cluster
+&lt;/h3>&lt;p>Elasticsearch 集群是一组 Elasticsearch 节点的集合。节点根据用途不同会划分出不同的角色，且节点之间相互通信。Elasticsearch集群常用于处理大规模数据集，目的是实现容错和高可用。Elasticsearch 集群需要一个唯一标识的集群名称来防止不必要的节点加入。&lt;/p>
+&lt;h3 id="节点--node">节点 node
+&lt;/h3>&lt;p>节点是指一个Elasticsearch实例，更确切地说，它是一个Elasticsearch进程。节点可以部署到物理机或者虚拟机上。每当Elasticsearch启动时，节点就会开始运行。每个节点都有唯一标识的名称，在部署多节点集群环境的时候我们要注意不要写错节点名称。&lt;/p>
+&lt;h3 id="索引--index">索引 index
+&lt;/h3>&lt;p>索引是 Elasticsearch 中用于存储和管理相关数据的逻辑容器。&lt;strong>索引可以看作数据库中的一个表&lt;/strong>，它包含了一组具有相似结构的文档。在 Elasticsearch 中，数据以JSON格式的文档存储在索引内。每个索引具有唯一的名称，以便在执行搜索、更新和删除操作时进行引用。索引的名称可以由用户自定义，但必须全部小写。&lt;/p>
+&lt;h3 id="分片--shard">分片 shard
+&lt;/h3>&lt;p>分片包含索引数据的一个子集，并且其本身具有完整的功能和独立性，可以将分片近似看作“独立索引“，分片是Elasticsearch 分布式存储的基石，是底层的基本读写单元。分片的目的是分割巨大的索引，将数据分散到集群内各处。&lt;/p>
+&lt;p>分片分为主分片和副本分片，一般情况，一个主分片有多个副本分片。主分片负责处理写入请求和存储数据，副本分片只负责存储数据，是主分片的拷贝，文档会存储在具体的某个主分片和副本分片上。&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NGI3ZWNhYmRkMGU3NTdlY2M0ZGRlM2Y3NWE4MTk4YjZfTGdISnl3bjVqWGR0UVZNYVlUTVA1T3d5emhoWEFWTFdfVG9rZW46QnA0S2I2WE1xbzBHTXp4MlJURWNXSWp0bkJjXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="xpack--安全开启-elasticsearch-验证">Xpack 安全，开启 elasticsearch 验证
+&lt;/h3>&lt;p>&lt;a class="link" href="https://www.elastic.co/guide/en/elasticsearch/reference/7.16/security-minimal-setup.html" target="_blank" rel="noopener"
+>https://www.elastic.co/guide/en/elasticsearch/reference/7.16/security-minimal-setup.html&lt;/a>&lt;/p></description></item></channel></rss>

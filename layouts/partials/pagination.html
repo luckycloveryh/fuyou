@@ -1,0 +1,74 @@
+{{ if gt .Paginator.TotalPages 1 }}
+    <nav class='pagination pagination--expanded' data-pagination>
+        <div class='pagination-pages'>
+            {{ range .Paginator.Pagers }}
+                {{ if eq . $.Paginator }}
+                    <span class='page-link current' aria-current='page'>
+                        {{- .PageNumber -}}
+                    </span>
+                {{ else }}
+                    <a class='page-link' href='{{ .URL }}'>
+                        {{- .PageNumber -}}
+                    </a>
+                {{ end }}
+            {{ end }}
+        </div>
+
+        <form class='pagination-jump' data-pagination-jump data-total-pages='{{ .Paginator.TotalPages }}'>
+            {{ range .Paginator.Pagers }}
+                <input type='hidden' data-page-url='{{ .PageNumber }}' value='{{ .URL }}'>
+            {{ end }}
+            <input
+                class='pagination-jump-input'
+                type='number'
+                min='1'
+                max='{{ .Paginator.TotalPages }}'
+                placeholder='请输入数字'
+                inputmode='numeric'
+                aria-label='Jump to page'
+                title='Jump to page'>
+        </form>
+    </nav>
+
+    <script>
+        (() => {
+            const paginations = document.querySelectorAll('[data-pagination]');
+
+            paginations.forEach((pagination) => {
+                const form = pagination.querySelector('[data-pagination-jump]');
+                const input = pagination.querySelector('.pagination-jump-input');
+                if (!form || !input || form.dataset.paginationReady === 'true') return;
+
+                form.dataset.paginationReady = 'true';
+                const totalPages = Number(form.dataset.totalPages);
+                const urls = new Map(
+                    Array.from(form.querySelectorAll('[data-page-url]')).map((item) => [
+                        Number(item.dataset.pageUrl),
+                        item.value,
+                    ])
+                );
+                let timer;
+
+                const go = () => {
+                    const page = Number(input.value);
+                    if (!Number.isInteger(page) || page < 1 || page > totalPages) return;
+
+                    const url = urls.get(page);
+                    if (url && window.location.pathname !== new URL(url, window.location.origin).pathname) {
+                        window.location.href = url;
+                    }
+                };
+
+                input.addEventListener('input', () => {
+                    window.clearTimeout(timer);
+                    timer = window.setTimeout(go, 450);
+                });
+
+                form.addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    go();
+                });
+            });
+        })();
+    </script>
+{{ end }}

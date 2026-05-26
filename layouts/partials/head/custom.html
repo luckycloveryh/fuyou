@@ -1,0 +1,128 @@
+<!-- 全屏 Loading 动画 → 只首次进入显示 -->
+<div class="loading-container">
+  <div class="card">
+    <div class="loader">
+      <p>loading</p>
+      <div class="words">
+        <span class="word">buttons</span>
+        <span class="word">forms</span>
+        <span class="word">switches</span>
+        <span class="word">cards</span>
+        <span class="word">buttons</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* 全屏遮罩 */
+.loading-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(17, 17, 17, 0.98);   /* 深色半透明遮罩，更柔和 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  transition: opacity 1.2s ease;
+}
+
+/* 卡片样式 */
+.card {
+  --bg-color: #111;
+  background-color: var(--bg-color);
+  padding: 1.2rem 2.5rem;
+  border-radius: 1.25rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+/* Loader 主容器 - 关键修复对齐 */
+.loader {
+  color: rgb(124, 124, 124);
+  font-family: "Poppins", system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 25px;
+  height: 42px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;        /* 垂直居中 */
+  gap: 12px;                  /* 文字和单词间距 */
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+/* 单词滚动部分 */
+.words {
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+  min-width: 110px;           /* 防止单词跳动 */
+}
+
+.words::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    var(--bg-color) 10%,
+    transparent 30%,
+    transparent 70%,
+    var(--bg-color) 90%
+  );
+  z-index: 20;
+}
+
+.word {
+  display: block;
+  height: 100%;
+  padding-left: 4px;
+  color: #956afa;
+  animation: spin_4991 4s infinite linear;
+}
+
+@keyframes spin_4991 {
+  10%  { transform: translateY(-102%); }
+  25%  { transform: translateY(-100%); }
+  35%  { transform: translateY(-202%); }
+  50%  { transform: translateY(-200%); }
+  60%  { transform: translateY(-302%); }
+  75%  { transform: translateY(-300%); }
+  85%  { transform: translateY(-402%); }
+  100% { transform: translateY(-400%); }
+}
+
+/* 消失动画 */
+.loading-container.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+</style>
+
+<script>
+// ======================================
+// 只在第一次进入网站显示 Loading
+// ======================================
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.querySelector('.loading-container');
+  const visited = sessionStorage.getItem('visited');
+
+  if (visited) {
+    container.style.display = 'none';
+    return;
+  }
+
+  // 第一次访问：显示 2.5 秒后淡出
+  setTimeout(() => {
+    container.classList.add('fade-out');
+
+    // 淡出完成后彻底隐藏，防止占用空间
+    setTimeout(() => {
+      container.style.display = 'none';
+      sessionStorage.setItem('visited', 'true');
+    }, 1200);   // 与 transition 时间匹配
+  }, 2500);
+});
+</script>

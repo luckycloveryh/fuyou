@@ -1,0 +1,677 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Helm on 小杨的博客</title><link>https://luckycloveryh.github.io/fuyou/tags/helm/</link><description>Recent content in Helm on 小杨的博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>小杨</copyright><lastBuildDate>Mon, 06 Apr 2026 18:04:16 +0800</lastBuildDate><atom:link href="https://luckycloveryh.github.io/fuyou/tags/helm/index.xml" rel="self" type="application/rss+xml"/><item><title>18 - Helm</title><link>https://luckycloveryh.github.io/fuyou/p/k8s-helm-package-manager/</link><pubDate>Mon, 06 Apr 2026 18:04:16 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/k8s-helm-package-manager/</guid><description>&lt;img src="https://i.imgs.ovh/2026/04/06/ZQGhXU.jpeg" alt="Featured image of post 18 - Helm" />&lt;h2 id="helm-基础知识">Helm 基础知识
+&lt;/h2>&lt;p>Helm 目前是 Kubernetes 服务编排事实上的标准。Helm 提供了多种功能来支持 Kubernetes 的服务编排&lt;/p>
+&lt;h3 id="helm-是什么">Helm 是什么
+&lt;/h3>&lt;p>Helm 是 Kubernetes 的包管理器，类似于 Python 的 pip ，centos 的 yum 。Helm 主要用来管理 Chart 包。Helm Chart 包中包含一系列 YAML 格式的 Kubernetes 资源定义文件，以及这些资源的配置，可以通过 Helm Chart 包来整体维护这些资源。&lt;/p>
+&lt;p>Helm 也提供了一个 helm 命令行工具，该工具可以基于 Chart 包一键创建应用，在创建应用时，可以自定义 Chart 配置。应用发布者可以通过 Helm 打包应用、管理应用依赖关系、管理应用版本，并发布应用到软件仓库；对于使用者来说，使用 Helm 后不需要编写复杂的应用部署文件，可以非常方便地在 Kubernetes 上查找、安装、升级、回滚、卸载应用程序。&lt;/p>
+&lt;p>Helm 最新的版本是 v3，Helm3 以 Helm2 的核心功能为基础，对 Chart repo、发行版管理、安全性和 library Charts 进行了改进。和 Helm2 比起来，Helm3 最明显的变化是删除了 Tiller（Helm2 是一种 Client-Server 结构，客户端称为 Helm，服务器称为 Tiller）。Helm3 还新增了一些功能，并废弃或重构了 Helm2 的部分功能，与 Helm2 不再兼容。&lt;/p>
+&lt;p>Helm3 架构图如下：&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MjAyZGY3NzhjM2Y2YjY4N2QzZDJlZDM2ZDhkYTlkNmNfMnNZbVIxbVpIZWVYZ2cxd0hTM2ZDRlZZSHhSdEthNTFfVG9rZW46UUM1YmI0UFVHb0lLMXp4WkE5TGNLM2ptbmFnXzE3NzU0NzAwMTE6MTc3NTQ3MzYxMV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>上面的架构图中，核心是 Helm Client（helm命令）和 Helm Chart 包。helm 命令可以从 Chart Repository 中下载 Helm Chart 包，读取kubeconfig文件，并构建 kube-apiserver REST API 接口的 HTTP 请求。通过调用 Kubernetes 提供的 REST API 接口，将 Chart 包中包含的所有以 YAML 格式定义的 Kubernetes 资源，在 Kubernetes 集群中创建。&lt;/p>
+&lt;p>这些资源以 Release 的形式存在于 Kubernetes 集群中，每个 Release 又包含多个 Kubernetes 资源，例如 Deployment、Pod、Service 等。&lt;/p>
+&lt;h3 id="helm-三大基本概念">Helm 三大基本概念
+&lt;/h3>&lt;p>要学习和使用 Helm，一定要了解 Helm 中的三大基本概念，Helm 的所有操作基本都是围绕着这些概念来进行的。下面我们看一下 Helm 的三大基本概念。&lt;/p>
+&lt;ul>
+&lt;li>Chart： 代表一个 Helm 包。它包含了在 Kubernetes 集群中运行应用程序、工具或服务所需的所有 YAML 格式的资源定义文件。&lt;/li>
+&lt;li>Repository（仓库）： 它是用来存放和共享 Helm Chart 的地方，类似于存放源码的 GitHub 的 Repository，以及存放镜像的 Docker 的 Repository。&lt;/li>
+&lt;li>Release：它是运行在 Kubernetes 集群中的 Chart 的实例。一个 Chart 通常可以在同一个集群中安装多次。每一次安装都会创建一个新的 Release。&lt;/li>
+&lt;/ul>
+&lt;p>在了解了上述这些概念以后，我们就可以这样来解释 Helm：&lt;/p>
+&lt;p>Helm 安装 &lt;em>chart&lt;/em> 到 Kubernetes 集群中，每次安装都会创建一个新的 &lt;em>release&lt;/em>。&lt;/p>
+&lt;h2 id="为什么要使用-helm">为什么要使用 Helm
+&lt;/h2>&lt;p>在 Helm 中，可以理解为主要包含两类文件：模板文件和配置文件。模板文件通常有多个，配置文件通常有一个。Helm 的模板文件基于text/template模板文件，提供了更加强大的模板渲染能力。Helm 可以将配置文件中的值渲染进模板文件中，最终生成一个可以部署的 Kubernetes YAML 格式的资源定义文件，如下图所示：&lt;/p>
+&lt;p>&lt;img src="https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YjllYTJiNDkwYjgwMGFjYWE0NTM3MmIyZjYxNzgzMjFfekUxdzZTUktGVjNiekpFVndXOVJ4TE9Rck5NaVM2S2FfVG9rZW46TDE1UWJUWTdUb1czN014b0IyemMwNlNlblJlXzE3NzU0NzAwMTE6MTc3NTQ3MzYxMV9WNA"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h2 id="helm基本操作">Helm基本操作
+&lt;/h2>&lt;h3 id="安装helm">安装Helm
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">wget https://get.helm.sh/helm-v3.12.3-linux-amd64.tar.gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">tar -xvzf helm-v3.12.3-linux-amd64.tar.gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mv linux-amd64/helm /usr/bin/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm version
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">version.BuildInfo&lt;span class="o">{&lt;/span>Version:&lt;span class="s2">&amp;#34;v3.6.3&amp;#34;&lt;/span>, GitCommit:&lt;span class="s2">&amp;#34;d506314abfb5d21419df8c7e7e68012379db2354&amp;#34;&lt;/span>, GitTreeState:&lt;span class="s2">&amp;#34;clean&amp;#34;&lt;/span>, GoVersion:&lt;span class="s2">&amp;#34;go1.16.5&amp;#34;&lt;/span>&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>如果执行helm version可以成功打印出 helm 命令的版本号，说明 Helm 安装成功。&lt;/p>
+&lt;p>Helm 各版本安装包地址见 &lt;a class="link" href="https://github.com/helm/helm/releases" target="_blank" rel="noopener"
+>Helm Releases&lt;/a>。&lt;/p>
+&lt;p>安装完helm命令后，可以安装helm命令的自动补全脚本。假如你用的 shell 是bash，安装方法如下：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">helm completion bash &amp;gt; &lt;span class="nv">$HOME&lt;/span>/.helm-completion.bash
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="s1">&amp;#39;source $HOME/.helm-completion.bash&amp;#39;&lt;/span> &amp;gt;&amp;gt; ~/.bashrc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bash
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="chart-说明">&lt;strong>Chart 说明&lt;/strong>
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl"> helm create my-chart
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span>-- charts &lt;span class="c1"># 该目录保存其他依赖的 chart（子 chart）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span>-- Chart.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span>-- templates &lt;span class="c1"># chart 配置模板，用于渲染最终的 Kubernetes YAML 文件&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span> &lt;span class="p">|&lt;/span>-- deployment.yaml &lt;span class="c1"># Kubernetes deployment 配置 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span> &lt;span class="p">|&lt;/span>-- _helpers.tpl &lt;span class="c1"># 用于创建模板时的帮助类&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span> &lt;span class="p">|&lt;/span>-- hpa.yaml &lt;span class="c1"># Kubernetes hpa 配置 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span> &lt;span class="p">|&lt;/span>-- ingress.yaml &lt;span class="c1"># Kubernetes ingress 配置&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span> &lt;span class="p">|&lt;/span>-- NOTES.txt &lt;span class="c1"># 用户运行 helm install 时候的提示信息&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span> &lt;span class="p">|&lt;/span>-- serviceaccount.yaml &lt;span class="c1"># Kubernetes serviceaccount 配置&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span> &lt;span class="p">|&lt;/span>-- service.yaml &lt;span class="c1"># Kubernetes service 配置&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span> &lt;span class="sb">`&lt;/span>-- tests
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">|&lt;/span> &lt;span class="sb">`&lt;/span>-- test-connection.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sb">`&lt;/span>-- values.yaml &lt;span class="c1"># 定义 chart 模板中的自定义配置的默认值，可以在执行 helm install 或 helm update 的时候覆盖&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>以上是 helm 为我们自动创建的目录结构，我们还可以在 &lt;code>templates&lt;/code> 目录加其他 Kubernetes 对象的配置，比如 &lt;code>ConfigMap&lt;/code>、&lt;code>DaemonSet&lt;/code> 等。&lt;/p>
+&lt;p>我们查看下使用 &lt;code>helm create&lt;/code> 命令自动生成的 &lt;code>templates/service.yaml&lt;/code> 文件。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">apiVersion&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">v1&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">kind&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Service&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">metadata&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{{&lt;span class="w"> &lt;/span>&lt;span class="l">include &amp;#34;mychart.fullname&amp;#34; . }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">labels&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>{{- &lt;span class="l">include &amp;#34;mychart.labels&amp;#34; . | nindent 4 }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">spec&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">type&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{{&lt;span class="w"> &lt;/span>&lt;span class="l">.Values.service.type }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">ports&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">port&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>{{&lt;span class="w"> &lt;/span>&lt;span class="l">.Values.service.port }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">targetPort&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">http&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">protocol&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">TCP&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">http&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">selector&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>{{- &lt;span class="l">include &amp;#34;mychart.selectorLabels&amp;#34; . | nindent 4 }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>可以看到其中有很多&lt;code>{{ }}&lt;/code> 包围的字段，这是使用的 &lt;a class="link" href="https://golang.org/pkg/text/template/" target="_blank" rel="noopener"
+>Go template&lt;/a> 创建的自定义字段，其中 &lt;code>mychart&lt;/code> 开头的都是在 &lt;code>_helpers.tpl&lt;/code> 中生成的定义。&lt;/p>
+&lt;p>例如 &lt;code>_helpers.tpl&lt;/code> 中对 &lt;code>chart.fullname&lt;/code> 的定义：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Plaintext" data-lang="Plaintext">&lt;span class="line">&lt;span class="cl">{{/*
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Create a default fully qualified app name.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">If release name contains chart name it will be used as a full name.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">*/}}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{{- define &amp;#34;mychart.fullname&amp;#34; -}}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{{- if .Values.fullnameOverride }}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{{- .Values.fullnameOverride | trunc 63 | trimSuffix &amp;#34;-&amp;#34; }}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{{- else }}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{{- $name := default .Chart.Name .Values.nameOverride }}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{{- if contains $name .Release.Name }}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{{- .Release.Name | trunc 63 | trimSuffix &amp;#34;-&amp;#34; }}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{{- else }}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{{- printf &amp;#34;%s-%s&amp;#34; .Release.Name $name | trunc 63 | trimSuffix &amp;#34;-&amp;#34; }}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{{- end }}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{{- end }}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">{{- end }}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>我们再看下 &lt;code>values.yaml&lt;/code> 文件中有这样的一段配置：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">service&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">type&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">ClusterIP&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">port&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">80&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>在使用 &lt;code>helm install&lt;/code> 或 &lt;code>helm update&lt;/code> 时，会渲染 &lt;code>templates/service.yaml&lt;/code> 文件中的 &lt;code>{{ .Values.service.type }}&lt;/code> 和 &lt;code>{{ .Values.service.port }}&lt;/code> 的值。&lt;/p>
+&lt;h3 id="helm-部署应用">Helm 部署应用
+&lt;/h3>&lt;h4 id="初始化仓库">初始化仓库
+&lt;/h4>&lt;p>安装完 Helm 之后，就可以使用 helm 命令添加一个 Chart 仓库。类似于用来托管 Docker 镜像的 DockerHub、用来托管代码的 GitHub，Chart 包也有一个托管平台，当前比较流行的 Chart 包托管平台是 &lt;a class="link" href="https://artifacthub.io/packages/search?kind=0" target="_blank" rel="noopener"
+>Artifact Hub&lt;/a>。&lt;/p>
+&lt;p>Artifact Hub 上有很多 Chart 仓库，我们可以添加需要的 Chart 仓库，这里我们添加 BitNami 提供的 Chart 仓库：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">helm repo add bitnami https://charts.bitnami.com/bitnami &lt;span class="c1"># 添加 Chart Repository&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm repo list &lt;span class="c1"># 查看添加的 Repository 列表&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>添加完成后，我们可以通过helm search命令，来查询需要的 Chart 包。helm search支持两种不同的查询方式，这里我来介绍下。&lt;/p>
+&lt;ul>
+&lt;li>helm search repo &lt;keyword>：从你使用 helm repo add 添加到本地 Helm 客户端中的仓库里查找。该命令基于本地数据进行搜索，无需连接外网。&lt;/li>
+&lt;li>helm search hub &lt;keyword>：从 Artifact Hub 中查找并列出 Helm Charts。 Artifact Hub 中存放了大量的仓库。&lt;/li>
+&lt;/ul>
+&lt;p>Helm 搜索使用模糊字符串匹配算法，所以你可以只输入名字的一部分。下面是一个helm search的示例：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm search repo bitnami&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME CHART VERSION APP VERSION DESCRIPTION
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bitnami/airflow 16.1.6 2.7.3 Apache Airflow is a tool to express and execute...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bitnami/apache 10.2.4 2.4.58 Apache HTTP Server is an open-source HTTP serve...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bitnami/apisix 2.2.7 3.7.0 Apache APISIX is high-performance, real-time AP...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bitnami/appsmith 2.1.8 1.9.49 Appsmith is an open &lt;span class="nb">source&lt;/span> platform &lt;span class="k">for&lt;/span> buildin...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bitnami/argo-cd 5.2.9 2.9.2 Argo CD is a continuous delivery tool &lt;span class="k">for&lt;/span> Kuber...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bitnami/argo-workflows 6.1.4 3.5.1 Argo Workflows is meant to orchestrate Kubernet...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bitnami/aspnet-core 5.0.1 8.0.0 ASP.NET Core is an open-source framework &lt;span class="k">for&lt;/span> we...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># ... and many more&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="安装一个-chart">安装一个 Chart
+&lt;/h4>&lt;p>查询到自己需要的 Helm Chart 后，就可以通过 helm install 命令来安装一个 Chart。helm install 支持从多种源进行安装：&lt;/p>
+&lt;ul>
+&lt;li>Chart 的 Repository。 &lt;code>helm install bitnami/nginx --generate-name&lt;/code>&lt;/li>
+&lt;li>本地的 Chart Archive，例如&lt;code> helm install foo foo-1.0.0.tgz&lt;/code>。&lt;/li>
+&lt;li>一个未打包的 Chart 路径，例如&lt;code> helm install foo path/to/foo&lt;/code>。&lt;/li>
+&lt;li>一个完整的 URL，例如 &lt;code>helm install foo ``https://example.com/charts/foo-1.0.0.tgz&lt;/code>。&lt;/li>
+&lt;/ul>
+&lt;p>这里，我们选择通过 bitnami/nginx Chart 包来安装一个 Nginx应用。你可以执行 helm show chart bitnami/nginx 命令，来简单了解这个 Chart 的基本信息。 或者，你也可以执行 helm show all bitnami/nginx，获取关于该 Chart 的所有信息。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm repo update&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Hang tight &lt;span class="k">while&lt;/span> we grab the latest from your chart repositories...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">...Successfully got an update from the &lt;span class="s2">&amp;#34;bitnami&amp;#34;&lt;/span> chart repository
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Update Complete. ⎈Happy Helming!⎈
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm install bitnami/nginx --generate-name&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME: nginx-1703602225
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LAST DEPLOYED: Tue Dec &lt;span class="m">26&lt;/span> 22:50:28 &lt;span class="m">2023&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAMESPACE: default
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">STATUS: deployed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">REVISION: &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">TEST SUITE: None
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NOTES:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CHART NAME: nginx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CHART VERSION: 15.5.1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">APP VERSION: 1.25.3
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">** Please be patient &lt;span class="k">while&lt;/span> the chart is being deployed **
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NGINX can be accessed through the following DNS name from within your cluster:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> nginx-1703602225.default.svc.cluster.local &lt;span class="o">(&lt;/span>port 80&lt;span class="o">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">To access NGINX from outside the cluster, follow the steps below:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">1. Get the NGINX URL by running these commands:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> NOTE: It may take a few minutes &lt;span class="k">for&lt;/span> the LoadBalancer IP to be available.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> Watch the status with: &lt;span class="s1">&amp;#39;kubectl get svc --namespace default -w nginx-1703602225&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">export&lt;/span> &lt;span class="nv">SERVICE_PORT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>kubectl get --namespace default -o &lt;span class="nv">jsonpath&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;{.spec.ports[0].port}&amp;#34;&lt;/span> services nginx-1703602225&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">export&lt;/span> &lt;span class="nv">SERVICE_IP&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>kubectl get svc --namespace default nginx-1703602225 -o &lt;span class="nv">jsonpath&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;{.status.loadBalancer.ingress[0].ip}&amp;#39;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;http://&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">SERVICE_IP&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">:&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">SERVICE_PORT&lt;/span>&lt;span class="si">}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>在上面的例子中，我们通过安装&lt;code>bitnami/nginx&lt;/code>这个 Chart，创建了一个 &lt;code>nginx-1703602225-7b466f68f9-ljzx2 &lt;/code> Release。 &amp;ndash;generate-name参数告诉 Helm 自动为这个 Release 命名。&lt;/p>
+&lt;p>在安装过程中，Helm 客户端会打印一些有用的信息，包括哪些资源已经被创建，Release 当前的状态，以及你是否还需要执行额外的配置步骤。&lt;/p>
+&lt;p>安装完之后，你可以使用 helm status 来追踪 Release 的状态。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm status nginx-1703602225 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME: nginx-1703602225
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LAST DEPLOYED: Tue Dec &lt;span class="m">26&lt;/span> 22:50:28 &lt;span class="m">2023&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAMESPACE: default
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">STATUS: deployed
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>每当你执行 helm install 的时候，都会创建一个新的发布版本。所以一个 Chart 在同一个集群里面可以被安装多次，每一个都可以被独立地管理和升级。&lt;/p>
+&lt;p>helm install命令会将 templates 渲染成最终的 Kubernetes 能够识别的 YAML 格式，然后安装到 Kubernetes 集群中。&lt;/p>
+&lt;h4 id="自定义-chart">自定义 Chart
+&lt;/h4>&lt;p>上面的安装方式只会使用 Chart 的默认配置选项，很多时候我们需要自定义 Chart 来指定我们想要的配置。使用 &lt;code>helm show values &lt;/code>可以查看 Chart 中的可配置选项：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm show values bitnami/nginx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">global:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> imageRegistry: &lt;span class="s2">&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">## E.g.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">## imagePullSecrets:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">## - myRegistryKeySecretName&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">##&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> imagePullSecrets: &lt;span class="o">[]&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>然后，你可以使用 YAML 格式的文件，覆盖上述任意配置项，并在安装过程中使用该文件。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">nginx-values.yaml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">replicaCount: 2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">revisionHistoryLimit: 20
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">updateStrategy:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> type: RollingUpdate
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> rollingUpdate:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> maxSurge: 1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> maxUnavailable: 0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">[root@node-01 18-helm]# helm install nginx-01 -f nginx-values.yaml nginx-15.4.3.tgz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME: nginx-01
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LAST DEPLOYED: Tue Dec 26 23:10:53 2023
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAMESPACE: default
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">STATUS: deployed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">REVISION: 1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">TEST SUITE: None
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NOTES:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CHART NAME: nginx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CHART VERSION: 15.4.3
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">APP VERSION: 1.25.3
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上述命令将为 Nginx 修改副本数为2，revision的历史记录保存20条，修改了滚动更新的策略。Chart 中的其他默认配置保持不变。&lt;/p>
+&lt;p>安装过程中，有两种传递配置数据的方式。&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>-f，--values&lt;/code>：使用 YAML 文件覆盖配置。可以指定多次，优先使用最右边的文件。&lt;/li>
+&lt;li>&lt;code>--set&lt;/code>：通过命令行的方式对指定配置项进行覆盖。&lt;/li>
+&lt;/ul>
+&lt;p>如果同时使用两种方式，则 &lt;code>--set&lt;/code> 中的值会被合并到 &lt;code>--values&lt;/code> 中，但是 &lt;code>--set&lt;/code> 中的值优先级更高。在&lt;code>--set&lt;/code>中覆盖的内容会被保存在 ConfigMap 中。你可以通过 helm get values 来查看指定 Release 中&lt;/p>
+&lt;p>&lt;code>--set&lt;/code> 设置的值。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm get values nginx-01 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">USER-SUPPLIED VALUES:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">replicaCount: &lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">revisionHistoryLimit: &lt;span class="m">20&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">updateStrategy:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> rollingUpdate:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> maxSurge: &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> maxUnavailable: &lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> type: RollingUpdate
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>我们看一下 &lt;code>--set&lt;/code> 的格式和限制&lt;/p>
+&lt;p>&amp;ndash;set 选项使用0或多个 key-value 对。最简单的用法类似于&amp;ndash;set name=value，等价于下面这个 YAML 格式：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">value&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>多个值之间使用逗号分割，因此&amp;ndash;set a=b,c=d 的 YAML 表示是：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">a&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">b&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">c&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">d&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&amp;ndash;set还支持更复杂的表达式。例如，&amp;ndash;set outer.inner=value 被转换成了：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">outer&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">inner&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">value&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>列表使用花括号{}来表示。例如，&amp;ndash;set name={a, b, c} 被转换成了：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-YAML" data-lang="YAML">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">a&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">b&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">c&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="查看-release">查看 Release
+&lt;/h4>&lt;p>通过helm list可以查看当前集群、当前 Namespace 下安装的 Release 列表：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm ls &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME NAMESPACE REVISION UPDATED STATUS CHART APP VERSION
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nginx-01 default &lt;span class="m">1&lt;/span> 2023-12-26 23:10:53.412289417 +0800 CST deployed nginx-15.4.3 1.25.3
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nginx-1703602225 default &lt;span class="m">1&lt;/span> 2023-12-26 22:50:28.610489775 +0800 CST deployed nginx-15.5.1 1.25.3
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>可以看到，我们创建了两个 Release，这些 Release 位于 default 命名空间中。上述命令，也列出了 Release 的更新时间、状态、Chart 的版本等。&lt;/p>
+&lt;h4 id="升级-release">升级 Release
+&lt;/h4>&lt;p>部署完应用之后，后续还可能升级应用，可以通过helm upgrade命令来升级应用。升级操作会基于已有的 Release，根据提供的信息进行升级。Helm 在更新时，只会变更有更改的内容。&lt;/p>
+&lt;p>例如，这里我们升级 nginx-01 ，变更它的 Root 密码：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm upgrade nginx-01 bitnami/nginx --set containerPorts.http=&amp;#39;80&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Release &lt;span class="s2">&amp;#34;nginx-01&amp;#34;&lt;/span> has been upgraded. Happy Helming!
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME: nginx-01
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LAST DEPLOYED: Tue Dec &lt;span class="m">26&lt;/span> 23:23:29 &lt;span class="m">2023&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAMESPACE: default
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">STATUS: deployed
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">REVISION: &lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>在上面的例子中，nginx-01 这个 Release 使用相同的 Chart 进行升级，但更新了 容器监听的端口号。&lt;/p>
+&lt;p>我们可以使用 &lt;code>helm get values &lt;/code>命令，来看看配置值是否真的生效了：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm get values nginx-01&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">USER-SUPPLIED VALUES:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">containerPorts:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> http: &lt;span class="m">80&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>可以看到 containerPorts.http 的新值已经被部署到集群中了。&lt;/p>
+&lt;p>假如发布失败，我们也很容易通过 &lt;code>helm rollback [RELEASE] [REVISION]&lt;/code> 命令，回滚到之前的发布版本。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm rollback nginx-01 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Rollback was a success! Happy Helming!
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上面这条命令将我们的 nginx-01 回滚到了它最初的版本。Release 版本其实是一个增量修订（revision）。 每当发生了一次安装、升级或回滚操作，revision 的值就会加1。第一次 revision 的值永远是1。&lt;/p>
+&lt;p>我们可以使用 helm history [RELEASE] 命令来查看一个特定 Release 的修订版本号：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm history nginx-01&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">REVISION UPDATED STATUS CHART APP VERSION DESCRIPTION
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">1&lt;/span> Tue Dec &lt;span class="m">26&lt;/span> 23:10:53 &lt;span class="m">2023&lt;/span> superseded nginx-15.4.3 1.25.3 Install &lt;span class="nb">complete&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">2&lt;/span> Tue Dec &lt;span class="m">26&lt;/span> 23:23:29 &lt;span class="m">2023&lt;/span> superseded nginx-15.5.1 1.25.3 Upgrade &lt;span class="nb">complete&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">3&lt;/span> Tue Dec &lt;span class="m">26&lt;/span> 23:27:41 &lt;span class="m">2023&lt;/span> deployed nginx-15.4.3 1.25.3 Rollback to &lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="卸载-release">卸载 Release
+&lt;/h4>&lt;p>你可以使用&lt;code>helm uninstall&lt;/code>命令卸载一个 Release：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm uninstall nginx-01 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">release &lt;span class="s2">&amp;#34;nginx-01&amp;#34;&lt;/span> uninstalled
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>上述命令会从 Kubernetes 卸载 nginx-01， 它将删除和该版本关联的所有资源（Service、Deployment、Pod、ConfigMap 等），包括该 Release 的所有版本历史。&lt;/p>
+&lt;h3 id="helm-命令">Helm 命令
+&lt;/h3>&lt;p>Helm 常用命令如下：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>helm create&lt;/code>：在本地创建新的 chart；&lt;/li>
+&lt;li>&lt;code>helm intall&lt;/code>：安装 chart；&lt;/li>
+&lt;li>&lt;code>helm list&lt;/code>：列出所有 release；&lt;/li>
+&lt;li>&lt;code>helm repo&lt;/code>：列出、增加、更新、删除 chart 仓库；&lt;/li>
+&lt;li>&lt;code>helm rollback&lt;/code>：回滚 release 到历史版本；&lt;/li>
+&lt;li>&lt;code>helm pull&lt;/code>：拉取远程 chart 到本地；&lt;/li>
+&lt;li>&lt;code>helm search&lt;/code>：使用关键词搜索 chart；&lt;/li>
+&lt;li>&lt;code>helm uninstall&lt;/code>：卸载 release；&lt;/li>
+&lt;li>&lt;code>helm upgrade&lt;/code>：升级 release；&lt;/li>
+&lt;/ul>
+&lt;p>使用 &lt;code>helm -h&lt;/code> 可以查看 Helm 命令行使用详情，也可以参考 &lt;a class="link" href="https://helm.sh/zh/docs/helm/helm/" target="_blank" rel="noopener"
+>Helm 文档&lt;/a>。&lt;/p>
+&lt;h2 id="chartmuseum-chart-仓库">ChartMuseum (Chart 仓库)
+&lt;/h2>&lt;h3 id="使用本地存储-httpschartmuseumcomdocsusing-with-local-filesystem-storage">&lt;a class="link" href="https://chartmuseum.com/docs/#using-with-local-filesystem-storage" target="_blank" rel="noopener"
+>使用本地存储 &lt;/a>
+&lt;/h3>&lt;p>Make sure you have read-write access to &lt;code>./chartstorage&lt;/code> (will create if doesn’t exist on first upload)&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">./chartmuseum --debug --port&lt;span class="o">=&lt;/span>&lt;span class="m">8080&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --storage&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;local&amp;#34;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> --storage-local-rootdir&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;./chartstorage&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm repo add my-repo http://127.0.0.1:8080
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm plugin install https://github.com/chartmuseum/helm-push
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm cm-push nginx-15.4.3.tgz my-repo
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;a class="link" href="https://chartmuseum.com/docs/#" target="_blank" rel="noopener"
+>ChartMuseum 官网&lt;/a>&lt;/p>
+&lt;h3 id="上传-chart-包到-仓库">上传 chart 包到 仓库
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 下载 插件&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wget https://github.com/chartmuseum/helm-push/releases/download/v0.10.4/helm-push_0.10.4_linux_amd64.tar.gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir /root/.local/share/helm/plugins/helm-push -p
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">tar xvf helm-push_0.10.4_linux_amd64.tar.gz -C /root/.local/share/helm/plugins/helm-push
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 上传 chart 包&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm cm-push nginx-15.4.3.tgz my-repo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 更新仓库 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">helm repo update my-repo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>root@node-01 18-helm&lt;span class="o">]&lt;/span>&lt;span class="c1"># helm search repo my-repo&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NAME CHART VERSION APP VERSION DESCRIPTION
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">my-repo/nginx 15.4.3 1.25.3 NGINX Open Source is a web server that can be a...
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="附录">附录
+&lt;/h2>&lt;h3 id="镜像">镜像
+&lt;/h3>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-Bash" data-lang="Bash">&lt;span class="line">&lt;span class="cl">registry.cn-beijing.aliyuncs.com/xxhf/nginx:1.27.0-debian-12-r5
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>
