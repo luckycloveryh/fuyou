@@ -1,7 +1,7 @@
 ---
 title: "五、Docker 网络"
 date: 2026-06-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1605745341112-85968b19335b?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-docker-13/1200/600"
 draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["Docker"]

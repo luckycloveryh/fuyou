@@ -1,7 +1,7 @@
 ---
 title: "建议rocky的基础源也使用网络源"
 date: 2026-06-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-cluster-10/1200/600"
 draft: false
 tags: ["集群", "Obsidian"]
 categories: ["集群"]

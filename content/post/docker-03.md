@@ -1,7 +1,7 @@
 ---
 title: "常用镜像地址 副本"
 date: 2026-06-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1605745341112-85968b19335b?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-docker-03/1200/600"
 draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["Docker"]

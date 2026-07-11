@@ -1,7 +1,7 @@
 ---
 title: "安装过程中需交互配置的核心选项（无需手动输入，按提示选择即可）"
 date: 2025-12-25T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-network-11/1200/600"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["网络基础"]

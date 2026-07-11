@@ -1,7 +1,7 @@
 ---
 title: "验证IP是否在地址池且网络连通（示例IP：192.168.66.100）"
 date: 2025-12-16T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-network-04/1200/600"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["网络基础"]

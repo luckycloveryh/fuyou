@@ -1,7 +1,7 @@
 ---
 title: "视频主要内容整合（无精简完整版）"
 date: 2025-12-08T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-shell-05/1200/600"
 draft: false
 tags: ["Shell", "Obsidian"]
 categories: ["Shell"]

@@ -1,7 +1,7 @@
 ---
 title: "定义变量"
 date: 2025-12-12T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-network-02/1200/600"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["网络基础"]

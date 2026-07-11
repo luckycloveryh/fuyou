@@ -1,7 +1,7 @@
 ---
 title: "GitLab"
 date: 2026-06-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1556075798-4825dfaaf498?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-devops-05/1200/600"
 draft: false
 tags: ["DevOps", "Obsidian"]
 categories: ["DevOps"]

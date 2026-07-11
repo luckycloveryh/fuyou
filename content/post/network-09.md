@@ -1,7 +1,7 @@
 ---
 title: "节点192.168.66.194"
 date: 2025-12-23T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-network-09/1200/600"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["网络基础"]

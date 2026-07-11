@@ -1,7 +1,7 @@
 ---
 title: "Linux 系统管理核心知识：日志管理与定时计划任务"
 date: 2025-11-27T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-linux-09/1200/600"
 draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["Linux"]
