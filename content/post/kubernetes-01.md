@@ -40,7 +40,7 @@ categories: ["云原生", "技术教程", "运维开发"]
 
   没错，从某种角度来看，Kubernetes 可以说是一个集群级别的操作系统，主要功能就是资源管理和作业调度。但 Kubernetes 不是运行在单机上管理单台计算资源和进程，而是运行在多台服务器上管理几百几千台的计算资源，以及在这些资源上运行的上万上百万的进程，规模要大得多。  
 
-  ![img](/image/kubernetes/kubernetes-01/01.png)
+  ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-01/01.png)
 
   所以，你可以把 Kubernetes 与 Linux 对比起来学习，而这个新的操作系统里自然会有一系列新名词、新术语，你也需要使用新的思维方式来考虑问题。  
 
@@ -48,7 +48,7 @@ categories: ["云原生", "技术教程", "运维开发"]
 
     
 
-  ![img](/image/kubernetes/kubernetes-01/02.png)
+  ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-01/02.png)
 
   Kubernetes 采用的是 “控制面 / 数据面”（Control Plane / Data Plane）架构，集群里的计算机被称为“节点”（Node），可以是实机也可以是虚机，少量的节点用作控制面来执行集群的管理维护工作，其他的大部分节点都被划归数据面，用来跑业务应用。    
 
@@ -81,7 +81,7 @@ categories: ["云原生", "技术教程", "运维开发"]
 
   **Master** **里有 4 个组件，分别是 apiserver、****etcd****、scheduler、controller-manager。**  
 
-  ![img](/image/kubernetes/kubernetes-01/03.png)
+  ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-01/03.png)
 
   `kube-apiserver` 是 Master 节点——同时也是整个 Kubernetes 系统的唯一入口，它对外公开了一系列的 RESTful API，并且加上了验证、授权等功能，所有其他组件都只能和它直接通信，可以说是 Kubernetes 里的联络员。  
 
@@ -103,7 +103,7 @@ categories: ["云原生", "技术教程", "运维开发"]
   kube-scheduler-master1                     1/1     Running   0          53m
   ```
 
-  ![img](/image/kubernetes/kubernetes-01/04.png)
+  ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-01/04.png)
 
   注意命令行里要用 -n kube-system 参数，表示检查“kube-system”名字空间里的 Pod，至于名字空间是什么，我们后面会讲到。  
 
@@ -117,7 +117,7 @@ categories: ["云原生", "技术教程", "运维开发"]
 
   第三个组件 container-runtime 我们就比较熟悉了，它是容器和镜像的实际使用者，在 kubelet 的指挥下创建容器，管理 Pod 的生命周期，是真正干活的“苦力”。  
 
-  ![img](/image/kubernetes/kubernetes-01/05.png)
+  ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-01/05.png)
 
   我们一定要注意，因为 Kubernetes 的定位是容器编排平台，所以它没有限定 container runtime 必须是 Docker，完全可以替换成任何符合标准的其他容器运行时，例如 containerd、CRI-O 等等，只不过在这里我们使用的是 Docker。  
 
@@ -130,7 +130,7 @@ categories: ["云原生", "技术教程", "运维开发"]
   - kube-scheduler 通过 kube-apiserver 得到当前的节点状态，调度 Pod，然后 kube-apiserver 下发命令给某 个 Node 上的 kubelet，kubelet 调用 container-runtime 启动容器。
   - controller-manager 也通过 kube-apiserver 得到实时的节点状态，监控可能的异常情况，再使用相应的手段去调节恢复。  
 
-  ![img](/image/kubernetes/kubernetes-01/06.png)
+  ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-01/06.png)
 
   其实，这和我们在 Kubernetes 出现之前的操作流程也差不了多少，但 Kubernetes 的高明之处就在于把这些都抽象化规范化了。  
 

@@ -19,7 +19,7 @@ keywords: ["K8s Service", "K8s Ingress", "K8s 高可用", "K8s 网络"]
 
 其实，这个问题在业内早就有解决方案来针对这样“不稳定”的后端服务，那就是“负载均衡”，典型的应用有 LVS、Nginx 等等。它们在前端与后端之间加入了一个“中间层”，屏蔽后端的变化，为前端提供一个稳定的服务。  
 
-![img](/image/kubernetes/kubernetes-09/01.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/01.png)
 
 ### 使用 YAML 描述 Service  
 
@@ -55,7 +55,7 @@ Service 的定义非常简单，在“spec”里只有两个关键字段，selec
 
 selector 是用来过滤出要代理的那些 Pod，因为我们指定要代理 Deployment，所以 Kubernetes 就为我们自动填上了 nginx-dep 的标签，会选择这个 Deployment 对象部署的所有 Pod。  
 
-![img](/image/kubernetes/kubernetes-09/02.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/02.png)
 
 ### 在 Kubernetes 里使用 Service  
 
@@ -120,7 +120,7 @@ kubectl apply -f nginx-svc.yaml
 
 使用命令 kubectl get svc 查看对象状态 
 
-![img](/image/kubernetes/kubernetes-09/03.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/03.png)
 
 Kubernetes 会自动为 Service 对象分配一个IP地址“10.111.193.124”，这个地址段是独立于Pod地址段的（在kubeadm 安装的配置文件里指定的）。Service 对象的 IP 地址还有一个特点，它是一个“虚地址”，不存在实体，只能用来转发流量。
 
@@ -130,7 +130,7 @@ Kubernetes 会自动为 Service 对象分配一个IP地址“10.111.193.124”�
 kubectl describe  svc nginx-svc
 ```
 
-![img](/image/kubernetes/kubernetes-09/04.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/04.png)
 
 通过截图可以看到 Service管理了两个 endpoint 对象，10.244.171.7:80 和 10.244.184.72:80，那这两个地址是不是实际 Pod 的地址呢？
 
@@ -140,11 +140,11 @@ kubectl describe  svc nginx-svc
 kubectl  get pods -o wide
 ```
 
-![img](/image/kubernetes/kubernetes-09/05.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/05.png)
 
 通过上面的截图我们就能够验证 Service 确实用一个静态 IP 地址代理了两个 Pod 的动态 IP 地址。 
 
-![img](/image/kubernetes/kubernetes-09/06.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/06.png)
 
  
 
@@ -156,7 +156,7 @@ kubectl  get pods -o wide
 curl 10.111.193.124
 ```
 
-![img](/image/kubernetes/kubernetes-09/07.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/07.png)
 
 用 curl 访问 Service 的 IP 地址，就会看到它把数据转发给后端的 Pod，输出信息会显示具体是哪个 Pod 响应了请求，就表明 Service 确实完成了对 Pod 的负载均衡任务。  
 
@@ -166,7 +166,7 @@ curl 10.111.193.124
 kubectl delete pod nginx-dep-b4bfd684c-pncv8
 ```
 
-![img](/image/kubernetes/kubernetes-09/08.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/08.png)
 
 Pod 被删除后，Deployment 对象会自动创建一个新的 Pod，Service 会实时监控 Pod 的变化，所以它也会立即更新后端代理的 Pod 地址。这样后端的 Pod 数量就可以按业务需要自由伸缩，对用户是无感的。
 
@@ -176,7 +176,7 @@ Service 对象的 IP 地址是静态的，保持稳定，不过数字形式的 I
 
 Kubernetes 有一个插件来实现 DNS 的功能，在早期这个插件普遍使用 kube-dns，现在用 coredns 比较多。 
 
-![img](/image/kubernetes/kubernetes-09/09.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/09.png)
 
 因为 DNS 是一种层次结构，为了避免太多的域名导致冲突，Kubernetes 就把名字空间作为域名的一部分，减少了重名的可能性。  
 
@@ -184,7 +184,7 @@ Service 对象的域名完全形式是 “**对象名. 命名空间.svc.cluster.
 
 DNS 是在 **Kubernetes 集群内部生效**，所以要测试需要在 Pod 内验证。
 
-![img](/image/kubernetes/kubernetes-09/10.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/10.png)
 
 可以看到，现在我们就不再关心 Service 对象的 IP 地址，只需要知道它的名字，就可以用DNS 的方式去访问后端服务。  
 
@@ -200,7 +200,7 @@ Service 对象有一个关键字段“type”，表示 Service 是哪种类型�
 kubectl explain  service.spec.type
 ```
 
-![img](/image/kubernetes/kubernetes-09/11.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/11.png)
 
 我们可以看到 默认值是 “ClusterIP”，另外还有三种类型分别是“ExternalName” 、“NodePort” 和 “LoadBalancer”。  其中 “LoadBalancer” 是由云服务商提供的，需要借助云服务商用才能实现完整的效果。 
 
@@ -232,15 +232,15 @@ kubectl apply -f nginx-svc.yaml
 kubectl  get svc
 ```
 
-![img](/image/kubernetes/kubernetes-09/12.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/12.png)
 
 可以看到 nginx-svc 的 “TYPE” 变成了 “NodePort”，而在 “PORT” 列里的端口信息也不一样，除了集群内部使用的“80”端口，还多出了一个“32119”端口，这就是 Kubernetes 在节点上为 Service 创建的专用映射端口。  
 
 因为这个端口号属于节点，外部能够直接访问，所以现在我们就不需要登录集群节点或者进入 Pod 内部，直接在集群外使用任意一个节点的 IP 地址，就能够访问 Service 和它代理的后端服务了。  
 
-![img](/image/kubernetes/kubernetes-09/13.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/13.png)
 
-![img](/image/kubernetes/kubernetes-09/14.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/14.png)
 
 #### ExternalName 
 
@@ -285,9 +285,9 @@ spec:
 
 登录到 Pod 中验证 External  Service 
 
-![img](/image/kubernetes/kubernetes-09/15.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/15.png)
 
-![img](/image/kubernetes/kubernetes-09/16.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/16.png)
 
 可以看到 external-svc 会被解析到一个 CNAME 指向 www.baidu.com 
 
@@ -316,11 +316,11 @@ spec:
 kubectl apply -f nginx-svc-lb.yaml
 ```
 
-![img](/image/kubernetes/kubernetes-09/17.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/17.png)
 
 PORT 列没有变化，但是 EXTERNAL-IP 列会显示 pending，因为 LoadBalancer 类型的负载均衡需要云服务商提供，我们的环境会显示为 pending状态，但是 LoadBalancer  也是用了 NodePort 的实现方式，因为 PORT 列还保留了 NodePort 的端口。
 
-![img](/image/kubernetes/kubernetes-09/18.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/18.png)
 
 #### 不同 Service 类型的对比 
 
@@ -472,7 +472,7 @@ Kubernetes API Server 会维护一个运行应用的后端 Pod 列表 。 每个
 
 iptables 模式与 userspace 模式相比虽然在稳定性和性能上均有不小的提升，但因为 iptables 使用 NAT 完成转发， 也存在不可忽视的性能损耗 。 另外，当集群 中存在上万服务 时，Node 上的 iptables rules 会非常庞大，对管理是个不小的负担，性能还会大打折扣 。  
 
-![img](/image/kubernetes/kubernetes-09/19.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/19.png)
 
 ### IPVS 
 
@@ -489,7 +489,7 @@ IPVS 提供了更多选项来平衡后端 Pod 的流量，默认是 `rr`，有�
 - `sed`：最短期望延迟
 - `nq`： 不排队调度
 
-![img](/image/kubernetes/kubernetes-09/20.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/20.png)
 
 kube-proxy会监视 Kubernetes `Service`对象和`Endpoints`，调用`netlink`接口以相应地创建ipvs规则并定期与Kubernetes `Service`对象和`Endpoints`对象同步ipvs规则，以确保 ipvs 状态与期望一致。访问服务时，流量将被重定向到其中一个后端 Pod。
 
@@ -511,7 +511,7 @@ TCP  10.111.109.105:80 rr
 
 ​                                     iptables 和 IPVS 在刷新服务路由规则上的时延对比  
 
-![img](/image/kubernetes/kubernetes-09/21.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/21.png)
 
 ### Kube-proxy 切换到 IPVS 模式
 
@@ -543,7 +543,7 @@ Service 比较适合代理集群内部的服务。如果想要把服务暴露到
 
 Kubernetes 就引入一个新的 API 对象，在七层上做负载均衡。
 
-![img](/image/kubernetes/kubernetes-09/22.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/22.png)
 
 Ingress 作为流量的总入口，统管集群的进出口数据
 
@@ -557,7 +557,7 @@ Ingress Controller 主要由社区来实现，比如我们熟悉的 Nginx， 就
 
 下图比较清楚地展示了 Ingress Controller 在 Kubernetes 集群中的地位。
 
-![img](/image/kubernetes/kubernetes-09/23.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/23.png)
 
 ### 为什么要有 IngressClass  
 
@@ -576,7 +576,7 @@ Kubernetes 又提出了一个 Ingress Class 的概念，让它插在 Ingress 和
 
 现在，Kubernetes 用户可以转向管理 Ingress Class，用它来定义不同的业务逻辑分组，简化 Ingress 规则的复杂度。比如说，我们可以用 Class A 处理订单流量、Class B 处理物流流量、Class C 处理购物流量。  
 
-![img](/image/kubernetes/kubernetes-09/24.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/24.png)
 
 ### 部署 Ingress Controller
 
@@ -586,7 +586,7 @@ Ingress Controller 是一个要实际干活、处理流量的应用程序，由 
 
 [Nginx Ingress Controller](https://github.com/nginx/kubernetes-ingress)，我们部署最新的稳定版本： [5.3.4](https://github.com/nginx/kubernetes-ingress/releases/tag/v5.3.4) 
 
-![img](/image/kubernetes/kubernetes-09/25.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/25.png)
 
 部署 Nginx  Ingress Controller 
 
@@ -608,7 +608,7 @@ NAME                             READY   STATUS    RESTARTS   AGE
 nginx-ingress-55cc9cf8fc-jf6fh   1/1     Running   0          47m
 ```
 
-![img](/image/kubernetes/kubernetes-09/26.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/26.png)
 
 `Nginx Ingress Controller`  会将创建的对象存放在 nginx-ingress 命名空间中。 
 
@@ -662,7 +662,7 @@ spec:
   controller: nginx.org/ingress-controller
 ```
 
-![img](/image/kubernetes/kubernetes-09/27.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/27.png)
 
 ### 创建 Ingress 规则 
 
@@ -686,7 +686,7 @@ nginx-ing      nginx   nginx.xxhf.cc             80        51m
 kubectl describe  ingress nginx-ing 
 ```
 
-![img](/image/kubernetes/kubernetes-09/28.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/28.png)
 
 `Ingress Class` 在部署 `nginx-ingress-controller` 时已经自动创建了。
 
@@ -696,13 +696,13 @@ NAME    CONTROLLER                     PARAMETERS   AGE
 nginx   nginx.org/ingress-controller   <none>       54m
 ```
 
-![img](/image/kubernetes/kubernetes-09/29.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/29.png)
 
 通过 ingress 来访问 我们部署的 Nginx 应用
 
 因为实际干活的是  controller，所以我们看一下 nginx-ingress-controller 对外提供服务的地址，NodePort SVC 对外暴露的 30080  和 30443 端口，ingress 作为七层入口主要是从集群外部访问。如果集群部署在云厂商的环境中，建议使用 LoadBalance 类型的 SVC。 
 
-![img](/image/kubernetes/kubernetes-09/30.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/30.png)
 
 我们创建的 Ingress 规则是通过域名来访问 ，**因此需要在客户端所在服务器上修改静态解析文件，添加如下行：**
 
@@ -712,7 +712,7 @@ nginx   nginx.org/ingress-controller   <none>       54m
 
 ### Case 1 : 使用  HTTP 协议访问 集群内应用
 
-![img](/image/kubernetes/kubernetes-09/31.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/31.png)
 
 ### Case 2: 使用 HTTPS 协议访问  集群内应用
 
@@ -759,7 +759,7 @@ spec:
 
 访问 
 
-![img](/image/kubernetes/kubernetes-09/32.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/32.png)
 
 ### Case 3:  使用 [annotaion ](https://docs.nginx.com/nginx-ingress-controller/configuration/ingress-resources/advanced-configuration-with-annotations/)配置 Ingress 控制器
 
@@ -814,7 +814,7 @@ spec:
 
 1. 测试连接 
 
-![img](/image/kubernetes/kubernetes-09/33.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/33.png)
 
 ## 附录：
 
@@ -849,17 +849,17 @@ Traefik: https://github.com/traefik/traefik
 
 ### LoadBalancer
 
-![img](/image/kubernetes/kubernetes-09/34.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/34.png)
 
-![img](/image/kubernetes/kubernetes-09/35.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/35.png)
 
-![img](/image/kubernetes/kubernetes-09/36.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/36.png)
 
 ### 生产环境 ingrss 入口流量
 
 Kubernetes 中 ingress 请求入口流量详解: https://mp.weixin.qq.com/s/uyXugwITl6jMcol9Uw6mEg
 
-![img](/image/kubernetes/kubernetes-09/37.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-09/37.png)
 
 ### 下一代 Ingress -- Gateway API   
 

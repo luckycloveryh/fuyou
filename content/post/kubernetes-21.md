@@ -31,7 +31,7 @@ Kubernetes 中大多数的 Pod 日志被输出到控制台，在宿主机的文�
 
 ### 使用节点级日志代理
 
-![img](/image/kubernetes/kubernetes-21/01.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-21/01.png)
 
 可以通过在每个节点上使用 **节点级的****日志记录****代理** 来实现集群级日志记录。 日志记录代理是一种用于暴露日志或将日志推送到后端的专用工具。 通常，日志记录代理程序是一个容器，它可以访问包含该节点上所有应用程序容器的日志文件的目录。
 
@@ -43,11 +43,11 @@ Kubernetes 中大多数的 Pod 日志被输出到控制台，在宿主机的文�
 
 ### 使用边车容器运行日志代理[ ](https://kubernetes.io/zh-cn/docs/concepts/cluster-administration/logging/#sidecar-container-with-logging-agent) sidecar 
 
-![img](/image/kubernetes/kubernetes-21/02.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-21/02.png)
 
 ### 从应用中直接暴露日志目录
 
-![img](/image/kubernetes/kubernetes-21/03.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-21/03.png)
 
 ## EFK 
 
@@ -141,7 +141,7 @@ output.elasticsearch:
 
 ## EFK on Kubernetes 
 
-![img](/image/kubernetes/kubernetes-21/04.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-21/04.png)
 
 ### 安装 ElasticSearch    
 
@@ -254,7 +254,7 @@ NOTES:
   $ kubectl get pods --namespace=logging -l app=filebeat-filebeat -w
 ```
 
-![img](/image/kubernetes/kubernetes-21/05.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-21/05.png)
 
 ```YAML
 https://artifacthub.io/packages/helm/elastic/elasticsearch
@@ -267,7 +267,7 @@ https://artifacthub.io/packages/helm/fluent/fluentd
 helm repo add elastic https://helm.elastic.co
 ```
 
-![img](/image/kubernetes/kubernetes-21/06.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-21/06.png)
 
 ## 附录：
 
@@ -291,7 +291,7 @@ Elasticsearch 集群是一组 Elasticsearch 节点的集合。节点根据用途
 
 分片分为主分片和副本分片，一般情况，一个主分片有多个副本分片。主分片负责处理写入请求和存储数据，副本分片只负责存储数据，是主分片的拷贝，文档会存储在具体的某个主分片和副本分片上。
 
-![img](/image/kubernetes/kubernetes-21/07.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-21/07.png)
 
 ### Xpack  安全，开启 elasticsearch 验证 
 

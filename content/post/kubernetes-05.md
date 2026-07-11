@@ -59,7 +59,7 @@ keywords: ["Kubernetes Job", "K8s 离线任务", "CronJob 定时任务"]
 
    为了辅助你理解，我把 Job 对象重新组织了一下，用不同的颜色来区分字段，这样你就能够很容易看出来，其实这个“echo-job”里并没有太多额外的功能，只是把 Pod 做了个简单的包装：
 
-   ![img](/image/kubernetes/kubernetes-05/01.png)
+   ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-05/01.png)
 
    不过，因为 Job 业务的特殊性，所以我们还要在 spec 里多加一个字段 restartPolicy，确定 Pod 运行失败时的策略，OnFailure 是失败原地重启容器，而 Never 则是不重启容器，让 Job 去重新调度生成一个新的 Pod。
 
@@ -78,13 +78,13 @@ keywords: ["Kubernetes Job", "K8s 离线任务", "CronJob 定时任务"]
    kubectl get pod 
    ```
 
-   ![img](/image/kubernetes/kubernetes-05/02.png)
+   ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-05/02.png)
 
    显示为 Completed 表示任务完成，而 Job 里也会列出运行成功的作业数量，这里只有一个作业，所以就是 1/1。
 
    你还可以看到，Pod 被自动关联了一个名字，用的是 Job 的名字（echo-job）再加上一个随机字符串（4w9fj），这当然也是 Job 管理的“功劳”，免去了我们手工定义的麻烦，这样我们就可以使用命令 kubectl logs 来获取 Pod 的运行结果：
 
-   ![img](/image/kubernetes/kubernetes-05/03.png)
+   ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-05/03.png)
 
    这里列出几个控制离线作业的重要字段，其他更详细的信息可以参考 Job 文档：
 
@@ -127,11 +127,11 @@ keywords: ["Kubernetes Job", "K8s 离线任务", "CronJob 定时任务"]
    kubectl get pod -w
    ```
 
-   ![img](/image/kubernetes/kubernetes-05/04.png)
+   ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-05/04.png)
 
    等到 4 个 Pod 都运行完毕，我们再用 kubectl get 来看看 Job 和 Pod 的状态：  
 
-   ![img](/image/kubernetes/kubernetes-05/05.png)
+   ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-05/05.png)
 
    就会看到 Job 的完成数量如同我们预期的是 4，而 4 个 Pod 也都是完成状态。
 
@@ -177,7 +177,7 @@ keywords: ["Kubernetes Job", "K8s 离线任务", "CronJob 定时任务"]
 
    所以，CronJob 其实是又组合了 Job 而生成的新对象，我还是画了一张图，方便你理解它的“套娃”结构：  
 
-   ![img](/image/kubernetes/kubernetes-05/06.png)
+   ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-05/06.png)
 
    除了定义 Job 对象的“jobTemplate”字段之外，CronJob 还有一个新字段就是“schedule”，用来定义任务周期运行的规则。它使用的是标准的 Cron 语法，指定分钟、小时、日、月、周，和 Linux 上的 crontab 是一样的。像在这里我就指定每分钟运行一次。
 
@@ -189,7 +189,7 @@ keywords: ["Kubernetes Job", "K8s 离线任务", "CronJob 定时任务"]
    kubectl get pod 
    ```
 
-   ![img](/image/kubernetes/kubernetes-05/07.png)
+   ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-05/07.png)
 
    ## 总结 
 

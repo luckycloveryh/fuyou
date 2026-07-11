@@ -68,7 +68,7 @@ spec:
 
 也就是说，DaemonSet 仅仅是在 Pod 的部署调度策略上和 Deployment 不同，其他的都是相同的，某种程度上我们也可以把 DaemonSet 看做是 Deployment 的一个特例。  
 
-![img](/image/kubernetes/kubernetes-08/01.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-08/01.png)
 
 我们也可以用变通的方法来创建 DaemonSet 的 YAML 样板了，你只需要用 kubectl create 先创建出一个 Deployment 对象，然后把 kind 改成 DaemonSet，再删除 spec.replicas 就行了。
 
@@ -76,7 +76,7 @@ spec:
 
 我们执行命令 kubectl apply 来创建 DaemonSet 对象，再用 kubectl get 查看对象的状态：  
 
-![img](/image/kubernetes/kubernetes-08/02.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-08/02.png)
 
 看这张截图，虽然我们没有指定 DaemonSet 里 Pod 要运行的数量，但它自己就会去查找集群里的节点，在节点里创建 Pod。因为我们的环境里有一个 Master 一个 Worker，所以 DaemonSet 就在每个节点上生成了一个 Pod。
 
@@ -86,6 +86,6 @@ DaemonSet 是在 Kubernetes 里运行节点专属 Pod 最常用的方式，但�
 
 “静态 Pod”的 YAML 文件默认都存放在节点的 `/etc/kubernetes/manifests` 目录下，它是Kubernetes 的专用目录。 下面的这张截图就是 Master 节点里目录的情况：  
 
-![img](/image/kubernetes/kubernetes-08/03.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-08/03.png)
 
 你可以看到，Kubernetes 的 4 个核心组件 apiserver、etcd、scheduler、controller-manager原来都以静态 Pod 的形式存在的，这也是为什么它们能够先于 Kubernetes 集群启动的原因。 如果你有一些 DaemonSet 无法满足的特殊的需求，可以考虑使用静态 Pod，编写一个 YAML文件放到这个目录里，节点的 kubelet 会定期检查目录里的文件，发现变化就会调用容器运行时创建或者删除静态 Pod。  

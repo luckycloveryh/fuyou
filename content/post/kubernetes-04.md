@@ -17,7 +17,7 @@ keywords: ["Kubernetes Pod", "K8s 核心概念", "Pod 入门"]
 
 Pod 这个词原意是“豌豆荚”，后来又延伸出“舱室”“太空舱”等含义，你可以看一下这张图片，形象地来说 Pod 就是包含了很多组件、成员的一种结构。  
 
-![img](/image/kubernetes/kubernetes-04/01.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/01.png)
 
 为了解决多应用联合运行的问题，同时还要不破坏容器的隔离，就需要在容器外面再建立一个**“**收纳舱**”**，让多个容器既保持相对独立，又能够小范围共享网络、存储等资源，而且永远是“绑在一起”的状态。
 
@@ -27,7 +27,7 @@ Pod 这个词原意是“豌豆荚”，后来又延伸出“舱室”“太空�
 
 Kubernetes 让 Pod 去编排处理容器，然后把 Pod 作为应用调度部署的最小单位，Pod 也因此成为了 Kubernetes 世界里的“原子”，基于Pod 就可以构建出更多更复杂的业务形态了。  
 
-![img](/image/kubernetes/kubernetes-04/02.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/02.png)
 
 ## 如何使用 YAML 描述 Pod  
 
@@ -156,7 +156,7 @@ busy-pod   0/1     CrashLoopBackOff   6 (2m34s ago)   8m4s
 kubectl describe  pod busy-pod 
 ```
 
-![img](/image/kubernetes/kubernetes-04/03.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/03.png)
 
 通常需要关注的是末尾的“Events”部分，它显示的是 Pod 运行过程中的一些关键节点事件。对于这个 busy-pod，因为它只执行了一条 echo 命令就退出了，而 Kubernetes 默认会重启Pod，所以就会进入一个反复停止 - 启动的循环错误状态。
 
@@ -182,11 +182,11 @@ kubectl apply -f nginx-pod.yml
 
 启动之后，我们再用 kubectl get pod 来查看状态，就会发现它已经是“Running”状态了：  
 
-![img](/image/kubernetes/kubernetes-04/04.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/04.png)
 
 命令 `kubectl logs` 也能够输出 Nginx 的运行日志：
 
-![img](/image/kubernetes/kubernetes-04/05.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/05.png)
 
 另外，kubectl 也提供与 docker 类似的 cp 和 exec 命令，kubectl cp 可以把本地文件拷贝进 Pod，kubectl exec 是进入 Pod 内部执行 Shell 命令，用法也差不多。
 
@@ -203,13 +203,13 @@ kubectl cp a.txt nginx-pod:/tmp
 kubectl exec -it nginx-pod -- sh
 ```
 
-![img](/image/kubernetes/kubernetes-04/06.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/06.png)
 
 ## 使用标签组织 Pod
 
 例如，对于微服务架构，部署的微服务数量可以轻松超过20个甚至更多。这些组件可能是副本（部署同一组件的多个副本）和多个不同的发布版本（stable、beta、canary等）同时运行。这样一来可能会导致我们在系统中拥有数百个pod，如果没有可以有效组织这些组件的机制，将会导致产生巨大的混乱。
 
-![img](/image/kubernetes/kubernetes-04/07.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/07.png)
 
 我们需要一种能够基于任意标准将pod组织成更小群体的方式，这样一来处理系统的每个开发人员和系统管理员都可以轻松地看到哪个pod是什么。此外，我们希望通过一次操作对属于某个组的所有pod进行操作，而不必单独为每个pod执行操作。
 
@@ -224,7 +224,7 @@ kubectl exec -it nginx-pod -- sh
 - app，它指定pod属于哪个应用、组件或微服务。
 - env，它显示在pod中运行的环境是 dev、production 还是 qa 。
 
-![img](/image/kubernetes/kubernetes-04/08.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/08.png)
 
 ### 创建 pod 时指定标签
 
@@ -419,7 +419,7 @@ kubectl delete namespace  dev-ns
 
 Kubernetes 中的 pause 容器有时候也称为 `infra` 容器，它与用户容器”捆绑“运行在同一个 Pod 中，最大的作用是维护 Pod 网络协议栈。
 
-![img](/image/kubernetes/kubernetes-04/09.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/09.png)
 
 启动一个Pod  可以看到同时启动两个 docker 容器
 
@@ -475,7 +475,7 @@ nerdctl run -it --name rocky-pause \
   registry.cn-beijing.aliyuncs.com/xxhf/rockylinux:9 sh
 ```
 
-![img](/image/kubernetes/kubernetes-04/10.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/10.png)
 
 ### Init Containers 
 
@@ -613,9 +613,9 @@ preStop 发生的时机，则是容器被杀死之前（比如，收到了 SIGKI
 
 所以，在这个例子中，我们在容器成功启动之后，在 /usr/share/message 里写入了一句“欢迎信息”（即 postStart 定义的操作）。而在这个容器被删除之前，我们则先调用了 nginx 的退出指令（即 preStop 定义的操作），从而实现了容器的“优雅退出”。
 
-![img](/image/kubernetes/kubernetes-04/11.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/11.png)
 
-![img](/image/kubernetes/kubernetes-04/12.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/12.png)
 
 ## 附录
 
@@ -652,9 +652,9 @@ Pod通过`restartPolicy`字段指定重启策略，重启策略类型为：Alway
 --pid=container:<container_name>：容器与另一个指定容器共享PID命名空间。这使得两个容器可以共享相同的进程命名空间，进程在两个容器之间是可见的。例如，可以使用此选项在一个容器中监视和管理另一个容器的进程。
 ```
 
-![img](/image/kubernetes/kubernetes-04/13.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/13.png)
 
-![img](/image/kubernetes/kubernetes-04/14.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-04/14.png)
 
 ```Bash
   kubectl set env daemonset/calico-node -n kube-system IP_AUTODETECTION_METHOD=interface=ens192

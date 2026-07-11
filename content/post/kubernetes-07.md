@@ -106,7 +106,7 @@ kubectl apply -f nginx-dep.yaml
 kubectl get deployments
 ```
 
-![img](/image/kubernetes/kubernetes-07/01.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/01.png)
 
 显示的信息很重要：
 
@@ -121,7 +121,7 @@ Deployment 管理的是 Pod，我们最终用的也是 Pod，所以还需要用 
 kubectl  get pods
 ```
 
-![img](/image/kubernetes/kubernetes-07/02.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/02.png)
 
 是时候来验证一下 Deployment 部署的应用是否真的可以做到“永不宕机”？  
 
@@ -129,9 +129,9 @@ kubectl  get pods
 kubectl  delete pods nginx-dep-6f7d76ddc8-86g52
 ```
 
-![img](/image/kubernetes/kubernetes-07/03.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/03.png)
 
-![img](/image/kubernetes/kubernetes-07/04.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/04.png)
 
 被删除的 Pod 确实是消失了，但 Kubernetes 在 Deployment 的管理之下，很快又创建出了一个新的 Pod，保证了应用实例的数量始终是我们在 YAML 里定义的数量。  
 
@@ -143,9 +143,9 @@ kubectl  delete pods nginx-dep-6f7d76ddc8-86g52
  kubectl  scale deployment  nginx-dep  --replicas=5
 ```
 
-![img](/image/kubernetes/kubernetes-07/05.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/05.png)
 
-![img](/image/kubernetes/kubernetes-07/06.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/06.png)
 
 ## 应用滚动升级 
 
@@ -157,7 +157,7 @@ kubectl  delete pods nginx-dep-6f7d76ddc8-86g52
 
 Kubernetes 使用了“摘要”功能，用摘要算法计算 template 的 Hash 值作为“版本号”。
 
-![img](/image/kubernetes/kubernetes-07/07.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/07.png)
 
 ### 如何实现应用更新  
 
@@ -203,9 +203,9 @@ kubectl port-forward --address 0.0.0.0 deployment/http-app-dep 8080:80
 {"hostname":"http-app-dep-68b9b69985-5j8pc","version":"v1"}
 ```
 
-![img](/image/kubernetes/kubernetes-07/08.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/08.png)
 
-![img](/image/kubernetes/kubernetes-07/09.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/09.png)
 
 编写一个新版本 ` http-app-v2.yaml` ， 修改镜像的版本为 v2 
 
@@ -232,11 +232,11 @@ kubectl apply -f http-app-v2.yaml
 kubectl rollout status deployment http-app-dep
 ```
 
-![img](/image/kubernetes/kubernetes-07/10.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/10.png)
 
 再执行 kubectl get pod ，可以看到 pod 都更新成了新版本。
 
-![img](/image/kubernetes/kubernetes-07/11.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/11.png)
 
 仔细查看 kubectl rollout status 的输出信息，你可以发现，Kubernetes 不是把旧 Pod 全部销毁再一次性创建出新 Pod，而是在逐个地创建新 Pod，同时也在销毁旧 Pod，保证系统里始终有足够数量的 Pod 在运行，不会中断服务。  
 
@@ -248,7 +248,7 @@ kubectl rollout status deployment http-app-dep
 kubectl describe deployments http-app-dep
 ```
 
-![img](/image/kubernetes/kubernetes-07/12.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/12.png)
 
 - 一开始的时候 V1 Pod（即 http-app-dep-68b9b69985）的数量是 4；
 - 当“滚动更新”开始的时候，Kubernetes 创建 1 个 V2 Pod（即 http-app-dep-6c86b44b68 ），并且把 V1 Pod 数量减少到 3；
@@ -257,7 +257,7 @@ kubectl describe deployments http-app-dep
 
 其实“滚动更新”就是由 Deployment 控制的两个同步进行的“应用伸缩”操作，老版本缩容到 0，同时新版本扩容到指定值，大家通过下面这张图再理解一下 滚动更新 的过程 
 
-![img](/image/kubernetes/kubernetes-07/13.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/13.png)
 
 ### 如何管理应用更新  
 
@@ -265,11 +265,11 @@ kubectl describe deployments http-app-dep
 
 如果更新的版本比较多，我们想查看更新历史，可以使用命令 `kubectl rollout history`：  
 
-![img](/image/kubernetes/kubernetes-07/14.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/14.png)
 
 `kubectl rollout history` 的列表输出的有用信息太少，可以在命令后加上参数 `--revision` 来查看每个版本的详细信息，包括标签、镜像名、环境变量、存储卷等等，通过这些就可以大致了解每次都变动了哪些关键字段：  
 
-![img](/image/kubernetes/kubernetes-07/15.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/15.png)
 
 如果我们刚上线的v2版本发现有BUG，希望回退到V1版本，可以使用命令 `kubectl rollout undo`，也可以加上参数 `--to-revision` 回退到任意一个历史版本。
 
@@ -277,13 +277,13 @@ kubectl describe deployments http-app-dep
 kubectl rollout undo deployment http-app-dep 
 ```
 
-![img](/image/kubernetes/kubernetes-07/16.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/16.png)
 
 kubectl rollout undo 的操作过程其实和 kubectl apply 是一样的，执行的仍然是“滚动更新”，只不过使用的是旧版本 Pod 模板，把新版本 Pod 数量收缩到 0，同时把老版本 Pod 扩展到指定值。  
 
 下图是从 v2 到 v1 版本降级的过程：
 
-![img](/image/kubernetes/kubernetes-07/17.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/17.png)
 
 ### 添加更新描述  
 
@@ -310,7 +310,7 @@ metadata:
 kubectl apply -f http-app-v3.yaml
 ```
 
-![img](/image/kubernetes/kubernetes-07/18.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/18.png)
 
 ### 控制滚动更新的参数 
 
@@ -357,19 +357,19 @@ spec:
 
 以下示意图可描述蓝绿发布的大致流程：先切分20%的流量到新版本，若表现正常，逐步增加流量占比，继续测试新版本表现。若新版本一直很稳定，那么将所有流量都切分到新版本，并下线老版本。
 
-![img](/image/kubernetes/kubernetes-07/19.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/19.png)
 
-![img](/image/kubernetes/kubernetes-07/20.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/20.png)
 
-![img](/image/kubernetes/kubernetes-07/21.gif)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/21.gif)
 
 切分20%的流量到新版本后，新版本出现异常，则快速将流量切回老版本。
 
-![img](/image/kubernetes/kubernetes-07/22.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/22.png)
 
-![img](/image/kubernetes/kubernetes-07/23.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/23.png)
 
-![img](/image/kubernetes/kubernetes-07/24.gif)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/24.gif)
 
 **蓝绿部署要求在升级过程中，同时运行两套程序，对硬件的要求就是日常所需的二倍，比如日常运行时，需要10台服务器支撑业务，那么使用蓝绿部署，你就需要购置二十台服务器。**
 
@@ -383,7 +383,7 @@ spec:
 
 金丝雀发布，又称为灰度发布。它能够缓慢的将修改推广到一小部分用户，验证没有问题后，再推广到全部用户，以降低生产环境引入新功能带来的风险。
 
-![img](/image/kubernetes/kubernetes-07/25.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/25.png)
 
 步骤一：部署少量副本的金丝雀版本的应用；
 
@@ -391,7 +391,7 @@ spec:
 
 步骤三：金丝雀副本应用 验证通过后，增加金丝雀应用的副本数，增加导流的比例，减少旧版本的流量和副本的数量，最终完成版本的切换。 
 
-![img](/image/kubernetes/kubernetes-07/26.jpg)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/26.jpg)
 
 ## 应用保障策略 
 
@@ -495,7 +495,7 @@ Kubernetes 在计算资源时是使用 request 字段进行计算的。 一个 w
 
 **资源超卖** 的意思就是说本来系统只有 10 个 CPU 的资源， 但是容器  A、B、C、D  都各自需要申请 5 个 CPU 的资源，这明显不够用。 但是如果 A、B、C、D  不可能在同一时刻都占满 5 个 CPU 资源， 因为每个服务都有它业务的高峰期和低谷期的。 高峰期的时候可以占满 5 个 CPU， 但是服务大部分时间都处于低谷期，可能只占用 1，2 个 CPU。 所以如果直接写 request:5 的话，很多时候资源是浪费的（ kubernetes 里即便容器没有使用到那么多资源， 也会为容器预留 request 字段的资源）。 所以我们可以为容器申请这样的资源： `request：1， limit：5`。 这样上面 4 个容器加起来只申请了 4 个 CPU 的资源， 而系统里有 10 个 CPU， 是完全可以申请到的。 而每个容器的 limit 又设置成了 5， 所以每个容器又都可以去使用 5 个 CPU 资源。
 
-![img](/image/kubernetes/kubernetes-07/27.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/27.png)
 
 ### 容器状态探针  
 
@@ -513,7 +513,7 @@ Kubernetes 为检查应用状态定义了三种探针，它们分别对应容器
 
 需要注意这三种探针是递进的关系：应用程序先启动，加载完配置文件等基本的初始化数据就进入了 Startup 状态，之后如果没有什么异常就是 Liveness 存活状态，但可能有一些准备作没有完成，还不一定能对外提供服务，只有到最后的 Readiness 状态才是一个容器最健康可用的状态。  
 
-![img](/image/kubernetes/kubernetes-07/28.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/28.png)
 
 Kubernetes 在启动容器后就会不断地调用探针来检查容器的状态：  
 
@@ -521,7 +521,7 @@ Kubernetes 在启动容器后就会不断地调用探针来检查容器的状态
 - 如果 Liveness 探针失败，Kubernetes 就会认为容器发生了异常，也会重启容器。
 - 如果 Readiness 探针失败，Kubernetes 会认为容器虽然在运行，但内部有错误，不能正常提供服务，就会把容器从 Service 对象的负载均衡集合中排除，不会给它分配流量。  
 
-![img](/image/kubernetes/kubernetes-07/29.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/29.png)
 
 #### 使用容器探针 
 
@@ -620,11 +620,11 @@ kubectl apply -f nginx-dep-probe.yaml
 
 观察 pod 状态 
 
-![img](/image/kubernetes/kubernetes-07/30.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/30.png)
 
 使用 kubectl  logs 命令查看 nginx 日志，可以看到探针的执行情况 
 
-![img](/image/kubernetes/kubernetes-07/31.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/31.png)
 
 通过上图可以看到 Kubernetes 正是以大约 5 秒一次的频率，向 URI /ready 发送 HTTP 请求，不断地检查容器是否处于就绪状态。  
 
@@ -644,7 +644,7 @@ kubectl apply -f nginx-dep-probe.yaml
 
 当 StartupProbe 探测失败的时候，Kubernetes 就会不停地重启容器，现象就是 RESTARTS 次数不停地增加，而 livenessProbe 和 readinessProbePod 没有执行，Pod 虽然是 Running 状态，也永远不会 READY：  
 
-![img](/image/kubernetes/kubernetes-07/32.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/32.png)
 
 #### 测试 Liveness 和 readinessProbe 执行频率 
 
@@ -689,12 +689,12 @@ spec:
         image: nginx:1.22.1 
 ```
 
-![img](/image/kubernetes/kubernetes-07/33.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/33.png)
 
 `Deployment` 是一个可以拥有 ReplicaSet 并使用声明式方式在服务器端完成对 Pod 滚动更新的对象。 尽管 ReplicaSet 可以独立使用，目前它们的主要用途是提供给 Deployment 作为编排 Pod 创建、删除和更新的一种机制。当使用 Deployment 时，你不必关心如何管理它所创建的 ReplicaSet，Deployment 拥有并管理其ReplicaSet。 因此，建议你在需要 ReplicaSet 时使用 Deployment。
 
-![img](/image/kubernetes/kubernetes-07/34.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/34.png)
 
 ## ReplicationController 控制器 
 
-![img](/image/kubernetes/kubernetes-07/35.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-07/35.png)

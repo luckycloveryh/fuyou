@@ -28,7 +28,7 @@ Prometheus 被称为下一代的监控平台，具有很多和“老牌”监控
 
 Prometheus生态系统由多个组件组成，其架构如下： 
 
-![img](/image/kubernetes/kubernetes-20/01.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/01.png)
 
 - Prometheus Server：Prometheus生态最重要的组件，主要用于抓取和存储时间序列数据，同时提供数据的查询和告警策略的配置管理。
 - Alertmanager：Prometheus生态用于告警的组件，Prometheus Server会将告警发送给Alertmanager，Alertmanager根据路由配置将告警信息发送给指定的人或组。Alertmanager支持邮件、Webhook、微信、钉钉、短信等媒介进行告警通知。
@@ -56,7 +56,7 @@ Prometheus 有多种安装方式，比如二进制安装、容器安装和 Kuber
 
 首先需要通过该项目地址找到和自己Kubernetes版本对应的Kube Prometheus Stack的版本，我们使用的 kubernetes 1.32.2 ，那么对应的 Kube Prometheus Stack 版本是 release-0.15 。 
 
-![img](/image/kubernetes/kubernetes-20/02.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/02.png)
 
 从 github 下载 对应分支的代码 
 
@@ -135,11 +135,11 @@ Grafana 和 Prometheus Web UI 默认使用 ClusterIP，我们需要将SVC的类�
 
 Grafana 默认用户名、密码均为 admin 
 
-![img](/image/kubernetes/kubernetes-20/03.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/03.png)
 
 Kube-promethues 项目默认已经添加了常用的监控目标。
 
-![img](/image/kubernetes/kubernetes-20/04.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/04.png)
 
 ## 云原生应用监控
 
@@ -149,7 +149,7 @@ Kube-promethues 项目默认已经添加了常用的监控目标。
 
 基于云原生理念开发的程序自己会暴露`Metrics`接口，就像Kubernetes本身的组件、Etcd等，都有一个`/metrics`接口，Prometheus 只需要请求这个接口即可获取到相关数据。
 
-![img](/image/kubernetes/kubernetes-20/05.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/05.png)
 
 ### 什么是 ServiceMonitor 
 
@@ -223,7 +223,7 @@ spec:
 
 1. 验证
 
-![img](/image/kubernetes/kubernetes-20/06.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/06.png)
 
 ### 监控 etcd 
 
@@ -272,7 +272,7 @@ spec:
 
 1. 验证抓取目标是否生效 
 
-![img](/image/kubernetes/kubernetes-20/07.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/07.png)
 
 ```Bash
 推荐修改/etc/kubernetes/manifests/kube-controller-manager.yaml 
@@ -280,13 +280,13 @@ spec:
 /etc/kubernetes/manifests/etcd.yaml
 ```
 
-![img](/image/kubernetes/kubernetes-20/08.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/08.png)
 
 1. 为 etcd 配置 dashboard 
 
-![img](/image/kubernetes/kubernetes-20/09.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/09.png)
 
-![img](/image/kubernetes/kubernetes-20/10.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/10.png)
 
 ## 非云原生应用监控  
 
@@ -395,7 +395,7 @@ spec:
 
 验证
 
-![img](/image/kubernetes/kubernetes-20/11.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/11.png)
 
 **第二种方法：** 
 
@@ -425,7 +425,7 @@ spec:
     key: additional-scrape-configs.yaml  # key 
 ```
 
-![img](/image/kubernetes/kubernetes-20/12.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/12.png)
 
 ```
 additional-scrape-configs.yaml
@@ -443,15 +443,15 @@ additional-scrape-configs.yaml
 
 在 prometheus 的配置文件中可以验证 job 已经添加成功。 
 
-![img](/image/kubernetes/kubernetes-20/13.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/13.png)
 
 在 Targets 中也可以看到 mysql 
 
-![img](/image/kubernetes/kubernetes-20/14.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/14.png)
 
 最后在 Grafana 中创建 Dashboard，导入 MySQL Dashboard `14057` 。
 
-![img](/image/kubernetes/kubernetes-20/15.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/15.png)
 
 ## [Blackbox](https://github.com/prometheus/blackbox_exporter) 黑盒监控
 
@@ -492,15 +492,15 @@ kubectl  -n monitoring  create secret generic additional-scrape-configs --from-f
 
 验证配置文件 是否生效 
 
-![img](/image/kubernetes/kubernetes-20/16.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/16.png)
 
 检查  Targets 
 
-![img](/image/kubernetes/kubernetes-20/17.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/17.png)
 
 登录 Grafana，导入Dashboard  13659，导入完成后，稍等一分钟即可在 Prometheus Web UI 看到该配置。 
 
-![img](/image/kubernetes/kubernetes-20/18.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/18.png)
 
 ## 配置告警
 
@@ -677,7 +677,7 @@ kubectl apply -f alertmanager-secret.yaml
 
 等一会就可以在钉钉上收到告警消息了。
 
-![img](/image/kubernetes/kubernetes-20/19.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/19.png)
 
 ## Prometheus 高可用
 
@@ -685,4 +685,4 @@ kubectl apply -f alertmanager-secret.yaml
 - Thanos  
 - VictoriaMetrics 
 
-![img](/image/kubernetes/kubernetes-20/20.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-20/20.png)

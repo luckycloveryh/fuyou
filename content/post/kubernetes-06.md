@@ -82,9 +82,9 @@ keywords: ["Kubernetes ConfigMap", "K8s Secret", "K8s 配置管理"]
    kubectl describe cm info
    ```
 
-   ![img](/image/kubernetes/kubernetes-06/01.png)
+   ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-06/01.png)
 
-   ![img](/image/kubernetes/kubernetes-06/02.png)
+   ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-06/02.png)
 
    你可以看到，现在 ConfigMap 的 Key-Value 信息就已经存入了 etcd 数据库，后续就可以被其他 API 对象使用。  
 
@@ -185,9 +185,9 @@ keywords: ["Kubernetes ConfigMap", "K8s Secret", "K8s 配置管理"]
    kubectl describe secrets user
    ```
 
-   ![img](/image/kubernetes/kubernetes-06/03.png)
+   ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-06/03.png)
 
-   ![img](/image/kubernetes/kubernetes-06/04.png)
+   ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-06/04.png)
 
    这样一个存储敏感信息的 Secret 对象也就创建好了，而且因为它是保密的，使用 kubectl describe 不能直接看到内容，只能看到数据的大小，你可以和 ConfigMap 对比一下。  
 
@@ -280,7 +280,7 @@ keywords: ["Kubernetes ConfigMap", "K8s Secret", "K8s 配置管理"]
    echo $PASSWORD
    ```
 
-   ![img](/image/kubernetes/kubernetes-06/05.png)
+   ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-06/05.png)
 
    这张截图就显示了 Pod 的运行结果，可以看到在 Pod 里使用 echo 命令确实输出了我们在两个 YAML 里定义的配置信息，也就证明 Pod 对象成功组合了 ConfigMap 和 Secret 对象。
 
@@ -360,7 +360,7 @@ keywords: ["Kubernetes ConfigMap", "K8s Secret", "K8s 配置管理"]
    kubectl exec -it env-pod  -- sh 
    ```
 
-   ![img](/image/kubernetes/kubernetes-06/06.png)
+   ![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-06/06.png)
 
    ConfigMap 和 Secret 都变成了目录的形式，而它们里面的 Key-Value 变成了一个个的文件，而文件名就是 Key。
 

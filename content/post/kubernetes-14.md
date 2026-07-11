@@ -16,7 +16,7 @@ keywords: ["K8s CNI", "容器网络", "Kubernetes 网络", "云原生运维"]
 
 在 Kubernetes 的网络模型中，每台服务器上的容器有自己独立的 IP 段，各个服务器之间的容器可以根据目标容器的 IP 地址进行访问。
 
-![img](/image/kubernetes/kubernetes-14/01.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/01.png)
 
 为了实现这一目标，重点解决以下两点：  
 
@@ -33,11 +33,11 @@ Kubemetes 经典的主机内组网模型是 veth pair+ bridge 的方式 。
 
 Kubemetes 使用 veth pair 将容器与主机的网络协议栈连接起来 ，从而使数据包可以进出 Pod。 容器放在主机根 network namespace 中 veth pair 的一端连接到 Linux 网桥 ，可让同一节点上的各 Pod 之间相互通信 。 
 
-![img](/image/kubernetes/kubernetes-14/02.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/02.png)
 
 ### 跨节点组网 
 
-![img](/image/kubernetes/kubernetes-14/03.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/03.png)
 
 综上所述，我们可以对Kubernetes 网络做如下总结：
 
@@ -61,7 +61,7 @@ Kubernetes 使用 CNI 网络插件的工作流程 ：
 - CNI driver 根据配置调用具体的 CNI 插件；  
 - CNI 插件给 pause 容器配置正确的网络， Pod 中的其他容器都是用 pause 容器的网络栈 。  
 
-![img](/image/kubernetes/kubernetes-14/04.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/04.png)
 
 接下来我们看一下两款流行的 CNI 插件的工作方式，可以看到跨节点的容器之间是如何通信的。 
 
@@ -123,11 +123,11 @@ kubectl apply -f kube-flannel-udp.yml
 
 ###### 查看 flannel Pod 状态
 
-![img](/image/kubernetes/kubernetes-14/05.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/05.png)
 
 ###### 验证当前运行模式
 
-![img](/image/kubernetes/kubernetes-14/06.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/06.png)
 
 ###### 查看当前 node 主机 IP 地址范围
 
@@ -143,7 +143,7 @@ FLANNEL_IPMASQ=true
 
 flanneld 进程启动后，通过 ip addr 命令可以发现节点中多了一个 叫 flannel0 的网络接口 ：  
 
-![img](/image/kubernetes/kubernetes-14/07.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/07.png)
 
 通过 `netstat -ulnp `命令可以看到此时 flanneld 进程监听在 UDP 8285 端口  
 
@@ -156,7 +156,7 @@ udp        0      0 172.16.66.30:8285       0.0.0.0:*                           
 
 cni0 网桥信息(master 节点)
 
-![img](/image/kubernetes/kubernetes-14/08.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/08.png)
 
 ```Bash
 [root@master-01 ~]# cat /var/lib/cni/flannel/fb00bc676469faad8628ed2f9b3d4a6ade69a8cee1dbf1e256e877b0d770dcd1 
@@ -165,7 +165,7 @@ cni0 网桥信息(master 节点)
 
 cni0 网桥信息(worker 节点)
 
-![img](/image/kubernetes/kubernetes-14/09.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/09.png)
 
 ```Bash
 [root@worker-01 ~]# cat /var/lib/cni/flannel/88cf2ddc597944e7714b3b0d5dde6f3d5b271ff44430a287e16214b826be9c6d 
@@ -174,7 +174,7 @@ cni0 网桥信息(worker 节点)
 
 ###### 创建测试容器
 
-![img](/image/kubernetes/kubernetes-14/10.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/10.png)
 
 ```Bash
 [root@master-01 15-network]# kubectl  get pods -o wide 
@@ -218,7 +218,7 @@ cni0                8000.4205bfb04106        no                veth4aa9785b
 
 ###### flannel UDP 模式跨主机通信实践
 
-![img](/image/kubernetes/kubernetes-14/11.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/11.png)
 
 1. 容器 A 发出 ICMP 请求报文，通过 IP 封装后的形式为 10.244.0.6 （源）→ 10.244.1.4 （ 目的 ）。 此时通过容器 A 内的路由表匹配到应该将 IP 包发送到网关 10.244.0.1 ( cni0 网桥）。
 2. 到达 cni0 的 IP 包目的地 IP 10.244.1.4 ，匹配到节点 A 上第一条路由规则（ 10.244.0. 0 ） ， 内核通过查本机路由表知道应该将 IP 包发送给 flannel0 接口 。
@@ -247,7 +247,7 @@ master-01 cni0 接口抓包分析
 tcpdump -nni cni0 -s0 -vv  -w flannel-udp-master-cni.pcap
 ```
 
-![img](/image/kubernetes/kubernetes-14/12.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/12.png)
 
 master-01 eth0 接口抓包分析 
 
@@ -255,7 +255,7 @@ master-01 eth0 接口抓包分析
 tcpdump -nni ens192 -s0 -vv  -w flannel-udp-master-eth0.pcap
 ```
 
-![img](/image/kubernetes/kubernetes-14/13.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/13.png)
 
 通过 UDP 这种 backend 实现的网络传输过程最明显的问题是网络数据包先通过 flannel0 设备从用户态复制到内核态，再由内核态复制到用户态的应用，仅一次网络传输就进行了两次用户态和内核态的切换，显然效率是不高的。
 
@@ -283,13 +283,13 @@ kubectl apply -f kube-flannel-vxlan.yml
 
 ###### 查看 flannel Pod 状态 
 
-![img](/image/kubernetes/kubernetes-14/14.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/14.png)
 
 验证当前运行模式
 
-![img](/image/kubernetes/kubernetes-14/15.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/15.png)
 
-![img](/image/kubernetes/kubernetes-14/16.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/16.png)
 
 ###### VXLAN 模式数据路径  
 
@@ -299,7 +299,7 @@ kubectl apply -f kube-flannel-vxlan.yml
 | worker-01 | 172.16.66.32 | 00:50:56:a4:b8:22 | 10.244.1.4 | B        | 10.244.1.1 |
 | worker-01 | 172.16.66.32 | 00:50:56:a4:b8:22 | 10.244.1.5 | C        | 10.244.1.1 |
 
-![img](/image/kubernetes/kubernetes-14/17.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/17.png)
 
 1. 同 UDP Backend 模式，容器 A 中的 IP 包通过容器 A 内的路由表被发送到 cni0 。
 2. 到达 cni0 中的 IP 包通过匹配 worker-01 中的路由表发现通往 10.244.1.4 的 IP 包应该交给 flannel.1 接口 。
@@ -317,7 +317,7 @@ master-01 cni0 接口抓包分析
 tcpdump -nni cni0 -s0 -vv  -w flannel-vxlan-master-cni.pcap
 ```
 
-![img](/image/kubernetes/kubernetes-14/18.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/18.png)
 
 master-01 eth0 接口抓包分析 
 
@@ -325,13 +325,13 @@ master-01 eth0 接口抓包分析
 tcpdump -nni ens192 -s0 -vv  -w flannel-vxlan-master-eth0.pcap
 ```
 
-![img](/image/kubernetes/kubernetes-14/19.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/19.png)
 
 ##### Backend: host-gw 
 
 Host Gateway 简称 host-gw ，从名字中就可以想到这种方式是通过把主机当作网关实现跨节点网络通信的 。 那么 ，具体如何实现跨节点通信呢？与 UDP 和 VXLAN 模式类似， 要使用 host-gw 模式，需要将 flannel 的Backend 中的 Type 参数设置成 “host-gw“。
 
-![img](/image/kubernetes/kubernetes-14/20.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/20.png)
 
 1. 同 UDP 、 VXLAN 模式一致，通过容器 A 的路由 表 IP 包到达 cni0 。
 2. 到达 cni0 的 IP 包匹配到 master-01 中的路由规则（ 10.244.1.0 ），并且网关为 172.16.66.33 ，即 worker-01 ，所以内核将 IP 包发送给 worker-01 (172.16.66.33)。
@@ -345,7 +345,7 @@ host-gw 模式下，各个节点之间的跨节点网络通信要通过节点上
 
 Calico 在每一个计算节点利用 Linux 内核的一些能力实现了一个高效的 **vRouter** 负责数据转发，而每个 vRouter 通过 **BGP** 把 自己运行的工作负载的路由信息 向整个 Calico 网络传播 。 小规模部署可以直接互联，大规模下可以通过指定的 BGP Route Reflector 完成 。 最终保证所有的工作负载之间的数据流量都是通过 IP 路由的方式完成互联的 。 Calico 节点组网可以直接利用数据中心的网络结构（无论是 L2 还是 L3 ），不需要额外的 NAT 或隧道 。  
 
-![img](/image/kubernetes/kubernetes-14/21.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/21.png)
 
 #### 组件 
 
@@ -353,7 +353,7 @@ Calico 在每一个计算节点利用 Linux 内核的一些能力实现了一个
 
 Felix 是一个守护程序，作为 agent 运行在托管容器或虚拟机的 Calico 节点上 。 **Felix 负责刷新主机路由和** **ACL** **规则**等，以便为该主机上的 Endpoint 正常运行提供所需的网络连接和管理。 进出容器 、 虚拟机和物理主机的所有流量都会遍历 Calico ，利用 Linux 内核原生的路由和 iptables 生成的规则 。
 
-![img](/image/kubernetes/kubernetes-14/22.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/22.png)
 
 ##### BGP Client    (BIRD )伯克利大学互联网路由守护进程
 
@@ -365,7 +365,7 @@ Calico 在每个运行 Felix 服务的节点上都部署一个 BGP Client ( BGP 
 
 因此，**在较大规模的部署中**， Calico 建议使用 BGP Route Reflector （路由器反射器）。互联网中通常使用 BGP Route Reflector 充当 BGP 客户端连接的中心点，从而避免与互联网中的每个 BGP 客户端进行通信。  
 
-![img](/image/kubernetes/kubernetes-14/23.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/23.png)
 
 #### Calico 的 IPIP 隧道模式  
 
@@ -373,7 +373,7 @@ Calico 可以创建并管理一个 3 层平面网络，为每个工作负载分�
 
 和其他 overlay 模式一样 ， ipip 是在各节点之间 “架起” 一个隧道，通过隧道两端节点上的容器网络连接，实现机制简单说就是用 IP 包头封装原始 IP 报文 。 启用 ipip 模式时 ，Calico 将在各个节点上创建一个名为 tunl0 的虚拟网络接口，如下图所示 。  
 
-![img](/image/kubernetes/kubernetes-14/24.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/24.png)
 
 ##### 部署 calico 网络插件
 
@@ -385,7 +385,7 @@ kubectl apply -f calico-ipip.yaml
 
 如果有  tunl0 接口表示当前 calico 运行在 IPIP 模式
 
-![img](/image/kubernetes/kubernetes-14/25.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/25.png)
 
 ##### 抓包分析 
 
@@ -395,19 +395,19 @@ kubectl apply -f calico-ipip.yaml
 | worker-01 | 172.16.66.36 | 00:0c:29:3c:3d:b9 | 10.244.171.2  | B        | 10.244.171.0  |
 | worker-01 | 172.16.66.36 | 00:0c:29:3c:3d:b9 | 10.244.171.3  | C        | 10.244.171.0  |
 
-![img](/image/kubernetes/kubernetes-14/26.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/26.png)
 
 ```Bash
  tcpdump  -nni tunl0 -s0 -vv  -w calico-ipip-master-tunl0.pcap
 ```
 
-![img](/image/kubernetes/kubernetes-14/27.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/27.png)
 
 ```Bash
 tcpdump -nni ens192 -s0 -vv  -w calico-ipip-master-eth0.pcap
 ```
 
-![img](/image/kubernetes/kubernetes-14/28.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/28.png)
 
 #### Calico BGP 
 
@@ -419,7 +419,7 @@ kubectl apply -f calico-bgp.yaml
 
 ##### 验证当前运行模式
 
-![img](/image/kubernetes/kubernetes-14/29.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/29.png)
 
 ##### 抓包分析 
 
@@ -427,7 +427,7 @@ kubectl apply -f calico-bgp.yaml
 tcpdump -nni ens192 -s0 -vv  -w calico-bgp-master-eth0.pcap
 ```
 
-![img](/image/kubernetes/kubernetes-14/30.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/30.png)
 
 ## 附录
 
@@ -437,25 +437,25 @@ tcpdump -nni ens192 -s0 -vv  -w calico-bgp-master-eth0.pcap
 
 底层的物理网络设备组成的网络我们称为 **Underlay 网络**，而用于虚拟机和云中的这些技术组成的网络称为 **Overlay 网络**，**这是一种基于物理网络的虚拟化网络实现**。
 
-![img](/image/kubernetes/kubernetes-14/31.jpg)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/31.jpg)
 
 ### 修改 Wireshark 识别 VXLAN 协议 
 
 编辑 - 首选项 - 协议 
 
-![img](/image/kubernetes/kubernetes-14/32.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/32.png)
 
 ### 修改 wireshark 识别 8285 端口UDP包
 
-![img](/image/kubernetes/kubernetes-14/33.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/33.png)
 
-![img](/image/kubernetes/kubernetes-14/34.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/34.png)
 
-![img](/image/kubernetes/kubernetes-14/35.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/35.png)
 
 ### Flannel 启动时报错   每台服务器都执行  
 
-![img](/image/kubernetes/kubernetes-14/36.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-14/36.png)
 
 解决方法一： 一次性 重启就失效 
 

@@ -12,7 +12,7 @@ slug: "k8s-headlamp-web-ui"
 keywords: ["K8s Headlamp", "Kubernetes UI", "K8s 可视化运维", "云原生工具"]
 ---
 
-![img](/image/kubernetes/kubernetes-18/01.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-18/01.png)
 
 ## Headlamp 介绍  
 
@@ -160,7 +160,7 @@ my-headlamp   nginx   ui.chijinjing.cn             80, 443   3m17s
 
 使用上面的域名访问 headlamp，可以看到如下登录界面 ：
 
-![img](/image/kubernetes/kubernetes-18/02.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-18/02.png)
 
 ### 桌面应用部署
 
@@ -170,7 +170,7 @@ my-headlamp   nginx   ui.chijinjing.cn             80, 443   3m17s
 
 主流的操作系统都支持
 
-![img](/image/kubernetes/kubernetes-18/03.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-18/03.png)
 
 我这里下载一个 windows 桌面应用：  `https://github.com/kubernetes-sigs/headlamp/releases/download/v0.40.1/Headlamp-0.40.1-win-x64.exe`` `  
 
@@ -178,15 +178,15 @@ my-headlamp   nginx   ui.chijinjing.cn             80, 443   3m17s
 
 安装成功后可以看到如下的界面：
 
-![img](/image/kubernetes/kubernetes-18/04.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-18/04.png)
 
 **第三步： 添加** **`kubeconfig `****文件连接集群**
 
 在 Kubernetes 集群中下载 kubeconfig 文件，需要确保和集群中的 kube-apiserver 网络是通的。
 
-![img](/image/kubernetes/kubernetes-18/05.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-18/05.png)
 
-![img](/image/kubernetes/kubernetes-18/06.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-18/06.png)
 
 ## Headlamp 访问 
 
@@ -203,10 +203,10 @@ kubectl get secrets cs-admin -o jsonpath='{.data.token}' | base64 -d
 
 登录成功后可以看到如下界面 ： 
 
-![img](/image/kubernetes/kubernetes-18/07.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-18/07.png)
 
-![img](/image/kubernetes/kubernetes-18/08.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-18/08.png)
 
-![img](/image/kubernetes/kubernetes-18/09.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-18/09.png)
 
 管理功能比 Dashboard 项目丰富一些，使用体验还不错。 

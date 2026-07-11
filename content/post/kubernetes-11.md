@@ -40,7 +40,7 @@ PersistentVolumeClaim，简称 PVC，从名字上看比较好理解，就是用�
 
 StorageClass 的作用有点像 IngressClass，它抽象了特定类型的存储系统（比如 Ceph、NFS），在 PVC 和 PV 之间充当“协调人”的角色，帮助 PVC 找到合适的 PV。也就是说它可以简化 Pod 挂载“虚拟盘”的过程，让 Pod 看不到 PV 的实现细节。
 
-![img](/image/kubernetes/kubernetes-11/01.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-11/01.png)
 
 ## 使用 YAML 描述 PersistentVolume  
 
@@ -116,7 +116,7 @@ kubectl apply -f host-10m-pv.yaml
  kubectl  get pv 
 ```
 
-![img](/image/kubernetes/kubernetes-11/02.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-11/02.png)
 
 接下来创建 PVC 
 
@@ -125,13 +125,13 @@ kubectl  apply -f host-10m-pvc.yaml
 kubectl  get pvc
 ```
 
-![img](/image/kubernetes/kubernetes-11/03.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-11/03.png)
 
 一旦 PVC 对象创建成功，Kubernetes 就会立即通过 StorageClass、resources 等条件在集群里查找符合要求的 PV，如果找到合适的存储对象就会把它俩“绑定”在一起。
 
 如果没有找到满足条件的PV，PVC的状态会显示为 Pending 状态 
 
-![img](/image/kubernetes/kubernetes-11/04.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-11/04.png)
 
 ## 为 Pod 挂载 PersistentVolume  
 
@@ -170,7 +170,7 @@ kubectl  apply -f nginx-dep.yaml
 kubectl  get pods -o wide
 ```
 
-![img](/image/kubernetes/kubernetes-11/05.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-11/05.png)
 
 测试文件写入
 
@@ -190,7 +190,7 @@ echo "/data/nfs 192.168.11.0/24(rw,sync,no_subtree_check,no_root_squash,insecure
 systemctl enable --now nfs-server
 ```
 
-![img](/image/kubernetes/kubernetes-11/06.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-11/06.png)
 
 ### 安装NFS 客户端 
 
@@ -199,7 +199,7 @@ yum -y install nfs-utils
 showmount  -e 172.16.66.53
 ```
 
-![img](/image/kubernetes/kubernetes-11/07.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-11/07.png)
 
 客户端测试目录挂载 
 
@@ -233,7 +233,7 @@ kubectl  apply -f nfs-static-pv.yml
 kubectl get pv
 ```
 
-![img](/image/kubernetes/kubernetes-11/08.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-11/08.png)
 
 有了 PV，我们就可以定义申请存储的 PVC 对象了，它的内容和 PV 差不多，但不涉及 NFS 存储的细节，只需要用 resources.request 来表示希望要有多大的容量，这里我写成 5GB，和 PV 的容量相同：
 
@@ -253,7 +253,7 @@ kubectl apply -f nfs-static-pvc.yaml
 kubectl  get pvc 
 ```
 
-![img](/image/kubernetes/kubernetes-11/09.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-11/09.png)
 
 把 PVC 挂载到 Pod
 
@@ -369,4 +369,4 @@ spec:
       storage: 10Mi
 ```
 
-![img](/image/kubernetes/kubernetes-11/10.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-11/10.png)

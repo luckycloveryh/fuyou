@@ -20,13 +20,13 @@ Metrics Server 是一个专门用来收集 Kubernetes 核心资源指标（metri
 
 下面的这张图来自 Kubernetes 官网，你可以对 Metrics Server 的工作方式有个大概了解： 它调用 kubelet 的 API 拿到节点和 Pod 的指标，再把这些信息交给 apiserver，这样 kubectl、HPA 就可以利用 apiserver 来读取指标了：  
 
-![img](/image/kubernetes/kubernetes-19/01.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-19/01.png)
 
 ### **[Metrics Server Github 地址 ](https://github.com/kubernetes-sigs/metrics-server)**
 
 兼容列表：
 
-![img](/image/kubernetes/kubernetes-19/02.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-19/02.png)
 
 ```Bash
 wget https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.8.1/high-availability-1.21+.yaml
@@ -34,7 +34,7 @@ wget https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.8.1/
 
 修改YAML  添加 `--kubelet-insecure-tls`
 
-![img](/image/kubernetes/kubernetes-19/03.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-19/03.png)
 
 ### 部署
 
@@ -152,9 +152,9 @@ ab -c 10 -t 60 -n 100000 'http://nginx-hpa-svc/'
 kubectl  get hpa nginx-hpa  -w 
 ```
 
-![img](/image/kubernetes/kubernetes-19/04.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-19/04.png)
 
-![img](/image/kubernetes/kubernetes-19/05.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-19/05.png)
 
 由于 Metrics Server 大约每 15 秒采集一次数据，所以 HorizontalPodAutoscaler 的自动化扩容和缩容也是按照这个时间点来逐步处理的。
 
@@ -162,9 +162,9 @@ kubectl  get hpa nginx-hpa  -w
 
 ## **[kube-prometheus](https://github.com/prometheus-operator/kube-prometheus)**
 
-![img](/image/kubernetes/kubernetes-19/06.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-19/06.png)
 
-![img](/image/kubernetes/kubernetes-19/07.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-19/07.png)
 
 ### 组件
 
@@ -294,9 +294,9 @@ Prometheus Operator 在Kubernetes中引入了自定义资源，用于声明 Prom
 
 Prometheus 资源以声明方式描述了 Prometheus 部署的期望状态，而 ServiceMonitor 和 PodMonitor 资源描述了Prometheus 要监控的目标。
 
-![img](/image/kubernetes/kubernetes-19/08.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-19/08.png)
 
-![img](/image/kubernetes/kubernetes-19/09.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-19/09.png)
 
 ### 部署测试应用
 
@@ -457,9 +457,9 @@ spec:
     prometheus: prometheus
 ```
 
-![img](/image/kubernetes/kubernetes-19/10.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-19/10.png)
 
-![img](/image/kubernetes/kubernetes-19/11.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-19/11.png)
 
 ## 附录
 
@@ -480,7 +480,7 @@ spec:
 
 ### 修复 unhealthy target 
 
-![img](/image/kubernetes/kubernetes-19/12.png)
+![img](https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/kubernetes/kubernetes-19/12.png)
 
 - etcd.yaml 
 
