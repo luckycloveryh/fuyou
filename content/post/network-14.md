@@ -1,7 +1,7 @@
 ---
 title: "MySQL 视图、外键、存储过程与主从复制"
 date: 2025-12-30T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-network-14/1200/675"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]

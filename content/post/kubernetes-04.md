@@ -1,7 +1,7 @@
 ---
 title: "04-Pod：Kubernetes 里最核心的概念"
 date: 2026-04-06T16:56:11+08:00
-image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-pod-core-concept/1200/675"
 lastmod: 2026-04-06T16:56:11+08:00
 tags: ["Kubernetes", "K8s", "Pod", "云原生", "运维"]
 categories: ["8. Kubernetes"]

@@ -3,7 +3,7 @@ title: "16-调度"
 date: 2026-04-06T18:00:27+08:00
 lastmod: 2026-04-06T18:00:27+08:00
 draft: false
-image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-scheduling-strategies/1200/675"
 tags: ["Kubernetes", "K8s", "调度", "高级调度", "云原生", "运维"]
 categories: ["8. Kubernetes"]
 author: "杨红"

@@ -1,7 +1,7 @@
 ---
 title: "06-ConfigMap 和 Secret - 应用配置文件"
 date: 2026-04-06T17:08:58+08:00
-image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-configmap-secret-config/1200/675"
 lastmod: 2026-04-06T17:08:58+08:00
 draft: false
 tags: ["Kubernetes", "K8s", "ConfigMap", "Secret", "云原生", "运维"]

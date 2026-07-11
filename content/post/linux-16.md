@@ -1,7 +1,7 @@
 ---
 title: "Linux 入门：发行版、分区与虚拟机安装"
 date: 2025-11-13T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-linux-16/1200/675"
 draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]

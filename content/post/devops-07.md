@@ -1,7 +1,7 @@
 ---
 title: "JumpServer 堡垒机安装与配置"
 date: 2026-06-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-devops-07/1200/675"
 draft: false
 tags: ["DevOps", "Obsidian"]
 categories: ["6. DevOps"]

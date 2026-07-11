@@ -1,7 +1,7 @@
 ---
 title: "MySQL SQL 语言分类"
 date: 2026-06-17T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-network-18/1200/675"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]

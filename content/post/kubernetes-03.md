@@ -2,7 +2,7 @@
 title: 'Kubernetes 安装部署'
 description: "使用kubeadm部署k8s集群"
 date: 2026-04-06T16:05:38+08:00
-image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-kubernetes-03/1200/675"
 tags: ["Kubernetes", "K8s", "云原生", "容器编排", "DevOps", "容器技术", "运维", "微服务", "云原生运维", "K8s入门"]
 categories: ["8. Kubernetes"]
 ---

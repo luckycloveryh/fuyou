@@ -1,7 +1,7 @@
 ---
 title: "Linux 文件链接、复制与删除机制"
 date: 2025-11-10T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-linux-12/1200/675"
 draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]

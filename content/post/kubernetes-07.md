@@ -3,7 +3,7 @@ title: "08-Deployment - 让应用永不宕机"
 date: 2026-04-06T17:11:59+08:00
 lastmod: 2026-04-06T17:11:59+08:00
 draft: false
-image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-deployment-high-availability/1200/675"
 tags: ["Kubernetes", "K8s", "Deployment", "云原生", "运维"]
 categories: ["8. Kubernetes"]
 author: "杨红"

@@ -1,7 +1,7 @@
 ---
 title: "Shell 编程基础与 echo 输出"
 date: 2025-12-03T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-shell-02/1200/675"
 draft: false
 tags: ["Shell", "Obsidian"]
 categories: ["3. shell阶段"]

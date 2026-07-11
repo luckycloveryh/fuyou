@@ -1,7 +1,7 @@
 ---
 title: "Shell 变量、特殊符号与 grep"
 date: 2025-12-05T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-shell-04/1200/675"
 draft: false
 tags: ["Shell", "Obsidian"]
 categories: ["3. shell阶段"]

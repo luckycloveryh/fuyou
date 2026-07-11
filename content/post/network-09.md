@@ -1,7 +1,7 @@
 ---
 title: "Nginx 访问控制、缓存与动态请求处理"
 date: 2025-12-23T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-network-09/1200/675"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]

@@ -1,7 +1,7 @@
 ---
 title: "Prometheus 监控系统部署教程"
 date: 2026-06-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-cluster-11/1200/675"
 draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]

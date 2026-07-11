@@ -3,7 +3,7 @@ title: "17-集群安全"
 date: 2026-04-06T18:02:14+08:00
 lastmod: 2026-04-06T18:02:14+08:00
 draft: false
-image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-cluster-security/1200/675"
 tags: ["Kubernetes", "K8s", "集群安全", "RBAC", "证书", "云原生", "运维"]
 categories: ["8. Kubernetes"]
 author: "杨红"

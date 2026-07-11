@@ -1,7 +1,7 @@
 ---
 title: "YAML 语法基础"
 date: 2026-06-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-docker-02/1200/675"
 draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]

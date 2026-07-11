@@ -1,7 +1,7 @@
 ---
 title: "SELinux 安全机制"
 date: 2026-06-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-cluster-03/1200/675"
 draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]

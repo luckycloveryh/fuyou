@@ -1,7 +1,7 @@
 ---
 title: "MySQL 备份恢复与日志管理"
 date: 2025-12-31T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-network-15/1200/675"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]

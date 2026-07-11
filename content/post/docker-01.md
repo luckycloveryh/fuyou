@@ -1,7 +1,7 @@
 ---
 title: "Docker Compose 使用指南"
 date: 2026-06-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-docker-01/1200/675"
 draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]

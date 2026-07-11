@@ -1,7 +1,7 @@
 ---
 title: "Linux 移动介质挂载、Vim 与压缩打包"
 date: 2025-11-13T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-linux-15/1200/675"
 draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]

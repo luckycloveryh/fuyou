@@ -1,7 +1,7 @@
 ---
 title: "Linux 常用命令：目录、文件与路径基础"
 date: 2025-11-07T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-linux-11/1200/675"
 draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]

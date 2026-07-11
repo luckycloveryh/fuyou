@@ -1,7 +1,7 @@
 ---
 title: "GitLab 代码仓库部署与使用"
 date: 2026-06-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-devops-05/1200/675"
 draft: false
 tags: ["DevOps", "Obsidian"]
 categories: ["6. DevOps"]

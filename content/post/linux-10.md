@@ -1,7 +1,7 @@
 ---
 title: "GRUB 引导修复与 root 密码找回"
 date: 2025-11-28T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-linux-10/1200/675"
 draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]

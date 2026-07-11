@@ -3,7 +3,7 @@ title: "15 - CNI"
 date: 2026-04-06T17:57:39+08:00
 lastmod: 2026-04-06T17:57:39+08:00
 draft: false
-image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-cni-container-network-interface/1200/675"
 tags: ["Kubernetes", "K8s", "CNI", "容器网络", "云原生", "运维"]
 categories: ["8. Kubernetes"]
 author: "杨红"

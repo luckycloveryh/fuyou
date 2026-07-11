@@ -30,17 +30,7 @@
                         <img src="{{ $image.permalink }}" loading="lazy" data-key="{{ .context.Slug }}" data-hash="{{ $image.permalink }}"/>
                     {{ end }}
                 {{ else }}
-                    {{- $landscapeCovers := slice
-                        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80"
-                        "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=600&q=80"
-                        "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=600&q=80"
-                        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=600&q=80"
-                        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=80"
-                        "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=600&q=80"
-                        "https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=600&q=80"
-                        "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=600&q=80"
-                    -}}
-                    {{- $cover := index $landscapeCovers (mod (len .context.RelPermalink) (len $landscapeCovers)) -}}
+                    {{- $cover := printf "https://picsum.photos/seed/fuyou-%s/600/338" (md5 .context.RelPermalink) -}}
                     <img src="{{ $cover }}" loading="lazy" alt="Landscape cover for {{ .context.Title }}" data-key="{{ .context.RelPermalink }}" data-hash="{{ md5 .context.RelPermalink }}"/>
                 {{ end }}
             </div>

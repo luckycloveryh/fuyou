@@ -3,7 +3,7 @@ title: "18 - Helm"
 date: 2026-04-06T18:04:16+08:00
 lastmod: 2026-04-06T18:04:16+08:00
 draft: false
-image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-helm-package-manager/1200/675"
 tags: ["Kubernetes", "K8s", "Helm", "包管理", "云原生", "运维"]
 categories: ["8. Kubernetes"]
 author: "杨洪"

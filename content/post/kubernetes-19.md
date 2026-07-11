@@ -3,7 +3,7 @@ title: "19-监控"
 date: 2026-04-06T18:10:14+08:00
 lastmod: 2026-04-06T18:10:14+08:00
 draft: false
-image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-monitoring-metrics-prometheus/1200/675"
 tags: ["Kubernetes", "K8s", "监控", "Metrics Server", "Prometheus", "云原生", "运维"]
 categories: ["8. Kubernetes"]
 author: "杨红"

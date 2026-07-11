@@ -1,7 +1,7 @@
 ---
 title: "FTP、rsync 与 NFS 服务复习"
 date: 2025-12-18T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-network-06/1200/675"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]

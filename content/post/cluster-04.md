@@ -1,7 +1,7 @@
 ---
 title: "DevOps 构建：基于 GitLab 和 Jenkins 的 CI/CD 实践"
 date: 2026-06-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-cluster-04/1200/675"
 draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]

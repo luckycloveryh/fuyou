@@ -3,7 +3,7 @@ title: "12 - 存储：解决数据持久化问题"
 date: 2026-04-06T17:47:38+08:00
 lastmod: 2026-04-06T17:47:38+08:00
 draft: false
-image: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-storage-persistent-volume/1200/675"
 tags: ["Kubernetes", "K8s", "存储", "PV", "PVC", "云原生", "运维"]
 categories: ["8. Kubernetes"]
 author: "杨红"

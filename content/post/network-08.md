@@ -1,7 +1,7 @@
 ---
 title: "Apache 与 Nginx 服务核心实践"
 date: 2025-12-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-network-08/1200/675"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]

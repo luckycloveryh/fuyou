@@ -1,7 +1,7 @@
 ---
 title: "Shell 学习索引"
 date: 2026-06-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-shell-07/1200/675"
 draft: false
 tags: ["Shell", "Obsidian"]
 categories: ["3. shell阶段"]

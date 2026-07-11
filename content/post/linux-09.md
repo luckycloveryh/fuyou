@@ -1,7 +1,7 @@
 ---
 title: "Linux 日志管理与计划任务实践"
 date: 2025-11-27T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-linux-09/1200/675"
 draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]

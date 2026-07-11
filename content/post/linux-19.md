@@ -1,7 +1,7 @@
 ---
 title: "Linux 学习索引"
 date: 2026-06-22T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-linux-19/1200/675"
 draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]

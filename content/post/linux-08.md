@@ -1,7 +1,7 @@
 ---
 title: "Linux 日志管理与定时任务基础"
 date: 2025-11-26T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-linux-08/1200/675"
 draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]

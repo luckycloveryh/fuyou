@@ -3,7 +3,7 @@ title: "20 - 日志方案_EFK"
 date: 2026-04-06T18:15:04+08:00
 lastmod: 2026-04-06T18:15:04+08:00
 draft: false
-image: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-efk-logging-solution/1200/675"
 tags: ["Kubernetes", "K8s", "日志", "EFK", "Elasticsearch", "Fluentd", "Kibana", "云原生", "运维"]
 categories: ["8. Kubernetes"]
 author: "杨红"

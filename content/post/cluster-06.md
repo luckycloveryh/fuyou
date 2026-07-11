@@ -1,7 +1,7 @@
 ---
 title: "LVS 负载均衡集群部署"
 date: 2026-07-08T09:00:00+08:00
-image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-cluster-06/1200/675"
 draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]

@@ -3,7 +3,7 @@ title: "Headlamp"
 date: 2026-04-06T18:07:39+08:00
 lastmod: 2026-04-06T18:07:39+08:00
 draft: false
-image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-headlamp-web-ui/1200/675"
 tags: ["Kubernetes", "K8s", "Headlamp", "Web UI", "可视化", "云原生", "运维"]
 categories: ["8. Kubernetes"]
 author: "杨红"

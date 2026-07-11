@@ -2,7 +2,7 @@
 title: "09-DaemonSet-忠实可靠的看门狗"
 date: 2026-04-06T17:16:12+08:00
 lastmod: 2026-04-06T17:16:12+08:00
-image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-daemonset-node-daemon/1200/675"
 tags: ["Kubernetes", "K8s", "DaemonSet", "云原生", "运维"]
 categories: ["8. Kubernetes"]
 author: "杨红"

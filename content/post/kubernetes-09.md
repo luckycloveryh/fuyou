@@ -2,7 +2,7 @@
 title: "10 - Service、Ingress - 找到你并不容易"
 date: 2026-04-06T17:19:50+08:00
 lastmod: 2026-04-06T17:19:50+08:00
-image: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-service-ingress-replica/1200/675"
 tags: ["Kubernetes", "K8s", "Service", "Ingress", "网络", "云原生"]
 categories: ["8. Kubernetes"]
 author: "杨红"

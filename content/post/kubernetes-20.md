@@ -3,7 +3,7 @@ title: "19-监控 - kube-prometheus 部署"
 date: 2026-04-06T18:12:54+08:00
 lastmod: 2026-04-06T18:12:54+08:00
 draft: false
-image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80"
+image: "https://picsum.photos/seed/fuyou-k8s-kube-prometheus-deployment/1200/675"
 tags: ["Kubernetes", "K8s", "监控", "kube-prometheus", "Prometheus", "Grafana", "云原生", "运维"]
 categories: ["8. Kubernetes"]
 author: "杨红"
