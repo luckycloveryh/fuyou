@@ -4,7 +4,7 @@ date: 2026-04-06T17:19:50+08:00
 lastmod: 2026-04-06T17:19:50+08:00
 image: "https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260524195307_536_12.jpg"  
 tags: ["Kubernetes", "K8s", "Service", "Ingress", "网络", "云原生"]
-categories: ["Kubernetes 实战系列"]
+categories: ["8. Kubernetes"]
 author: "杨红"
 description: "深入讲解 Kubernetes 中 Service 的发现机制、Ingress 的路由规则，以及如何通过副本（Replica）保证服务高可用。"
 slug: "k8s-service-ingress-replica"

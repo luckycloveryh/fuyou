@@ -4,7 +4,7 @@ date: 2026-04-06T17:00:12+08:00
 image: "https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260524195206_517_12.jpg"
 lastmod: 2026-04-06T17:00:12+08:00
 tags: ["Kubernetes", "K8s", "Job", "CronJob", "云原生", "运维"]
-categories: ["Kubernetes 实战系列"]
+categories: ["8. Kubernetes"]
 author: "杨红"
 description: "深入讲解 Kubernetes 中 Job 和 CronJob 的核心概念、使用场景，以及离线业务的调度策略，适合 K8s 运维入门学习。"
 slug: "k8s-job-offline-task"

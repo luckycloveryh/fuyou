@@ -4,8 +4,7 @@ description: "Kubernetes组件介绍"
 date: 2026-04-06T16:05:34+08:00
 image: "https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260524195125_497_12.png"
 tags: ["Kubernetes", "K8s", "云原生", "容器编排", "DevOps", "容器技术", "运维", "微服务", "云原生运维", "K8s入门"]
-categories: ["云原生", "技术教程", "运维开发"]
-
+categories: ["8. Kubernetes"]
 ---
 
 - ## 什么是容器编排 

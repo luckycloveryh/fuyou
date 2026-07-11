@@ -4,7 +4,7 @@ date: 2026-07-08T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-cluster-07/1200/600"
 draft: false
 tags: ["集群", "Obsidian"]
-categories: ["集群"]
+categories: ["5. 集群阶段"]
 slug: "cluster-07"
 description: "从 Obsidian 导入的 集群 学习笔记"
 ---

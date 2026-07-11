@@ -5,7 +5,7 @@ lastmod: 2026-04-06T18:07:39+08:00
 draft: false
 image: "https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260524195216_521_12.jpg"
 tags: ["Kubernetes", "K8s", "Headlamp", "Web UI", "可视化", "云原生", "运维"]
-categories: ["Kubernetes 实战系列"]
+categories: ["8. Kubernetes"]
 author: "杨红"
 description: "深入讲解 Kubernetes 现代化 Web 可视化工具 Headlamp，包括安装配置、资源监控、权限管理等日常运维用法。"
 slug: "k8s-headlamp-web-ui"

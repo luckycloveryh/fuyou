@@ -4,7 +4,7 @@ date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-devops-01/1200/600"
 draft: false
 tags: ["DevOps", "Obsidian"]
-categories: ["DevOps"]
+categories: ["6. DevOps"]
 slug: "devops-01"
 description: "从 Obsidian 导入的 DevOps 学习笔记"
 ---

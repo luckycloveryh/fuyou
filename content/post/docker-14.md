@@ -4,7 +4,7 @@ date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-docker-14/1200/600"
 draft: false
 tags: ["Docker", "Obsidian"]
-categories: ["Docker"]
+categories: ["7. Docker"]
 slug: "docker-14"
 description: "从 Obsidian 导入的 Docker 学习笔记"
 ---

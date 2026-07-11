@@ -4,7 +4,7 @@ date: 2026-04-06T16:56:11+08:00
 image: "https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260524195209_518_12.jpg"
 lastmod: 2026-04-06T16:56:11+08:00
 tags: ["Kubernetes", "K8s", "Pod", "云原生", "运维"]
-categories: ["Kubernetes 实战系列"]
+categories: ["8. Kubernetes"]
 author: "杨红"
 description: "深入讲解 Kubernetes 核心概念 Pod，包括 Pod 的设计理念、作用、与容器的关系，适合 K8s 入门学习。"
 slug: "k8s-pod-core-concept"

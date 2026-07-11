@@ -5,7 +5,7 @@ lastmod: 2026-04-06T18:10:14+08:00
 draft: false
 image: "https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260524195218_522_12.jpg"
 tags: ["Kubernetes", "K8s", "监控", "Metrics Server", "Prometheus", "云原生", "运维"]
-categories: ["Kubernetes 实战系列"]
+categories: ["8. Kubernetes"]
 author: "杨红"
 description: "深入讲解 Kubernetes 监控体系，包括 Metrics Server 资源监控、Prometheus + Grafana 搭建等核心监控方案，适合 K8s 运维学习。"
 slug: "k8s-monitoring-metrics-prometheus"

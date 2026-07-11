@@ -4,7 +4,7 @@ date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-shell-07/1200/600"
 draft: false
 tags: ["Shell", "Obsidian"]
-categories: ["Shell"]
+categories: ["3. shell阶段"]
 slug: "shell-07"
 description: "从 Obsidian 导入的 Shell 学习笔记"
 ---

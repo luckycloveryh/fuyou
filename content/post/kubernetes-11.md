@@ -5,7 +5,7 @@ lastmod: 2026-04-06T17:47:38+08:00
 draft: false
 image: "https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260524195233_530_12.jpg"
 tags: ["Kubernetes", "K8s", "存储", "PV", "PVC", "云原生", "运维"]
-categories: ["Kubernetes 实战系列"]
+categories: ["8. Kubernetes"]
 author: "杨红"
 description: "深入讲解 Kubernetes 存储核心概念 PV/PVC，解决容器数据持久化问题，适合 K8s 运维入门学习。"
 slug: "k8s-storage-persistent-volume"

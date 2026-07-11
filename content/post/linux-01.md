@@ -4,7 +4,7 @@ date: 2025-11-06T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-01/1200/600"
 draft: false
 tags: ["Linux", "Obsidian"]
-categories: ["Linux"]
+categories: ["2. Linux"]
 slug: "linux-01"
 description: "从 Obsidian 导入的 Linux 学习笔记"
 ---

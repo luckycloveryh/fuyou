@@ -5,7 +5,7 @@ lastmod: 2026-04-06T18:00:27+08:00
 draft: false
 image: "https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260524195226_526_12.jpg"
 tags: ["Kubernetes", "K8s", "调度", "高级调度", "云原生", "运维"]
-categories: ["Kubernetes 实战系列"]
+categories: ["8. Kubernetes"]
 author: "杨红"
 description: "深入讲解 Kubernetes 调度机制，包括节点选择、亲和性/反亲和性、污点与容忍等高级调度策略，适合 K8s 运维进阶学习。"
 slug: "k8s-scheduling-strategies"

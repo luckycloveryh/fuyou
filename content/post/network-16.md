@@ -4,7 +4,7 @@ date: 2026-01-04T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-16/1200/600"
 draft: false
 tags: ["网络基础", "Obsidian"]
-categories: ["网络基础"]
+categories: ["4. 网络基础阶段"]
 slug: "network-16"
 description: "从 Obsidian 导入的 网络基础 学习笔记"
 ---

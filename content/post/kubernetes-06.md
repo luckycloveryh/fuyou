@@ -5,7 +5,7 @@ image: "https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/%E5%BE%A
 lastmod: 2026-04-06T17:08:58+08:00
 draft: false
 tags: ["Kubernetes", "K8s", "ConfigMap", "Secret", "云原生", "运维"]
-categories: ["Kubernetes 实战系列"]
+categories: ["8. Kubernetes"]
 author: "杨红"
 description: "深入讲解 Kubernetes 中 ConfigMap 和 Secret 的核心概念、使用场景，以及如何用它们管理应用配置，适合 K8s 运维入门学习。"
 slug: "k8s-configmap-secret-config"
