@@ -1,5 +1,5 @@
 ---
-title: "视频核心内容整合总结"
+title: "FTP、rsync 与 NFS 服务复习"
 date: 2025-12-18T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-06/1200/600"
 draft: false

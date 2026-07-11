@@ -1,5 +1,5 @@
 ---
-title: "节点192.168.66.194"
+title: "Nginx 访问控制、缓存与动态请求处理"
 date: 2025-12-23T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-09/1200/600"
 draft: false

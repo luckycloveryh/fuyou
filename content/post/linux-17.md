@@ -1,5 +1,5 @@
 ---
-title: "视频主要内容总结"
+title: "Linux Vim 进阶与网卡配置"
 date: 2025-11-14T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-17/1200/600"
 draft: false

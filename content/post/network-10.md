@@ -1,5 +1,5 @@
 ---
-title: "2025-12-24tomcat+web服务器"
+title: "Tomcat 与 Web 服务反向代理"
 date: 2025-12-24T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-10/1200/600"
 draft: false

@@ -1,5 +1,5 @@
 ---
-title: "四、使用 Dockerfile 创建镜像"
+title: "使用 Dockerfile 构建镜像"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-docker-10/1200/600"
 draft: false

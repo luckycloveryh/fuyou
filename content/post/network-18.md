@@ -1,5 +1,5 @@
 ---
-title: "MySQL 四种常见语言"
+title: "MySQL SQL 语言分类"
 date: 2026-06-17T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-18/1200/600"
 draft: false

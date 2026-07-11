@@ -1,5 +1,5 @@
 ---
-title: "vsftpd服务全维度配置指南（含原理/命令/实战）"
+title: "vsftpd FTP 服务配置指南"
 date: 2025-12-17T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-05/1200/600"
 draft: false

@@ -1,5 +1,5 @@
 ---
-title: "2025-12-10shell第六天"
+title: "Shell 条件判断、文件权限与流程控制"
 date: 2025-12-10T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-shell-01/1200/600"
 draft: false

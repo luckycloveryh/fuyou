@@ -1,5 +1,5 @@
 ---
-title: "四. 镜像存储机制"
+title: "Docker 镜像存储机制"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-docker-12/1200/600"
 draft: false

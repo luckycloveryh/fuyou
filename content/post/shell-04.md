@@ -1,5 +1,5 @@
 ---
-title: "2025-12-5shell第三天"
+title: "Shell 变量、特殊符号与 grep"
 date: 2025-12-05T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-shell-04/1200/600"
 draft: false

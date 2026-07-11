@@ -1,5 +1,5 @@
 ---
-title: "Linux系统核心操作视频内容整合总结"
+title: "Linux 软件安装与系统核心操作"
 date: 2025-11-17T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-02/1200/600"
 draft: false

@@ -1,5 +1,5 @@
 ---
-title: "视频主要内容整合（无精简完整版）"
+title: "Shell 分支判断、正则与循环脚本"
 date: 2025-12-08T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-shell-05/1200/600"
 draft: false

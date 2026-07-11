@@ -1,5 +1,5 @@
 ---
-title: "视频主要内容总结"
+title: "GRUB 引导修复与 root 密码找回"
 date: 2025-11-28T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-10/1200/600"
 draft: false

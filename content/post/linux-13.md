@@ -1,5 +1,5 @@
 ---
-title: "Linux系统文件操作与权限管理核心知识"
+title: "Linux 文件操作与权限管理进阶"
 date: 2025-11-11T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-13/1200/600"
 draft: false

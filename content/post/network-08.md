@@ -1,5 +1,5 @@
 ---
-title: "Apache与Nginx服务核心知识整合总结"
+title: "Apache 与 Nginx 服务核心实践"
 date: 2025-12-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-08/1200/600"
 draft: false

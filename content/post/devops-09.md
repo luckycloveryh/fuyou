@@ -1,5 +1,5 @@
 ---
-title: "Sonar"
+title: "Sonar 代码质量平台部署"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-devops-09/1200/600"
 draft: false

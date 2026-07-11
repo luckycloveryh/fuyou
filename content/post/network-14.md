@@ -1,5 +1,5 @@
 ---
-title: "2025-12-30mysql外键，主从"
+title: "MySQL 视图、外键、存储过程与主从复制"
 date: 2025-12-30T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-14/1200/600"
 draft: false

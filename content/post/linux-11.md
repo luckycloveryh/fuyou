@@ -1,5 +1,5 @@
 ---
-title: "2. 2025-11-7常用命令-1"
+title: "Linux 常用命令：目录、文件与路径基础"
 date: 2025-11-07T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-11/1200/600"
 draft: false

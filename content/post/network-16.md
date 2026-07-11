@@ -1,5 +1,5 @@
 ---
-title: "Redis全面知识体系详解"
+title: "Redis 全面知识体系详解"
 date: 2026-01-04T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-16/1200/600"
 draft: false

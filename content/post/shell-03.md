@@ -1,5 +1,5 @@
 ---
-title: "2025-12-4shell第二天"
+title: "Shell 历史记录、别名与重定向"
 date: 2025-12-04T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-shell-03/1200/600"
 draft: false

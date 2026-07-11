@@ -1,5 +1,5 @@
 ---
-title: "常用镜像地址 副本"
+title: "常用 Docker 镜像地址整理"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-docker-03/1200/600"
 draft: false

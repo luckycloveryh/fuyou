@@ -1,5 +1,5 @@
 ---
-title: "验证IP是否在地址池且网络连通（示例IP：192.168.66.100）"
+title: "DHCP 服务配置与地址池验证"
 date: 2025-12-16T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-04/1200/600"
 draft: false

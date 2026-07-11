@@ -1,5 +1,5 @@
 ---
-title: "功能与特点"
+title: "企业防火墙：iptables 与 nftables 基础"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-cluster-02/1200/600"
 draft: false

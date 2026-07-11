@@ -1,5 +1,5 @@
 ---
-title: "视频与系统操作核心内容合并总结"
+title: "Linux LVM、备份与数据传输"
 date: 2025-11-21T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-06/1200/600"
 draft: false

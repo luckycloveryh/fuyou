@@ -1,5 +1,5 @@
 ---
-title: "视频内容总结"
+title: "Linux 数据恢复、RAID 与磁盘管理"
 date: 2025-11-20T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-05/1200/600"
 draft: false

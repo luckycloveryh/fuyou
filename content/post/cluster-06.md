@@ -1,5 +1,5 @@
 ---
-title: "创建共享目录"
+title: "LVS 负载均衡集群部署"
 date: 2026-07-08T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-cluster-06/1200/600"
 draft: false

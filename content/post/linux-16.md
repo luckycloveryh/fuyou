@@ -1,5 +1,5 @@
 ---
-title: "7. 2025-11-13linux基础阶段"
+title: "Linux 入门：发行版、分区与虚拟机安装"
 date: 2025-11-13T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-16/1200/600"
 draft: false

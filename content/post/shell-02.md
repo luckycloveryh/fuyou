@@ -1,5 +1,5 @@
 ---
-title: "视频主要内容综合总结"
+title: "Shell 编程基础与 echo 输出"
 date: 2025-12-03T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-shell-02/1200/600"
 draft: false

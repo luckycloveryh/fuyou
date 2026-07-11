@@ -1,5 +1,5 @@
 ---
-title: "GitLab"
+title: "GitLab 代码仓库部署与使用"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-devops-05/1200/600"
 draft: false

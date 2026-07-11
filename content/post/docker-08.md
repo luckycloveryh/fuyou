@@ -1,5 +1,5 @@
 ---
-title: "七、Docker 资源限制"
+title: "Docker 资源限制与 cgroups"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-docker-08/1200/600"
 draft: false

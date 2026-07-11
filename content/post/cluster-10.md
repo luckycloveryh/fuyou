@@ -1,5 +1,5 @@
 ---
-title: "建议rocky的基础源也使用网络源"
+title: "Zabbix 6/7 LTS 监控平台部署"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-cluster-10/1200/600"
 draft: false

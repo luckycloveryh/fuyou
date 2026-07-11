@@ -1,5 +1,5 @@
 ---
-title: "九、镜像多阶段构建"
+title: "Docker 镜像多阶段构建"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-docker-05/1200/600"
 draft: false

@@ -1,5 +1,5 @@
 ---
-title: "6. 2025-11-13常用命令-5"
+title: "Linux 移动介质挂载、Vim 与压缩打包"
 date: 2025-11-13T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-15/1200/600"
 draft: false

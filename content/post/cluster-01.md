@@ -1,5 +1,5 @@
 ---
-title: "网络无人值守批量装机-pxe+cobbler"
+title: "PXE + Cobbler 网络无人值守装机实战"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-cluster-01/1200/600"
 draft: false

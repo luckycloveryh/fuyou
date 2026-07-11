@@ -1,5 +1,5 @@
 ---
-title: "视频内容综合总结"
+title: "Linux 进程管理与系统资源监控"
 date: 2025-11-26T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-07/1200/600"
 draft: false

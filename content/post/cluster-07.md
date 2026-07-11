@@ -1,5 +1,5 @@
 ---
-title: "淘汰逻辑："
+title: "Squid 代理服务器部署与缓存策略"
 date: 2026-07-08T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-cluster-07/1200/600"
 draft: false

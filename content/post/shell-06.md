@@ -1,5 +1,5 @@
 ---
-title: "2025-12-9shell第五天"
+title: "Shell 正则表达式与文本处理命令"
 date: 2025-12-09T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-shell-06/1200/600"
 draft: false

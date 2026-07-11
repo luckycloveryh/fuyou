@@ -1,5 +1,5 @@
 ---
-title: "3. 2025-11.10常用命令-2"
+title: "Linux 文件链接、复制与删除机制"
 date: 2025-11-10T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-12/1200/600"
 draft: false

@@ -1,5 +1,5 @@
 ---
-title: "SSH+DHCP+DNS服务（原理+全实操）"
+title: "SSH、DHCP 与 DNS 服务实战"
 date: 2025-12-15T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-03/1200/600"
 draft: false

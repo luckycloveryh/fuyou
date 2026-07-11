@@ -1,5 +1,5 @@
 ---
-title: "1. 创建视图"
+title: "MySQL 备份恢复与日志管理"
 date: 2025-12-31T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-15/1200/600"
 draft: false

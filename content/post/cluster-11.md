@@ -1,5 +1,5 @@
 ---
-title: "上传本地Prometheus及相关软件包"
+title: "Prometheus 监控系统部署教程"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-cluster-11/1200/600"
 draft: false

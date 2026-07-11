@@ -1,5 +1,5 @@
 ---
-title: "八、YAML"
+title: "YAML 语法基础"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-docker-02/1200/600"
 draft: false

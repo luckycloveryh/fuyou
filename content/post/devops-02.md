@@ -1,5 +1,5 @@
 ---
-title: "DevOps 介绍"
+title: "DevOps 核心理念与实践流程"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-devops-02/1200/600"
 draft: false

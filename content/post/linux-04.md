@@ -1,5 +1,5 @@
 ---
-title: "Linux系统权限管理完整总结"
+title: "Linux 文件与目录权限管理"
 date: 2025-11-19T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-04/1200/600"
 draft: false

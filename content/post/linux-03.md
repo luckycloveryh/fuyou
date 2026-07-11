@@ -1,5 +1,5 @@
 ---
-title: "Linux系统用户与组管理及服务配置完整课程总结"
+title: "Linux 用户、用户组与服务管理"
 date: 2025-11-18T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-03/1200/600"
 draft: false

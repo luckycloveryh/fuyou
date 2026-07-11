@@ -1,5 +1,5 @@
 ---
-title: "1. 创建用户（格式：用户名@登录地址，密码必填）"
+title: "MySQL SQL 分类、用户与权限管理"
 date: 2025-12-29T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-13/1200/600"
 draft: false

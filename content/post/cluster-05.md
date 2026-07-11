@@ -1,5 +1,5 @@
 ---
-title: "节点类型"
+title: "集群基础概念与架构分类"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-cluster-05/1200/600"
 draft: false

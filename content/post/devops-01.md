@@ -1,5 +1,5 @@
 ---
-title: "Ansible"
+title: "Ansible 自动化运维基础"
 date: 2026-06-22T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-devops-01/1200/600"
 draft: false

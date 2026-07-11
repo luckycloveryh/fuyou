@@ -1,5 +1,5 @@
 ---
-title: "定义变量"
+title: "Shell 变量取值与 SSH 服务基础"
 date: 2025-12-12T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-02/1200/600"
 draft: false

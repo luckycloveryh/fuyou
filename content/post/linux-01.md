@@ -1,5 +1,5 @@
 ---
-title: "1. 2025-11-6Linux基础阶段"
+title: "Linux 基础：操作系统、硬件设备与分区概念"
 date: 2025-11-06T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-01/1200/600"
 draft: false

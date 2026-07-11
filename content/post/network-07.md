@@ -1,5 +1,5 @@
 ---
-title: "Linux系统NFS与Apache服务完整技术手册"
+title: "NFS 与 Apache 服务部署"
 date: 2025-12-19T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-07/1200/600"
 draft: false

@@ -1,5 +1,5 @@
 ---
-title: "安装过程中需交互配置的核心选项（无需手动输入，按提示选择即可）"
+title: "LAMP/LNMP 环境搭建与脚本安装"
 date: 2025-12-25T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-11/1200/600"
 draft: false

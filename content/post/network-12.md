@@ -1,5 +1,5 @@
 ---
-title: "MySQL 视频核心内容整合（全知识点无精简版）"
+title: "MySQL 核心知识完整整理"
 date: 2025-12-26T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-12/1200/600"
 draft: false

@@ -1,5 +1,5 @@
 ---
-title: "关闭防火墙与 SELinux"
+title: "MooseFS 分布式存储系统部署"
 date: 2026-07-08T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-cluster-09/1200/600"
 draft: false

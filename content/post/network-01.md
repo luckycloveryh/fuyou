@@ -1,5 +1,5 @@
 ---
-title: "一、学习安排与复习"
+title: "网络服务准备：虚拟机配置与函数复习"
 date: 2025-12-11T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-network-01/1200/600"
 draft: false

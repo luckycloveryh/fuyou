@@ -1,5 +1,5 @@
 ---
-title: "检查系统版本与内核"
+title: "iSCSI 块存储部署与配置"
 date: 2026-07-08T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-cluster-08/1200/600"
 draft: false

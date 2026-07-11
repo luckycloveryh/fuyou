@@ -1,5 +1,5 @@
 ---
-title: "Linux 系统管理核心知识：日志管理与定时计划任务"
+title: "Linux 日志管理与定时任务基础"
 date: 2025-11-26T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-08/1200/600"
 draft: false

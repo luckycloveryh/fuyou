@@ -1,5 +1,5 @@
 ---
-title: "5. 2025.11-12常用命令-4"
+title: "Linux 系统查询、运行级别与挂载管理"
 date: 2025-11-12T09:00:00+08:00
 image: "https://picsum.photos/seed/fuyou-linux-14/1200/600"
 draft: false
