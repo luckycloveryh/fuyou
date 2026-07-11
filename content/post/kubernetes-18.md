@@ -12,7 +12,7 @@ slug: "k8s-headlamp-web-ui"
 keywords: ["K8s Headlamp", "Kubernetes UI", "K8s 可视化运维", "云原生工具"]
 ---
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MjZjYTc0ZmI4ZmFmZThiYjcxMDM3NjY5ZWI5OTJhNDNfcTNFZEZHaGNxYXp3aThPSjY4bzdMQnBUMFlsb2owS3FfVG9rZW46SXdDVGJscW05b1lRM3J4clVnb2NjR0lMbnpkXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA)
+![img](/image/kubernetes/kubernetes-18/01.png)
 
 ## Headlamp 介绍  
 
@@ -160,7 +160,7 @@ my-headlamp   nginx   ui.chijinjing.cn             80, 443   3m17s
 
 使用上面的域名访问 headlamp，可以看到如下登录界面 ：
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YzM3OTMzYWUyNWI2ZDczMjU2ZWU0MGNlNTk3YTNlMTNfandHczQ1YWtZNlFCRHBGV296MHY2ZlhvQzB0RzVaQThfVG9rZW46U1FNaWJ0RUtJbzBnYUZ4c3UzNWNZZXRmbmNjXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA)
+![img](/image/kubernetes/kubernetes-18/02.png)
 
 ### 桌面应用部署
 
@@ -170,7 +170,7 @@ my-headlamp   nginx   ui.chijinjing.cn             80, 443   3m17s
 
 主流的操作系统都支持
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=OTEwYjRlZjE1ZDgyMzNmY2JiM2MzOTEzOWU2MTJjN2RfYUtQSGtaYzFTSTY4MFJpUEJ4b081YnNrdm5xOE9IaGZfVG9rZW46U294QWJYWU10b1pXcVZ4eWt5emNXeVRnbjJiXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA)
+![img](/image/kubernetes/kubernetes-18/03.png)
 
 我这里下载一个 windows 桌面应用：  `https://github.com/kubernetes-sigs/headlamp/releases/download/v0.40.1/Headlamp-0.40.1-win-x64.exe`` `  
 
@@ -178,15 +178,15 @@ my-headlamp   nginx   ui.chijinjing.cn             80, 443   3m17s
 
 安装成功后可以看到如下的界面：
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NTgxMWQxYmM5NzNkNTQzMjc5OTY4ODA3YmMxNmFlMDhfSHYzTk5jVmpoWk5xSmE0TzJPZUh4ZEVmVFV1RmZWTERfVG9rZW46UmVXVGJSRHNsb3JONWt4U1VkS2NMcno2blplXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA)
+![img](/image/kubernetes/kubernetes-18/04.png)
 
 **第三步： 添加** **`kubeconfig `****文件连接集群**
 
 在 Kubernetes 集群中下载 kubeconfig 文件，需要确保和集群中的 kube-apiserver 网络是通的。
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YTA3MDgwM2JmMjI2OWQ4NDI3NjBlZWIxMTBhMmU1MmZfeTNvdTF5SVRsSEkwMjJTdXV4ZFFPWjh1RVdndEl4N3JfVG9rZW46VlBRc2I0dW5Tb0Y1c3F4S1hxeWM3anBxblpnXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA)
+![img](/image/kubernetes/kubernetes-18/05.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NmU1ZTY4YjdkY2RjN2E0M2M2MjVjZGM5YWJkMTg2YTlfeHVTTGV2MXAxRDBXbGhQNkx0MkdONFdkMkFSNkRINDlfVG9rZW46VGxKZWJQVFdnb1prQmh4TDBzdWNEc0tUbllkXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA)
+![img](/image/kubernetes/kubernetes-18/06.png)
 
 ## Headlamp 访问 
 
@@ -203,10 +203,10 @@ kubectl get secrets cs-admin -o jsonpath='{.data.token}' | base64 -d
 
 登录成功后可以看到如下界面 ： 
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MTY3OTYwMWJiYjlmZGYzNDQ3YjMwYWViMWY4NzE2ZmVfcTlMaW81MUp5dHhxM08wQk9FWjJCSjI5ZDIweFhjVWJfVG9rZW46WVVsUWJnMUR6b21iRkd4SjAwQ2M5YnVFbmRoXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA)
+![img](/image/kubernetes/kubernetes-18/07.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MDI1ODA0ZmY3ZDk2MjA5MWZiNDQyYzZiZDZlNDY1ODBfY1ZkNU9aSVA2RnVsMW9jdGJ3YURRZUl0M3dyNEhqRnFfVG9rZW46TFhvSWJSd25yb3Z2NWJ4dlpPZWNXbVlabjBCXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA)
+![img](/image/kubernetes/kubernetes-18/08.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YTFmYWJmZjZmYjA4ZTQ3YzhhNGFiZWMxMzZiOWY4NDZfVHRmNmVaSkdMOFBiTFZ6T2dSRDc0dVBsOUtLSjlHd0FfVG9rZW46RWxLRmJLYWtvb091YTN4OXRZU2NMcldmbktkXzE3NzU0NzAxODg6MTc3NTQ3Mzc4OF9WNA)
+![img](/image/kubernetes/kubernetes-18/09.png)
 
 管理功能比 Dashboard 项目丰富一些，使用体验还不错。 

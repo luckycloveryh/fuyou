@@ -82,7 +82,7 @@ kubectl get sts
 kubectl get pod
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NmZiMDcyMjc1NWIwYjEyNzdmNzM5NTRhNDk4MmEyOGFfQkJ3SnM3TFFVVFc1bDluNFM1YkxDRHc3Y0ptMDRkRHhfVG9rZW46UDhzbGJCbWs2b1JXTmV4TDNRcmNraDh2bjNiXzE3NzU0NjkyNTQ6MTc3NTQ3Mjg1NF9WNA)
+![img](/image/kubernetes/kubernetes-12/01.png)
 
 从截图里能够看到，StatefulSet 所管理的 Pod 不再是随机的名字了，而是有了顺序编号，从 0 开始分别被命名为 redis-sts-0、redis-sts-1，Kubernetes 也会按照这个顺序依次创建（0 号比 1 号的 AGE 要长一点），这就解决了“有状态应用”的第一个问题：**启动顺序**。
 
@@ -94,7 +94,7 @@ Kubernetes 给出的方法是使用 hostname，也就是每个 Pod 里的主机�
 kubectl exec -it redis-sts-0 -- sh
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NTMwYWQ3NjAxYmQ4Y2MzYTk5MmRiZThhMTgxNjMwOGVfeFlnVklqOExkeEVzMFdjaGRWYXUzMFNVOVBtMEIzRkxfVG9rZW46S2thQWJkM0dkb2VnaHB4V0ZpUmNtSFc4bmFiXzE3NzU0NjkyNTQ6MTc3NTQ3Mjg1NF9WNA)
+![img](/image/kubernetes/kubernetes-12/02.png)
 
 有了这个唯一的名字，应用就可以自行决定依赖关系了，比如在这个 Redis 例子里，就可以让先启动的 0 号 Pod 是主实例，后启动的 1 号 Pod 是从实例。
 
@@ -118,7 +118,7 @@ spec:
     targetPort: 6379
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NTk1MmU4MDNhYzY2NDQ2ODQ4OWEwZDJkN2M0M2E4NGVfVUR5VXNnZVZGOTlYaXRSTFV3c29pdmRidnJPQVprbFhfVG9rZW46WWhFRWJzbnN2b3hGNkd4aVVlOGNrT2NHblhmXzE3NzU0NjkyNTQ6MTc3NTQ3Mjg1NF9WNA)
+![img](/image/kubernetes/kubernetes-12/03.png)
 
 可以看到这个 Service 并没有什么特殊的地方，也是用标签选择器找到 StatefulSet 管理的两个 Pod，然后找到它们的 IP 地址。
 
@@ -134,7 +134,7 @@ spec:
 kubectl exec -it redis-sts-0 -- sh
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZTA3ZTVmODIzMjJkOGIyYzY4MDlmOGU5OWRiMGViNjVfWXZtb0lZblFMRFROa29zaXV6NERKaEtlblZRVDZnM25fVG9rZW46TGgzR2JaUjAxb0I2MzN4SDNsS2NZdjYzbjVlXzE3NzU0NjkyNTQ6MTc3NTQ3Mjg1NF9WNA)
+![img](/image/kubernetes/kubernetes-12/04.png)
 
 显然，在 StatefulSet 里的这两个 Pod 都有了各自的域名，也就是稳定的网络标识。那么接下来，外部的客户端只要知道了 StatefulSet 对象，就可以用固定的编号去访问某个具体的实例了，虽然 Pod 的 IP 地址可能会变，但这个有编号的域名由 Service 对象维护，是稳定不变的。
 
@@ -159,7 +159,7 @@ spec:
     targetPort: 6379
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NTQ3OWE4YjcwMGJkN2IxZWZlNjE2MzNkMmEzZjk4MDZfSXBKWVU2MXN0cERkcUlWcUNzSDN5bUJPZjJmcTlYY2RfVG9rZW46R0NpWmJEeDBGb09oV3Z4aDl5Z2NUeGdObm1lXzE3NzU0NjkyNTQ6MTc3NTQ3Mjg1NF9WNA)
+![img](/image/kubernetes/kubernetes-12/05.png)
 
 ## 实现 StatefulSet 数据持久化  
 
@@ -217,7 +217,7 @@ kubectl apply -f redis-pv-sts.yml
 
 你可以使用命令 kubectl get pvc 来查看 StatefulSet 关联的存储卷状态：
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZDljOGRiMzVkZjBhOThkMjIwMDkyNjNiNDE3ZWU0NjZfem5KcDNXb1FWeTJtRGsyR0pqc0dubTBqWEFCVFBRVDVfVG9rZW46VVljQWJFellkbzQzZjh4bWIxNGNwQ2FObm40XzE3NzU0NjkyNTQ6MTc3NTQ3Mjg1NF9WNA)
+![img](/image/kubernetes/kubernetes-12/06.png)
 
 这两个 PVC 的命名，不是随机的，是有规律的，用的是 PVC 名字加上 StatefulSet 的名字组合而成，所以即使 Pod 被销毁，因为它的名字不变，还能够找到这个 PVC，再次绑定使用之前存储的数据。
 
@@ -227,7 +227,7 @@ kubectl apply -f redis-pv-sts.yml
 kubectl exec -it redis-pv-sts-0 -- redis-cli
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YzYxYWM4ZTAzYWExZDhmMWU5MDExYmQyZjNhODc3YmFfMzF4czFwbmQxcUtpZ05mMFJSblRYMVdKRG9WajJCTU5fVG9rZW46RVZmSWJRNGMzb0kwWDl4NjllR2NPMHQ0bjdlXzE3NzU0NjkyNTQ6MTc3NTQ3Mjg1NF9WNA)
+![img](/image/kubernetes/kubernetes-12/07.png)
 
 现在我们模拟意外事故，删除这个 Pod：
 
@@ -237,10 +237,10 @@ kubectl delete pod redis-pv-sts-0
 
 由于 StatefulSet 和 Deployment 一样会监控 Pod 的实例，发现 Pod 数量少了就会很快创建出新的 Pod，并且名字、网络标识也都会和之前的 Pod 一模一样：
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZDNkMjI1ZjJkZWE0YjczNTUxODU5ZjExMWEwYmQ3NDhfVHNweWZpYmhjTlVucHBTSUJMUkJaekh3d3RNYUxZb09fVG9rZW46TkVlQmJodzNab1NsOGx4cXU1aGNWR3U4bkxDXzE3NzU0NjkyNTQ6MTc3NTQ3Mjg1NF9WNA)
+![img](/image/kubernetes/kubernetes-12/08.png)
 
 再用 Redis 客户端登录去检查一下数据：
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NDhlOTgzYjEzZWRjN2VlZDVjMDczOTBmM2ZjYTBkYzdfYW83VG9pR2ozWnZ4RzJpZzNHcGlVVkdIQzhXSnhPbXFfVG9rZW46Q0FCTWJwcWtnbzdPRVN4aFIzbGNXdU0wblplXzE3NzU0NjkyNTQ6MTc3NTQ3Mjg1NF9WNA)
+![img](/image/kubernetes/kubernetes-12/09.png)
 
 因为我们把 NFS 网络存储挂载到了 Pod 的 /data 目录，Redis 就会定期把数据落盘保存，所以新创建的 Pod 再次挂载目录的时候会从备份文件里恢复数据，内存里的数据就恢复原状了。

@@ -20,13 +20,13 @@ Metrics Server 是一个专门用来收集 Kubernetes 核心资源指标（metri
 
 下面的这张图来自 Kubernetes 官网，你可以对 Metrics Server 的工作方式有个大概了解： 它调用 kubelet 的 API 拿到节点和 Pod 的指标，再把这些信息交给 apiserver，这样 kubectl、HPA 就可以利用 apiserver 来读取指标了：  
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZjBhM2QwY2FlNDJkMDNjZjBkYTZlNTU3YTU4YWYxYjlfTDYzaGJrYXNzSTg5bldzVExnTXJHWUdWWkV4c21OTEJfVG9rZW46QkF2dGJUeTVDb25pWFd4MXYycmNTZE55bmVjXzE3NzU0NzAzNjQ6MTc3NTQ3Mzk2NF9WNA)
+![img](/image/kubernetes/kubernetes-19/01.png)
 
 ### **[Metrics Server Github 地址 ](https://github.com/kubernetes-sigs/metrics-server)**
 
 兼容列表：
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NWRkNzU2OWQ4NWEyZGQwOWFmNDFlY2Y1MzE1ODMzN2RfZmNyQUxVck1lNmdjUThMYmhVR1FFVGxiYUdNWmxBM3ZfVG9rZW46VDMwaGJpQWJzb2syYkF4dVZEY2NEcktubmVlXzE3NzU0NzAzNjQ6MTc3NTQ3Mzk2NF9WNA)
+![img](/image/kubernetes/kubernetes-19/02.png)
 
 ```Bash
 wget https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.8.1/high-availability-1.21+.yaml
@@ -34,7 +34,7 @@ wget https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.8.1/
 
 修改YAML  添加 `--kubelet-insecure-tls`
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YjEwMGEzYmI5MTFkYjk0MDBmYWI0ZDU2OWRiMDQzMTZfVmdxbDBiaVk5RWZQdU9wUmh3RElDME9xVExBRExIc0RfVG9rZW46WklpMWJwelhPb29LeUJ4dmw2dmNwZ2JnbnZmXzE3NzU0NzAzNjQ6MTc3NTQ3Mzk2NF9WNA)
+![img](/image/kubernetes/kubernetes-19/03.png)
 
 ### 部署
 
@@ -152,9 +152,9 @@ ab -c 10 -t 60 -n 100000 'http://nginx-hpa-svc/'
 kubectl  get hpa nginx-hpa  -w 
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ODVjYWVlOWE0YzAxNWJkZGRhYjkxZTZiZjA0ZTAzM2JfZkhZS0xraThxOUczVklPbFByMjRBbVBYMEZEajZ6Wk5fVG9rZW46SXJpTmJ5SlpYb1FiMkl4N2ZScmNidmo1bjVnXzE3NzU0NzAzNjQ6MTc3NTQ3Mzk2NF9WNA)
+![img](/image/kubernetes/kubernetes-19/04.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YmVjMWUzNmM2ODY2MzU0OGY2MzM1Y2FhMjIzZTVkMGJfWmZWUkJIUURkQjZOYmYwN3lQV0FPV1FoRFUyQ1VqZlNfVG9rZW46Q2lTZWJKbGhWb2V0R3h4bWE4TWM1b1pvbnNoXzE3NzU0NzAzNjQ6MTc3NTQ3Mzk2NF9WNA)
+![img](/image/kubernetes/kubernetes-19/05.png)
 
 由于 Metrics Server 大约每 15 秒采集一次数据，所以 HorizontalPodAutoscaler 的自动化扩容和缩容也是按照这个时间点来逐步处理的。
 
@@ -162,9 +162,9 @@ kubectl  get hpa nginx-hpa  -w
 
 ## **[kube-prometheus](https://github.com/prometheus-operator/kube-prometheus)**
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NzI5NzFjMWI2YzU4YTBhMzkxMzM0NzJiNWE3N2U2MjhfNnkwNG9lc1N2dExCZ3c1STZSNGxnREVwaWgwdHJORWpfVG9rZW46S2VXamJwQXNJb3ljZ0l4dkFaamMwWm1vbmZkXzE3NzU0NzAzNjQ6MTc3NTQ3Mzk2NF9WNA)
+![img](/image/kubernetes/kubernetes-19/06.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZWYwZDE1OGEwNTFiMTVjNWEwZDAwMDg5YzM3YzIwZGJfek5PU2hYSGluQTVlemVzRDVLTVV4WjBiZlpTT1V6MkVfVG9rZW46WHNtWGJockxlb2JzOWF4aHBLS2Nsa0ZYblhiXzE3NzU0NzAzNjQ6MTc3NTQ3Mzk2NF9WNA)
+![img](/image/kubernetes/kubernetes-19/07.png)
 
 ### 组件
 
@@ -294,9 +294,9 @@ Prometheus Operator 在Kubernetes中引入了自定义资源，用于声明 Prom
 
 Prometheus 资源以声明方式描述了 Prometheus 部署的期望状态，而 ServiceMonitor 和 PodMonitor 资源描述了Prometheus 要监控的目标。
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZjRiNmVlYjA3NzhmYjY5NDNlYzkxY2Q0NGNjZWU0ZDRfZ0xBUFlXRU02Qnh6SXlia0I0OTUyNHNtVVJYNjJGZ0RfVG9rZW46TWJ3ZWJlcG5kb2NvVkZ4TTVTR2NSVUJKblRmXzE3NzU0NzAzNjQ6MTc3NTQ3Mzk2NF9WNA)
+![img](/image/kubernetes/kubernetes-19/08.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=Mjc4OTI1M2YxOTA5MzE3MzU0ZGQ1NGFjZWQ3NjFlN2JfbVAxWUtpZ3BJWU91aDVSeTRXSXBpMUdVTXpIcWRiUzBfVG9rZW46Umk2NGJMR294bzY4Mm14dEFUTGNJRGEybjBkXzE3NzU0NzAzNjQ6MTc3NTQ3Mzk2NF9WNA)
+![img](/image/kubernetes/kubernetes-19/09.png)
 
 ### 部署测试应用
 
@@ -457,9 +457,9 @@ spec:
     prometheus: prometheus
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MzI4MmIyNjhjOWUzMmU0ZjQzYzI1ZTU5N2IzYjQzYzhfQ2t0Z08yN2djc2VsS2tkQ0RBenFmeVJWQWRNbTZnMnZfVG9rZW46QTJIeWJKTkNqb0NpdlZ4VUdlemNSM29WbmxlXzE3NzU0NzAzNjQ6MTc3NTQ3Mzk2NF9WNA)
+![img](/image/kubernetes/kubernetes-19/10.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MWMyYzVkNTA1ZmQzM2IxMDg3MGU3ZTY3NjY3ZmRhNDRfOXc5UzBqb0IxbjhtYVFZT2NmSmZJU3ljUVhmS3h0cm5fVG9rZW46QWRIeWJrbjVFb0xxVnZ4NUFoUmNWSWV2blVmXzE3NzU0NzAzNjQ6MTc3NTQ3Mzk2NF9WNA)
+![img](/image/kubernetes/kubernetes-19/11.png)
 
 ## 附录
 
@@ -480,7 +480,7 @@ spec:
 
 ### 修复 unhealthy target 
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MWQ2ZmYxZTFkMzAwYjY5ZDQ2NzZjNGYxZDc2ODg0YzdfQ3BsUjAyT3l6ODY1VVJORUhsd3FCdFdmRWhhOHBiaXFfVG9rZW46T2daaGJnZE1SbzRLMm14U01WcGNVQjI1bnZnXzE3NzU0NzAzNjQ6MTc3NTQ3Mzk2NF9WNA)
+![img](/image/kubernetes/kubernetes-19/12.png)
 
 - etcd.yaml 
 

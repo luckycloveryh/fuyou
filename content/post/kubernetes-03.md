@@ -147,7 +147,7 @@ sed -i "s#registry.k8s.io#registry.aliyuncs.com/google_containers#g" /etc/contai
 # 修改镜像仓库 从 registry.k8s.io 修改为 阿里云 
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=Y2MyY2Q4ZmExYmVjMmVmYjE5YjFjNzc2MDc2ZjdhNzRfNnB5U0VsaVAwOEJyb2pzZzAwUUZ6NGszSE1kVjlZUUNfVG9rZW46VXZzTmIzZWoyb0RxdTJ4ZkVUOWM0aGpEbnZnXzE3NzU0NzA5Mzc6MTc3NTQ3NDUzN19WNA)
+![img](/image/kubernetes/kubernetes-03/01.png)
 
 启动 containerd 服务 
 
@@ -459,7 +459,7 @@ kubectl edit installation default
 
 **云虚拟主机需要开放安全组，添加对应内网ip端口**
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YmNiMzI5NzE1ZjUyZmVkYzgxNGJhNWYyZTNkMGZhNDBfY0NGcUdWRzJaN1hyamdlMFNBUk9GMW5SUDhySTBDbWRfVG9rZW46S3FCUWJJeTRYb2VUYW14MVVhWWM1VWp4bmlkXzE3NzU0NzA5Mzc6MTc3NTQ3NDUzN19WNA)
+![img](/image/kubernetes/kubernetes-03/02.png)
 
 ## 5. 验证集群安装结果
 
@@ -498,19 +498,19 @@ kube-system   kube-scheduler-master-01                   1/1     Running   1    
 
 如果 Pod 状态显示 `ImagePullBackOff`，表示容器所有的节点 镜像拉取失败，需要到对应节点上手动拉取镜像或者导入离线镜像即可。 
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZDVlMmFkMzcwODUzYzBlZDFlOWUyM2Y0MDcwZDNlN2VfeVpUcXU4dmZEZGRJTlp6b2FNMnYyd29taXJrc3V6UUJfVG9rZW46WWx2UWJKYjJvb01td1B4dVFaTGNXbE5kbjJiXzE3NzU0NzA5Mzc6MTc3NTQ3NDUzN19WNA)
+![img](/image/kubernetes/kubernetes-03/03.png)
 
 ### 6.2 Master 节点初始化失败
 
 在 master 节点初始化过程中，常见的故障是 卡在如下界面，此处是正在等待 kube-apiserver 启动成功，如果apiserver启动失败，这里会一直等待，直到4分钟超时会有报错。 排错的时候需要查看 messages 日志定位具体原因，在初始化的过程中建议打开一个shell 终端运行 `tail -f /var/log/messages` 命令，注意观察报错信息。 
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NTg1NWY1OGE4ZDYwMjNmZGQxZTc1OTYzZDFjOTA0ZmJfUDh4UWpCS3VlV3lvSFh5ZDJYNWFqVWdWbTl5U1FHQVRfVG9rZW46UUhnWGJQNXp2b3VtYnF4YlR0VmN5WklGbm9kXzE3NzU0NzA5Mzc6MTc3NTQ3NDUzN19WNA)
+![img](/image/kubernetes/kubernetes-03/04.png)
 
 ### 6.3 Worker 节点加入集群失败
 
 Worker 节点在加入集群过程中需要成功运行 kubelet 服务，再连接 kube-apiserver，任何一步失败都无法加入集群，因此在执行 kubeadm join 时也需要打开一个shell 终端运行 `tail -f /var/log/messages` 命令，观察日志中的报错信息。 
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MmMxMjUxMzc4ZTk4N2FhNTU2M2Y4ZDg3ZTU2ZDBhNzRfT3hDc3RDcTVrWEpnRlJ1NXJMU2N0S2Y4empURUZTaDRfVG9rZW46VjlyWmJ3M2tGb1lwemN4VkU5OWNObVJXbkJoXzE3NzU0NzA5Mzc6MTc3NTQ3NDUzN19WNA)
+![img](/image/kubernetes/kubernetes-03/05.png)
 
 ### 6.4 重置集群 
 

@@ -31,7 +31,7 @@ Kubernetes 中大多数的 Pod 日志被输出到控制台，在宿主机的文�
 
 ### 使用节点级日志代理
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NDMwODliZGMxZmQxMWM4ZmY0YWUzOTJlNWM0ODE2M2NfbkJ6d25wVnJBc2pqNjRneGk2dFlBaW9EZ2MwcHRMNjNfVG9rZW46QUdNUmJVcHVxb25iZll4TndURmNNTEpjbmNmXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA)
+![img](/image/kubernetes/kubernetes-21/01.png)
 
 可以通过在每个节点上使用 **节点级的****日志记录****代理** 来实现集群级日志记录。 日志记录代理是一种用于暴露日志或将日志推送到后端的专用工具。 通常，日志记录代理程序是一个容器，它可以访问包含该节点上所有应用程序容器的日志文件的目录。
 
@@ -43,11 +43,11 @@ Kubernetes 中大多数的 Pod 日志被输出到控制台，在宿主机的文�
 
 ### 使用边车容器运行日志代理[ ](https://kubernetes.io/zh-cn/docs/concepts/cluster-administration/logging/#sidecar-container-with-logging-agent) sidecar 
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MDNjODBjODY5YTY4MzE4MDg3Y2ZhZTU5YTNjN2NhMTBfdVhWZkJkencwQUhOd2JGeGJlWkRJTDlkRFNSOExITlZfVG9rZW46TXRwaWJPaElib21MUWZ4S1I0WGNsYW9HbmNmXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA)
+![img](/image/kubernetes/kubernetes-21/02.png)
 
 ### 从应用中直接暴露日志目录
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZWIxMjc4YjY0OTZlNGJjNzZjYjkzZjQwOWYxMjEwNjhfMEhZaGNYck83eFoxUDE0OHJvSDdNRmxXb1RWMVpjZmNfVG9rZW46Q3VQWGJGYVdCb2JFbVl4RXdNZGNvT2ZMbmFiXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA)
+![img](/image/kubernetes/kubernetes-21/03.png)
 
 ## EFK 
 
@@ -141,7 +141,7 @@ output.elasticsearch:
 
 ## EFK on Kubernetes 
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YTIxMTRiYTFlMjM0ZmIzNTM3ODY4YTU3ZDM0MWYxNzhfb0p0VDQ2Qk5JYXEzampaMlJGd3NVQmVPa2t4dzVhMEZfVG9rZW46Qm5JSWI3b1JHb09EY3V4QWRYMGNSMktvbmdnXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA)
+![img](/image/kubernetes/kubernetes-21/04.png)
 
 ### 安装 ElasticSearch    
 
@@ -254,7 +254,7 @@ NOTES:
   $ kubectl get pods --namespace=logging -l app=filebeat-filebeat -w
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YjI3YWUxZDJjZDlkMjlhYTQwNGY3OTYyNTAzM2QzYmVfbUR3NExGWmh1TVhnT1puMEo4MGVVRmRudmwycUgyc2ZfVG9rZW46QlJxYWJHdnllb1ZPeEp4WWcwWGNLR1BobnZnXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA)
+![img](/image/kubernetes/kubernetes-21/05.png)
 
 ```YAML
 https://artifacthub.io/packages/helm/elastic/elasticsearch
@@ -267,7 +267,7 @@ https://artifacthub.io/packages/helm/fluent/fluentd
 helm repo add elastic https://helm.elastic.co
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NTFhMjFhNTBmZjFiZDJjMDIyZGIzYmIwOTZmOTQ5YWJfYzcwR0JaN2hrOTVpcXRLNGdJNmhEb1RYT1VGSHFoUnJfVG9rZW46SVh2ZGI5OTdUb0tCdG54cDdlTmNWQlEzbmhmXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA)
+![img](/image/kubernetes/kubernetes-21/06.png)
 
 ## 附录：
 
@@ -291,7 +291,7 @@ Elasticsearch 集群是一组 Elasticsearch 节点的集合。节点根据用途
 
 分片分为主分片和副本分片，一般情况，一个主分片有多个副本分片。主分片负责处理写入请求和存储数据，副本分片只负责存储数据，是主分片的拷贝，文档会存储在具体的某个主分片和副本分片上。
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NGI3ZWNhYmRkMGU3NTdlY2M0ZGRlM2Y3NWE4MTk4YjZfTGdISnl3bjVqWGR0UVZNYVlUTVA1T3d5emhoWEFWTFdfVG9rZW46QnA0S2I2WE1xbzBHTXp4MlJURWNXSWp0bkJjXzE3NzU0NzA2NTQ6MTc3NTQ3NDI1NF9WNA)
+![img](/image/kubernetes/kubernetes-21/07.png)
 
 ### Xpack  安全，开启 elasticsearch 验证 
 

@@ -106,7 +106,7 @@ kubectl apply -f nginx-dep.yaml
 kubectl get deployments
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=M2FmNjBjZjE5N2Y4ZWNlOTU4ZmRhZTAyZDUwY2YyZTZfc2pick9CZXhsb1dUY01MSE01ZkhrWUlUYkp2dDVlMlNfVG9rZW46RnoyMWJ4VXc4b05LZ1d4TFk4bGNFd1VJbjFlXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/01.png)
 
 显示的信息很重要：
 
@@ -121,7 +121,7 @@ Deployment 管理的是 Pod，我们最终用的也是 Pod，所以还需要用 
 kubectl  get pods
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZDZiNjBmMGI2NDg2MjEzZWRiNzZkYmU4NDYzYWJiMDVfNEtvOWRmR0p2S2pzazNrY0FvTjRaamp2ZERZbXVUTDZfVG9rZW46TWVLM2JWNGFxb2hJRlJ4TU5abWNIbjVWbkViXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/02.png)
 
 是时候来验证一下 Deployment 部署的应用是否真的可以做到“永不宕机”？  
 
@@ -129,9 +129,9 @@ kubectl  get pods
 kubectl  delete pods nginx-dep-6f7d76ddc8-86g52
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MmFmMWM1NmYwOWUzNmJhMjc5MWNiZDBjYjc3YmQxOGFfTkJHSjhPbmtYOE16eGlmUThpYklvQ2E3RmhhQnNwYXBfVG9rZW46Vlh6NWJkeVRPb1JBOUl4MjYxNmNnRmRRbm5mXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/03.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MWU3YzI0YzAxZGEyZjJjM2UwZDk3MDliMDFiOTA1ZDBfb0VLaWNSMXhwcEM0YjhzRWNDdnR2em1oTWE4ZlpLdVhfVG9rZW46SlVGbWJjOFRQb1hKU054M1lLTmNDZXRFbkJlXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/04.png)
 
 被删除的 Pod 确实是消失了，但 Kubernetes 在 Deployment 的管理之下，很快又创建出了一个新的 Pod，保证了应用实例的数量始终是我们在 YAML 里定义的数量。  
 
@@ -143,9 +143,9 @@ kubectl  delete pods nginx-dep-6f7d76ddc8-86g52
  kubectl  scale deployment  nginx-dep  --replicas=5
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZWEzMDVlZDc5Yzg3OGQyYTRkMzJkNmU2ZTJkNmEzN2VfTE9IcTN1UzZialFSbk9GNVVEb3BsbTBSajJScWxJRm5fVG9rZW46QUFTeWJqdmFzbzc2WFV4bll4SGM0MW45bmJoXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/05.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZjQxOTU1ZDExN2E5ODVkZTgyMmZlMGRmZWE3OTdiZmJfU0UxVUkwNG5kc3NrTlBpVjBWTFZkdHZ2b3l5M1E5N0hfVG9rZW46TlVGamJrMnBMb1JpMXh4cjZ1Y2NhejhLbm1mXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/06.png)
 
 ## 应用滚动升级 
 
@@ -157,7 +157,7 @@ kubectl  delete pods nginx-dep-6f7d76ddc8-86g52
 
 Kubernetes 使用了“摘要”功能，用摘要算法计算 template 的 Hash 值作为“版本号”。
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MWY1ZjIxNjdiYzE1OTkxNGRmNTE0MjBmYjIwOTI5YWNfbUdSRlcwaDZ1Zm1iZWZOUmc1UGRORDhBWkljV25tcWlfVG9rZW46UVRMdGJWVGt6b2Q4ZzV4ak9kZ2NVc0lVbllmXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/07.png)
 
 ### 如何实现应用更新  
 
@@ -203,9 +203,9 @@ kubectl port-forward --address 0.0.0.0 deployment/http-app-dep 8080:80
 {"hostname":"http-app-dep-68b9b69985-5j8pc","version":"v1"}
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NjIyOGRmNjRlMTgwNTRhYTIxZmU4NWRmODlkODdjNzNfYkFubDQzNENxQjlTMmtLMEpvODd6QjhodG4yRUtNajNfVG9rZW46VTIyTmI0T1ZTb1ZoSnV4a1BnMGNIdjA0bm9kXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/08.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MjUxNTJlMzUzODNmYzM1YTQ4OGYyZjExMTQ4NmMzZDdfWlQwNER6ZlNxeFA2WGd0MzBjUjJMcHR6VGprMDAwUVRfVG9rZW46Q3FYa2J3SXFCbzJJVHF4dnFab2NQdEFvblliXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/09.png)
 
 编写一个新版本 ` http-app-v2.yaml` ， 修改镜像的版本为 v2 
 
@@ -232,11 +232,11 @@ kubectl apply -f http-app-v2.yaml
 kubectl rollout status deployment http-app-dep
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=OTViMjM3NjE0MTJmZGMwZTE1NmFlOTdlMTYyOGIwY2ZfbkM1RW9MRjljS0FDaHlVU1ljcmVPZGI3SmZWOFh5bkJfVG9rZW46RkJrRWI2MUpobzFxZzl4M3V0NGNOV3BVbkpmXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/10.png)
 
 再执行 kubectl get pod ，可以看到 pod 都更新成了新版本。
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NzNmOWVlZTc5M2EzYThiNzE0MDYwYzQ1Mjk3ZTI4M2VfUlNMQzdQdkE0ZGpNUlMxa2FraVFUazZOdmR6VHp6ZENfVG9rZW46RUlSbWJmRTM5b2s1R1p4dFkzaWN1Rmx3bkFkXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/11.png)
 
 仔细查看 kubectl rollout status 的输出信息，你可以发现，Kubernetes 不是把旧 Pod 全部销毁再一次性创建出新 Pod，而是在逐个地创建新 Pod，同时也在销毁旧 Pod，保证系统里始终有足够数量的 Pod 在运行，不会中断服务。  
 
@@ -248,7 +248,7 @@ kubectl rollout status deployment http-app-dep
 kubectl describe deployments http-app-dep
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MDAyMmZlMzFlODBhNjA2NjFkNDFiNWYxMzVkNDcxNWNfVjZhMm9KaUl0VUxKTXRtcWJUa2FTMzBYbGphdlRCN2hfVG9rZW46UDM3TmIwYUlRb3hycmF4U0FleWN2RnlubnJkXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/12.png)
 
 - 一开始的时候 V1 Pod（即 http-app-dep-68b9b69985）的数量是 4；
 - 当“滚动更新”开始的时候，Kubernetes 创建 1 个 V2 Pod（即 http-app-dep-6c86b44b68 ），并且把 V1 Pod 数量减少到 3；
@@ -257,7 +257,7 @@ kubectl describe deployments http-app-dep
 
 其实“滚动更新”就是由 Deployment 控制的两个同步进行的“应用伸缩”操作，老版本缩容到 0，同时新版本扩容到指定值，大家通过下面这张图再理解一下 滚动更新 的过程 
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MThkMTI3ZWZiNTg3NGQ4N2E5NTNkZmNiMzczNzdmZDJfVEZUc2pURUNEa3JRVmI0cWdCbUt4Y2ZNWHYxanBrU01fVG9rZW46UjNKYmI0VVNyb1dTdmt4VFd0RWNhZ3RUbmFkXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/13.png)
 
 ### 如何管理应用更新  
 
@@ -265,11 +265,11 @@ kubectl describe deployments http-app-dep
 
 如果更新的版本比较多，我们想查看更新历史，可以使用命令 `kubectl rollout history`：  
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NjVlMGQyNTIyZmViODI3NWI2MzVhYmI1NDA1NjZlOTNfWnNDZDlYaWVrZjBBRGVmZ1FMSHd2R0h5b3NZRWlVSXdfVG9rZW46Rkd3UmJmV1kxb0dpS3p4V3RuMGNlS21sblJlXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/14.png)
 
 `kubectl rollout history` 的列表输出的有用信息太少，可以在命令后加上参数 `--revision` 来查看每个版本的详细信息，包括标签、镜像名、环境变量、存储卷等等，通过这些就可以大致了解每次都变动了哪些关键字段：  
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NDZmNDhiOWFjOWMyOTBhZjVkZmIzZjJkY2RmODBmNmJfc3IzcE9zaTBrUzhMZDVjQUJobUZxSGNNeEZNQmtMRFBfVG9rZW46R0FtbGJ6MmQzb0hJdnF4NXZnOGNVUHFNbjZmXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/15.png)
 
 如果我们刚上线的v2版本发现有BUG，希望回退到V1版本，可以使用命令 `kubectl rollout undo`，也可以加上参数 `--to-revision` 回退到任意一个历史版本。
 
@@ -277,13 +277,13 @@ kubectl describe deployments http-app-dep
 kubectl rollout undo deployment http-app-dep 
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MDUxNmJjMjk1ZGVlMGEwYzE2NzRiMTEyYjMwMTcyODBfWWlKZzR5cU4wS3VVWWVPcU9FY3ZwNWVsV1FKU0lMb3hfVG9rZW46QTNMd2J0SXpkb05QVnF4V0VYSmNIWmtzbjZiXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/16.png)
 
 kubectl rollout undo 的操作过程其实和 kubectl apply 是一样的，执行的仍然是“滚动更新”，只不过使用的是旧版本 Pod 模板，把新版本 Pod 数量收缩到 0，同时把老版本 Pod 扩展到指定值。  
 
 下图是从 v2 到 v1 版本降级的过程：
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NDFkMThjYzBkNmM2NzhjYTJjYmUwZTQ3OWMzNWU1ZjlfTGt5RmhyOGNCaVRwTDJQVXFDQUcwb3RvZ21MY1F3OHFfVG9rZW46VGpPY2J0Z2ZLb09rY3p4SGwxSWNvRktFblVoXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/17.png)
 
 ### 添加更新描述  
 
@@ -310,7 +310,7 @@ metadata:
 kubectl apply -f http-app-v3.yaml
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NzhlODNiYjFmMjNmMzZmMzJlMzNkZTNmMWZiZDQyM2RfVmhRaGdCcXBHRDgyc3BsbUN3OUNSbThWaW0wejVQUU1fVG9rZW46RG9mVWJ4SjJIbzdEOXh4Z0ZSUmNsUkRObjRiXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/18.png)
 
 ### 控制滚动更新的参数 
 
@@ -357,19 +357,19 @@ spec:
 
 以下示意图可描述蓝绿发布的大致流程：先切分20%的流量到新版本，若表现正常，逐步增加流量占比，继续测试新版本表现。若新版本一直很稳定，那么将所有流量都切分到新版本，并下线老版本。
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZTg4Zjg0MDU1NzQyMmU0YTg4ZmU2MmY4YmQyNGJmYjRfeEZkUDh5UlZwMllXQzBTMmplRlp6ZVRZb3FtdWlmc01fVG9rZW46WGlVdGI1OGx5b3FDY3l4ZW5EaWNXa2g1bkVnXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/19.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZmMyNDE0M2JmODU5YzA5ZDcxNDBjZmY4ZWY4NzU1YjZfZHlHeTM4MDdoaXpXUnZMakU1NndlYlR2Sm9OdlBIQUtfVG9rZW46UlQxNGJGa2tnb01PeWp4dVRuMGN4ZUlsbmJ5XzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/20.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NGM2ZmQxYzM4YzNmY2U3N2VlM2RmOWI2OGQ4MDBiYzBfNVpYaUZRaElvOTRTa3dwMXNIZHg5d3RaS252YlpqZXZfVG9rZW46TUNQdWJhQ3Bnb2JTYWt4ZHBWZ2NUNzFBbjRmXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/21.gif)
 
 切分20%的流量到新版本后，新版本出现异常，则快速将流量切回老版本。
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZGNlNjM2NmI5NDBkNjhkYmY0ZjY5NmRjMzEzOTFhZmFfVlB6MG5WVVJlUWh0UzR2S3haQW16ZFl4Ykk3dmNERXVfVG9rZW46VTFFdGJFUm04b2lFdUt4Nlp1VWNsb2pLbkZiXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/22.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=Zjc4Y2Q3YTkzYWM5YmQ2NWFlMTEwOWUwNzYwNmI5ODJfYWExUFlCcU5vazNNcktRbnlQcm9BZHlkSmprYlFBYkpfVG9rZW46TUI0UmJhaTk1b3BjV1B4SktrNWNsMnNIblJkXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/23.png)
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NWE0OWE2NjFiMDQ5NTdkZTRhYWU5YWJiOGVlNzk1NTFfV0NxbmJVS21YeXM1YjBLOHRwTmg0Z2NES3Z1bDQ2c0tfVG9rZW46TjZNVmJ4UVFEb3RKanp4end5R2N0bEtXblZnXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/24.gif)
 
 **蓝绿部署要求在升级过程中，同时运行两套程序，对硬件的要求就是日常所需的二倍，比如日常运行时，需要10台服务器支撑业务，那么使用蓝绿部署，你就需要购置二十台服务器。**
 
@@ -383,7 +383,7 @@ spec:
 
 金丝雀发布，又称为灰度发布。它能够缓慢的将修改推广到一小部分用户，验证没有问题后，再推广到全部用户，以降低生产环境引入新功能带来的风险。
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NDE2NmFjYWM0MzA0Yjc2MGNhYTMwNWM3YmYyMGE1NWNfeFd1aUpwaVBTaVE0WjdLMVdMdWZ1M2lQNXVGVkloV1hfVG9rZW46RVRyZGJoWEtGb3Z3T2t4TVBkemNXZTNyblNtXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/25.png)
 
 步骤一：部署少量副本的金丝雀版本的应用；
 
@@ -391,7 +391,7 @@ spec:
 
 步骤三：金丝雀副本应用 验证通过后，增加金丝雀应用的副本数，增加导流的比例，减少旧版本的流量和副本的数量，最终完成版本的切换。 
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NzkxMTYwNjJmZmY3ZjdmYmY5ZDdkODk2MjU5OTUxMjFfS0tvWGREbHVPZ2k0blNoalFhSlpMbFZVWXd3RVpZdWlfVG9rZW46Q0JhY2JNZ3ZRb1k1M1p4M1RqcWMyYkFDbnRoXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/26.jpg)
 
 ## 应用保障策略 
 
@@ -495,7 +495,7 @@ Kubernetes 在计算资源时是使用 request 字段进行计算的。 一个 w
 
 **资源超卖** 的意思就是说本来系统只有 10 个 CPU 的资源， 但是容器  A、B、C、D  都各自需要申请 5 个 CPU 的资源，这明显不够用。 但是如果 A、B、C、D  不可能在同一时刻都占满 5 个 CPU 资源， 因为每个服务都有它业务的高峰期和低谷期的。 高峰期的时候可以占满 5 个 CPU， 但是服务大部分时间都处于低谷期，可能只占用 1，2 个 CPU。 所以如果直接写 request:5 的话，很多时候资源是浪费的（ kubernetes 里即便容器没有使用到那么多资源， 也会为容器预留 request 字段的资源）。 所以我们可以为容器申请这样的资源： `request：1， limit：5`。 这样上面 4 个容器加起来只申请了 4 个 CPU 的资源， 而系统里有 10 个 CPU， 是完全可以申请到的。 而每个容器的 limit 又设置成了 5， 所以每个容器又都可以去使用 5 个 CPU 资源。
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=NzhhNjk1M2ExYTczZWI0YWVkY2Y5ZDM1ZDFhYzdhODJfdFowS2o5YVV1UE9SSU5hV1VoaFJBb090QTlXNUN1TTRfVG9rZW46QWUzcWJtRG5Wb2J4cFZ4bXMwSGNucFNSbmliXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/27.png)
 
 ### 容器状态探针  
 
@@ -513,7 +513,7 @@ Kubernetes 为检查应用状态定义了三种探针，它们分别对应容器
 
 需要注意这三种探针是递进的关系：应用程序先启动，加载完配置文件等基本的初始化数据就进入了 Startup 状态，之后如果没有什么异常就是 Liveness 存活状态，但可能有一些准备作没有完成，还不一定能对外提供服务，只有到最后的 Readiness 状态才是一个容器最健康可用的状态。  
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MjY2MTA0NDA1YTgzZmU0ZjkzMGI5OWUyM2M1ZDcxODFfZXA1TXdnRFJYbkQxRmowV3YyVDZIZHIyZldSeUVhSTlfVG9rZW46V29vRmJnM1FmbzUybG94UkNlcGNrMFRObk9jXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/28.png)
 
 Kubernetes 在启动容器后就会不断地调用探针来检查容器的状态：  
 
@@ -521,7 +521,7 @@ Kubernetes 在启动容器后就会不断地调用探针来检查容器的状态
 - 如果 Liveness 探针失败，Kubernetes 就会认为容器发生了异常，也会重启容器。
 - 如果 Readiness 探针失败，Kubernetes 会认为容器虽然在运行，但内部有错误，不能正常提供服务，就会把容器从 Service 对象的负载均衡集合中排除，不会给它分配流量。  
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YjViNTdhMzE4ODA5M2E1ZjU3YzkwZDdhN2MwNmI4YjRfSFRZMEN0U1Bkd0VCTnA5eWJOa1Z0SVhZUGo1cm5oRFNfVG9rZW46STAwTmJEZjk0b1VQUnN4cnVsb2NaNkgybmpnXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/29.png)
 
 #### 使用容器探针 
 
@@ -620,11 +620,11 @@ kubectl apply -f nginx-dep-probe.yaml
 
 观察 pod 状态 
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=Y2Y5MjBhOGIwY2FhMjM0NTQ5MGUzYTVlM2Q1ODUzNmVfNnVkRUxycTBwckRHZ0xiVkI3Q2dqUktaUks5SWZYN1hfVG9rZW46Rk1zZ2JkQk9Gb2c0ZVZ4S2NwbWM4Zks2bnJnXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/30.png)
 
 使用 kubectl  logs 命令查看 nginx 日志，可以看到探针的执行情况 
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MzIwNTUxYTU0YjhhMGY1ZGYxYmIzZGE5Nzc0YzdhZWJfajRZc2EzTkd6ZTZvYWRVTkxhVzZUekQxcVpjb0d4V3JfVG9rZW46TEhvSmJSWDVqb0hoeGN4cXRTa2MwN0lVbklnXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/31.png)
 
 通过上图可以看到 Kubernetes 正是以大约 5 秒一次的频率，向 URI /ready 发送 HTTP 请求，不断地检查容器是否处于就绪状态。  
 
@@ -644,7 +644,7 @@ kubectl apply -f nginx-dep-probe.yaml
 
 当 StartupProbe 探测失败的时候，Kubernetes 就会不停地重启容器，现象就是 RESTARTS 次数不停地增加，而 livenessProbe 和 readinessProbePod 没有执行，Pod 虽然是 Running 状态，也永远不会 READY：  
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=OWUyZTdjMDQzOGVhZTk2YWRhMmE5YTBhNTRmMGNmYjdfM0dveWt0ZEJkQTZReEZsakRNUzdPYjFOY1FQNllLSEpfVG9rZW46R1lYbmJRcm5Yb1B6NVN4c29KOGNScDU5bklnXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/32.png)
 
 #### 测试 Liveness 和 readinessProbe 执行频率 
 
@@ -689,12 +689,12 @@ spec:
         image: nginx:1.22.1 
 ```
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MGM2MzUxYTg1NjBjZGM3MTU5NTJlMjU4YzAzOGY5NmJfZnlPRmpPbnJycUoxcTBNaXQ0SFZGNkZvRlRsTEx0Q2RfVG9rZW46Vk1QeWJTd0FYb254bm94VDJvd2N5MXFtbmFoXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/33.png)
 
 `Deployment` 是一个可以拥有 ReplicaSet 并使用声明式方式在服务器端完成对 Pod 滚动更新的对象。 尽管 ReplicaSet 可以独立使用，目前它们的主要用途是提供给 Deployment 作为编排 Pod 创建、删除和更新的一种机制。当使用 Deployment 时，你不必关心如何管理它所创建的 ReplicaSet，Deployment 拥有并管理其ReplicaSet。 因此，建议你在需要 ReplicaSet 时使用 Deployment。
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=OGMyYjE0ZmMwNzQ1YTBiYjQ1YjVhNWVlZDBhYmVhMWJfb1lPSTFqQWZ4YUppWXRQeE5wOXRpVGEwZTNSdXZ5UU9fVG9rZW46Q0J2aWJvTTlXb2JUYUh4ajZPN2NaTWJlbkpiXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/34.png)
 
 ## ReplicationController 控制器 
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=ZGM3NDRmYzhiZGY5Y2Y5MzJhYjE4NDZiZWFkYTk0MGZfdE5nZGhsUGtUOXQyUTVnZEhaNFZMTmVrTTgwd3lVRkFfVG9rZW46QXRWUWJpY2Q5b3BweFN4VGtJOWNPZEFEbkZkXzE3NzU0NzEzNDk6MTc3NTQ3NDk0OV9WNA)
+![img](/image/kubernetes/kubernetes-07/35.png)

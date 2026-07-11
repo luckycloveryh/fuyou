@@ -26,7 +26,7 @@ Helm 最新的版本是 v3，Helm3 以 Helm2 的核心功能为基础，对 Char
 
 Helm3 架构图如下：
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=MjAyZGY3NzhjM2Y2YjY4N2QzZDJlZDM2ZDhkYTlkNmNfMnNZbVIxbVpIZWVYZ2cxd0hTM2ZDRlZZSHhSdEthNTFfVG9rZW46UUM1YmI0UFVHb0lLMXp4WkE5TGNLM2ptbmFnXzE3NzU0NzAwMTE6MTc3NTQ3MzYxMV9WNA)
+![img](/image/kubernetes/kubernetes-17/01.png)
 
 上面的架构图中，核心是 Helm Client（helm命令）和 Helm Chart 包。helm 命令可以从 Chart Repository 中下载 Helm Chart 包，读取kubeconfig文件，并构建 kube-apiserver REST API 接口的 HTTP 请求。通过调用 Kubernetes 提供的 REST API 接口，将 Chart 包中包含的所有以 YAML 格式定义的 Kubernetes 资源，在 Kubernetes 集群中创建。
 
@@ -48,7 +48,7 @@ Helm 安装 *chart* 到 Kubernetes 集群中，每次安装都会创建一个新
 
 在 Helm 中，可以理解为主要包含两类文件：模板文件和配置文件。模板文件通常有多个，配置文件通常有一个。Helm 的模板文件基于text/template模板文件，提供了更加强大的模板渲染能力。Helm 可以将配置文件中的值渲染进模板文件中，最终生成一个可以部署的 Kubernetes YAML 格式的资源定义文件，如下图所示：
 
-![img](https://rcnmegz4pby5.feishu.cn/space/api/box/stream/download/asynccode/?code=YjllYTJiNDkwYjgwMGFjYWE0NTM3MmIyZjYxNzgzMjFfekUxdzZTUktGVjNiekpFVndXOVJ4TE9Rck5NaVM2S2FfVG9rZW46TDE1UWJUWTdUb1czN014b0IyemMwNlNlblJlXzE3NzU0NzAwMTE6MTc3NTQ3MzYxMV9WNA)
+![img](/image/kubernetes/kubernetes-17/02.png)
 
 ## Helm基本操作
 
