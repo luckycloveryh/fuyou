@@ -1,7 +1,7 @@
 ---
 title: "vsftpd FTP 服务配置指南"
 date: 2025-12-17T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-network-05/1200/600"
+image: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]

@@ -3,7 +3,7 @@ title: "15-底层原理"
 date: 2026-04-06T17:55:53+08:00
 lastmod: 2026-04-06T17:55:53+08:00
 draft: false
-image: "https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260524195255_532_12.jpg"
+image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
 tags: ["Kubernetes", "K8s", "底层原理", "云原生", "运维"]
 categories: ["8. Kubernetes"]
 author: "杨红"

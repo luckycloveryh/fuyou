@@ -1,7 +1,7 @@
 ---
 title: "Shell 正则表达式与文本处理命令"
 date: 2025-12-09T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-shell-06/1200/600"
+image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["Shell", "Obsidian"]
 categories: ["3. shell阶段"]

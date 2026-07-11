@@ -1,7 +1,7 @@
 ---
 title: "网络服务阶段索引"
 date: 2026-06-22T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-network-17/1200/600"
+image: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]

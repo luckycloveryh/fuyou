@@ -1,7 +1,7 @@
 ---
 title: "Linux 文件与目录权限管理"
 date: 2025-11-19T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-linux-04/1200/600"
+image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]

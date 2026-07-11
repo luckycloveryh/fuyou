@@ -1,7 +1,7 @@
 ---
 title: "MySQL SQL 分类、用户与权限管理"
 date: 2025-12-29T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-network-13/1200/600"
+image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]

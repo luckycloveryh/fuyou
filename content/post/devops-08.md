@@ -1,7 +1,7 @@
 ---
 title: "Nexus 私服仓库部署与管理"
 date: 2026-06-22T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-devops-08/1200/600"
+image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["DevOps", "Obsidian"]
 categories: ["6. DevOps"]

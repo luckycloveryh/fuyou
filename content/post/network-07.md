@@ -1,7 +1,7 @@
 ---
 title: "NFS 与 Apache 服务部署"
 date: 2025-12-19T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-network-07/1200/600"
+image: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]

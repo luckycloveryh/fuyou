@@ -2,7 +2,7 @@
 title: "下一代 Ingress —— Gateway API"
 date: 2026-04-06T17:36:00+08:00
 lastmod: 2026-04-06T17:36:00+08:00
-image: "https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260524195231_529_12.jpg"
+image: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80"
 tags: ["Kubernetes", "K8s", "Gateway API", "Ingress", "云原生", "网络"]
 categories: ["8. Kubernetes"]
 author: "杨红"

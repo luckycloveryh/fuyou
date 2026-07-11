@@ -1,7 +1,7 @@
 ---
 title: "Linux 进程管理与系统资源监控"
 date: 2025-11-26T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-linux-07/1200/600"
+image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]

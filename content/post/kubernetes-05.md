@@ -1,7 +1,7 @@
 ---
 title: "05-Job：运行离线业务"
 date: 2026-04-06T17:00:12+08:00
-image: "https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260524195206_517_12.jpg"
+image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
 lastmod: 2026-04-06T17:00:12+08:00
 tags: ["Kubernetes", "K8s", "Job", "CronJob", "云原生", "运维"]
 categories: ["8. Kubernetes"]

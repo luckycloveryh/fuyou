@@ -1,7 +1,7 @@
 ---
 title: "常用 Docker 镜像地址整理"
 date: 2026-06-22T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-docker-03/1200/600"
+image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]

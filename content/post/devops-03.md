@@ -1,7 +1,7 @@
 ---
 title: "DevOps 学习索引"
 date: 2026-06-22T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-devops-03/1200/600"
+image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["DevOps", "Obsidian"]
 categories: ["6. DevOps"]

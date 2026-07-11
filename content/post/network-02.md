@@ -1,7 +1,7 @@
 ---
 title: "Shell 变量取值与 SSH 服务基础"
 date: 2025-12-12T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-network-02/1200/600"
+image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]

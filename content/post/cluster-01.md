@@ -1,7 +1,7 @@
 ---
 title: "PXE + Cobbler 网络无人值守装机实战"
 date: 2026-06-22T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-cluster-01/1200/600"
+image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]

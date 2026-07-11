@@ -3,7 +3,7 @@ title: "16-调度"
 date: 2026-04-06T18:00:27+08:00
 lastmod: 2026-04-06T18:00:27+08:00
 draft: false
-image: "https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260524195226_526_12.jpg"
+image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1200&q=80"
 tags: ["Kubernetes", "K8s", "调度", "高级调度", "云原生", "运维"]
 categories: ["8. Kubernetes"]
 author: "杨红"

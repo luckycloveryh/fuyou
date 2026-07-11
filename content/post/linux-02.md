@@ -1,7 +1,7 @@
 ---
 title: "Linux 软件安装与系统核心操作"
 date: 2025-11-17T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-linux-02/1200/600"
+image: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]

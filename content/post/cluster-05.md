@@ -1,7 +1,7 @@
 ---
 title: "集群基础概念与架构分类"
 date: 2026-06-22T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-cluster-05/1200/600"
+image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]

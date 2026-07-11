@@ -1,7 +1,7 @@
 ---
 title: "Linux 数据恢复、RAID 与磁盘管理"
 date: 2025-11-20T09:00:00+08:00
-image: "https://picsum.photos/seed/fuyou-linux-05/1200/600"
+image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80"
 draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
