@@ -6,7 +6,7 @@ draft: false
 tags: ["DevOps", "Obsidian"]
 categories: ["6. DevOps"]
 slug: "devops-01"
-description: "从 Obsidian 导入的 DevOps 学习笔记"
+description: "整理Ansible 自动化运维基础 的核心概念、常用命令与实操步骤，适合作为学习和复习笔记。"
 ---
 # Ansible
 

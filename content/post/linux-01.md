@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-01"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "整理Linux 基础：操作系统、硬件设备与分区概念 的核心概念、常用命令与实操步骤，适合作为学习和复习笔记。"
 ---
 ---
 操作系统：工具+管理控制硬件

@@ -6,7 +6,7 @@ draft: false
 tags: ["DevOps", "Obsidian"]
 categories: ["6. DevOps"]
 slug: "devops-07"
-description: "从 Obsidian 导入的 DevOps 学习笔记"
+description: "介绍《JumpServer 堡垒机安装与配置》，涵盖添加用户、添加资产和添加授权等实践要点。"
 ---
 # JumpServer
 

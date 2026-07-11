@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-10"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《使用 Dockerfile 构建镜像》，涵盖使用 Dockerfile 创建镜像、Dockerfile 基本结构和Base image等实践要点。"
 ---
 # 四、使用 Dockerfile 创建镜像
 

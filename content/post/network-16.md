@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-16"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《Redis 全面知识体系详解》，涵盖Redis定位与核心特性、数据库分类对比和Redis核心优势等实践要点。"
 ---
 # Redis全面知识体系详解
 ## 一、Redis定位与核心特性

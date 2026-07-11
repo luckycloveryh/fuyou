@@ -6,7 +6,7 @@ draft: false
 tags: ["Shell", "Obsidian"]
 categories: ["3. shell阶段"]
 slug: "shell-04"
-description: "从 Obsidian 导入的 Shell 学习笔记"
+description: "介绍《Shell 变量、特殊符号与 grep》，涵盖特殊符号与grep命令、Shell中的特殊符号和Shell变量核心知识（深化与拓展）等实践要点。"
 ---
 ## 一、旧知识回顾
 ### （一）特殊符号与`grep`命令

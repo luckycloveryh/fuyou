@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-13"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《MySQL SQL 分类、用户与权限管理》，涵盖基础核心：SQL语言体系与基础操作、SQL语言概念与分类和数据库与表的基础实操等实践要点。"
 ---
 ## 一、基础核心：SQL语言体系与基础操作
 ### （一）SQL语言概念与分类

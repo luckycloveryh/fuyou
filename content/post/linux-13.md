@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-13"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《Linux 文件操作与权限管理进阶》，涵盖Linux系统文件操作与权限管理核心知识、文件类型识别和文件权限管理等实践要点。"
 ---
 # Linux系统文件操作与权限管理核心知识
 本章围绕Linux系统的实操核心展开，整合了文件类型识别、权限配置、文件查找命令、命令交互逻辑、辅助工具使用、帮助命令查询、umask值与默认权限设置及操作生效范围等关键内容，系统讲解Linux文件操作与权限管理的底层逻辑和实操方法。

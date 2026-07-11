@@ -6,7 +6,7 @@ draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]
 slug: "cluster-03"
-description: "从 Obsidian 导入的 集群 学习笔记"
+description: "介绍《SELinux 安全机制》，涵盖SELinux 在 Linux 运维中的重要性、SELinux 核心概念和什么是 SELinux？等实践要点。"
 ---
 # SELinux 安全机制
 

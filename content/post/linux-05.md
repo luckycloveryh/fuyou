@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-05"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《Linux 数据恢复、RAID 与磁盘管理》，涵盖视频内容总结、误删除数据恢复和模拟误删除环境准备等实践要点。"
 ---
 # 视频内容总结
 ## 一、误删除数据恢复

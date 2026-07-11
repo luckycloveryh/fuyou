@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-02"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《Shell 变量取值与 SSH 服务基础》，涵盖变量直接取值的场景、定义变量和直接使用变量进行算数运算定义求和变量等实践要点。"
 ---
 ## 一、脚本变量取值基础
 ### （一）变量直接取值的场景

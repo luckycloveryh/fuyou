@@ -6,7 +6,7 @@ draft: false
 tags: ["DevOps", "Obsidian"]
 categories: ["6. DevOps"]
 slug: "devops-02"
-description: "从 Obsidian 导入的 DevOps 学习笔记"
+description: "介绍《DevOps 核心理念与实践流程》，涵盖DevOps 介绍、什么是 DevOps和为什么要推广DevOps等实践要点。"
 ---
 # DevOps 介绍
 

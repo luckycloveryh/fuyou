@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-15"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《MySQL 备份恢复与日志管理》，涵盖知识回顾、操作命令（bash）：知识回顾相关和创建视图等实践要点。"
 ---
 我会将所有bash命令单独拆分为“操作命令（bash）”模块，和对应知识内容分开排版，同时保留完整信息：
 

@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-07"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《Linux 进程管理与系统资源监控》，涵盖视频内容综合总结、进程核心概念与基础认知和进程定义与组成等实践要点。"
 ---
 # 视频内容综合总结
 该视频围绕**Linux系统进程管理**展开，从核心概念、管理机制、命令工具、实操案例到系统资源监控形成完整知识体系，具体内容如下：

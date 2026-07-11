@@ -6,7 +6,7 @@ draft: false
 tags: ["Shell", "Obsidian"]
 categories: ["3. shell阶段"]
 slug: "shell-01"
-description: "从 Obsidian 导入的 Shell 学习笔记"
+description: "介绍《Shell 条件判断、文件权限与流程控制》，涵盖基础命令与文件权限核心知识、文件权限相关和条件判断全维度知识点等实践要点。"
 ---
 ## 一、基础命令与文件权限核心知识
 ### （一）昨日知识回顾

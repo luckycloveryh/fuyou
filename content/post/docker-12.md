@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-12"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《Docker 镜像存储机制》，涵盖什么是 Docker 镜像、OverlayFS 存储原理和创建需要的目录和文件等实践要点。"
 ---
 # 四. 镜像存储机制
 

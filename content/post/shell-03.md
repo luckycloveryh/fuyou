@@ -6,7 +6,7 @@ draft: false
 tags: ["Shell", "Obsidian"]
 categories: ["3. shell阶段"]
 slug: "shell-03"
-description: "从 Obsidian 导入的 Shell 学习笔记"
+description: "介绍《Shell 历史记录、别名与重定向》，涵盖脚本相关、历史记录操作和别名管理等实践要点。"
 ---
 > ## 一、基础知识回顾
 ### （一）脚本相关

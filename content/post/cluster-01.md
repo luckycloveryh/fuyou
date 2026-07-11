@@ -6,7 +6,7 @@ draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]
 slug: "cluster-01"
-description: "从 Obsidian 导入的 集群 学习笔记"
+description: "介绍《PXE + Cobbler 网络无人值守装机实战》，涵盖网络无人值守批量装机-pxe+cobbler、cobbler部署流程和正确配置IP地址，子网掩码，网关。"
 ---
 # 网络无人值守批量装机-pxe+cobbler
 

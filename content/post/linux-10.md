@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-10"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《GRUB 引导修复与 root 密码找回》，涵盖GRUB菜单加密、加密必要性和加密原理与操作等实践要点。"
 ---
 # 视频主要内容总结
 视频围绕Linux系统中GRUB菜单（视频中称“刮菜单/广告菜单”，应为表述误差）的相关操作展开，涵盖加密、损坏修复及密码找回三大核心模块，同时涉及系统启动流程与安全增强工具（SELinux）的处理，具体内容如下：

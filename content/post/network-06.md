@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-06"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《FTP、rsync 与 NFS 服务复习》，涵盖视频核心内容整合总结、过往知识回顾和FTP协议（文件传输协议）等实践要点。"
 ---
 # 视频核心内容整合总结
 ## 一、过往知识回顾

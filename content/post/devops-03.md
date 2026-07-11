@@ -6,7 +6,7 @@ draft: false
 tags: ["DevOps", "Obsidian"]
 categories: ["6. DevOps"]
 slug: "devops-03"
-description: "从 Obsidian 导入的 DevOps 学习笔记"
+description: "汇总DevOps的学习目录、重点主题和复习主线，方便按阶段回顾与查漏补缺。"
 ---
 # DevOps 学习索引
 

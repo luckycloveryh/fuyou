@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-02"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《YAML 语法基础》，涵盖YAML、数组和对象等实践要点。"
 ---
 # 八、YAML
 

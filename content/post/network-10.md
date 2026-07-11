@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-10"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《Tomcat 与 Web 服务反向代理》，涵盖核心技术概念铺垫、反向代理与负载均衡和数据库分类与特性等实践要点。"
 ---
 ## 一、核心技术概念铺垫
 ### （一）反向代理与负载均衡

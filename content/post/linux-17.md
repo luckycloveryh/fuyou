@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-17"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《Linux Vim 进阶与网卡配置》，涵盖VIM相关操作与模式、网卡配置相关操作和不同系统版本的网卡配置差异等实践要点。"
 ---
 # 视频主要内容总结
 ## 一、VIM相关操作与模式

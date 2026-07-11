@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-12"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "整理Linux 文件链接、复制与删除机制 的核心概念、常用命令与实操步骤，适合作为学习和复习笔记。"
 ---
 history	#查看历史命令。
 mount -t iso9660 /dev/sr0 /media/	#mount用于挂载-t指定光盘文件系统类型，/dev/sr0表示块设备文件，/media/表示挂载点。

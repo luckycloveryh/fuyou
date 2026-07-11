@@ -6,7 +6,7 @@ draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]
 slug: "cluster-02"
-description: "从 Obsidian 导入的 集群 学习笔记"
+description: "介绍《企业防火墙：iptables 与 nftables 基础》，涵盖企业安全防护之-防火墙、防火墙的发展历程和Linux中防火墙的存在形式等实践要点。"
 ---
 ## 企业安全防护之-防火墙
 

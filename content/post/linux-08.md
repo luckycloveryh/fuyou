@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-08"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《Linux 日志管理与定时任务基础》，涵盖Linux 系统管理核心知识：日志管理与定时计划任务、第一部分：日志管理（Log Management）和日志基础：。"
 ---
 # Linux 系统管理核心知识：日志管理与定时计划任务
 

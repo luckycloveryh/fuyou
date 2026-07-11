@@ -6,7 +6,7 @@ draft: false
 tags: ["Shell", "Obsidian"]
 categories: ["3. shell阶段"]
 slug: "shell-02"
-description: "从 Obsidian 导入的 Shell 学习笔记"
+description: "介绍《Shell 编程基础与 echo 输出》，涵盖课程整体框架与学习要求、课程阶段划分和学习核心要求等实践要点。"
 ---
 # 视频主要内容综合总结
 ## 一、课程整体框架与学习要求

@@ -6,7 +6,7 @@ draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]
 slug: "cluster-06"
-description: "从 Obsidian 导入的 集群 学习笔记"
+description: "介绍《LVS 负载均衡集群部署》，涵盖LVS 工作模式、LVS-NAT模式实验和创建共享目录等实践要点。"
 ---
 ## LVS负载均衡集群
 

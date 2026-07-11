@@ -6,7 +6,7 @@ draft: false
 tags: ["DevOps", "Obsidian"]
 categories: ["6. DevOps"]
 slug: "devops-08"
-description: "从 Obsidian 导入的 DevOps 学习笔记"
+description: "介绍《Nexus 私服仓库部署与管理》，涵盖Nexus、搭建 Maven 私服仓库和创建代理仓库等实践要点。"
 ---
 # Nexus
 

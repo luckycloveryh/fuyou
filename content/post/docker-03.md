@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-03"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《常用 Docker 镜像地址整理》，涵盖常用镜像地址 副本、Rockylinux:9和Registry等实践要点。"
 ---
 # 常用镜像地址 副本
 

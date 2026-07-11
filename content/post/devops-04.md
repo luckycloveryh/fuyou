@@ -6,7 +6,7 @@ draft: false
 tags: ["DevOps", "Obsidian"]
 categories: ["6. DevOps"]
 slug: "devops-04"
-description: "从 Obsidian 导入的 DevOps 学习笔记"
+description: "介绍《Git 版本控制基础》，涵盖Git、中央版本控制系统和分布式版本控制系统等实践要点。"
 ---
 # Git
 

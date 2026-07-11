@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-07"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《NFS 与 Apache 服务部署》，涵盖Linux系统NFS与Apache服务完整技术手册、学习任务与进度安排和阶段进度规划等实践要点。"
 ---
 # Linux系统NFS与Apache服务完整技术手册
 ## 一、学习任务与进度安排

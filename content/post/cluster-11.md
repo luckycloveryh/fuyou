@@ -6,7 +6,7 @@ draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]
 slug: "cluster-11"
-description: "从 Obsidian 导入的 集群 学习笔记"
+description: "介绍《Prometheus 监控系统部署教程》，涵盖Prometheus 监控部署教程、Prometheus 介绍和什么是Prometheus？等实践要点。"
 ---
 ## Prometheus 监控部署教程
 

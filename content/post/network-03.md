@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-03"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《SSH、DHCP 与 DNS 服务实战》，涵盖SSH+DHCP+DNS服务（原理+全实操）、SSH服务：安全实现远程登录和核心功能等实践要点。"
 ---
 # SSH+DHCP+DNS服务（原理+全实操）
 ## 一、SSH服务：安全实现远程登录

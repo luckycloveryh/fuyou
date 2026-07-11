@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-01"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《Docker Compose 使用指南》，涵盖Compose 应用模型、体验项目和步骤一 创建应用文件等实践要点。"
 ---
 # 八、 docker compose
 

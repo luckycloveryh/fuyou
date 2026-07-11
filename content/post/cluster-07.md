@@ -6,7 +6,7 @@ draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]
 slug: "cluster-07"
-description: "从 Obsidian 导入的 集群 学习笔记"
+description: "介绍《Squid 代理服务器部署与缓存策略》，涵盖淘汰逻辑、操作特征和缓存请求等实践要点。"
 ---
 ## Squid代理服务器部署
 

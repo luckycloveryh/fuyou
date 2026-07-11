@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-11"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "整理Linux 常用命令：目录、文件与路径基础 的核心概念、常用命令与实操步骤，适合作为学习和复习笔记。"
 ---
 ls 	-l 	/usr/bin/	
 命令	[选项]	[执行对象]

@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-12"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《MySQL 核心知识完整整理》，涵盖MySQL 视频核心内容整合（全知识点无精简版）、课程时间调整和回顾与复习等实践要点。"
 ---
 # MySQL 视频核心内容整合（全知识点无精简版）
 ## 一、课前事务安排

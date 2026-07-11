@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-04"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《Linux 文件与目录权限管理》，涵盖权限管理基础：文件与目录的核心权限、基础权限（r/w/x）的含义差异和权限的合理组合与实操场景等实践要点。"
 ---
 # Linux系统权限管理完整总结
 本内容围绕Linux系统权限管理展开，涵盖基础权限配置、传统权限方式的局限性、`sudo`命令核心应用、管理员用户配置及工具适用场景，结合实操逻辑与示例，形成完整的权限管理知识体系：

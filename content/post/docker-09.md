@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-09"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《Docker 容器管理常用命令》，涵盖容器的管理、Docker 命令行参数和Docker 命令使用案例等实践要点。"
 ---
 # 三. 容器的管理
 

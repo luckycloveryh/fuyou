@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-07"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《Docker 存储与 Volume 管理》，涵盖创建 Volume、df -h和挂载 Volume等实践要点。"
 ---
 # 六. Docker 存储
 

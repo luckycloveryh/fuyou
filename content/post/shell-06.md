@@ -6,7 +6,7 @@ draft: false
 tags: ["Shell", "Obsidian"]
 categories: ["3. shell阶段"]
 slug: "shell-06"
-description: "从 Obsidian 导入的 Shell 学习笔记"
+description: "介绍《Shell 正则表达式与文本处理命令》，涵盖正则表达式回顾与深入讲解、常用命令讲解和cut命令等实践要点。"
 ---
 ## 一、正则表达式回顾与深入讲解
 1. **基础匹配规则**

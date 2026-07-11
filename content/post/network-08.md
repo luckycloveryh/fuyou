@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-08"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《Apache 与 Nginx 服务核心实践》，涵盖Apache与Nginx服务核心知识整合总结、核心实验操作和Apache与PHP结合处理动态请求等实践要点。"
 ---
 # Apache与Nginx服务核心知识整合总结
 ## 一、Apache（阿帕奇）服务核心内容

@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-15"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "汇总Docker的学习目录、重点主题和复习主线，方便按阶段回顾与查漏补缺。"
 ---
 # Docker 学习索引
 

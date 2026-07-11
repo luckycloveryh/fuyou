@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-05"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《Docker 镜像多阶段构建》，涵盖镜像 Cache 机制、Cache 机制的注意事项和传统 Build 流程等实践要点。"
 ---
 # 九、镜像多阶段构建
 

@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-02"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《Linux 软件安装与系统核心操作》，涵盖Linux系统核心操作视频内容整合总结、软件安装相关和两种核心流程等实践要点。"
 ---
 # Linux系统核心操作视频内容整合总结
 

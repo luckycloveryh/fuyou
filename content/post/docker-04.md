@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-04"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《Docker 安装与初始化配置》，涵盖安装前准备、安装 dnf-utils和dnf config-manager --add-repo https://dow。"
 ---
 # 二. Docker 安装
 

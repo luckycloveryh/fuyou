@@ -6,7 +6,7 @@ draft: false
 tags: ["DevOps", "Obsidian"]
 categories: ["6. DevOps"]
 slug: "devops-05"
-description: "从 Obsidian 导入的 DevOps 学习笔记"
+description: "介绍《GitLab 代码仓库部署与使用》，涵盖硬件要求、安装和配置所需的依赖和配置 GitLab 仓库等实践要点。"
 ---
 # GitLab
 

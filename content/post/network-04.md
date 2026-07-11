@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-04"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《DHCP 服务配置与地址池验证》，涵盖DHCP 相关操作（Bash 命令+解释）、验证IP是否在地址池且网络连通（示例IP：192.168.66.100）和安。"
 ---
 ### 一、DHCP 相关操作（Bash 命令+解释）
 #### 1. 验证 DHCP 配置

@@ -6,7 +6,7 @@ draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]
 slug: "cluster-09"
-description: "从 Obsidian 导入的 集群 学习笔记"
+description: "介绍《MooseFS 分布式存储系统部署》，涵盖关闭防火墙与 SELinux、添加 MooseFS 官方仓库和安装 Master 组件等实践要点。"
 ---
 ### MooseFS 分布式存储系统
 

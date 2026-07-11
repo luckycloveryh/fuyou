@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-16"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《Linux 入门：发行版、分区与虚拟机安装》，涵盖课程基础保障与学习要求、课程基础保障和Linux系统核心知识等实践要点。"
 ---
 本次视频为Linux系统学习课程内容，涵盖**课程基础保障、Linux系统核心知识、虚拟机部署与系统安装、安装后操作要求**四大核心板块，同时明确了课程进度安排，具体内容如下：
 

@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-08"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《Docker 资源限制与 cgroups》，涵盖cgroup 介绍、mount | grep cgroup和cgroup v1: 限制进程可使用的 CPU 资。"
 ---
 # 七、Docker 资源限制
 

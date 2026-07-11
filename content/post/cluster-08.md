@@ -6,7 +6,7 @@ draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]
 slug: "cluster-08"
-description: "从 Obsidian 导入的 集群 学习笔记"
+description: "介绍《iSCSI 块存储部署与配置》，涵盖Rocky Linux 9.4 Iscsi块存储、检查系统版本与内核和安装工具等实践要点。"
 ---
 ### Rocky Linux 9.4 Iscsi块存储
 

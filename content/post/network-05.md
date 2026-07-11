@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-05"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《vsftpd FTP 服务配置指南》，涵盖vsftpd服务全维度配置指南（含原理/命令/实战）、DNS服务核心对比和FTP协议差异对比等实践要点。"
 ---
 # vsftpd服务全维度配置指南（含原理/命令/实战）
 ## 一、前置知识：DNS与FTP协议基础

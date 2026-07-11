@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-18"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《Linux DNF/YUM 软件仓库管理》，涵盖DNF与YUM包管理核心概念、仓库类型配置实操和网络仓库（默认）等实践要点。"
 ---
 # 视频主要内容总结
 ## 一、DNF与YUM包管理核心概念

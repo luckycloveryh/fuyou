@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-19"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "汇总Linux的学习目录、重点主题和复习主线，方便按阶段回顾与查漏补缺。"
 ---
 # Linux 学习索引
 

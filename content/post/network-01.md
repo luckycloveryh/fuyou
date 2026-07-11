@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-01"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《网络服务准备：虚拟机配置与函数复习》，涵盖学习安排与复习、知识回顾与疑问解答和函数相关复习等实践要点。"
 ---
 # 一、学习安排与复习
 ### （一）复习与作业处理

@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-09"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《Nginx 访问控制、缓存与动态请求处理》，涵盖已学内容梳理、缓存相关知识点和动态请求处理方法等实践要点。"
 ---
 ## 一、前期知识回顾
 ### （一）已学内容梳理

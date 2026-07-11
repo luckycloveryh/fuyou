@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-14"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《Docker 基础概念入门》，涵盖Docker 与 容器、为什么要用 Docker和容器与虚拟机的区别等实践要点。"
 ---
 # 一. Docker 基础
 

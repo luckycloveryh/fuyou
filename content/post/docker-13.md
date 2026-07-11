@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-13"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《Docker 网络基础》，涵盖Docker 网络启动过程、查看网桥和brctl 命令默认没有安装，安装命令： yum -y install bridge-ut。"
 ---
 # 五、Docker 网络
 

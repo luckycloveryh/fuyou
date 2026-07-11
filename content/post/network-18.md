@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-18"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《MySQL SQL 语言分类》，涵盖DDL：数据定义语言、创建数据库和使用数据库等实践要点。"
 ---
 MySQL 常见可以分为四类：
 

@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-06"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《Linux LVM、备份与数据传输》，涵盖视频与系统操作核心内容合并总结、LVM（逻辑卷管理）：存储管理核心和核心概念与优势等实践要点。"
 ---
 # 视频与系统操作核心内容合并总结
 ## 一、LVM（逻辑卷管理）：存储管理核心

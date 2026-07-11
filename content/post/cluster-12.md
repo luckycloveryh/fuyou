@@ -6,7 +6,7 @@ draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]
 slug: "cluster-12"
-description: "从 Obsidian 导入的 集群 学习笔记"
+description: "汇总集群阶段的学习目录、重点主题和复习主线，方便按阶段回顾与查漏补缺。"
 ---
 # 集群阶段索引
 

@@ -6,7 +6,7 @@ draft: false
 tags: ["Shell", "Obsidian"]
 categories: ["3. shell阶段"]
 slug: "shell-07"
-description: "从 Obsidian 导入的 Shell 学习笔记"
+description: "汇总shell阶段的学习目录、重点主题和复习主线，方便按阶段回顾与查漏补缺。"
 ---
 # Shell 学习索引
 

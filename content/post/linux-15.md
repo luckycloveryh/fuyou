@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-15"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《Linux 移动介质挂载、Vim 与压缩打包》，涵盖Linux挂载相关操作与知识、挂载信息查看与特殊选项和移动硬盘/U盘挂载等实践要点。"
 ---
 Linux视频主要内容总结（修正版）
 

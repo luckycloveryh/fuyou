@@ -6,7 +6,7 @@ draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]
 slug: "cluster-05"
-description: "从 Obsidian 导入的 集群 学习笔记"
+description: "介绍《集群基础概念与架构分类》，涵盖节点类型、实现层级和实现方式等实践要点。"
 ---
 ### 集群概述  
 

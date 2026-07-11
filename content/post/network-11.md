@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-11"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《LAMP/LNMP 环境搭建与脚本安装》，涵盖Web服务与环境搭建、NGINX相关知识和组件关联逻辑等实践要点。"
 ---
 ## 一、课前与复习环节
 1. 明确分享要求，强调后续所有阶段分享需还原标准流程，做好细节处理（如“该标注的内容需明确标注”），完成后及时归位相关配置或文件。

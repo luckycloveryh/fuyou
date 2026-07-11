@@ -6,7 +6,7 @@ draft: false
 tags: ["网络基础", "Obsidian"]
 categories: ["4. 网络基础阶段"]
 slug: "network-14"
-description: "从 Obsidian 导入的 网络基础 学习笔记"
+description: "介绍《MySQL 视图、外键、存储过程与主从复制》，涵盖数据库存储过程与事务相关、MySQL存储引擎与特性和MySQL运维管理等实践要点。"
 ---
 ## 一、数据库存储过程与事务相关
 1. **存储过程语法与事务控制**

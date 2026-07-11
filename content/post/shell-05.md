@@ -6,7 +6,7 @@ draft: false
 tags: ["Shell", "Obsidian"]
 categories: ["3. shell阶段"]
 slug: "shell-05"
-description: "从 Obsidian 导入的 Shell 学习笔记"
+description: "介绍《Shell 分支判断、正则与循环脚本》，涵盖基础命令与变量操作、判断相关：脚本的“选择逻辑”和核心脚本实验：计算1到用户输入数字的偶数和等实践要点。"
 ---
 # 视频主要内容整合（无精简完整版）
 ## 一、前期核心知识回顾

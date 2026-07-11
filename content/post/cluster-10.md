@@ -6,7 +6,7 @@ draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]
 slug: "cluster-10"
-description: "从 Obsidian 导入的 集群 学习笔记"
+description: "介绍《Zabbix 6/7 LTS 监控平台部署》，涵盖Zabbix Server 6&7.0 LTS 版本、环境准备和建议rocky的基础源也使用网络源等实践要点。"
 ---
 ## Zabbix Server 6&7.0 LTS 版本
 

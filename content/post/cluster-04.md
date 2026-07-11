@@ -6,7 +6,7 @@ draft: false
 tags: ["集群", "Obsidian"]
 categories: ["5. 集群阶段"]
 slug: "cluster-04"
-description: "从 Obsidian 导入的 集群 学习笔记"
+description: "介绍《DevOps 构建：基于 GitLab 和 Jenkins 的 CI/CD 实践》，涵盖什么是 DevOps？、DevOps 定义和CI 和 CD 的含义等实。"
 ---
 # DevOps 构建：基于 GitLab 和 Jenkins 的 CI/CD 实践
 

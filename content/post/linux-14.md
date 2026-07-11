@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-14"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《Linux 系统查询、运行级别与挂载管理》，涵盖命令工具与系统查询、命令帮助相关和网络相关命令与操作等实践要点。"
 ---
 本次视频围绕**Linux系统操作与管理**展开，从基础命令工具使用、系统运行管控，到文件存储与磁盘管理层层深入，核心内容整合为**命令工具与系统查询**、**系统运行与操作管理**、**文件系统与存储管理**三大板块，具体如下：
 

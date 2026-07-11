@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-11"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《Docker 镜像仓库使用》，涵盖镜像仓库、Docker Hub 阿里云 腾讯云和注册等实践要点。"
 ---
 # 四. 镜像仓库
 

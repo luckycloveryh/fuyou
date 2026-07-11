@@ -6,7 +6,7 @@ draft: false
 tags: ["Linux", "Obsidian"]
 categories: ["2. Linux"]
 slug: "linux-03"
-description: "从 Obsidian 导入的 Linux 学习笔记"
+description: "介绍《Linux 用户、用户组与服务管理》，涵盖Linux系统用户与组管理及服务配置完整课程总结、知识回顾和实操任务布置等实践要点。"
 ---
 # Linux系统用户与组管理及服务配置完整课程总结
 ## 一、前期知识回顾与实操任务布置

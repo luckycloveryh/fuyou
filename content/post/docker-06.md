@@ -6,7 +6,7 @@ draft: false
 tags: ["Docker", "Obsidian"]
 categories: ["7. Docker"]
 slug: "docker-06"
-description: "从 Obsidian 导入的 Docker 学习笔记"
+description: "介绍《Docker 容器优雅退出》，涵盖优雅退出、Linux 信号和Kill 参数等实践要点。"
 ---
 # 九、优雅退出
 

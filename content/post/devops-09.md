@@ -6,7 +6,7 @@ draft: false
 tags: ["DevOps", "Obsidian"]
 categories: ["6. DevOps"]
 slug: "devops-09"
-description: "从 Obsidian 导入的 DevOps 学习笔记"
+description: "介绍《Sonar 代码质量平台部署》，涵盖Sonar、插件管理和SonarQube代码扫描等实践要点。"
 ---
 # Sonar
 
