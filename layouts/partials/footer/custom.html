@@ -81,14 +81,10 @@
 
 
 <style>
-  @font-face {
-    font-family: '瑞美加张清平硬笔行书';
-    src: url({{ (resources.Get "font/瑞美加张清平硬笔行书.ttf").Permalink }}) format('truetype');
-  }
-
   :root {
-    --base-font-family: '瑞美加张清平硬笔行书';
-    --code-font-family: '瑞美加张清平硬笔行书';
+    --base-font-family: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Segoe UI", Arial, sans-serif;
+    --article-font-family: var(--base-font-family);
+    --code-font-family: "Cascadia Mono", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei UI", monospace;
   }
 </style>
 
