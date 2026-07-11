@@ -57,20 +57,21 @@
    * 时间初始化
    */
   function initTime() {
-    // 时钟动画加载时间为3秒，需补上
-    const now = new Date(Date.now() + 3000);
+    // 时钟动画加载时间为3秒，需补上；固定使用北京时间（UTC+8）。
+    const beijingOffset = 8 * 60 * 60 * 1000;
+    const now = new Date(Date.now() + 3000 + beijingOffset);
     const perHour = 360 / 12;
     const perHourMinute = perHour / 60;
     const perSecond = 360 / 60;
     // 设置"时"的角度
     const hour = document.querySelector(".hour");
-    setDeg(hour, (now.getHours() % 12) * perHour + now.getMinutes() * perHourMinute);
+    setDeg(hour, (now.getUTCHours() % 12) * perHour + now.getUTCMinutes() * perHourMinute);
     // 设置"分"的角度
     const minute = document.querySelector(".minute");
-    setDeg(minute, now.getMinutes() * perSecond + now.getSeconds() * perSecond / 60);
+    setDeg(minute, now.getUTCMinutes() * perSecond + now.getUTCSeconds() * perSecond / 60);
     // 设置"秒"的角度
     const second = document.querySelector(".second");
-    setDeg(second, now.getSeconds() * perSecond);
+    setDeg(second, now.getUTCSeconds() * perSecond);
   }
 
   /**
