@@ -1,0 +1,1037 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="介绍《Zabbix 6/7 LTS 监控平台部署》，涵盖Zabbix Server 6&7.0 LTS 版本、环境准备和建议rocky的基础源也使用网络源等实践要点。"><title>Zabbix 6/7 LTS 监控平台部署</title>
+<link rel=canonical href=https://luckycloveryh.github.io/fuyou/p/cluster-10/><link rel=stylesheet href=/fuyou/scss/style.min.4f12ea1fa4ca7ef3f419897549c88b4c242f129d29316c950cdb3b0754157538.css><meta property='og:title' content="Zabbix 6/7 LTS 监控平台部署"><meta property='og:description' content="介绍《Zabbix 6/7 LTS 监控平台部署》，涵盖Zabbix Server 6&7.0 LTS 版本、环境准备和建议rocky的基础源也使用网络源等实践要点。"><meta property='og:url' content='https://luckycloveryh.github.io/fuyou/p/cluster-10/'><meta property='og:site_name' content='小杨的博客'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='集群'><meta property='article:tag' content='Obsidian'><meta property='article:published_time' content='2026-06-22T09:00:00+08:00'><meta property='article:modified_time' content='2026-07-11T16:45:03+08:00'><meta property='og:image' content='https://picsum.photos/seed/fuyou-cluster-10/1200/675'><meta name=twitter:title content="Zabbix 6/7 LTS 监控平台部署"><meta name=twitter:description content="介绍《Zabbix 6/7 LTS 监控平台部署》，涵盖Zabbix Server 6&7.0 LTS 版本、环境准备和建议rocky的基础源也使用网络源等实践要点。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://picsum.photos/seed/fuyou-cluster-10/1200/675'><link rel=alternate type=application/json href=https://luckycloveryh.github.io/fuyou/p/cluster-10/index.json><link rel="shortcut icon" href=/fuyou/favicon.png><div class=loading-container><div class=card><div class=loader><p>loading</p><div class=words><span class=word>buttons</span>
+<span class=word>forms</span>
+<span class=word>switches</span>
+<span class=word>cards</span>
+<span class=word>buttons</span></div></div></div></div><style>.loading-container{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(17,17,17,.98);display:flex;align-items:center;justify-content:center;z-index:999999;transition:opacity 1.2s ease;pointer-events:none}.card{--bg-color:#111;background-color:var(--bg-color);padding:1.2rem 2.5rem;border-radius:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.7)}.loader{color:#7c7c7c;font-family:poppins,system-ui,sans-serif;font-weight:500;font-size:25px;height:42px;padding:8px 12px;display:flex;align-items:center;gap:12px;border-radius:8px;white-space:nowrap}.words{overflow:hidden;position:relative;height:100%;min-width:110px}.words::after{content:"";position:absolute;inset:0;background:linear-gradient( var(--bg-color) 10%,transparent 30%,transparent 70%,var(--bg-color) 90% );z-index:20}.word{display:block;height:100%;padding-left:4px;color:#956afa;animation:spin_4991 4s infinite linear}@keyframes spin_4991{10%{transform:translateY(-102%)}25%{transform:translateY(-100%)}35%{transform:translateY(-202%)}50%{transform:translateY(-200%)}60%{transform:translateY(-302%)}75%{transform:translateY(-300%)}85%{transform:translateY(-402%)}100%{transform:translateY(-400%)}}.loading-container.fade-out{opacity:0;pointer-events:none}</style><script>(function(){const e=()=>{const e=document.querySelector(".loading-container");if(!e)return;e.classList.add("fade-out"),e.style.display="none",e.style.pointerEvents="none"},n=sessionStorage.getItem("visited");if(n){e();return}const t=()=>{const t=document.querySelector(".loading-container");if(!t)return;t.classList.add("fade-out"),setTimeout(()=>{e(),sessionStorage.setItem("visited","true")},400)};setTimeout(t,1200),window.addEventListener("load",t,{once:!0})})()</script></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/fuyou/><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/muzimi.gif width=300 height=300 class=site-logo loading=lazy alt=Avatar>
+</a><span class=emoji>🌸</span></figure><div class=site-meta><h1 class=site-name><a href=/fuyou>小杨的博客</a></h1><h2 class=site-description>技术分享，日常分享</h2></div></header><ol class=menu-social><li><a href=https://space.bilibili.com/81116666 title=Bilibili rel=me><svg class="icon icon-bilibili-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 6.1 5.8 3.3"/><path d="M15.8 6.1l2.4-2.8"/><path d="M7.2 7h9.6a4 4 0 014 4v4a4 4 0 01-4 4H7.2a4 4 0 01-4-4v-4a4 4 0 014-4z"/><path d="M9 12.1l1.3 1.4"/><path d="M15 12.1l-1.3 1.4"/></svg></a></li><li><a href=https://github.com/luckycloveryh/fuyou title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/fuyou/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>主页 | Home</span></a></li><li><a href=/fuyou/categories/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>分类&标签 | Cats&amp;Tags</span></a></li><li><a href=/fuyou/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>归档 | Archives</span></a></li><li><a href=/fuyou/%E6%90%9C%E7%B4%A2/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>搜索 | Search</span></a></li><li><a href=/fuyou/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97-logs/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>更新日志 | Logs</span></a></li><li><a href=/fuyou/%E6%8A%80%E6%9C%AF%E9%93%BE%E6%8E%A5-links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>技术链接 | Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#zabbix-server-670-lts-版本>Zabbix Server 6&amp;7.0 LTS 版本</a><ol><li><a href=#一环境准备>一、环境准备</a></li><li><a href=#二zabbix-server节点配置>二、Zabbix Server节点配置</a><ol><li><a href=#1-配置zabbix官网源>1. 配置Zabbix官网源</a></li><li><a href=#2-server端安装zabbix相关软件>2. Server端安装Zabbix相关软件</a></li><li><a href=#3-安装mariadb数据库>3. 安装Mariadb数据库</a></li><li><a href=#4-导入zabbix数据库文件>4. 导入Zabbix数据库文件</a></li><li><a href=#5-修改zabbix配置文件>5. 修改Zabbix配置文件</a></li><li><a href=#6-安装中文字体库>6. 安装中文字体库</a></li><li><a href=#7-设置相关服务启动和开机自启>7. 设置相关服务启动和开机自启</a></li><li><a href=#8-中文乱码解决方案>8. 中文乱码解决方案</a></li></ol></li><li><a href=#二安装zabbix-agent节点-linux版>二、安装Zabbix Agent节点-Linux版</a><ol><li><a href=#1-配置客户端软件仓库>1. 配置客户端软件仓库</a></li><li><a href=#2-安装客户端软件>2. 安装客户端软件</a></li><li><a href=#3-修改zabbix-agent配置文件>3. 修改zabbix agent配置文件</a></li><li><a href=#4-启动zabbix-agent服务>4. 启动zabbix agent服务</a></li><li><a href=#5-主被动模式对比>5. 主被动模式对比</a></li></ol></li><li><a href=#三安装zabbix-agent节点-windows版>三、安装Zabbix Agent节点-windows版</a><ol><li><a href=#1-agent-和-agent2-版本对比>1. Agent 和 Agent2 版本对比</a></li></ol></li><li><a href=#四安装zabbbix-proxy代理节点>四、安装Zabbbix Proxy代理节点</a><ol><li><a href=#1-配置软件仓库并安装相关软件>1. 配置软件仓库并安装相关软件</a></li><li><a href=#2-配置mariadb数据库>2. 配置Mariadb数据库</a></li><li><a href=#3-修改zabbix-proxy配置文件>3. 修改Zabbix Proxy配置文件</a></li><li><a href=#4-使用zabbix-proxy监控新的agent>4. 使用Zabbix Proxy监控新的Agent</a></li></ol></li><li><a href=#五报警设置>五、报警设置</a><ol><li><a href=#1-web端声音报警>1. web端声音报警</a></li><li><a href=#2-发送邮件报警>2. 发送邮件报警</a></li><li><a href=#3-发送钉钉报警>3. 发送钉钉报警</a></li></ol></li><li><a href=#六高级功能>六、高级功能</a><ol><li><a href=#1-自动发现>1. 自动发现</a></li><li><a href=#2-创建自定义监控模板-实现nginx流量监控>2. 创建自定义监控模板-实现nginx流量监控</a></li></ol></li><li><a href=#七mysql数据库配置>七、mysql数据库配置</a></li><li><a href=#八模版创建>八、模版创建</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/fuyou/p/cluster-10/><img src=https://picsum.photos/seed/fuyou-cluster-10/1200/675 loading=lazy alt="Featured image of post Zabbix 6/7 LTS 监控平台部署"></a></div><div class=article-details><header class=article-category><a href=/fuyou/categories/5.-%E9%9B%86%E7%BE%A4%E9%98%B6%E6%AE%B5/>5. 集群阶段</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/fuyou/p/cluster-10/>Zabbix 6/7 LTS 监控平台部署</a></h2><h3 class=article-subtitle>介绍《Zabbix 6/7 LTS 监控平台部署》，涵盖Zabbix Server 6&amp;7.0 LTS 版本、环境准备和建议rocky的基础源也使用网络源等实践要点。</h3></div><footer class="article-time article-time--template"><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>2026-06-22</time></div><div><svg class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7H6A2 2 0 004 9v9a2 2 0 002 2h9a2 2 0 002-2v-1"/><path d="M20.385 6.585a2.1 2.1.0 00-2.97-2.97L9 12v3h3l8.385-8.415z"/><path d="M16 5l3 3"/></svg>
+<time class=article-time--modified>2026-07-11</time></div><div><svg class="icon icon-tabler icon-tabler-file-text" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 001 1h4"/><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path d="M9 9h1"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+<span class=article-time--word-count>6890字</span></div></footer></div></header><section class=article-content><h2 id=zabbix-server-670-lts-版本>Zabbix Server 6&amp;7.0 LTS 版本</h2><h3 id=一环境准备>一、环境准备</h3><ul><li>操作系统：Rocky Linux 9.4</li><li>Zabbix版本：6.0 & 7.0 LTS</li><li>网络情况：能连接互联网</li><li>关闭SELinux和Firewalld防护</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>1. 关闭所有防护
+</span></span><span class=line><span class=cl>$ systemctl disable --now firewalld
+</span></span><span class=line><span class=cl>$ sed -i <span class=s1>&#39;s/SELINUX=enforcing/SELINUX=disabled/&#39;</span> /etc/selinux/config
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2. 配置网络能连接互联网
+</span></span><span class=line><span class=cl>$ vim /etc/NetworkManager/system-connections/ens160.nmconnection
+</span></span><span class=line><span class=cl><span class=o>[</span>ipv4<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>method</span><span class=o>=</span>manual
+</span></span><span class=line><span class=cl><span class=nv>address1</span><span class=o>=</span>192.168.88.110/24,192.168.88.2
+</span></span><span class=line><span class=cl><span class=nv>dns</span><span class=o>=</span>114.114.114.114<span class=p>;</span>8.8.8.8
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ nmcli c r
+</span></span><span class=line><span class=cl>$ nmcli c up ens160
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>3. 配置repo仓库
+</span></span><span class=line><span class=cl><span class=c1># 建议rocky的基础源也使用网络源</span>
+</span></span><span class=line><span class=cl>$ dnf -y install lrzsz epel-release
+</span></span><span class=line><span class=cl>$ vim /etc/yum.repos.d/epel.repo
+</span></span><span class=line><span class=cl><span class=o>[</span>epel<span class=o>]</span>
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl><span class=nv>excludepkgs</span><span class=o>=</span>zabbix*
+</span></span><span class=line><span class=cl><span class=c1># 必须在epel仓库中排除zabbix相关软件包，防止和后续zabbix官方仓库冲突</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=二zabbix-server节点配置>二、Zabbix Server节点配置</h3><h4 id=1-配置zabbix官网源>1. 配置Zabbix官网源</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>装6下载6，装7下载7
+</span></span><span class=line><span class=cl>$ rpm -Uvh https://repo.zabbix.com/zabbix/6.0/rhel/9/x86_64/zabbix-release-latest-6.0.el9.noarch.rpm
+</span></span><span class=line><span class=cl>$ rpm -Uvh https://repo.zabbix.com/zabbix/7.0/rocky/9/x86_64/zabbix-release-latest-7.0.el9.noarch.rpm
+</span></span><span class=line><span class=cl>$ dnf makecache
+</span></span></code></pre></td></tr></table></div></div><h4 id=2-server端安装zabbix相关软件>2. Server端安装Zabbix相关软件</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ dnf -y install zabbix-server-mysql zabbix-web-mysql zabbix-apache-conf zabbix-sql-scripts zabbix-selinux-policy zabbix-agent
+</span></span><span class=line><span class=cl><span class=c1># 安装zabbix相关软件，软件功能如下</span>
+</span></span><span class=line><span class=cl><span class=c1># zabbix-server-mysql		# 基于MySQL或Mariadb数据库的zabbix-server端，用户收集，保存，展示监控数据</span>
+</span></span><span class=line><span class=cl><span class=c1># zabbix-web-mysql			# 提供连接数据库的web页面</span>
+</span></span><span class=line><span class=cl><span class=c1># zabbix-apache-conf		# 为apache提供配置文件加载识别zabbix的web页面</span>
+</span></span><span class=line><span class=cl><span class=c1># zabbix-sql-scripts		# 提供zabbix的数据库文件，供管理员导入数据库系统</span>
+</span></span><span class=line><span class=cl><span class=c1># zabbix-selinux-policy 	# SELinux相关规则</span>
+</span></span><span class=line><span class=cl><span class=c1># zabbix-agent				# zabbix agent，数据采集端</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=3-安装mariadb数据库>3. 安装Mariadb数据库</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ dnf -y install mariadb mariadb-server
+</span></span><span class=line><span class=cl><span class=c1># 安装数据库客户端和服务器端</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ systemctl <span class=nb>enable</span> --now mariadb
+</span></span><span class=line><span class=cl><span class=c1># 启动数据库服务，设置开机自启动</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ mysql
+</span></span><span class=line><span class=cl>Mariadb&gt; create database zabbix character <span class=nb>set</span> utf8mb4 collate utf8mb4_bin<span class=p>;</span>
+</span></span><span class=line><span class=cl>Mariadb&gt; create user zabbix@localhost identified by <span class=s1>&#39;123456&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>Mariadb&gt; grant all privileges on zabbix.* to zabbix@localhost<span class=p>;</span>
+</span></span><span class=line><span class=cl>Mariadb&gt; <span class=nb>set</span> global <span class=nv>log_bin_trust_function_creators</span> <span class=o>=</span> 1<span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=c1># 创建支持zabbix数据库，设置全局支持中文，并授予新创建的zabbix用户所有权限</span>
+</span></span><span class=line><span class=cl><span class=c1># set global log_bin_trust_function_creators = 1</span>
+</span></span><span class=line><span class=cl><span class=c1># 该选项的作用：一会要将提前准备好的SQL文件导入到数据库中，但SQL文件中有部分SQL语句包含了一些特殊的函数，开启则是为了绕过安全性检测和权限限制，用完记得关上。</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=4-导入zabbix数据库文件>4. 导入Zabbix数据库文件</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ zcat /usr/share/zabbix-sql-scripts/mysql/server.sql.gz <span class=p>|</span> mysql --default-character-set<span class=o>=</span>utf8mb4 -uzabbix -p zabbix
+</span></span><span class=line><span class=cl><span class=c1># 因为用的是zabbix用户进行导入，所以要填写zabbix的密码：123456</span>
+</span></span><span class=line><span class=cl>gunzip server.sql.gz
+</span></span><span class=line><span class=cl>mysql zabbix &lt; server.sql
+</span></span><span class=line><span class=cl>$ mysql
+</span></span><span class=line><span class=cl>Mariadb&gt; <span class=nb>set</span> global <span class=nv>log_bin_trust_function_creators</span> <span class=o>=</span> 0<span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=c1># 上面说过了，用完记得关闭。</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#详细错误查看日志文件</span>
+</span></span><span class=line><span class=cl>tail -n <span class=m>100</span> /var/log/zabbix/zabbix_server.log
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#当数据库导入不小心取消了，可以删除数据库，重新执行数据库操作</span>
+</span></span><span class=line><span class=cl>DROP DATABASE zabbix<span class=p>;</span>
+</span></span><span class=line><span class=cl>CREATE DATABASE zabbix CHARACTER SET utf8mb4 COLLATE utf8mb4_bin<span class=p>;</span>
+</span></span><span class=line><span class=cl>GRANT ALL PRIVILEGES ON zabbix.* TO zabbix@localhost<span class=p>;</span>
+</span></span><span class=line><span class=cl>SET GLOBAL <span class=nv>log_bin_trust_function_creators</span> <span class=o>=</span> 1<span class=p>;</span>
+</span></span><span class=line><span class=cl>QUIT<span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=5-修改zabbix配置文件>5. 修改Zabbix配置文件</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ vim /etc/zabbix/zabbix_server.conf
+</span></span><span class=line><span class=cl><span class=nv>DBHost</span><span class=o>=</span>localhost
+</span></span><span class=line><span class=cl><span class=nv>DBName</span><span class=o>=</span>zabbix
+</span></span><span class=line><span class=cl><span class=nv>DBUser</span><span class=o>=</span>zabbix
+</span></span><span class=line><span class=cl><span class=nv>DBPassword</span><span class=o>=</span><span class=m>123456</span>
+</span></span><span class=line><span class=cl><span class=c1># 其实大部分参数都不用改，因为创建时就是按照配置里创的~</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=6-安装中文字体库>6. 安装中文字体库</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ dnf -y install langpacks-zh_CN glibc-langpack-zh
+</span></span><span class=line><span class=cl><span class=c1># 由于安装操作系统时并没选择中文环境，所以只能后装了。</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=7-设置相关服务启动和开机自启>7. 设置相关服务启动和开机自启</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ systemctl <span class=nb>enable</span> --now zabbix-server zabbix-agent httpd php-fpm
+</span></span></code></pre></td></tr></table></div></div><p>使用浏览器访问：http://ip/zabbix，测试登录，<font color=red>默认：用户名：Admin ， 密码：zabbix</font></p><h4 id=8-中文乱码解决方案>8. 中文乱码解决方案</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ <span class=nb>cd</span> /usr/share/fonts/dejavu-sans-fonts
+</span></span><span class=line><span class=cl>$ mv DejaVuSans.ttf DejaVuSans.ttf.bak
+</span></span><span class=line><span class=cl>$ mv msyh.ttc DejaVuSans.ttf 
+</span></span><span class=line><span class=cl><span class=c1># 需要先提前上传自己喜欢的字体文件</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=二安装zabbix-agent节点-linux版>二、安装Zabbix Agent节点-Linux版</h3><h4 id=1-配置客户端软件仓库>1. 配置客户端软件仓库</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ rpm -Uvh https://repo.zabbix.com/zabbix/6.0/rhel/9/x86_64/zabbix-release-latest-6.0.el9.noarch.rpm
+</span></span><span class=line><span class=cl>$ rpm -Uvh https://repo.zabbix.com/zabbix/7.0/rocky/9/x86_64/zabbix-release-latest-7.0.el9.noarch.rpm
+</span></span></code></pre></td></tr></table></div></div><h4 id=2-安装客户端软件>2. 安装客户端软件</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>在不同的局域网之中，agent的被动模式的监控需要与server处于同一局域网段server<span class=o>=</span>填写同一网段最好
+</span></span><span class=line><span class=cl>$ dnf -y install zabbix-agent
+</span></span></code></pre></td></tr></table></div></div><h4 id=3-修改zabbix-agent配置文件>3. 修改zabbix agent配置文件</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ vim /etc/zabbix/zabbix_agentd.conf
+</span></span><span class=line><span class=cl><span class=nv>server</span><span class=o>=</span>zabbix server IP
+</span></span><span class=line><span class=cl><span class=nv>ServerActive</span><span class=o>=</span>zabbix server IP
+</span></span></code></pre></td></tr></table></div></div><h4 id=4-启动zabbix-agent服务>4. 启动zabbix agent服务</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ systemctl <span class=nb>enable</span> --now zabbix-agent
+</span></span><span class=line><span class=cl>$ systemctl start zabbix-agent
+</span></span></code></pre></td></tr></table></div></div><h4 id=5-主被动模式对比>5. 主被动模式对比</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-ini data-lang=ini><span class=line><span class=cl><span class=na>-----被动模式（Passive Mode）-----</span>
+</span></span><span class=line><span class=cl><span class=na>由 Zabbix Server 主动向 Agent 发起数据请求，Server 定期通过 zabbix_get 或内部轮询器（Poller）向 Agent 的 10050 端口发送请求（如 agent.ping），Agent 收到请求后，执行对应的监控项（Item）命令并返回数据，Server 接收数据并存储到数据库中。</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>Agent 配置（zabbix_agentd.conf）：</span>
+</span></span><span class=line><span class=cl><span class=na>Server</span><span class=o>=</span><span class=s>192.168.1.100       # 允许连接的 Server IP</span>
+</span></span><span class=line><span class=cl><span class=na>ListenPort</span><span class=o>=</span><span class=s>10050           # 默认监听端口</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>网络要求：Agent 需允许入站连接（Server 能访问 Agent 的 10050 端口），防火墙放行。</span>
+</span></span><span class=line><span class=cl><span class=na>实 时 性：依赖 Server 的轮询间隔，可能产生延迟。</span>
+</span></span><span class=line><span class=cl><span class=na>资源消耗：Server 需维护大量 TCP 连接，高并发时负载较高。</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>适用场景</span>
+</span></span><span class=line><span class=cl><span class=na>1. Agent 所在主机允许开放入站端口（如内部网络）。</span>
+</span></span><span class=line><span class=cl><span class=na>2. 监控项数量较少或 Server 资源充足。</span>
+</span></span><span class=line><span class=cl><span class=na>3. 需要严格由 Server 控制数据采集节奏的场景。</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>-----主动模式（Active Mode）-----</span>
+</span></span><span class=line><span class=cl><span class=na>由 Zabbix Agent 主动向 Server 发送数据，Agent 定期从 Server 的 10051 端口拉取 监控项列表（需配置 ServerActive），Agent 根据列表中的监控项定义，本地执行命令收集数据，Agent 将数据批量发送到 Server 的 10051 端口。</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>Agent 配置（zabbix_agentd.conf）：</span>
+</span></span><span class=line><span class=cl><span class=na>ServerActive</span><span class=o>=</span><span class=s>192.168.1.100  # Server 的 IP 或域名</span>
+</span></span><span class=line><span class=cl><span class=na>Hostname</span><span class=o>=</span><span class=s>Host001            # 必须与 Server 中注册的主机名一致，即网页上添加的被监控名称。</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>网络要求：Agent 需能访问 Server 的 10051 端口（仅需 出站连接）。</span>
+</span></span><span class=line><span class=cl><span class=na>实 时 性：Agent 自行控制数据采集和发送频率，延迟更低。</span>
+</span></span><span class=line><span class=cl><span class=na>资源消耗：Server 无需维护大量连接，扩展性更好，适合大规模监控。</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>适用场景</span>
+</span></span><span class=line><span class=cl><span class=na>1. Agent 位于防火墙后，无法开放入站端口（如公有云实例）。</span>
+</span></span><span class=line><span class=cl><span class=na>2. 监控项数量庞大或 Server 需要降低负载。</span>
+</span></span><span class=line><span class=cl><span class=na>3. 需要快速响应的监控场景（如高频采集）。</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=na>注意事项：主动模式时，会出现监控状态为未知(灰色)，主要原因是主动模式的问题，可以使用修改主动模式中的一个监控项方式为被动来解决此问题。</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=三安装zabbix-agent节点-windows版>三、安装Zabbix Agent节点-windows版</h3><p>访问zabbix官网，下载windows版客户端软件</p><p>软件地址：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>https://cdn.zabbix.com/zabbix/binaries/stable/6.0/6.0.41/zabbix_agent-6.0.41-windows-amd64-openssl.msi
+</span></span><span class=line><span class=cl>https://cdn.zabbix.com/zabbix/binaries/stable/7.0/7.0.10/zabbix_agent-7.0.10-windows-amd64-openssl.msi
+</span></span></code></pre></td></tr></table></div></div><h4 id=1-agent-和-agent2-版本对比>1. Agent 和 Agent2 版本对比</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-mysql data-lang=mysql><span class=line><span class=cl><span class=n>Zabbix</span><span class=w> </span><span class=nf>Agent</span><span class=p>(</span><span class=err>传统客户端</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=o>-</span><span class=w> </span><span class=err>功能特性：</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>仅支持预定义的监控项</span><span class=p>(</span><span class=err>通过</span><span class=w> </span><span class=n>UserParameter</span><span class=w> </span><span class=err>自定义脚本</span><span class=p>),</span><span class=err>扩展性有限。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>单线程处理请求</span><span class=p>,</span><span class=err>高负载时可能成为瓶颈</span><span class=p>(</span><span class=err>如同时处理</span><span class=w> </span><span class=mi>1000</span><span class=o>+</span><span class=w> </span><span class=err>监控项</span><span class=p>)</span><span class=err>。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>仅支持</span><span class=w> </span><span class=n>Zabbix</span><span class=w> </span><span class=err>原生协议</span><span class=p>(</span><span class=err>基于</span><span class=w> </span><span class=n>TCP</span><span class=w> </span><span class=err>的</span><span class=w> </span><span class=n>JSON</span><span class=w> </span><span class=err>或二进制协议</span><span class=p>)</span><span class=err>。</span><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=o>-</span><span class=w> </span><span class=err>场景特点</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>资源受限环境</span><span class=p>:</span><span class=err>如嵌入式设备、服务器</span><span class=p>(</span><span class=err>内存和</span><span class=w> </span><span class=n>CPU</span><span class=w> </span><span class=err>有限</span><span class=p>)</span><span class=err>。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>基础监控需求</span><span class=p>:</span><span class=err>仅需采集</span><span class=w> </span><span class=n>CPU</span><span class=err>、内存、磁盘、网络等基础指标。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>稳定性优先</span><span class=p>:</span><span class=err>对内存占用敏感</span><span class=p>,</span><span class=err>且无需复杂功能扩展。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>兼容旧版本</span><span class=p>:</span><span class=err>支持</span><span class=w> </span><span class=n>Zabbix</span><span class=w> </span><span class=mi>7</span><span class=p>.</span><span class=mi>0</span><span class=w> </span><span class=err>或更早版本。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=o>-</span><span class=w> </span><span class=err>典型用例</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>监控物理服务器或虚拟机的硬件资源。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>部署在</span><span class=w> </span><span class=n>IoT</span><span class=w> </span><span class=err>设备或边缘节点</span><span class=p>(</span><span class=err>如树莓派</span><span class=p>)</span><span class=err>。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=n>Zabbix</span><span class=w> </span><span class=nf>Agent2</span><span class=p>(</span><span class=err>新一代客户端</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=o>-</span><span class=w> </span><span class=err>功能特性：</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>提供插件架构</span><span class=p>,</span><span class=err>内置插件</span><span class=p>(</span><span class=err>如</span><span class=w> </span><span class=o>`</span><span class=n>docker</span><span class=o>`</span><span class=p>,</span><span class=w> </span><span class=o>`</span><span class=n>net</span><span class=p>.</span><span class=n>tcp</span><span class=p>.</span><span class=n>service</span><span class=o>`</span><span class=p>),</span><span class=err>并允许开发自定义插件。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>利用</span><span class=w> </span><span class=n>Go</span><span class=w> </span><span class=err>协程实现并发处理</span><span class=p>,</span><span class=err>适合高频采集</span><span class=p>(</span><span class=err>如每</span><span class=w> </span><span class=mi>10</span><span class=w> </span><span class=err>秒采集一次</span><span class=p>)</span><span class=err>和大规模监控项。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>支持多种协议</span><span class=p>:</span><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w>  	</span><span class=o>-</span><span class=w> </span><span class=n>HTTP</span><span class=w> </span><span class=n>API</span><span class=p>:</span><span class=err>直接调用</span><span class=w> </span><span class=n>Prometheus</span><span class=err>、</span><span class=n>JMX</span><span class=w> </span><span class=err>或其他服务的</span><span class=w> </span><span class=n>API</span><span class=err>。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  	</span><span class=o>-</span><span class=w> </span><span class=err>被动模式优化</span><span class=p>:</span><span class=err>批量发送数据</span><span class=p>,</span><span class=err>减少网络开销。</span><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=o>-</span><span class=w> </span><span class=err>场景特点</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>复杂监控需求</span><span class=p>:</span><span class=err>需要采集容器</span><span class=p>(</span><span class=n>Docker</span><span class=o>/</span><span class=n>Kubernetes</span><span class=p>)</span><span class=err>、云服务</span><span class=p>(</span><span class=n>AWS</span><span class=o>/</span><span class=n>Azure</span><span class=p>)</span><span class=err>、数据库</span><span class=p>(</span><span class=n>MySQL</span><span class=o>/</span><span class=n>PostgreSQL</span><span class=p>)</span><span class=err>等高级指标。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>高并发环境</span><span class=p>:</span><span class=err>需同时处理数百个监控项或高频率数据采集</span><span class=p>(</span><span class=err>如秒级监控</span><span class=p>)</span><span class=err>。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>扩展性要求</span><span class=p>:</span><span class=err>通过插件自定义监控逻辑</span><span class=p>(</span><span class=err>如调用第三方</span><span class=w> </span><span class=n>API</span><span class=p>)</span><span class=err>。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>未来兼容性</span><span class=p>:</span><span class=err>需利用</span><span class=w> </span><span class=n>Zabbix</span><span class=w> </span><span class=err>最新功能</span><span class=p>(</span><span class=err>如</span><span class=w> </span><span class=n>Prometheus</span><span class=w> </span><span class=err>指标集成</span><span class=p>)</span><span class=err>。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=o>-</span><span class=w> </span><span class=err>典型用例</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>监控</span><span class=w> </span><span class=n>Kubernetes</span><span class=w> </span><span class=err>集群中的</span><span class=w> </span><span class=n>Pod</span><span class=w> </span><span class=err>和容器状态。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>集成云原生服务的自定义指标</span><span class=p>(</span><span class=err>如</span><span class=w> </span><span class=n>AWS</span><span class=w> </span><span class=n>RDS</span><span class=w> </span><span class=err>性能</span><span class=p>)</span><span class=err>。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=o>-</span><span class=w> </span><span class=err>通过插件采集工业设备的专有协议数据。</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=四安装zabbbix-proxy代理节点>四、安装Zabbbix Proxy代理节点</h3><h4 id=1-配置软件仓库并安装相关软件>1. 配置软件仓库并安装相关软件</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>1. 同样需要epel仓库支持和zabbix官方仓库支持
+</span></span><span class=line><span class=cl>$ dnf -y install epel-release
+</span></span><span class=line><span class=cl>$ vim /etc/yum.repos.d/epel.repo
+</span></span><span class=line><span class=cl><span class=o>[</span>epel<span class=o>]</span>
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl><span class=nv>excludepkgs</span><span class=o>=</span>zabbix*
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ rpm -Uvh https://repo.zabbix.com/zabbix/6.0/rhel/9/x86_64/zabbix-release-latest-6.0.el9.noarch.rpm
+</span></span><span class=line><span class=cl>$ rpm -Uvh https://repo.zabbix.com/zabbix/7.0/rocky/9/x86_64/zabbix-release-latest-7.0.el9.noarch.rpm
+</span></span><span class=line><span class=cl>$ dnf makecache
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2. 安装zabbix proxy和mariadb-server
+</span></span><span class=line><span class=cl>$ dnf -y install mariadb mariadb-server zabbix-proxy-mysql zabbix-sql-scripts zabbix-selinux-policy
+</span></span><span class=line><span class=cl><span class=c1># 代理服务器的数据库可以暂存agent采集的数据，替server节点分摊并发压力</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=2-配置mariadb数据库>2. 配置Mariadb数据库</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ systemctl <span class=nb>enable</span> --now mariadb
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ mysql
+</span></span><span class=line><span class=cl>Mariadb&gt; create database zabbix_proxy character <span class=nb>set</span> utf8mb4 collate utf8mb4_bin<span class=p>;</span>
+</span></span><span class=line><span class=cl>Mariadb&gt; create user zabbix@localhost identified by <span class=s1>&#39;123456&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>Mariadb&gt; grant all privileges on zabbix_proxy.* to zabbix@localhost<span class=p>;</span>
+</span></span><span class=line><span class=cl>Mariadb&gt; <span class=nb>set</span> global <span class=nv>log_bin_trust_function_creators</span> <span class=o>=</span> 1<span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ cat /usr/share/zabbix-sql-scripts/mysql/proxy.sql <span class=p>|</span> mysql --default-character-set<span class=o>=</span>utf8mb4 -uzabbix -p zabbix_proxy
+</span></span><span class=line><span class=cl><span class=c1># 将zabbix proxy数据库文件导入到mariadb数据库中</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ mysql
+</span></span><span class=line><span class=cl>Mariadb&gt; <span class=nb>set</span> global <span class=nv>log_bin_trust_function_creators</span> <span class=o>=</span> 0<span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=3-修改zabbix-proxy配置文件>3. 修改Zabbix Proxy配置文件</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ vim /etc/zabbix/zabbix_proxy.conf
+</span></span><span class=line><span class=cl><span class=nv>Server</span><span class=o>=</span>192.168.88.110
+</span></span><span class=line><span class=cl><span class=nv>ServerPort</span><span class=o>=</span><span class=m>10051</span>
+</span></span><span class=line><span class=cl><span class=nv>Hostname</span><span class=o>=</span>Zabbix proxy
+</span></span><span class=line><span class=cl><span class=nv>ListenPort</span><span class=o>=</span><span class=m>10051</span>
+</span></span><span class=line><span class=cl><span class=nv>DBHost</span><span class=o>=</span>localhost
+</span></span><span class=line><span class=cl><span class=nv>DBName</span><span class=o>=</span>zabbix_proxy
+</span></span><span class=line><span class=cl><span class=nv>DBUser</span><span class=o>=</span>zabbix
+</span></span><span class=line><span class=cl><span class=nv>DBPassword</span><span class=o>=</span><span class=m>123456</span>
+</span></span><span class=line><span class=cl><span class=nv>DBPort</span><span class=o>=</span><span class=m>3306</span>
+</span></span><span class=line><span class=cl><span class=c1># 注意：配置文件中Hostname的名称非常重要，确定好之后不要随便修改</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ systemctl <span class=nb>enable</span> --now zabbix-proxy
+</span></span></code></pre></td></tr></table></div></div><h4 id=4-使用zabbix-proxy监控新的agent>4. 使用Zabbix Proxy监控新的Agent</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 前提是被监控的主机已经安装好zabbix agent工具</span>
+</span></span><span class=line><span class=cl>$ vim /etc/zabbix/zabbix_agentd.conf
+</span></span><span class=line><span class=cl><span class=nv>server</span><span class=o>=</span>zabbix proxy IP
+</span></span><span class=line><span class=cl><span class=nv>ServerActive</span><span class=o>=</span>zabbix proxy IP
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ systemctl <span class=nb>enable</span> --now zabbix-agent
+</span></span><span class=line><span class=cl><span class=c1># 要求zabbix agent将数据发往zabbix proxy进行保存处理</span>
+</span></span></code></pre></td></tr></table></div></div><p>web管理界面添加代理，并设置zabbix agent指向zabbix proxy</p><p><font color=red>注意：每次操作完之后都要点击更新才会生效，最后重启zabbix server端，变更数据源为zabbix proxy</font></p><h3 id=五报警设置>五、报警设置</h3><h4 id=1-web端声音报警>1. web端声音报警</h4><ol><li><p>设置web前端声音报警</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/01.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/02.png loading=lazy alt=img></p></li></ol><h4 id=2-发送邮件报警>2. 发送邮件报警</h4><ol><li><p>选择Email作为报警媒介</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/03.png loading=lazy alt=img></p></li><li><p>设置Email报警媒介相关参数</p><ol><li><p>获取邮件发送端的第三方登陆授权密码</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/04.png loading=lazy alt=img></p></li><li><p>将参数填写到Email报警媒介中</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/05.png loading=lazy alt=img></p></li><li><p>配置完成后测试是否能正常发送邮件</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/06.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/07.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/08.png loading=lazy alt=img></p></li></ol></li><li><p>将报警媒介添加到指定监控项的动作中</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/09.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/10.png loading=lazy alt=img></p><p>添加动作时，注意选用触发器示警度，然后选择大于等于某警告级别以上即可。</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/11.png loading=lazy alt=img></p><p>设置符合触发机制的操作行为：发现问题时发送的信息</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>Problem: <span class=o>{</span>EVENT.NAME<span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Problem started at <span class=o>{</span>EVENT.TIME<span class=o>}</span> on <span class=o>{</span>EVENT.DATE<span class=o>}</span>
+</span></span><span class=line><span class=cl>Problem name: <span class=o>{</span>EVENT.NAME<span class=o>}</span>
+</span></span><span class=line><span class=cl>Host: <span class=o>{</span>HOST.NAME<span class=o>}</span>
+</span></span><span class=line><span class=cl>Severity: <span class=o>{</span>EVENT.SEVERITY<span class=o>}</span>
+</span></span><span class=line><span class=cl>Operational data: <span class=o>{</span>EVENT.OPDATA<span class=o>}</span>
+</span></span><span class=line><span class=cl>Original problem ID: <span class=o>{</span>EVENT.ID<span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>{</span>TRIGGER.URL<span class=o>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/12.png loading=lazy alt=img></p><p>设置符合触发机制的操作行为：问题恢复时发送的信息</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>Resolved in <span class=o>{</span>EVENT.DURATION<span class=o>}</span>: <span class=o>{</span>EVENT.NAME<span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Problem has been resolved at <span class=o>{</span>EVENT.RECOVERY.TIME<span class=o>}</span> on <span class=o>{</span>EVENT.RECOVERY.DATE<span class=o>}</span>
+</span></span><span class=line><span class=cl>Problem name: <span class=o>{</span>EVENT.NAME<span class=o>}</span>
+</span></span><span class=line><span class=cl>Problem duration: <span class=o>{</span>EVENT.DURATION<span class=o>}</span>
+</span></span><span class=line><span class=cl>Host: <span class=o>{</span>HOST.NAME<span class=o>}</span>
+</span></span><span class=line><span class=cl>Severity: <span class=o>{</span>EVENT.SEVERITY<span class=o>}</span>
+</span></span><span class=line><span class=cl>Original problem ID: <span class=o>{</span>EVENT.ID<span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>{</span>TRIGGER.URL<span class=o>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/13.png loading=lazy alt=img></p></li><li><p>配置用户参数，设置收件人信息</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/14.png loading=lazy alt=img></p></li><li><p>制造报警，检查报警是否正常触发动作，邮件是否发送</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/15.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/16.png loading=lazy alt=img></p></li></ol><h4 id=3-发送钉钉报警>3. 发送钉钉报警</h4><ol><li><p>登陆钉钉在群里创建机器人生成api接口地址</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/17.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/18.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/19.png loading=lazy alt=img></p></li><li><p>编写钉钉信息发送脚本，设置钉钉报警媒介</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ <span class=nb>cd</span> /usr/lib/zabbix/alertscripts
+</span></span><span class=line><span class=cl>$ vim dingding.sh
+</span></span><span class=line><span class=cl><span class=c1>#!/bin/bash</span>
+</span></span><span class=line><span class=cl><span class=nv>to</span><span class=o>=</span><span class=nv>$1</span>
+</span></span><span class=line><span class=cl><span class=nv>subject</span><span class=o>=</span><span class=nv>$2</span>
+</span></span><span class=line><span class=cl><span class=nv>text</span><span class=o>=</span><span class=nv>$3</span>
+</span></span><span class=line><span class=cl>curl <span class=s1>&#39;https://oapi.dingtalk.com/robot/send?access_token=3581fa0977a8415fccfb9b27df3924cb31f059a67e08e8a61c9bf222cf7691b0&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-H <span class=s1>&#39;Content-Type: application/json&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-d <span class=s1>&#39;
+</span></span></span><span class=line><span class=cl><span class=s1>{&#34;msgtype&#34;: &#34;text&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>&#34;text&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>&#34;content&#34;: &#34;&#39;</span><span class=s2>&#34;</span><span class=nv>$text</span><span class=s2>&#34;</span><span class=s1>&#39;&#34;
+</span></span></span><span class=line><span class=cl><span class=s1>},
+</span></span></span><span class=line><span class=cl><span class=s1>&#34;at&#34;:{
+</span></span></span><span class=line><span class=cl><span class=s1>&#34;atMobiles&#34;: [ &#34;&#39;</span><span class=s2>&#34;</span><span class=nv>$to</span><span class=s2>&#34;</span><span class=s1>&#39;&#34; ],
+</span></span></span><span class=line><span class=cl><span class=s1>&#34;isAtAll&#34;: false
+</span></span></span><span class=line><span class=cl><span class=s1>}
+</span></span></span><span class=line><span class=cl><span class=s1>}&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ chmod +x dingding.sh
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/20.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/21.png loading=lazy alt=img></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>三个参数
+</span></span><span class=line><span class=cl><span class=o>{</span>ALERT.SENDTO<span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>{</span>ALERT.SUBJECT<span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>{</span>ALERT.MESSAGE<span class=o>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/22.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/23.png loading=lazy alt=img></p></li><li><p>设置动作条件触发后的行为：重新添加一个专门发送给钉钉的警告（问题警告、故障恢复）</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/24.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/25.png loading=lazy alt=img></p></li><li><p>显示报警信息</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/26.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/27.png loading=lazy alt=img></p></li></ol><h3 id=六高级功能>六、高级功能</h3><h4 id=1-自动发现>1. 自动发现</h4><p>自动发现主要应对多服务器监控需求，但是有前提条件，需要在每个被监控主机提前安装好zabbix agent才能实现。</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/28.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/29.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/30.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/31.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/32.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/33.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/34.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/35.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/36.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/37.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/38.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/39.png loading=lazy alt=img></p><p>添加一台新的主机，安装zabbix agent程序，修改配置文件并启动，等待被发现即自动添加即可。</p><h4 id=2-创建自定义监控模板-实现nginx流量监控>2. 创建自定义监控模板-实现nginx流量监控</h4><blockquote><p>实验前提：已实现对Linux主机的基础监控，Nginx流量监控会以新监控模板的方式加入到现有主机中。</p></blockquote><ol><li><p>在被监控主机安装部署Nginx服务，并开启状态监控模块</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ yum -y install gcc pcre-devel zlib-devel
+</span></span><span class=line><span class=cl>$ wget http://nginx.org/download/nginx-1.22.1.tar.gz
+</span></span><span class=line><span class=cl>$ tar -xf nginx-1.22.1.tar.gz
+</span></span><span class=line><span class=cl>$ <span class=nb>cd</span> nginx-1.22.1/
+</span></span><span class=line><span class=cl>$ ./configure --prefix<span class=o>=</span>/usr/local/nginx --with-http_stub_status_module <span class=o>&amp;&amp;</span> make <span class=o>&amp;&amp;</span> make install
+</span></span><span class=line><span class=cl><span class=c1>#完成Nginx的安装及统计模块的安装</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ vim /usr/local/nginx/conf/nginx.conf
+</span></span><span class=line><span class=cl>server <span class=o>{</span>
+</span></span><span class=line><span class=cl>	... ...
+</span></span><span class=line><span class=cl>	location /tongji <span class=o>{</span>
+</span></span><span class=line><span class=cl>		stub_status on<span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=c1>#修改配置文件开启统计模块</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ ln -s /usr/local/nginx/sbin/* /usr/local/sbin/
+</span></span><span class=line><span class=cl>$ nginx
+</span></span><span class=line><span class=cl><span class=c1>#启动nginx，并通过浏览器测试统计模块是否生效：http://ip/tongji</span>
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/40.png loading=lazy alt=img></p></li><li><p>在zabbix agent中添加Nginx数据采集脚本实现流量数据收集，并添加到自定义监控中</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ vim /etc/zabbix/zabbix_agentd.d/check_nginx.sh
+</span></span><span class=line><span class=cl><span class=c1>#!/bin/bash	 </span>
+</span></span><span class=line><span class=cl><span class=nv>HOST</span><span class=o>=</span><span class=s2>&#34;127.0.0.1&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>PORT</span><span class=o>=</span><span class=s2>&#34;80&#34;</span> 
+</span></span><span class=line><span class=cl><span class=c1># 检测 nginx 进程是否存在</span>
+</span></span><span class=line><span class=cl><span class=k>function</span> ping <span class=o>{</span>
+</span></span><span class=line><span class=cl>	/sbin/pidof nginx <span class=p>|</span> wc -l 
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=c1># 检测 nginx 性能</span>
+</span></span><span class=line><span class=cl><span class=k>function</span> active <span class=o>{</span>
+</span></span><span class=line><span class=cl>	/usr/bin/curl <span class=s2>&#34;http://</span><span class=nv>$HOST</span><span class=s2>:</span><span class=nv>$PORT</span><span class=s2>/tongji/&#34;</span> 2&gt;/dev/null<span class=p>|</span> grep <span class=s1>&#39;Active&#39;</span> <span class=p>|</span> awk <span class=s1>&#39;{print $NF}&#39;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>	
+</span></span><span class=line><span class=cl><span class=k>function</span> reading <span class=o>{</span>
+</span></span><span class=line><span class=cl>	/usr/bin/curl <span class=s2>&#34;http://</span><span class=nv>$HOST</span><span class=s2>:</span><span class=nv>$PORT</span><span class=s2>/tongji/&#34;</span> 2&gt;/dev/null<span class=p>|</span> grep <span class=s1>&#39;Reading&#39;</span> <span class=p>|</span> awk <span class=s1>&#39;{print $2}&#39;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=k>function</span> writing <span class=o>{</span>
+</span></span><span class=line><span class=cl>	/usr/bin/curl <span class=s2>&#34;http://</span><span class=nv>$HOST</span><span class=s2>:</span><span class=nv>$PORT</span><span class=s2>/tongji/&#34;</span> 2&gt;/dev/null<span class=p>|</span> grep <span class=s1>&#39;Writing&#39;</span> <span class=p>|</span> awk <span class=s1>&#39;{print $4}&#39;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=k>function</span> waiting <span class=o>{</span>
+</span></span><span class=line><span class=cl>	/usr/bin/curl <span class=s2>&#34;http://</span><span class=nv>$HOST</span><span class=s2>:</span><span class=nv>$PORT</span><span class=s2>/tongji/&#34;</span> 2&gt;/dev/null<span class=p>|</span> grep <span class=s1>&#39;Waiting&#39;</span> <span class=p>|</span> awk <span class=s1>&#39;{print $6}&#39;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=k>function</span> accepts <span class=o>{</span>
+</span></span><span class=line><span class=cl>	/usr/bin/curl <span class=s2>&#34;http://</span><span class=nv>$HOST</span><span class=s2>:</span><span class=nv>$PORT</span><span class=s2>/tongji/&#34;</span> 2&gt;/dev/null<span class=p>|</span> awk <span class=nv>NR</span><span class=o>==</span><span class=m>3</span> <span class=p>|</span> awk <span class=s1>&#39;{print $1}&#39;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=k>function</span> handled <span class=o>{</span>
+</span></span><span class=line><span class=cl>	/usr/bin/curl <span class=s2>&#34;http://</span><span class=nv>$HOST</span><span class=s2>:</span><span class=nv>$PORT</span><span class=s2>/tongji/&#34;</span> 2&gt;/dev/null<span class=p>|</span> awk <span class=nv>NR</span><span class=o>==</span><span class=m>3</span> <span class=p>|</span> awk <span class=s1>&#39;{print $2}&#39;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=k>function</span> requests <span class=o>{</span>
+</span></span><span class=line><span class=cl>	/usr/bin/curl <span class=s2>&#34;http://</span><span class=nv>$HOST</span><span class=s2>:</span><span class=nv>$PORT</span><span class=s2>/tongji/&#34;</span> 2&gt;/dev/null<span class=p>|</span> awk <span class=nv>NR</span><span class=o>==</span><span class=m>3</span> <span class=p>|</span> awk <span class=s1>&#39;{print $3}&#39;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=c1># 执行function</span>
+</span></span><span class=line><span class=cl><span class=nv>$1</span>
+</span></span><span class=line><span class=cl><span class=c1>#-------------------------------END------------------------------------------------</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ <span class=nb>cd</span> /etc/zabbix/zabbix_agentd.d/
+</span></span><span class=line><span class=cl>$ chmod +x check_nginx.sh
+</span></span><span class=line><span class=cl>$ ./check_nginx.sh ping
+</span></span><span class=line><span class=cl>$ ./check_nginx.sh requests
+</span></span><span class=line><span class=cl><span class=c1>#编写脚本，设置执行权限，测试关键词数据过滤是否有效</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ vim /etc/zabbix/zabbix_agentd.conf
+</span></span><span class=line><span class=cl><span class=nv>UserParameter</span><span class=o>=</span>nginx.status<span class=o>[</span>*<span class=o>]</span>,/etc/zabbix/zabbix_agentd.d/check_nginx.sh <span class=nv>$1</span>
+</span></span><span class=line><span class=cl>$ systemctl restart zabbix-agent
+</span></span><span class=line><span class=cl><span class=c1>#将设置好的脚本添加到zabbix agent配置文件中，设置为自定义监控</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>在zabbix server端安装专门的数据收集工具，将zabbix agent上收集的nginx流量数据拉取到本地</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ yum -y install zabbix-get
+</span></span><span class=line><span class=cl>$ zabbix_get -s zabbix-agent-IP -k <span class=s1>&#39;nginx.status[ping]&#39;</span>
+</span></span><span class=line><span class=cl>$ zabbix_get -s zabbix-agent-IP -k <span class=s1>&#39;nginx.status[requests]&#39;</span>
+</span></span><span class=line><span class=cl><span class=c1>#使用zabbix server端测试能否连接到zabbix agent端设置的自定义监控，并正常获取数据</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>在zabbix server端的web管理界面中添加Nginx数据采集模板，完成自动数据采集（应用集、监控项、触发器、图形）（详见以下截图）</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/41.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/42.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/43.png loading=lazy alt=img></p><p>选中自己添加的 nginx 模板，选择上方的应用集按钮，创建一个叫 nginx 的应用集（详见以下截图）</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/44.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/45.png loading=lazy alt=img></p><p>选择上方的监控项，点击创建监控项，名称：nginx ping 和 nginx requests 分两次完成创建（详见以下截图）</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>名称：nginx ping
+</span></span><span class=line><span class=cl>键值：nginx.status[ping]
+</span></span><span class=line><span class=cl>应用集：nginx
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>名称：nginx requests
+</span></span><span class=line><span class=cl>键值：nginx.status[requests]
+</span></span><span class=line><span class=cl>应用集：nginx
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/46.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/47.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/48.png loading=lazy alt=img></p><p>选择上方的触发器，然后点击创建触发器（详见以下截图）</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>名称：nginx is down
+</span></span><span class=line><span class=cl>表达式：添加自己定义的ping的监控项<span class=o>[</span>ping<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=c1>#还可以仿照继续添加requests的触发器</span>
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/49.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/50.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/51.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/52.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/53.png loading=lazy alt=img></p><p>选中上方的图形，点击创建图形（详见以下截图）</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>名称：nginx requests
+</span></span><span class=line><span class=cl>监控项：选择自己已经创建好了的监控项<span class=o>[</span>requests<span class=o>]</span>
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/54.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/55.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/56.png loading=lazy alt=img></p></li><li><p>最终将自己定义的监控项添加到已监控的主机中即可</p><p>在配置中找到已经实现监控的主机，添加自定义的nginx监控模板即可（详见以下截图）</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/57.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/58.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/59.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/60.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/61.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/62.png loading=lazy alt=img></p></li></ol><h3 id=七mysql数据库配置>七、mysql数据库配置</h3><ol><li>Install Zabbix agent and MySQL client. If necessary, add the path to the &lsquo;mysql&rsquo; and &lsquo;mysqladmin&rsquo; utilities to the global environment variable PATH.</li></ol><p><strong>作用</strong>：<br>安装 Zabbix Agent 用于数据采集，安装 MySQL 客户端工具（mysql、mysqladmin）用于执行监控命令。如果命令不在 PATH 中，Agent 无法调用它们。</p><p><strong>操作</strong>：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 安装 Zabbix Agent（假设已配置官方仓库）</span>
+</span></span><span class=line><span class=cl>dnf -y install zabbix-agent
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 安装 MySQL/MariaDB 客户端</span>
+</span></span><span class=line><span class=cl>dnf -y install mariadb mariadb-server   <span class=c1># 或 mariadb</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证命令是否存在</span>
+</span></span><span class=line><span class=cl>which mysql
+</span></span><span class=line><span class=cl>which mysqladmin
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 如果命令不在 PATH 中（极少见），添加到全局 PATH</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s1>&#39;export PATH=$PATH:/usr/local/mysql/bin&#39;</span> &gt;&gt; /etc/profile
+</span></span><span class=line><span class=cl><span class=nb>source</span> /etc/profile
+</span></span></code></pre></td></tr></table></div></div><ol start=2><li>Copy the &rsquo;template_db_mysql.conf&rsquo; file with user parameters into folder with Zabbix agent configuration (/etc/zabbix/zabbix_agentd.d/ by default). Don&rsquo;t forget to restart Zabbix agent.</li></ol><p><strong>作用</strong>：<br>把官方模板提供的 UserParameter 定义文件复制到 Agent 配置目录，让 Agent 知道如何采集 MySQL 的各种指标（如连接数、查询率、复制状态等）。</p><p><strong>操作</strong>：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 复制文件（假设文件已下载到当前目录）</span>
+</span></span><span class=line><span class=cl>cp -a /usr/share/doc/zabbix-agent/userparameter_mysql.conf /etc/zabbix/zabbix_agentd.d/
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 设置正确权限（重要！）</span>
+</span></span><span class=line><span class=cl>chown zabbix:zabbix /etc/zabbix/zabbix_agentd.d/userparameter_mysql.conf
+</span></span><span class=line><span class=cl>chmod <span class=m>644</span> /etc/zabbix/zabbix_agentd.d/userparameter_mysql.conf
+</span></span><span class=line><span class=cl><span class=c1># 重启 Agent 使配置生效</span>
+</span></span><span class=line><span class=cl>systemctl restart zabbix-agent
+</span></span></code></pre></td></tr></table></div></div><ol start=3><li>Create the MySQL user that will be used for monitoring (&rsquo;<password>&rsquo; at your discretion). For example:</li></ol><p>CREATE USER &lsquo;zbx_monitor&rsquo;@&rsquo;%&rsquo; IDENTIFIED BY &lsquo;<password>&rsquo;;<br>GRANT REPLICATION CLIENT,PROCESS,SHOW DATABASES,SHOW VIEW ON <em>.</em> TO &lsquo;zbx_monitor&rsquo;@&rsquo;%&rsquo;;<br>（MariaDB 10.5.8+ 额外加 SLAVE MONITOR）</p><p><strong>作用</strong>：<br>创建一个专用、低权限的 MySQL 用户供 Zabbix Agent 登录采集数据，不能用 root 用户（安全风险高）。这些权限是最小必要权限，用于执行 SHOW STATUS、SHOW PROCESSLIST、SHOW SLAVE STATUS 等命令。</p><p><strong>操作</strong>：<br>登录 MySQL/MariaDB 执行以下 SQL（把 <password>替换成你自己的强密码）：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-sql data-lang=sql><span class=line><span class=cl><span class=k>CREATE</span><span class=w> </span><span class=k>USER</span><span class=w> </span><span class=s1>&#39;zbx_monitor&#39;</span><span class=o>@</span><span class=s1>&#39;%&#39;</span><span class=w> </span><span class=n>IDENTIFIED</span><span class=w> </span><span class=k>BY</span><span class=w> </span><span class=s1>&#39;123456&#39;</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=k>GRANT</span><span class=w> </span><span class=n>REPLICATION</span><span class=w> </span><span class=n>CLIENT</span><span class=p>,</span><span class=w> </span><span class=n>PROCESS</span><span class=p>,</span><span class=w> </span><span class=k>SHOW</span><span class=w> </span><span class=n>DATABASES</span><span class=p>,</span><span class=w> </span><span class=k>SHOW</span><span class=w> </span><span class=k>VIEW</span><span class=w> </span><span class=k>ON</span><span class=w> </span><span class=o>*</span><span class=p>.</span><span class=o>*</span><span class=w> </span><span class=k>TO</span><span class=w> </span><span class=s1>&#39;zbx_monitor&#39;</span><span class=o>@</span><span class=s1>&#39;%&#39;</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c1>-- 如果是 MariaDB 10.5.8+ 或 Enterprise 版，额外执行：
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>GRANT</span><span class=w> </span><span class=n>SLAVE</span><span class=w> </span><span class=n>MONITOR</span><span class=w> </span><span class=k>ON</span><span class=w> </span><span class=o>*</span><span class=p>.</span><span class=o>*</span><span class=w> </span><span class=k>TO</span><span class=w> </span><span class=s1>&#39;zbx_monitor&#39;</span><span class=o>@</span><span class=s1>&#39;%&#39;</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=n>FLUSH</span><span class=w> </span><span class=k>PRIVILEGES</span><span class=p>;</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><ol start=4><li>Create &lsquo;.my.cnf&rsquo; configuration file in the home directory of Zabbix agent for Linux distributions (/var/lib/zabbix by default) or &lsquo;my.cnf&rsquo; in c:\ for Windows. For example:</li></ol><p>[client]<br>protocol=tcp<br>user=&lsquo;zbx_monitor&rsquo;<br>password=&rsquo;<password>&rsquo;</p><p><strong>作用</strong>：<br>在 Agent 的家目录下创建一个配置文件，存放监控用户的用户名和密码。Agent 执行 mysql 命令时会自动读取这个文件登录，避免在脚本或命令行明文写密码，提高安全性。</p><p><strong>操作</strong>（Linux 系统）：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 切换到 zabbix 用户创建文件</span>
+</span></span><span class=line><span class=cl>zabbix mkdir -p /var/lib/zabbix
+</span></span><span class=line><span class=cl>zabbix touch /var/lib/zabbix/.my.cnf
+</span></span><span class=line><span class=cl>chmod <span class=m>600</span> /var/lib/zabbix/.my.cnf   <span class=c1># 只有 zabbix 可读</span>
+</span></span><span class=line><span class=cl>chown -R zabbix:zabbix /var/lib/zabbix/
+</span></span><span class=line><span class=cl><span class=c1># 写入内容（替换密码）</span>
+</span></span><span class=line><span class=cl>cat &gt; /var/lib/zabbix/.my.cnf <span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>[client]
+</span></span></span><span class=line><span class=cl><span class=s>protocol=tcp
+</span></span></span><span class=line><span class=cl><span class=s>user=zbx_monitor
+</span></span></span><span class=line><span class=cl><span class=s>password=123456
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>systemctl restart zabbix-agent.service 
+</span></span><span class=line><span class=cl>systemctl restart zabbix-server.service
+</span></span></code></pre></td></tr></table></div></div><p><strong>SELinux 系统额外处理</strong>（如果启用 SELinux）：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>chcon -t zabbix_var_lib_t /var/lib/zabbix/.my.cnf
+</span></span></code></pre></td></tr></table></div></div><p>这些就是每一步的<strong>作用</strong>和<strong>具体操作</strong>，完整复制到笔记里即可。配置完后，在 Zabbix 界面链接这个模板到 MySQL 主机，等待数据采集。如果遇到权限错误或数据不采集，再告诉我具体报错，我帮你继续排查。</p><h3 id=八模版创建>八、模版创建</h3><p>需要提前配置好虚拟机的zabbix-agent的代理设置，ip指向代理或者主服务</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span><span class=lnt>133
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>在nginx中添加location块方便统计
+</span></span><span class=line><span class=cl>location /nginx_status <span class=o>{</span>
+</span></span><span class=line><span class=cl>        stub_status on<span class=p>;</span>
+</span></span><span class=line><span class=cl>        access_log off<span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1.在子配置文件/etc/zabbix/zabbix_agentd.d中添加一下语句
+</span></span><span class=line><span class=cl>vim /etc/zabbix/zabbix_agentd.d/nginx_status.conf 
+</span></span><span class=line><span class=cl><span class=nv>UserParameter</span><span class=o>=</span>nginx.status<span class=o>[</span>*<span class=o>]</span>,/etc/zabbix/zabbix_agentd.d/scripts/nginx_status.sh <span class=nv>$1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2.在子配置文件中创建目录，在其中创建脚本文件
+</span></span><span class=line><span class=cl>mkdir scripts
+</span></span><span class=line><span class=cl><span class=nb>cd</span> scripts
+</span></span><span class=line><span class=cl>vim nginx_status.sh
+</span></span><span class=line><span class=cl>chmod +x nginx_status.sh
+</span></span><span class=line><span class=cl>--------------------------------------------------------
+</span></span><span class=line><span class=cl>以下是考试题目脚本
+</span></span><span class=line><span class=cl>创建自定义监控模板用来监控 nginx 服务， 模板名称： Nginx Status。 （ <span class=m>5</span> 分）
+</span></span><span class=line><span class=cl>监控项：
+</span></span><span class=line><span class=cl>a. nginx 运行状态
+</span></span><span class=line><span class=cl>b. nginx 访问量统计
+</span></span><span class=line><span class=cl>触发器：
+</span></span><span class=line><span class=cl>a. nginx 未运行时， 报警级别标记为： 严重
+</span></span><span class=line><span class=cl>b. nginx 访问量大于 <span class=m>1000</span> 时， 报警级别标记为： 警告
+</span></span><span class=line><span class=cl>图形：
+</span></span><span class=line><span class=cl>a. 为 nginx 的访问量绘制图形
+</span></span><span class=line><span class=cl>--------------------------------------------------------
+</span></span><span class=line><span class=cl><span class=c1>#!/bin/bash</span>
+</span></span><span class=line><span class=cl><span class=c1># -----------------------------------------------------------</span>
+</span></span><span class=line><span class=cl><span class=c1># 脚本名称: nginx_monitor.sh</span>
+</span></span><span class=line><span class=cl><span class=c1># 功能: 用于 Zabbix 监控 Nginx 状态和访问量</span>
+</span></span><span class=line><span class=cl><span class=c1># -----------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>NGINX_HOST</span><span class=o>=</span><span class=s2>&#34;127.0.0.1&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>NGINX_PORT</span><span class=o>=</span><span class=s2>&#34;80&#34;</span> <span class=c1># 注意：题目中Server-2如果改了端口需在此调整，通常监控本地用80即可，或者根据实际情况</span>
+</span></span><span class=line><span class=cl><span class=nv>NGINX_STATUS_URL</span><span class=o>=</span><span class=s2>&#34;http://</span><span class=si>${</span><span class=nv>NGINX_HOST</span><span class=si>}</span><span class=s2>:</span><span class=si>${</span><span class=nv>NGINX_PORT</span><span class=si>}</span><span class=s2>/nginx_status&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 接收参数</span>
+</span></span><span class=line><span class=cl><span class=nv>METRIC</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>case</span> <span class=nv>$METRIC</span> in
+</span></span><span class=line><span class=cl>    <span class=c1># 1. 对应题目 3.a -&gt; Nginx 运行状态</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 逻辑：检查 nginx 进程数，有进程返回 1，无进程返回 0</span>
+</span></span><span class=line><span class=cl>    run_status<span class=o>)</span>
+</span></span><span class=line><span class=cl>        /usr/sbin/pidof nginx <span class=p>|</span> wc -l
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># 2. 对应题目 3.b -&gt; Nginx 访问量统计</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 逻辑：获取 Active connections (当前活动连接数/访问量)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 注意：题目说&#34;访问量大于1000&#34;，通常指当前并发连接数(Active connections)</span>
+</span></span><span class=line><span class=cl>    active_connections<span class=o>)</span>
+</span></span><span class=line><span class=cl>        /usr/bin/curl -s <span class=s2>&#34;</span><span class=si>${</span><span class=nv>NGINX_STATUS_URL</span><span class=si>}</span><span class=s2>&#34;</span> <span class=p>|</span> grep <span class=s1>&#39;Active&#39;</span> <span class=p>|</span> awk <span class=s1>&#39;{print $3}&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 如果需要累计总请求数 (根据题目语境，&#34;访问量&#34;也有可能指 total requests，备用)</span>
+</span></span><span class=line><span class=cl>    total_requests<span class=o>)</span>
+</span></span><span class=line><span class=cl>        /usr/bin/curl -s <span class=s2>&#34;</span><span class=si>${</span><span class=nv>NGINX_STATUS_URL</span><span class=si>}</span><span class=s2>&#34;</span> <span class=p>|</span> awk <span class=s1>&#39;/server accepts handled requests/ {getline; print $3}&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    *<span class=o>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;Usage: </span><span class=nv>$0</span><span class=s2> {run_status|active_connections}&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>exit</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl><span class=k>esac</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>--------------------------------------------------------
+</span></span><span class=line><span class=cl>以下是上课脚本
+</span></span><span class=line><span class=cl>--------------------------------------------------------
+</span></span><span class=line><span class=cl><span class=c1>#!/bin/bash</span>
+</span></span><span class=line><span class=cl><span class=c1># Nginx Status Monitoring Script for Zabbix</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>HOST</span><span class=o>=</span><span class=s2>&#34;127.0.0.1&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>PORT</span><span class=o>=</span><span class=s2>&#34;80&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>STATUS_URL</span><span class=o>=</span><span class=s2>&#34;http://</span><span class=nv>$HOST</span><span class=s2>:</span><span class=nv>$PORT</span><span class=s2>/nginx_status&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 检查参数</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> -z <span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=s2>&#34;Usage: </span><span class=nv>$0</span><span class=s2> {ping|active|reading|writing|waiting|accepts|handled|requests}&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>exit</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 处理存活检测 (修复您之前的 ping 报错)</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> <span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span> <span class=o>==</span> <span class=s2>&#34;ping&#34;</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>    /usr/bin/curl -s --connect-timeout <span class=m>2</span> <span class=s2>&#34;</span><span class=nv>$STATUS_URL</span><span class=s2>&#34;</span> &gt; /dev/null
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=o>[</span> <span class=nv>$?</span> -eq <span class=m>0</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>    <span class=k>fi</span>
+</span></span><span class=line><span class=cl>    <span class=nb>exit</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 获取 Nginx 状态原始数据</span>
+</span></span><span class=line><span class=cl><span class=nv>STATUS_DATA</span><span class=o>=</span><span class=k>$(</span>/usr/bin/curl -s <span class=s2>&#34;</span><span class=nv>$STATUS_URL</span><span class=s2>&#34;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 如果抓取不到数据则直接退出</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> -z <span class=s2>&#34;</span><span class=nv>$STATUS_DATA</span><span class=s2>&#34;</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>    <span class=nb>echo</span> <span class=m>0</span>
+</span></span><span class=line><span class=cl>    <span class=nb>exit</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 根据参数解析对应指标</span>
+</span></span><span class=line><span class=cl><span class=k>case</span> <span class=nv>$1</span> in
+</span></span><span class=line><span class=cl>    active<span class=o>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$STATUS_DATA</span><span class=s2>&#34;</span> <span class=p>|</span> grep <span class=s1>&#39;Active&#39;</span> <span class=p>|</span> awk <span class=s1>&#39;{print $NF}&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl>    reading<span class=o>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$STATUS_DATA</span><span class=s2>&#34;</span> <span class=p>|</span> grep <span class=s1>&#39;Reading&#39;</span> <span class=p>|</span> awk <span class=s1>&#39;{print $2}&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl>    writing<span class=o>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$STATUS_DATA</span><span class=s2>&#34;</span> <span class=p>|</span> grep <span class=s1>&#39;Writing&#39;</span> <span class=p>|</span> awk <span class=s1>&#39;{print $4}&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl>    waiting<span class=o>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$STATUS_DATA</span><span class=s2>&#34;</span> <span class=p>|</span> grep <span class=s1>&#39;Waiting&#39;</span> <span class=p>|</span> awk <span class=s1>&#39;{print $6}&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl>    accepts<span class=o>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$STATUS_DATA</span><span class=s2>&#34;</span> <span class=p>|</span> awk <span class=s1>&#39;NR==3 {print $1}&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl>    handled<span class=o>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$STATUS_DATA</span><span class=s2>&#34;</span> <span class=p>|</span> awk <span class=s1>&#39;NR==3 {print $2}&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl>    requests<span class=o>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;</span><span class=nv>$STATUS_DATA</span><span class=s2>&#34;</span> <span class=p>|</span> awk <span class=s1>&#39;NR==3 {print $3}&#39;</span>
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl>    *<span class=o>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>echo</span> <span class=s2>&#34;Error: Invalid parameter.&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=nb>exit</span> <span class=m>1</span>
+</span></span><span class=line><span class=cl>        <span class=p>;;</span>
+</span></span><span class=line><span class=cl><span class=k>esac</span>
+</span></span><span class=line><span class=cl>----------------------------------------------------
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/cluster-10/63.png loading=lazy alt=img></p></section><footer class=article-footer><section class=article-tags><a href=/fuyou/tags/%E9%9B%86%E7%BE%A4/>集群</a>
+<a href=/fuyou/tags/obsidian/>Obsidian</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>本作品采用 CC BY-NC-SA 4.0 许可协议</span></section><section class=article-lastmod><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<span>最后更新于 2026-07-11 16:45 +0800</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/fuyou/p/cluster-06/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-06/1200/675 loading=lazy data-key=cluster-06 data-hash=https://picsum.photos/seed/fuyou-cluster-06/1200/675></div><div class=article-details><h2 class=article-title>LVS 负载均衡集群部署</h2></div></a></article><article class=has-image><a href=/fuyou/p/cluster-09/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-09/1200/675 loading=lazy data-key=cluster-09 data-hash=https://picsum.photos/seed/fuyou-cluster-09/1200/675></div><div class=article-details><h2 class=article-title>MooseFS 分布式存储系统部署</h2></div></a></article><article class=has-image><a href=/fuyou/p/cluster-07/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-07/1200/675 loading=lazy data-key=cluster-07 data-hash=https://picsum.photos/seed/fuyou-cluster-07/1200/675></div><div class=article-details><h2 class=article-title>Squid 代理服务器部署与缓存策略</h2></div></a></article><article class=has-image><a href=/fuyou/p/cluster-08/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-08/1200/675 loading=lazy data-key=cluster-08 data-hash=https://picsum.photos/seed/fuyou-cluster-08/1200/675></div><div class=article-details><h2 class=article-title>iSCSI 块存储部署与配置</h2></div></a></article><article class=has-image><a href=/fuyou/p/cluster-04/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-04/1200/675 loading=lazy data-key=cluster-04 data-hash=https://picsum.photos/seed/fuyou-cluster-04/1200/675></div><div class=article-details><h2 class=article-title>DevOps 构建：基于 GitLab 和 Jenkins 的 CI/CD 实践</h2></div></a></article></div></div></aside>...<div class=comment></div><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 小杨</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.26.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/fuyou/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script><style>body{background:url(https://luckycloveryh.github.io/fuyou/background/jinlin.png)no-repeat 50% 0;background-size:cover;background-attachment:fixed}@media(max-width:767px){body{background-attachment:scroll;background-position:50% 0}}.article-details{position:relative;z-index:1}.article-title,.article-title a{color:var(--card-text-color-main)!important}.search-form input{background-color:var(--card-background)!important;color:var(--card-text-color-main)!important;border-color:var(--card-separator-color)!important}.search-form button{background-color:transparent!important;color:var(--card-text-color-secondary)!important}.left-sidebar .site-name,.left-sidebar .site-name a,.left-sidebar .site-description,.left-sidebar #main-menu li a,.left-sidebar #main-menu li.current a,.left-sidebar #dark-mode-toggle,.left-sidebar #i18n-switch,.left-sidebar .menu-social svg,.right-sidebar .widget-icon svg,.right-sidebar .widget-title,.site-footer{color:#fff!important;stroke:#fff!important;text-shadow:0 1px 4px rgba(0,0,0,.65)}.left-sidebar #main-menu li a:hover,.left-sidebar .site-name a:hover{color:#fff!important;opacity:.9}</style><script src=https://luckycloveryh.github.io/fuyou/background/sakura.js></script><div id=particles-js></div><script src=https://luckycloveryh.github.io/fuyou/background/particles.min.js></script><script>window.matchMedia("(min-width: 768px)").matches&&particlesJS.load("particles-js","https://luckycloveryh.github.io/fuyou/background/particlesjs-config.json",function(){console.log("particles.js loaded - callback")})</script><style>#particles-js{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}#particles-js canvas{pointer-events:none!important}@media(max-width:767px){#particles-js,#canvas_sakura{display:none!important}}</style><style>:root{--base-font-family:"Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Segoe UI", Arial, sans-serif;--article-font-family:var(--base-font-family);--code-font-family:"Cascadia Mono", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei UI", monospace}</style><style>#TableOfContents>ul,ol{ul, ol { display: none; } .open { display: block; }}</style><script>function initTocHide(){let e=document.querySelector(".widget--toc");if(!e)return;window.fuyouTocScrollHandler&&window.removeEventListener("scroll",window.fuyouTocScrollHandler),window.fuyouTocScrollHandler=function(){let n=document.querySelectorAll(".open");n.length>0&&n.forEach(e=>{e.classList.remove("open")});let t=document.querySelector(".active-class");if(!t)return;t.children.length>1&&t.children[1].classList.add("open");let e=t.parentElement;do e.classList.add("open"),e=e.parentElement.parentElement;while(e!==void 0&&(e.localName==="ul"||e.localName==="ol"))},window.addEventListener("scroll",window.fuyouTocScrollHandler,{passive:!0})}initTocHide()</script><style>#backTopBtn{display:none;position:fixed;right:30px;bottom:30px;z-index:99;cursor:pointer;width:30px;height:30px;background-image:url(https://luckycloveryh.github.io/fuyou/icons/backTop.svg);background-repeat:no-repeat;background-position:50%;background-size:contain}@media(max-width:767px){#backTopBtn{right:14px;bottom:calc(82px + env(safe-area-inset-bottom));width:42px;height:42px;border:0;border-radius:50%;background-color:rgba(35,35,35,.74);background-size:22px 22px;box-shadow:0 8px 20px rgba(0,0,0,.28)}}</style><script>function initScrollTop(){let e=document.getElementById("backTopBtn");e||(e=document.createElement("button"),e.id="backTopBtn",e.type="button",e.setAttribute("aria-label","Back to top"),e.onclick=backToTop,document.body.appendChild(e)),window.fuyouBackTopHandler&&window.removeEventListener("scroll",window.fuyouBackTopHandler),window.fuyouBackTopHandler=function(){document.body.scrollTop>20||document.documentElement.scrollTop>20?e.style.display="block":e.style.display="none"},window.addEventListener("scroll",window.fuyouBackTopHandler,{passive:!0}),window.fuyouBackTopHandler()}function backToTop(){window.scrollTo({top:0,behavior:"smooth"})}initScrollTop()</script><style>.highlight{max-height:400px;overflow:hidden}.code-show{max-height:none!important}.code-more-box{width:100%;padding-top:78px;background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0)),to(#fff));position:absolute;left:0;right:0;bottom:0;z-index:1}.code-more-btn{display:block;margin:auto;width:44px;height:22px;background:#f0f0f5;border-top-left-radius:8px;border-top-right-radius:8px;padding-top:6px;cursor:pointer}.code-more-img{cursor:pointer!important;display:block;margin:auto;width:22px;height:16px}</style><script>function initCodeMoreBox(){let e=document.querySelectorAll(".highlight");if(!e)return;e.forEach(e=>{if(e.scrollHeight<=e.clientHeight)return;let t=document.createElement("div");t.classList.add("code-more-box");let n=document.createElement("span");n.classList.add("code-more-btn"),n.addEventListener("click",()=>{e.classList.add("code-show"),t.style.display="none",window.dispatchEvent(new Event("resize"))});let s=document.createElement("img");s.classList.add("code-more-img"),s.src="https://luckycloveryh.github.io/fuyou/icons/codeMore.png",n.appendChild(s),t.appendChild(n),e.appendChild(t)})}initCodeMoreBox()</script><script>const cdnPath="https://cdn.jsdelivr.net/gh/letere-gzj/live2d-widget-v3@main",config={path:{homePath:"/",modelPath:cdnPath+"/Resources/",cssPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu.css",tipsJsonPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu-tips.json",tipsJsPath:cdnPath+"/waifu-tips.js",live2dCorePath:cdnPath+"/Core/live2dcubismcore.js",live2dSdkPath:cdnPath+"/live2d-sdk.js"},tools:["hitokoto","asteroids","express","switch-model","switch-texture","photo","info","quit"],drag:{enable:!0,direction:["x","y"]},switchType:"order"};function loadExternalResource(e,t){return new Promise((n,s)=>{let o;t==="css"?(o=document.createElement("link"),o.rel="stylesheet",o.href=e):t==="js"&&(o=document.createElement("script"),o.src=e),o&&(o.onload=()=>n(e),o.onerror=()=>s(e),document.head.appendChild(o))})}let live2dInitialized=!1;function initLive2d(){if(live2dInitialized)return;window.matchMedia("(min-width: 768px)").matches&&Promise.all([loadExternalResource(config.path.cssPath,"css"),loadExternalResource(config.path.live2dCorePath,"js"),loadExternalResource(config.path.live2dSdkPath,"js"),loadExternalResource(config.path.tipsJsPath,"js")]).then(()=>{initWidget({waifuPath:config.path.tipsJsonPath,cdnPath:config.path.modelPath,tools:config.tools,dragEnable:config.drag.enable,dragDirection:config.drag.direction,switchType:config.switchType}),live2dInitialized=!0}).catch(e=>{console.error("Failed to load live2d:",e)})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",initLive2d):initLive2d()</script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css><style>@media(max-width:767px){.aplayer.aplayer-fixed,.aplayer.aplayer-fixed .aplayer-body{max-width:100vw}.aplayer.aplayer-fixed .aplayer-body{padding-right:18px;padding-bottom:env(safe-area-inset-bottom)}.aplayer.aplayer-fixed .aplayer-info{width:calc(100vw - 66px)}.aplayer.aplayer-fixed .aplayer-lrc{display:none!important}}</style><div id=aplayer></div><script src=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js></script><script>(function(){const e="https://luckycloveryh.github.io/fuyou/",t=document.getElementById("aplayer");if(!t||window.ap)return;window.ap=new APlayer({container:t,fixed:!0,lrcType:3,audio:[{name:"归期",artist:"钱润玉",url:e+"music/归期-钱润玉/song.mp3",cover:e+"music/归期-钱润玉/cover.jpg"}]})})()</script><script>window.addEventListener("beforeunload",()=>{if(!window.ap)return;const e={index:window.ap.list.index,currentTime:window.ap.audio.currentTime,paused:window.ap.paused};sessionStorage.setItem("playInfo",JSON.stringify(e))}),window.addEventListener("load",()=>{if(!window.ap)return;if(window._pjaxNavigating)return;const e=JSON.parse(sessionStorage.getItem("playInfo"));if(!e)return;window.ap.list.switch(e.index),setTimeout(()=>{if(window.ap.seek(e.currentTime),!e.paused){const e=window.ap.play();e&&typeof e.catch=="function"&&e.catch(()=>{})}},500)}),document.addEventListener("pjax:send",()=>{window._pjaxNavigating=!0}),document.addEventListener("pjax:complete",()=>{window._pjaxNavigating=!1})</script><script>window.fuyouPjaxInitialized=window.fuyouPjaxInitialized||!1;function reinitFuyouPageScripts(){try{window.Stack&&window.Stack.init&&window.Stack.init()}catch(e){console.warn("Stack初始化失败:",e)}try{typeof initTocHide=="function"&&initTocHide(),typeof initScrollTop=="function"&&initScrollTop(),typeof initCodeMoreBox=="function"&&initCodeMoreBox(),typeof showHideView=="function"&&showHideView(),typeof renderKaTeX=="function"&&renderKaTeX()}catch(e){console.warn("页面脚本重新初始化失败:",e)}try{typeof RENDERER!="undefined"&&RENDERER.setup()}catch(e){console.warn("底部小鱼初始化失败:",e)}}function shouldFuyouHandleLink(e,t){if(!t||e.defaultPrevented)return!1;if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return!1;if(t.target&&t.target!=="_self")return!1;if(t.hasAttribute("download"))return!1;const n=new URL(t.href,window.location.href);return n.origin===window.location.origin&&!!n.pathname.startsWith("/fuyou/")&&(n.pathname!==window.location.pathname||n.search!==window.location.search)&&!(n.hash&&n.pathname===window.location.pathname&&n.search===window.location.search)}async function fuyouLoadPage(e,t){document.dispatchEvent(new CustomEvent("pjax:send")),window._pjaxNavigating=!0;try{const s=await fetch(e,{headers:{"X-Requested-With":"fuyou-pjax"},credentials:"same-origin"});if(!s.ok)throw new Error("HTTP "+s.status);const r=await s.text(),n=(new DOMParser).parseFromString(r,"text/html"),o=n.querySelector(".main-container"),i=document.querySelector(".main-container");if(!o||!i){window.location.href=e;return}document.title=n.title,document.body.className=n.body.className,i.replaceWith(o);const c=document.querySelectorAll(".js-Pjax"),a=n.querySelectorAll(".js-Pjax");c.forEach((e,t)=>{a[t]&&e.replaceWith(a[t])}),t&&history.pushState({fuyouPjax:!0},"",e),window.scrollTo({top:0,behavior:"auto"}),reinitFuyouPageScripts(),document.dispatchEvent(new CustomEvent("pjax:complete"))}catch(t){console.warn("无刷新切换失败，回退到普通跳转:",t),window.location.href=e}finally{window._pjaxNavigating=!1}}window.addEventListener("load",()=>{if(window.fuyouPjaxInitialized)return;window.fuyouPjaxInitialized=!0,history.replaceState({fuyouPjax:!0},"",window.location.href),document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("a[href]");if(!shouldFuyouHandleLink(e,t))return;e.preventDefault(),fuyouLoadPage(t.href,!0)}),window.addEventListener("popstate",()=>{fuyouLoadPage(window.location.href,!1)}),window.pjax={refresh:function(){},loadUrl:function(e){fuyouLoadPage(e,!0)}}})</script><div class=js-Pjax><script>(function(){let t=document.querySelector(".comment");if(!t)return;let e=document.createElement("script");e.setAttribute("src","https://giscus.app/client.js"),e.setAttribute("data-repo",""),e.setAttribute("data-repo-id",""),e.setAttribute("data-category",""),e.setAttribute("data-category-id",""),e.setAttribute("data-mapping",""),e.setAttribute("data-strict",""),e.setAttribute("data-reactions-enabled","1"),e.setAttribute("data-emit-metadata","0"),e.setAttribute("data-input-position",""),e.setAttribute("data-theme",""),e.setAttribute("data-lang",""),e.async=!0,e.crossOrigin="anonymous",t.appendChild(e)})(document)</script></div><script>async function renderKaTeX(){let e=document.querySelector(".math-katex");if(!e)return;for(;typeof renderMathInElement!="function";)await delay(500);renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],ignoredClasses:["gist"]})}function delay(e){return new Promise(t=>{setTimeout(t,e)})}document.addEventListener("pjax:complete",()=>{renderKaTeX()})</script><script src=https://luckycloveryh.github.io/fuyou/js/topbar.min.js></script><script>topbar.config({barColors:{0:"rgba(255, 255, 255, 1)",1.0:"rgba(0, 149, 234, 1)"}}),document.addEventListener("pjax:send",()=>{topbar.show()}),document.addEventListener("pjax:complete",()=>{topbar.hide()})</script><script defer src=https://cn.vercount.one/js></script><script>function showHideView(){let e=document.querySelectorAll("#viewCount");if(e){let t=document.querySelector(".article-page");t||e.forEach(e=>{e.style.display="none"})}}showHideView()</script><div id=jsi-flying-fish-container class=flying-fish-container></div><style>.flying-fish-container{width:100%;height:200px;position:fixed;z-index:0;pointer-events:none;bottom:0;left:0;opacity:.6}.flying-fish-container canvas{display:block;pointer-events:none}@media(max-width:767px){.flying-fish-container{height:96px;opacity:.38}}</style><script src=https://luckycloveryh.github.io/fuyou/js/flying-fish.js></script><script>window.addEventListener("load",function(){typeof RENDERER!="undefined"&&document.getElementById("jsi-flying-fish-container")&&RENDERER.init()}),document.addEventListener("pjax:complete",function(){typeof RENDERER!="undefined"&&RENDERER.setup()})</script></body></html>

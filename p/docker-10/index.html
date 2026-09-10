@@ -1,0 +1,1367 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="介绍《使用 Dockerfile 构建镜像》，涵盖使用 Dockerfile 创建镜像、Dockerfile 基本结构和Base image等实践要点。"><title>使用 Dockerfile 构建镜像</title>
+<link rel=canonical href=https://luckycloveryh.github.io/fuyou/p/docker-10/><link rel=stylesheet href=/fuyou/scss/style.min.4f12ea1fa4ca7ef3f419897549c88b4c242f129d29316c950cdb3b0754157538.css><meta property='og:title' content="使用 Dockerfile 构建镜像"><meta property='og:description' content="介绍《使用 Dockerfile 构建镜像》，涵盖使用 Dockerfile 创建镜像、Dockerfile 基本结构和Base image等实践要点。"><meta property='og:url' content='https://luckycloveryh.github.io/fuyou/p/docker-10/'><meta property='og:site_name' content='小杨的博客'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='Docker'><meta property='article:tag' content='Obsidian'><meta property='article:published_time' content='2026-06-22T09:00:00+08:00'><meta property='article:modified_time' content='2026-07-11T16:45:03+08:00'><meta property='og:image' content='https://picsum.photos/seed/fuyou-docker-10/1200/675'><meta name=twitter:title content="使用 Dockerfile 构建镜像"><meta name=twitter:description content="介绍《使用 Dockerfile 构建镜像》，涵盖使用 Dockerfile 创建镜像、Dockerfile 基本结构和Base image等实践要点。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://picsum.photos/seed/fuyou-docker-10/1200/675'><link rel=alternate type=application/json href=https://luckycloveryh.github.io/fuyou/p/docker-10/index.json><link rel="shortcut icon" href=/fuyou/favicon.png><div class=loading-container><div class=card><div class=loader><p>loading</p><div class=words><span class=word>buttons</span>
+<span class=word>forms</span>
+<span class=word>switches</span>
+<span class=word>cards</span>
+<span class=word>buttons</span></div></div></div></div><style>.loading-container{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(17,17,17,.98);display:flex;align-items:center;justify-content:center;z-index:999999;transition:opacity 1.2s ease;pointer-events:none}.card{--bg-color:#111;background-color:var(--bg-color);padding:1.2rem 2.5rem;border-radius:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.7)}.loader{color:#7c7c7c;font-family:poppins,system-ui,sans-serif;font-weight:500;font-size:25px;height:42px;padding:8px 12px;display:flex;align-items:center;gap:12px;border-radius:8px;white-space:nowrap}.words{overflow:hidden;position:relative;height:100%;min-width:110px}.words::after{content:"";position:absolute;inset:0;background:linear-gradient( var(--bg-color) 10%,transparent 30%,transparent 70%,var(--bg-color) 90% );z-index:20}.word{display:block;height:100%;padding-left:4px;color:#956afa;animation:spin_4991 4s infinite linear}@keyframes spin_4991{10%{transform:translateY(-102%)}25%{transform:translateY(-100%)}35%{transform:translateY(-202%)}50%{transform:translateY(-200%)}60%{transform:translateY(-302%)}75%{transform:translateY(-300%)}85%{transform:translateY(-402%)}100%{transform:translateY(-400%)}}.loading-container.fade-out{opacity:0;pointer-events:none}</style><script>(function(){const e=()=>{const e=document.querySelector(".loading-container");if(!e)return;e.classList.add("fade-out"),e.style.display="none",e.style.pointerEvents="none"},n=sessionStorage.getItem("visited");if(n){e();return}const t=()=>{const t=document.querySelector(".loading-container");if(!t)return;t.classList.add("fade-out"),setTimeout(()=>{e(),sessionStorage.setItem("visited","true")},400)};setTimeout(t,1200),window.addEventListener("load",t,{once:!0})})()</script></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/fuyou/><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/muzimi.gif width=300 height=300 class=site-logo loading=lazy alt=Avatar>
+</a><span class=emoji>🌸</span></figure><div class=site-meta><h1 class=site-name><a href=/fuyou>小杨的博客</a></h1><h2 class=site-description>技术分享，日常分享</h2></div></header><ol class=menu-social><li><a href=https://space.bilibili.com/81116666 title=Bilibili rel=me><svg class="icon icon-bilibili-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 6.1 5.8 3.3"/><path d="M15.8 6.1l2.4-2.8"/><path d="M7.2 7h9.6a4 4 0 014 4v4a4 4 0 01-4 4H7.2a4 4 0 01-4-4v-4a4 4 0 014-4z"/><path d="M9 12.1l1.3 1.4"/><path d="M15 12.1l-1.3 1.4"/></svg></a></li><li><a href=https://github.com/luckycloveryh/fuyou title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/fuyou/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>主页 | Home</span></a></li><li><a href=/fuyou/categories/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>分类&标签 | Cats&amp;Tags</span></a></li><li><a href=/fuyou/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>归档 | Archives</span></a></li><li><a href=/fuyou/%E6%90%9C%E7%B4%A2/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>搜索 | Search</span></a></li><li><a href=/fuyou/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97-logs/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>更新日志 | Logs</span></a></li><li><a href=/fuyou/%E6%8A%80%E6%9C%AF%E9%93%BE%E6%8E%A5-links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>技术链接 | Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#dockerfile-基本结构>Dockerfile 基本结构</a></li><li><a href=#指令说明>指令说明</a></li><li><a href=#指令详解>指令详解</a><ol><li><a href=#from>FROM</a></li><li><a href=#arg>ARG</a></li><li><a href=#label>LABEL</a></li><li><a href=#expose>EXPOSE</a></li><li><a href=#env>ENV</a></li><li><a href=#entrypoint>ENTRYPOINT</a><ol><li><a href=#在-shell-中执行>在 shell 中执行</a></li><li><a href=#exec-调用执行>exec 调用执行</a></li></ol></li><li><a href=#volume---卷>VOLUME 卷</a></li><li><a href=#user>USER</a></li><li><a href=#workdir>WORKDIR</a></li><li><a href=#onbuild>ONBUILD</a></li><li><a href=#stopsignal>STOPSIGNAL</a></li><li><a href=#healthcheck>HEALTHCHECK</a></li><li><a href=#shell>SHELL</a></li><li><a href=#run>RUN</a></li><li><a href=#cmd>CMD</a></li><li><a href=#cmd-与-entrypoint-的区别>CMD 与 ENTRYPOINT 的区别</a><ol><li><a href=#案例一><strong>案例一</strong></a></li><li><a href=#案例二><strong>案例二</strong></a></li></ol></li><li><a href=#add>ADD</a></li><li><a href=#copy>COPY</a></li></ol></li><li><a href=#制作-java-应用镜像>制作 JAVA 应用镜像</a></li><li><a href=#制作-前端应用-镜像>制作 前端应用 镜像</a></li><li><a href=#构建上下文-httpsdocsdockercombuildconceptscontextdockerignore-files><a href=https://docs.docker.com/build/concepts/context/#dockerignore-files>构建上下文</a></a></li><li><a href=#8--dockerignore--文件>8. <code>.dockerignore </code>文件</a></li><li><a href=#附录>附录：</a><ol><li><a href=#安装-nginx-报错解决方案>安装 Nginx 报错解决方案</a></li><li><a href=#多平台架构-镜像-介绍>多平台/架构 镜像 介绍</a><ol><li><a href=#查看-镜像-支持的平台架构>查看 镜像 支持的平台架构</a></li><li><a href=#制作多平台架构-镜像>制作多平台架构 镜像</a></li></ol></li><li><a href=#镜像地址>镜像地址：</a></li><li><a href=#官网文档>官网文档</a></li></ol></li><li><a href=#来源>来源</a></li></ol></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/fuyou/p/docker-10/><img src=https://picsum.photos/seed/fuyou-docker-10/1200/675 loading=lazy alt="Featured image of post 使用 Dockerfile 构建镜像"></a></div><div class=article-details><header class=article-category><a href=/fuyou/categories/7.-docker/>7. Docker</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/fuyou/p/docker-10/>使用 Dockerfile 构建镜像</a></h2><h3 class=article-subtitle>介绍《使用 Dockerfile 构建镜像》，涵盖使用 Dockerfile 创建镜像、Dockerfile 基本结构和Base image等实践要点。</h3></div><footer class="article-time article-time--template"><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>2026-06-22</time></div><div><svg class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7H6A2 2 0 004 9v9a2 2 0 002 2h9a2 2 0 002-2v-1"/><path d="M20.385 6.585a2.1 2.1.0 00-2.97-2.97L9 12v3h3l8.385-8.415z"/><path d="M16 5l3 3"/></svg>
+<time class=article-time--modified>2026-07-11</time></div><div><svg class="icon icon-tabler icon-tabler-file-text" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 001 1h4"/><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path d="M9 9h1"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+<span class=article-time--word-count>7132字</span></div></footer></div></header><section class=article-content><h1 id=四使用-dockerfile-创建镜像>四、使用 Dockerfile 创建镜像</h1><p>Dockerfile 是一个文本格式的配置文件，我们可 以使用Dockerfile来快速创建自定义的镜像。</p><h2 id=dockerfile-基本结构>Dockerfile 基本结构</h2><p>Dockerfile 由一行行命令语句组成，并且支持以#开头的注释行。一般而言，Dockerfile 主体内容分为四部分：</p><ul><li>基础镜像信息 base image 建议使用官方提供的镜像</li><li>维护者信息</li><li>镜像操作指令</li><li>容器启动时执行的指令</li></ul><p>我们看一个简单的示例：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Add nginx yum repo</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> nginx.repo /etc/yum.repos.d/nginx.repo<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Install nginx</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span>  yum -y install nginx-1.22.1-1.el7.ngx.x86_64 <span class=o>&amp;&amp;</span> yum clean all<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> <span class=nb>echo</span> <span class=s2>&#34;daemon off;&#34;</span> &gt;&gt; /etc/nginx/nginx.conf<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Start nginx daemon</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> /usr/sbin/nginx<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>我们使用 FROM 指令指明所基于的镜像名称，接下来一般是使用 LABEL 指令说明维护者信息。后面则是镜像操作指令，例如 RUN 指令将对镜像执行跟随的命令。每运行一条 RUN 指令，镜像添加新的一层，并提交。最后是 CMD 指令，来指定运行容器时的操作命令。</p><h2 id=指令说明>指令说明</h2><p>Dockerfile 中的指令一般格式为 <code>INSTRUCTION arguments</code>，包括“配置指令” （配置镜像信息）和 “操作指令”（具体执行操作），详见下表</p><div class=table-wrapper><table><thead><tr><th>指 令</th><th>说 明</th></tr></thead><tbody><tr><td>ARG</td><td>定义创建镜像过程中使用的变量</td></tr><tr><td>FROM</td><td>指定所创建镜像的基础镜像</td></tr><tr><td>LABEL</td><td>为生成的镜像添加元素数据标签信息</td></tr><tr><td>EXPOSE</td><td>声明镜像内服务监听的端口</td></tr><tr><td>ENV</td><td>指定环境变量</td></tr><tr><td>ENTRYPOINT</td><td>指定镜像的默认入口命令</td></tr><tr><td>VOLUME</td><td>创建一个数据卷挂载点</td></tr><tr><td>USER</td><td>指定运行容器时的用户名或 UID</td></tr><tr><td>WORKDIR</td><td>配置工作目录</td></tr><tr><td>ONBUILD</td><td>创建子镜像时指定自动执行的操作指令</td></tr><tr><td>STOPSIGNAL</td><td>指定退出的信号值</td></tr><tr><td>HEALTHCHECK</td><td>配置所启动容器如何进行健康检查</td></tr><tr><td>SHELL</td><td>指令默认 shell 类型</td></tr><tr><td>RUN</td><td>运行指定命令</td></tr><tr><td>CMD</td><td>启动容器时指定默认执行的命令</td></tr><tr><td>ADD</td><td>添加内容到镜像</td></tr><tr><td>COPY</td><td>复制内容到镜像</td></tr></tbody></table></div><h2 id=指令详解>指令详解</h2><h3 id=from>FROM</h3><p>指定所创建镜像的 <strong>基础镜像</strong>。</p><p>格式为 <code>FROM &lt;image> [AS &lt;name>] </code>或 <code>FROM &lt;image>:&lt;tag> [AS &lt;name>] </code>或 <code>FROM &lt;image>@&lt;digest> [AS &lt;name>]</code>。</p><p><strong>任何 Dockerfile 中第一条指令必须为FROM指令</strong>。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Install tools </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span>  yum -y install telnet lrzsz iproute <span class=o>&amp;&amp;</span> yum clean all<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;/bin/bash&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-from<span class=o>]</span><span class=c1># docker build -t centos7 . </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-from<span class=o>]</span><span class=c1># docker run -it centos7 /bin/bash</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@3ec8548607d8 /<span class=o>]</span><span class=c1># telnet www.baidu.com 80</span>
+</span></span><span class=line><span class=cl>Trying 103.235.46.40...
+</span></span><span class=line><span class=cl>Connected to www.baidu.com.
+</span></span><span class=line><span class=cl>Escape character is <span class=s1>&#39;^]&#39;</span>.
+</span></span></code></pre></td></tr></table></div></div><h3 id=arg>ARG</h3><p>定义创建镜像过程中使用的变量。</p><p>格式为 <code>ARG &lt;name>[=&lt;default value>]</code></p><p>在执行 docker build 时，可以通过 <code>--build-arg [=] </code>来为变量赋值。当镜像编译成功后，ARG 指定的变量将不再存在（ENV 指定的变量将在镜像中保留）。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ARG</span> <span class=nv>VERSION</span><span class=o>=</span><span class=m>1</span>.26.0<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>NGINX_VERSION</span><span class=o>=</span><span class=m>1</span>.26.1<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>EXPOSE</span><span class=s> 80</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /data</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Add nginx yum repo</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> nginx.repo /etc/yum.repos.d/nginx.repo<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Install nginx</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span>  yum -y install nginx-1:<span class=nv>$VERSION</span>-1.el9.ngx.x86_64 <span class=o>&amp;&amp;</span> yum clean all<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c>#RUN  yum -y install nginx-1:$NGINX_VERSION-1.el9.ngx.x86_64 &amp;&amp; yum clean all</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> <span class=nb>echo</span> <span class=s2>&#34;daemon off;&#34;</span> &gt;&gt; /etc/nginx/nginx.conf<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Start nginx daemon</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;/usr/sbin/nginx&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>ARG 的变量可以在 <code>docker build</code> 的过程中使用 <code>--build-arg</code> 参数修改变量的值。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-arg<span class=o>]</span><span class=c1># docker build -t nginx:1.26.1 --build-arg VERSION=1.26.1 .</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-arg<span class=o>]</span><span class=c1># docker run -it nginx:1.26.1 /bin/bash </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@400d4eb74580 data<span class=o>]</span><span class=c1># nginx -V</span>
+</span></span><span class=line><span class=cl>nginx version: nginx/1.26.1
+</span></span><span class=line><span class=cl>built by gcc 11.3.1 <span class=m>20221121</span> <span class=o>(</span>Red Hat 11.3.1-4<span class=o>)</span> <span class=o>(</span>GCC<span class=o>)</span> 
+</span></span><span class=line><span class=cl>built with OpenSSL 3.0.7 <span class=m>1</span> Nov <span class=m>2022</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=label>LABEL</h3><p>LABEL 指令可以为生成的镜像添加元数据标签信息。</p><p>格式为LABEL <key>=<value> <key>=<value> <key>=<value> &mldr;。</p><p>例如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>LABEL <span class=nv>version</span><span class=o>=</span><span class=s2>&#34;1.0.0-rc3&#34;</span>
+</span></span><span class=line><span class=cl>LABEL <span class=nv>author</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span> <span class=nv>date</span><span class=o>=</span><span class=s2>&#34;2023-01-01&#34;</span>
+</span></span><span class=line><span class=cl>LABEL <span class=nv>description</span><span class=o>=</span><span class=s2>&#34;This text illustrates \
+</span></span></span><span class=line><span class=cl><span class=s2>        that label-values can span multiple lines.&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><p>Dockerfile:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># Base image</span>
+</span></span><span class=line><span class=cl>FROM rockylinux:9 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Maintainer</span>
+</span></span><span class=line><span class=cl>LABEL <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>LABEL <span class=nv>date</span><span class=o>=</span><span class=s2>&#34;2025-02-06&#34;</span>
+</span></span><span class=line><span class=cl>LABEL <span class=nv>description</span><span class=o>=</span><span class=s2>&#34;This is a demo image that based on Rockylinux9.&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>CMD /bin/bash
+</span></span></code></pre></td></tr></table></div></div><p>构建镜像：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-label<span class=o>]</span><span class=c1># docker build -t nginx-label:v1 .</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-label<span class=o>]</span><span class=c1># docker inspect  nginx-label:v1</span>
+</span></span><span class=line><span class=cl>......
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;Labels&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>                <span class=s2>&#34;authors&#34;</span>: <span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span>,
+</span></span><span class=line><span class=cl>                <span class=s2>&#34;date&#34;</span>: <span class=s2>&#34;2025-02-06&#34;</span>,
+</span></span><span class=line><span class=cl>                <span class=s2>&#34;description&#34;</span>: <span class=s2>&#34;This is a demo image that based on Rockylinux9.&#34;</span>
+</span></span><span class=line><span class=cl>            <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>......
+</span></span></code></pre></td></tr></table></div></div><h3 id=expose>EXPOSE</h3><p><strong>声明</strong> 镜像内服务监听的端口。</p><p>格式为 <code>EXPOSE &lt;port> [&lt;port>/&lt;protocol>...]</code></p><p>例如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=k>EXPOSE</span><span class=s>  80 443 </span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>该指令只是起到 <strong>声明作用</strong>，并不会自动完成端口映射。</p><h3 id=env>ENV</h3><p>指定环境变量，在镜像生成过程中会被后续RUN指令使用，在镜像启动的容器中也会存在。</p><p>格式为 <code>ENV &lt;key>=&lt;value> ...</code></p><p>例如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=k>ENV</span> <span class=nv>APP_VERSION</span><span class=o>=</span><span class=m>1</span>.0.0<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>APP_HOME</span><span class=o>=</span>/usr/local/app<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> PATH <span class=nv>$PATH</span>:/usr/local/bin<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>指令指定的环境变量在运行时可以被覆盖掉，如 <code>docker run --env &lt;key>=&lt;value> image_name</code>。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>NGINX_VERSION</span><span class=o>=</span><span class=m>1</span>.26.1<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>EXPOSE</span><span class=s> 80</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /data</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Add nginx yum repo</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> nginx.repo /etc/yum.repos.d/nginx.repo<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Install nginx</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span>  yum -y install nginx-1:<span class=nv>$NGINX_VERSION</span>-1.el9.ngx.x86_64 <span class=o>&amp;&amp;</span> yum clean all<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c>#RUN  yum -y install nginx-1:$NGINX_VERSION-1.el9.ngx.x86_64 &amp;&amp; yum clean all</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> <span class=nb>echo</span> <span class=s2>&#34;daemon off;&#34;</span> &gt;&gt; /etc/nginx/nginx.conf<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Start nginx daemon</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;/usr/sbin/nginx&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>构建镜像</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-env<span class=o>]</span><span class=c1># docker build -t nginx-env:1.26.1 . </span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>测试</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-env<span class=o>]</span><span class=c1># docker run -it nginx-env:1.26.1 /bin/bash</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@e41996f634fe /<span class=o>]</span><span class=c1># echo $NGINX_VERSION</span>
+</span></span><span class=line><span class=cl>1.26.1
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-env<span class=o>]</span><span class=c1># docker run -e NGINX_VERSION=1.26.2  -it nginx-env:1.22.1 /bin/bash</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@c886461519db /<span class=o>]</span><span class=c1># echo $NGINX_VERSION</span>
+</span></span><span class=line><span class=cl>1.26.2
+</span></span></code></pre></td></tr></table></div></div><h3 id=entrypoint>ENTRYPOINT</h3><p>指定镜像的默认入口命令，该入口命令会在启动容器时作为根命令执行，所有传入值作为该命令的参数。</p><p>支持两种格式：</p><ul><li><code>ENTRYPOINT ["executable", "param1", "param2"]</code>: 使用 exec 执行； 建议使用这种方式</li><li><code>ENTRYPOINT command param1 param2</code>: 在 shell 终端中执行。</li></ul><p>每个Dockerfile中只能有一个ENTRYPOINT，当指定多个时，只有最后一个起效。</p><h4 id=在-shell-中执行>在 shell 中执行</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>NGINX_VERSION</span><span class=o>=</span><span class=m>1</span>.26.1<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Add nginx yum repo</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> nginx.repo /etc/yum.repos.d/nginx.repo<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Install nginx</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span>  yum -y install nginx-1:<span class=nv>$NGINX_VERSION</span>-1.el9.ngx.x86_64 <span class=o>&amp;&amp;</span> yum clean all<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> <span class=nb>echo</span> <span class=s2>&#34;daemon off;&#34;</span> &gt;&gt; /etc/nginx/nginx.conf<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Start nginx daemon</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENTRYPOINT</span> /usr/sbin/nginx<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>构建镜像</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-entrypoint<span class=o>]</span><span class=c1># docker build -t entrypoint-shell . </span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=exec-调用执行>exec 调用执行</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>NGINX_VERSION</span><span class=o>=</span><span class=m>1</span>.26.1<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Add nginx yum repo</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> nginx.repo /etc/yum.repos.d/nginx.repo<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Install nginx</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span>  yum -y install nginx-1:<span class=nv>$NGINX_VERSION</span>-1.el9.ngx.x86_64 <span class=o>&amp;&amp;</span> yum clean all<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> <span class=nb>echo</span> <span class=s2>&#34;daemon off;&#34;</span> &gt;&gt; /etc/nginx/nginx.conf<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Start nginx daemon</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENTRYPOINT</span> <span class=p>[</span><span class=s2>&#34;/usr/sbin/nginx&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>构建镜像</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-entrypoint<span class=o>]</span><span class=c1># docker build -t entrypoint-exec -f Dockerfile2  . </span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>比较两者区别</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-entrypoint<span class=o>]</span><span class=c1># docker run -d entrypoint-shell </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>0ac9cc117c8db093bab58fc2a2a888a4e6fcc14919f8b23d4fb62c292648ea31<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-entrypoint<span class=o>]</span><span class=c1># </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-entrypoint<span class=o>]</span><span class=c1># docker run -d entrypoint-exec</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>3c0069768d2122c2c4440c2c730e7e61af9d38e3b171e4045b6b43d522f169db<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/docker-10/01.png loading=lazy alt=img></p><p>exec 和 shell 的区别？</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># VERSION=1.0.1</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># cat demo.sh </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c>#!/bin/bash</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=nb>echo</span> <span class=s2>&#34;exec test.&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=nb>echo</span> <span class=nv>$VERSION</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=nb>echo</span> <span class=nv>$$</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># sh demo.sh </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=nb>exec</span> test.<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>23329</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># source demo.sh </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=nb>exec</span> test.<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>1.0.1<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>9437</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># echo $$</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>9437</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=volume---卷>VOLUME 卷</h3><p>创建一个数据卷挂载点。</p><p>格式为 <code>VOLUME ["/data"]</code></p><p>运行容器时可以从本地主机或其他容器挂载数据卷，一般用来存放数据库和需要保持的数据。</p><h3 id=user>USER</h3><p>指定运行容器时的用户名或 UID，后续的 RUN 等指令也会使用指定的用户身份。</p><p>格式为 <code>USER daemon</code></p><p>当服务不需要管理员权限时，可以通过该命令指定运行用户，并且可以在Dockerfile中创建所需要的用户。</p><p>例如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=k>RUN</span> groupadd -r redis <span class=o>&amp;&amp;</span> useradd -r -g redis redis<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>USER</span><span class=s> redis</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>Dockerfile</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Add user</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> groupadd -r redis <span class=o>&amp;&amp;</span> useradd -r -g redis redis<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>USER</span><span class=s> redis</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;/bin/bash&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>构建镜像</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-user<span class=o>]</span><span class=c1># docker build -t  user-redis . </span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>测试</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-user<span class=o>]</span><span class=c1># docker run -it user-redis whoami</span>
+</span></span><span class=line><span class=cl>redis
+</span></span></code></pre></td></tr></table></div></div><h3 id=workdir>WORKDIR</h3><p>为 RUN、CMD、ENTRYPOINT 指令配置工作目录</p><p>格式为 <code>WORKDIR /path/to/workdir</code></p><p>可以使用多个WORKDIR指令，后续命令如果参数是相对路径，则会基于之前命令指定的路径。</p><p>例如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=k>WORKDIR</span><span class=s> /a   # mkdir /a &amp;&amp; cd /a </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> b    # mkdir b &amp;&amp;  cd b    /a/b </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> c</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> <span class=nb>pwd</span>   <span class=c1># /a/b/c </span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>最终路径为/a/b/c。</p><p>因此，为了避免出错，推荐WORKDIR指令中只<strong>使用绝对路径</strong>。</p><p>Dockerfile</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /data</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> app.json .<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /data/app/</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> app.jar . <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /data/applog/</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;/bin/bash&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>构建镜像</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-workdir<span class=o>]</span><span class=c1># docker build -t workdir:v1  . </span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>测试</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-workdir<span class=o>]</span><span class=c1># docker run -it workdir:v1 pwd</span>
+</span></span><span class=line><span class=cl>/data/applog
+</span></span></code></pre></td></tr></table></div></div><h3 id=onbuild>ONBUILD</h3><p>指定当基于所生成镜像创建子镜像时，自动执行的操作指令。</p><p>格式为<code>ONBUILD [INSTRUCTION]</code></p><p>使用 docker build 命令创建子镜像 ChildImage 时（FROM ParentImage），会首先执行 ParentImage 中配置的 ONBUILD 指令：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Install tools </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ONBUILD</span> <span class=k>RUN</span>  yum -y install telnet wget <span class=o>&amp;&amp;</span> yum clean all<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>由于 ONBUILD 指令是隐式执行的，推荐在使用它的镜像标签中进行标注，例如 centos7-onbuild。</p><p><strong>ONBUILD 指令在自动编译、检查等操作的基础镜像时，十分有用。</strong></p><p>Dockerfile-parent</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Install tools </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ONBUILD</span> <span class=k>RUN</span>  yum -y install telnet wget <span class=o>&amp;&amp;</span> yum clean all<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /data/applog/</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;/bin/bash&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>构建镜像 <strong>rocky-onbuild</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-onbuild<span class=o>]</span><span class=c1># docker build -t rocky-onbuild -f Dockerfile-parent .</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>测试</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-onbuild<span class=o>]</span><span class=c1># docker run -it rocky-onbuild /bin/bash</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@d2f5c03b323a ~<span class=o>]</span><span class=c1># telnet</span>
+</span></span><span class=line><span class=cl>bash: telnet: <span class=nb>command</span> not found
+</span></span></code></pre></td></tr></table></div></div><p>Docker-child</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rocky-onbuild</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /data/applog/</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;/bin/bash&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>构建镜像</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-onbuild<span class=o>]</span><span class=c1># docker build -t rocky-child -f Dockerfile-child  . </span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>测试</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-onbuild<span class=o>]</span><span class=c1># docker run -it rocky-child /bin/bash</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@5ba7f4c76f92 applog<span class=o>]</span><span class=c1># telnet</span>
+</span></span><span class=line><span class=cl>telnet&gt; 
+</span></span></code></pre></td></tr></table></div></div><h3 id=stopsignal>STOPSIGNAL</h3><p>指定容器接收退出的信号值：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=k>STOPSIGNAL</span><span class=s> signal</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>NGINX_VERSION</span><span class=o>=</span><span class=m>1</span>.26.1<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>STOPSIGNAL</span><span class=s> SIGTERM </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>EXPOSE</span><span class=s> 80</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Add nginx yum repo</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> nginx.repo /etc/yum.repos.d/nginx.repo<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Install nginx</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span>  yum -y install nginx-1:<span class=nv>$NGINX_VERSION</span>-1.el9.ngx.x86_64 <span class=o>&amp;&amp;</span> yum clean all<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> <span class=nb>echo</span> <span class=s2>&#34;daemon off;&#34;</span> &gt;&gt; /etc/nginx/nginx.conf<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Start nginx daemon</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;/usr/sbin/nginx&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>构建镜像</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># docker build -t nginx-signal . </span>
+</span></span></code></pre></td></tr></table></div></div><p>测试</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># docker run -d --name nginx-01 nginx-signal</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>7b2460645df10c6e1cd88f2d2499ae9c6fa7c91bf2323cc53d5f1fe2ef0edb0b<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># docker run -d --name nginx-02 nginx-signal</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>7cf348e32417d12730e48082d046189af44391e62c136dfee6cc5c8702ac0a0f<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># docker ps </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>CONTAINER ID   IMAGE          COMMAND             CREATED         STATUS         PORTS     NAMES<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>7cf348e32417   nginx-signal   <span class=s2>&#34;/usr/sbin/nginx&#34;</span>   <span class=m>3</span> seconds ago   Up <span class=m>2</span> seconds             nginx-02<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>7b2460645df1   nginx-signal   <span class=s2>&#34;/usr/sbin/nginx&#34;</span>   <span class=m>8</span> seconds ago   Up <span class=m>7</span> seconds             nginx-01<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># docker stop nginx-01</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>nginx-01<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># docker inspect -f &#39;{{.State.ExitCode}}&#39; nginx-01</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>0</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># docker kill nginx-02</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>nginx-02<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-stopsignal<span class=o>]</span><span class=c1># docker inspect  -f &#39;{{.State.ExitCode}}&#39; nginx-02</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>137</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=healthcheck>HEALTHCHECK</h3><p>配置所启动容器如何进行健康检查（如何判断健康与否），自Docker 1.12开始支持。</p><p>有两种格式：</p><ul><li><code>HEALTHCHECK [OPTIONS] CMD command</code>：根据所执行命令返回值是否为 0 来判断；</li><li><code>HEALTHCHECK NONE</code>：禁止基础镜像中的健康检查。</li></ul><p>OPTION支持如下参数：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl> --interval<span class=o>=</span>DURATION <span class=o>(</span>default: 30s<span class=o>)</span>：过多久检查一次；<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span> --timeout<span class=o>=</span>DURATION <span class=o>(</span>default: 30s<span class=o>)</span>：每次检查等待结果的超时；<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span> --retries<span class=o>=</span>N <span class=o>(</span>default: 3<span class=o>)</span>：如果失败了，重试几次才最终确定失败。<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>Dockerfile:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /usr/local/app</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> http-demo . <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>HEALTHCHECK --interval=5s --timeout=3s --retries=3\
+</span></span></span><span class=line><span class=cl><span class=err>  </span><span class=k>CMD</span> curl -fs http://localhost:8080/ <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;./http-demo&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>构建镜像</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker docker-healthcheck<span class=o>]</span><span class=c1># docker build -t http-good -f Dockerfile-good . </span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>测试</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker docker-healthcheck<span class=o>]</span><span class=c1># docker run -d http-good </span>
+</span></span><span class=line><span class=cl>06fa6f9f5db924c4cd3baf6a2932335abb35034e6aaf0515f2278e35e1629655
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker docker-healthcheck<span class=o>]</span><span class=c1># docker ps </span>
+</span></span><span class=line><span class=cl>CONTAINER ID   IMAGE       COMMAND         CREATED         STATUS                            PORTS     NAMES
+</span></span><span class=line><span class=cl>06fa6f9f5db9   http-good   <span class=s2>&#34;./http-demo&#34;</span>   <span class=m>3</span> seconds ago   Up <span class=m>2</span> seconds <span class=o>(</span>health: starting<span class=o>)</span>             charming_lovelace
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker docker-healthcheck<span class=o>]</span><span class=c1># docker ps </span>
+</span></span><span class=line><span class=cl>CONTAINER ID   IMAGE       COMMAND         CREATED          STATUS                    PORTS     NAMES
+</span></span><span class=line><span class=cl>06fa6f9f5db9   http-good   <span class=s2>&#34;./http-demo&#34;</span>   <span class=m>34</span> seconds ago   Up <span class=m>33</span> seconds <span class=o>(</span>healthy<span class=o>)</span>             charming_lovelace
+</span></span></code></pre></td></tr></table></div></div><p>健康检查异常示例：</p><p>Dockerfile:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /usr/local/app</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> http-demo . <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>HEALTHCHECK --interval=10s --timeout=1s --retries=1\
+</span></span></span><span class=line><span class=cl><span class=err>  </span><span class=k>CMD</span> curl -fs http://localhost:8081/ <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;./http-demo&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>构建镜像</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker docker-healthcheck<span class=o>]</span><span class=c1># docker build -t http-bad -f Dockerfile-bad  . </span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>测试</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker docker-healthcheck<span class=o>]</span><span class=c1># docker run -d  http-bad</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>8b1e99b026df95b5564b0ed352eb8ca49e2715d44ebbe99c13d66fcdf66a6c6b<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker docker-healthcheck<span class=o>]</span><span class=c1># </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker docker-healthcheck<span class=o>]</span><span class=c1># docker ps </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>CONTAINER ID   IMAGE      COMMAND         CREATED         STATUS                            PORTS     NAMES<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>8b1e99b026df   http-bad   <span class=s2>&#34;./http-demo&#34;</span>   <span class=m>3</span> seconds ago   Up <span class=m>3</span> seconds <span class=o>(</span>health: starting<span class=o>)</span>             admiring_agnesi<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker docker-healthcheck<span class=o>]</span><span class=c1># docker ps </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>CONTAINER ID   IMAGE      COMMAND         CREATED          STATUS                      PORTS     NAMES<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>8b1e99b026df   http-bad   <span class=s2>&#34;./http-demo&#34;</span>   <span class=m>15</span> seconds ago   Up <span class=m>14</span> seconds <span class=o>(</span>unhealthy<span class=o>)</span>             admiring_agnesi<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=shell>SHELL</h3><p>指定其他命令使用 shell 时的默认shell类型：</p><p><code>SHELL ["executable", "parameters"]</code></p><p>默认值为["/bin/sh", &ldquo;-c&rdquo;]。</p><h3 id=run>RUN</h3><p>运行指定命令。</p><p>格式为</p><ul><li><code>RUN &lt;command> </code>在 shell 终端中执行</li><li><code>RUN ["executable", "param1", "param2"]</code> 使用 exec 执行</li></ul><p>每条 RUN 指令将在当前镜像基础上执行指定命令，并提交为新的镜像层。当命令较长时可以使用 <code>\</code> 来换行。例如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>RUN  dnf  -y install telnet lrzsz iproute <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>                    <span class=o>&amp;&amp;</span> yum clean all  
+</span></span></code></pre></td></tr></table></div></div><h3 id=cmd>CMD</h3><p>CMD 指令用来指定启动容器时默认执行的命令。</p><p>支持三种格式：</p><ul><li><code>CMD ["executable", "param1", "param2"]</code>：相当于执行 executable param1 param2，<strong>推荐方式</strong>；</li><li><code>CMD command param1 param2</code>：在默认的 Shell 中执行，提供给需要交互的应用；</li><li><code>CMD ["param1", "param2"]</code>：提供给 ENTRYPOINT 的默认参数。</li></ul><p>每个 Dockerfile 只能有一条 CMD 命令。如果指定了多条命令，只有最后一条会被执行。</p><p>如果用户启动容器时候手动指定了运行的命令（作为 run 命令的参数），则会覆盖掉 CMD 指定的命令。</p><p>比如 <code>docker run -it centos:7 cat /etc/os-release</code>。这就是用 <code>cat /etc/os-release</code> 命令替换了默认的 <code>/bin/bash</code> 命令了，输出了系统版本信息</p><p>前两种格式的效果和 ENTRYPOINT 是一样的</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/docker-10/02.png loading=lazy alt=img></p><h3 id=cmd-与-entrypoint-的区别>CMD 与 ENTRYPOINT 的区别</h3><p><code>ENTRYPOINT</code> 目的和 <code>CMD</code> 一样，都是指定容器启动程序及参数。</p><p>当指定了 <code>ENTRYPOINT</code> 后，<code>CMD</code> 的含义就发生了改变，不再是直接的运行其命令，而是将 <code>CMD</code> 的内容作为参数传给 <code>ENTRYPOINT</code> 指令，实际执行时，将变为：<code>&lt;ENTRYPOINT> "&lt;CMD>"</code> 。</p><h4 id=案例一><strong>案例一</strong></h4><p>获取当前主机出网的运营商和IP地址</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># Base image</span>
+</span></span><span class=line><span class=cl>FROM rockylinux:9
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Maintainer</span>
+</span></span><span class=line><span class=cl>LABEL <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>CMD <span class=o>[</span> <span class=s2>&#34;curl&#34;</span>, <span class=s2>&#34;-s&#34;</span>, <span class=s2>&#34;http://myip.ipip.net&#34;</span> <span class=o>]</span>
+</span></span></code></pre></td></tr></table></div></div><p>构建镜像</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># docker build -t cmd:1.0.1 . </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># docker run cmd:1.0.1</span>
+</span></span><span class=line><span class=cl>当前 IP：101.32.192.31  来自于：中国 香港   tencent.com
+</span></span></code></pre></td></tr></table></div></div><p>假如现在我们需要修改 <code>curl </code>命令加 <code>-i </code>参数 <code>curl -i -s ``http://myip.ipip.net``</code></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># docker run cmd:1.0.1 -i</span>
+</span></span><span class=line><span class=cl>docker: Error response from daemon: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: exec: <span class=s2>&#34;-i&#34;</span>: executable file not found in <span class=nv>$PATH</span>: unknown.
+</span></span></code></pre></td></tr></table></div></div><p>可以看到容器运行报错，<code>executable file not found</code>。在讲 <code>CMD</code> 命令时我们说过，跟在镜像名后面的是 <code>command</code>，运行时会替换 <code>CMD</code> 的默认值。因此这里的 <code>-i</code> 替换了原来的 <code>CMD</code>，而不是添加在原来的 <code>curl -s ``http://myip.ipip.net</code> 后面。而 <code>-i</code> 根本不是命令，所以提示找不到命令报错。</p><p>那么如果我们希望加入 <code>-i</code> 这参数，我们就必须重新完整的输入这个命令：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># docker run cmd:1.0.1  curl -i -s http://myip.ipip.net</span>
+</span></span><span class=line><span class=cl>HTTP/1.1 <span class=m>200</span> OK
+</span></span><span class=line><span class=cl>Date: Sat, <span class=m>21</span> Oct <span class=m>2024</span> 09:16:39 GMT
+</span></span><span class=line><span class=cl>Content-Type: text/plain<span class=p>;</span> <span class=nv>charset</span><span class=o>=</span>utf-8
+</span></span><span class=line><span class=cl>Content-Length: <span class=m>67</span>
+</span></span><span class=line><span class=cl>Connection: keep-alive
+</span></span><span class=line><span class=cl>CF-Cache-Status: DYNAMIC
+</span></span><span class=line><span class=cl>Server: cloudflare
+</span></span><span class=line><span class=cl>CF-RAY: 819867291ef70952-HKG
+</span></span><span class=line><span class=cl>alt-svc: <span class=nv>h3</span><span class=o>=</span><span class=s2>&#34;:443&#34;</span><span class=p>;</span> <span class=nv>ma</span><span class=o>=</span><span class=m>86400</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>当前 IP：101.32.192.31  来自于：中国 香港   tencent.com
+</span></span></code></pre></td></tr></table></div></div><p>有没有更好的解决方案，我们使用 <code>ENTRYPOINT </code>来重新实现这个镜像。</p><p>Dockerfile</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># Base image</span>
+</span></span><span class=line><span class=cl>FROM rockylinux:9
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Maintainer</span>
+</span></span><span class=line><span class=cl>LABEL <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>ENTRYPOINT <span class=o>[</span> <span class=s2>&#34;curl&#34;</span>, <span class=s2>&#34;-s&#34;</span>, <span class=s2>&#34;http://myip.ipip.net&#34;</span> <span class=o>]</span>
+</span></span></code></pre></td></tr></table></div></div><p>构建镜像</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># docker build -t entrypoint:1.0.1 -f Dockerfile-entrypoint .</span>
+</span></span></code></pre></td></tr></table></div></div><p>测试</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># docker run entrypoint:1.0.1</span>
+</span></span><span class=line><span class=cl>当前 IP：101.32.192.31  来自于：中国 香港   tencent.com
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># docker run entrypoint:1.0.1 -i</span>
+</span></span><span class=line><span class=cl>HTTP/1.1 <span class=m>200</span> OK
+</span></span><span class=line><span class=cl>Date: Sat, <span class=m>21</span> Oct <span class=m>2024</span> 09:22:04 GMT
+</span></span><span class=line><span class=cl>Content-Type: text/plain<span class=p>;</span> <span class=nv>charset</span><span class=o>=</span>utf-8
+</span></span><span class=line><span class=cl>Content-Length: <span class=m>67</span>
+</span></span><span class=line><span class=cl>Connection: keep-alive
+</span></span><span class=line><span class=cl>CF-Cache-Status: DYNAMIC
+</span></span><span class=line><span class=cl>Server: cloudflare
+</span></span><span class=line><span class=cl>CF-RAY: 81986f1a38e35dd5-HKG
+</span></span><span class=line><span class=cl>alt-svc: <span class=nv>h3</span><span class=o>=</span><span class=s2>&#34;:443&#34;</span><span class=p>;</span> <span class=nv>ma</span><span class=o>=</span><span class=m>86400</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>当前 IP：101.32.192.31  来自于：中国 香港   tencent.com
+</span></span></code></pre></td></tr></table></div></div><p>可以看到，这次成功了。这是因为当存在 <code>ENTRYPOINT</code> 后，command 的内容将会作为参数传给 <code>ENTRYPOINT</code>，而这里 <code>-i</code> 就是新的 command ，因此会作为参数传给 <code>curl</code>，从而达到了我们预期的效果。</p><h4 id=案例二><strong>案例二</strong></h4><p>启动容器就是启动主进程，但有些时候，启动主进程前，需要一些准备工作。</p><p>比如 数据库类的应用，可能需要一些数据库配置、初始化的工作，这些工作要在最终的服务运行之前解决。</p><p>此外，可能希望避免使用 <code>root</code> 用户去启动服务，从而提高安全性，而在启动服务前还需要以 <code>root</code> 身份执行一些必要的准备工作，最后切换到服务用户身份启动服务。或者除了服务外，其它命令依旧可以使用 <code>root</code> 身份执行，方便调试等。</p><p>我们看一下redis 官网镜像的 Dockerfile 是怎么实现的：</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/docker-10/03.png loading=lazy alt=img></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=k>ADD</span> file:a1398394375faab8dd9e1e8d584eea96c750fb57ae4ffd2b14624f1cf263561b in /<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>...<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> /bin/sh -c groupadd -r -g <span class=m>999</span> redis <span class=o>&amp;&amp;</span> useradd -r -g redis -u <span class=m>999</span> redis<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>...<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENTRYPOINT</span> <span class=p>[</span><span class=s2>&#34;docker-entrypoint.sh&#34;</span><span class=p>]</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>EXPOSE</span><span class=s> map[6379/tcp:{}]</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;redis-server&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>可以看到 redis 服务创建了 redis 用户，并在最后指定了 <code>ENTRYPOINT</code> 为 <code>docker-entrypoint.sh</code> 脚本。</p><p>我们看一下 <code>docker-entrypoint.sh</code> 脚本的内容：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>.....
+</span></span><span class=line><span class=cl><span class=c1># allow the container to be started with `--user`</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[</span> <span class=s2>&#34;</span><span class=nv>$1</span><span class=s2>&#34;</span> <span class=o>=</span> <span class=s1>&#39;redis-server&#39;</span> -a <span class=s2>&#34;</span><span class=k>$(</span>id -u<span class=k>)</span><span class=s2>&#34;</span> <span class=o>=</span> <span class=s1>&#39;0&#39;</span> <span class=o>]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>        find . <span class=se>\!</span> -user redis -exec chown redis <span class=s1>&#39;{}&#39;</span> +
+</span></span><span class=line><span class=cl>        <span class=nb>exec</span> gosu redis <span class=s2>&#34;</span><span class=nv>$0</span><span class=s2>&#34;</span> <span class=s2>&#34;</span><span class=nv>$@</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl><span class=nb>exec</span> <span class=s2>&#34;</span><span class=nv>$@</span><span class=s2>&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><p>该脚本的内容就是根据 <code>CMD</code> 的内容来判断，如果是 <code>redis-server</code> 的话，则切换到 <code>redis</code> 用户身份启动服务器，否则依旧使用 <code>root</code> 身份执行。比如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run -it redis id </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=nv>uid</span><span class=o>=</span>0<span class=o>(</span>root<span class=o>)</span> <span class=nv>gid</span><span class=o>=</span>0<span class=o>(</span>root<span class=o>)</span> <span class=nv>groups</span><span class=o>=</span>0<span class=o>(</span>root<span class=o>)</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>我们使用 <code>docker-entrypoint.sh</code> 来实现一个 nginx 启动的 dockerfile</p><p>Dockerfile:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># Base image</span>
+</span></span><span class=line><span class=cl>FROM rockylinux:9 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Maintainer</span>
+</span></span><span class=line><span class=cl>LABEL <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>ENV <span class=nv>NGINX_VERSION</span><span class=o>=</span>1.26.1
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Add nginx yum repo</span>
+</span></span><span class=line><span class=cl>COPY nginx.repo /etc/yum.repos.d/nginx.repo
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Install nginx</span>
+</span></span><span class=line><span class=cl>RUN  yum -y install nginx-1:<span class=nv>$NGINX_VERSION</span>-1.el9.ngx.x86_64 <span class=o>&amp;&amp;</span> yum clean all
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>COPY entrypoint.sh /
+</span></span><span class=line><span class=cl>ENTRYPOINT <span class=o>[</span><span class=s2>&#34;/entrypoint.sh&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>CMD <span class=o>[</span><span class=s2>&#34;nginx&#34;</span>, <span class=s2>&#34;-g&#34;</span>, <span class=s2>&#34;daemon off;&#34;</span><span class=o>]</span>
+</span></span></code></pre></td></tr></table></div></div><p>构建镜像：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># docker build -t entrypoint-nginx -f Dockerfile-nginx . </span>
+</span></span></code></pre></td></tr></table></div></div><p>测试：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># docker run -d entrypoint-nginx</span>
+</span></span><span class=line><span class=cl>abc77a723d6748e67fd3f0993510c0ac1e7852c8d4cb296730e133afb4b12775
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># docker ps </span>
+</span></span><span class=line><span class=cl>CONTAINER ID   IMAGE              COMMAND                  CREATED         STATUS         PORTS     NAMES
+</span></span><span class=line><span class=cl>abc77a723d67   entrypoint-nginx   <span class=s2>&#34;/entrypoint.sh ngin…&#34;</span>   <span class=m>2</span> seconds ago   Up <span class=m>2</span> seconds             vigilant_mirzakhani
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-cmd-entrypoint<span class=o>]</span><span class=c1># docker exec -it abc77a723d67 /bin/bash</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@abc77a723d67 /<span class=o>]</span><span class=c1># curl 127.0.0.1</span>
+</span></span><span class=line><span class=cl>&lt;!DOCTYPE html&gt;
+</span></span><span class=line><span class=cl>&lt;html&gt;
+</span></span><span class=line><span class=cl>&lt;head&gt;
+</span></span><span class=line><span class=cl>&lt;title&gt;Welcome to nginx!&lt;/title&gt;
+</span></span><span class=line><span class=cl>&lt;style&gt;
+</span></span></code></pre></td></tr></table></div></div><p>Nginx 可以正常启动。</p><h3 id=add>ADD</h3><p>添加内容到镜像。</p><p>格式为 <code>ADD &lt;src> &lt;dest></code></p><p>该命令将复制指定的 <src>路径下内容到容器中的 <dest>路径下。</p><p>其中 <src>可以是 Dockerfile 所在目录的一个相对路径（文件或目录）；也可以是一个 URL；还可以是一个tar 文件（自动解压为目录）<dest> 可以是镜像内绝对路径，或者相对于工作目录（WORKDIR）的相对路径。</p><p>路径支持正则格式，例如：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>ADD ＊.c /code/
+</span></span></code></pre></td></tr></table></div></div><p>添加文件到容器内</p><p>Dockerfile：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># Base image</span>
+</span></span><span class=line><span class=cl>FROM rockylinux:9
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Maintainer</span>
+</span></span><span class=line><span class=cl>LABEL <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>ADD nginx-1.22.1 /usr/local/src/nginx-1.22.1 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>CMD <span class=o>[</span><span class=s2>&#34;/bin/bash&#34;</span><span class=o>]</span>
+</span></span></code></pre></td></tr></table></div></div><p>构建镜像：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-add<span class=o>]</span><span class=c1># docker build -t add:v1 -f Dockerfile-v1  . </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-add<span class=o>]</span><span class=c1># docker run --rm add:v1 ls /usr/local/src </span>
+</span></span><span class=line><span class=cl>nginx-1.22.1
+</span></span></code></pre></td></tr></table></div></div><p>添加远程文件到容器内</p><p>Dockerfile:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ADD</span>  https://nginx.org/download/nginx-1.22.1.tar.gz  /usr/local/src<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;/bin/bash&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>构建&测试：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-add<span class=o>]</span><span class=c1># docker build -t add:v2 -f Dockerfile-v2  . </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># 自动下载远端文件</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-add<span class=o>]</span><span class=c1># docker run --rm add:v2 ls /usr/local/src</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>nginx-1.22.1.tar.gz<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>添加压缩文件到容器内</p><p>Dockerfile：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ADD</span>  nginx-1.22.1.tar.gz  /usr/local/src<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;/bin/bash&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>构建 & 测试</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-add<span class=o>]</span><span class=c1># docker build -t add:v3 -f Dockerfile-v3 . </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># 自动解压 tar 包</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker dockerfile-add<span class=o>]</span><span class=c1># docker run --rm add:v3 ls /usr/local/src </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>nginx-1.22.1<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=copy>COPY</h3><p>复制内容到镜像。</p><p>格式为<code> COPY &lt;src> &lt;dest></code></p><p>复制本地主机的 <src>（为Dockerfile所在目录的相对路径，文件或目录）下内容到镜像中的 <dest>。目标路径不存在时，会自动创建。</p><p>路径同样支持正则格式。</p><p>在 Docker 官方的 Dockerfile 最佳实践文档 中要求，尽可能的使用 <code>COPY</code>，因为 <code>COPY</code> 的语义很明确，就是复制文件而已，而 <code>ADD</code> 则包含了更复杂的功能，其行为也不一定很清晰。最适合使用 <code>ADD</code> 的场合，就是需要自动解压缩的场合。</p><h2 id=制作-java-应用镜像>制作 JAVA 应用镜像</h2><p>我们基于 centos7 制作一个生产环境可以使用 java 运行环境的镜像。</p><ul><li>下载 Java JDK</li></ul><p><a class=link href=https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html target=_blank rel=noopener>https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html</a></p><ul><li>Dockerfile for java base image</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># Base image</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>FROM</span><span class=s> rockylinux:9 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>JAVA_VERSION</span><span class=o>=</span>jdk-11.0.25<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> <span class=si>${</span><span class=nv>JAVA_VERSION</span><span class=si>}</span> /usr/local/<span class=si>${</span><span class=nv>JAVA_VERSION</span><span class=si>}</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>JAVA_HOME</span><span class=o>=</span>/usr/local/<span class=si>${</span><span class=nv>JAVA_VERSION</span><span class=si>}</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENV</span> <span class=nv>PATH</span><span class=o>=</span><span class=si>${</span><span class=nv>JAVA_HOME</span><span class=si>}</span>/bin:<span class=nv>$PATH</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>CMD</span> <span class=p>[</span><span class=s2>&#34;/bin/bash&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><ul><li>构建镜像</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker rocky-jdk<span class=o>]</span><span class=c1># docker build -t rocky-jdk11:v1 .</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker rocky-jdk<span class=o>]</span><span class=c1># docker images rocky-jdk11:v1 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>REPOSITORY    TAG       IMAGE ID       CREATED         SIZE<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>rocky-jdk11   v1        704c1a9b2eea   <span class=m>7</span> minutes ago   459MB<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker rocky-jdk<span class=o>]</span><span class=c1># docker run -it rocky-jdk11:v1 /bin/bash</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@cdd87cb01782 /<span class=o>]</span><span class=c1># </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@cdd87cb01782 /<span class=o>]</span><span class=c1># java -version </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>java version <span class=s2>&#34;11.0.25&#34;</span> 2024-10-15 LTS<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>Java<span class=o>(</span>TM<span class=o>)</span> SE Runtime Environment 18.9 <span class=o>(</span>build 11.0.25+9-LTS-256<span class=o>)</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>Java HotSpot<span class=o>(</span>TM<span class=o>)</span> 64-Bit Server VM 18.9 <span class=o>(</span>build 11.0.25+9-LTS-256, mixed mode<span class=o>)</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><ul><li>添加 java 应用</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=k>FROM</span><span class=s> rocky-jdk11:v1 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># Maintainer</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>LABEL</span> <span class=nv>authors</span><span class=o>=</span><span class=s2>&#34;chijinjing@xinxianghf.com&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>RUN</span> <span class=nb>echo</span> <span class=s1>&#39;Asia/Shanghai&#39;</span> &gt;/etc/timezone<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>EXPOSE</span><span class=s> 8080</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>WORKDIR</span><span class=s> /data/app/ </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> app.jar .  <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENTRYPOINT</span> <span class=p>[</span><span class=s2>&#34;java&#34;</span><span class=p>,</span> <span class=s2>&#34;-jar&#34;</span><span class=p>,</span> <span class=s2>&#34;app.jar&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><ul><li>构建镜像 & 测试</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker java-app<span class=o>]</span><span class=c1>#docker build -t java-app:v1 .</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker java-app<span class=o>]</span><span class=c1># docker run -d java-app:v1</span>
+</span></span><span class=line><span class=cl>c961d4e7a9cac10d58f973f0a2c62600b239bd0c159b58d743bdfc73d55d311d
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker java-app<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker java-app<span class=o>]</span><span class=c1># docker ps </span>
+</span></span><span class=line><span class=cl>CONTAINER ID   IMAGE         COMMAND               CREATED          STATUS          PORTS      NAMES
+</span></span><span class=line><span class=cl>049f9f0a87da   java-app:v1   <span class=s2>&#34;java -jar app.jar&#34;</span>   <span class=m>16</span> seconds ago   Up <span class=m>15</span> seconds   8080/tcp   peaceful_pasteur
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker java-app<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker java-app<span class=o>]</span><span class=c1># docker inspect  049f9f0a87da | grep -i ipaddr </span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;SecondaryIPAddresses&#34;</span>: null,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;IPAddress&#34;</span>: <span class=s2>&#34;172.17.0.3&#34;</span>,
+</span></span><span class=line><span class=cl>                    <span class=s2>&#34;IPAddress&#34;</span>: <span class=s2>&#34;172.17.0.3&#34;</span>,
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker java-app<span class=o>]</span><span class=c1># curl 172.17.0.3:8080/ping</span>
+</span></span><span class=line><span class=cl>pong
+</span></span></code></pre></td></tr></table></div></div><h2 id=制作-前端应用-镜像>制作 前端应用 镜像</h2><p>Nginx 可以直接使用 官方的镜像即可，我们只需要修改 nginx.conf 配置文件，一起打包到镜像里就可以了。</p><p>Dockerfile:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker docker<span class=o>]</span><span class=c1># cat Dockerfile </span>
+</span></span><span class=line><span class=cl>FROM registry.cn-beijing.aliyuncs.com/xxhf/nginx:1.22.1 
+</span></span><span class=line><span class=cl>COPY /dist  /usr/local/web/
+</span></span><span class=line><span class=cl>COPY nginx.conf /etc/nginx/nginx.conf
+</span></span><span class=line><span class=cl>CMD <span class=o>[</span><span class=s2>&#34;nginx&#34;</span>, <span class=s2>&#34;-g&#34;</span>, <span class=s2>&#34;daemon off;&#34;</span><span class=o>]</span>
+</span></span></code></pre></td></tr></table></div></div><p>nginx.conf :</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>user  nginx<span class=p>;</span>
+</span></span><span class=line><span class=cl>worker_processes  auto<span class=p>;</span>
+</span></span><span class=line><span class=cl>error_log  /var/log/nginx/error.log notice<span class=p>;</span>
+</span></span><span class=line><span class=cl>pid        /var/run/nginx.pid<span class=p>;</span>
+</span></span><span class=line><span class=cl>events <span class=o>{</span>
+</span></span><span class=line><span class=cl>  worker_connections  1024<span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>http <span class=o>{</span>
+</span></span><span class=line><span class=cl>  include       /etc/nginx/mime.types<span class=p>;</span>
+</span></span><span class=line><span class=cl>  default_type  application/octet-stream<span class=p>;</span>
+</span></span><span class=line><span class=cl>  log_format  main  <span class=s1>&#39;$remote_addr - $remote_user [$time_local] &#34;$request&#34; &#39;</span>
+</span></span><span class=line><span class=cl>                    <span class=s1>&#39;$status $body_bytes_sent &#34;$http_referer&#34; &#39;</span>
+</span></span><span class=line><span class=cl>                    <span class=s1>&#39;&#34;$http_user_agent&#34; &#34;$http_x_forwarded_for&#34;&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  access_log  /var/log/nginx/access.log  main<span class=p>;</span>
+</span></span><span class=line><span class=cl>  sendfile        on<span class=p>;</span>
+</span></span><span class=line><span class=cl>  keepalive_timeout  65<span class=p>;</span>
+</span></span><span class=line><span class=cl>  server <span class=o>{</span>
+</span></span><span class=line><span class=cl>    listen       80<span class=p>;</span>
+</span></span><span class=line><span class=cl>    server_name  localhost<span class=p>;</span>
+</span></span><span class=line><span class=cl>    real_ip_header X-Real-IP<span class=p>;</span>
+</span></span><span class=line><span class=cl>    proxy_set_header X-Forwarded-For <span class=nv>$proxy_add_x_forwarded_for</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    location / <span class=o>{</span>
+</span></span><span class=line><span class=cl>      root   /usr/local/web<span class=p>;</span>
+</span></span><span class=line><span class=cl>      index  index.html<span class=p>;</span>
+</span></span><span class=line><span class=cl>      try_files <span class=nv>$uri</span> <span class=nv>$uri</span>/ /index.html<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>    error_page   <span class=m>500</span> <span class=m>502</span> <span class=m>503</span> <span class=m>504</span>  /50x.html<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nv>location</span> <span class=o>=</span> /50x.html <span class=o>{</span>
+</span></span><span class=line><span class=cl>      root   /usr/share/nginx/html<span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>  <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>前端项目打包后会生成 dist 目录，一起打包到镜像里，目录结构如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker front-dockerfile<span class=o>]</span><span class=c1># ll</span>
+</span></span><span class=line><span class=cl>total <span class=m>12</span>
+</span></span><span class=line><span class=cl>drwxr-xr-x <span class=m>7</span> root root <span class=m>4096</span> Feb <span class=m>21</span> 16:05 dist
+</span></span><span class=line><span class=cl>-rw-r--r-- <span class=m>1</span> root root  <span class=m>120</span> Feb <span class=m>24</span> 18:28 Dockerfile
+</span></span><span class=line><span class=cl>-rw-r--r-- <span class=m>1</span> root root  <span class=m>933</span> Feb <span class=m>21</span> 16:05 nginx.conf
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 构建镜像 </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker front-dockerfile<span class=o>]</span><span class=c1># docker build -t front-app:v1 . </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker front-dockerfile<span class=o>]</span><span class=c1># docker run -d front-app:v1      </span>
+</span></span><span class=line><span class=cl>d4abea7090d97f575687e0471e4f35065c3c9ac523df249f12250062672703ed
+</span></span></code></pre></td></tr></table></div></div><h2 id=构建上下文-httpsdocsdockercombuildconceptscontextdockerignore-files><a class=link href=https://docs.docker.com/build/concepts/context/#dockerignore-files target=_blank rel=noopener>构建上下文</a></h2><ul><li><p>当运行 docker build 命令时，当前工作目录被称为构建上下文。build context</p></li><li><p><code>docker build</code> 默认查找当前目录的 Dockerfile 作为构建输入，也可以通过 -f 指定 Dockerfile。</p><ul><li><code>docker build -f ./Dockerfile</code></li></ul></li><li><p>当 docker build 运行时，首先会构建上下文传输给 docker daemon，把没用的文件包含在构建上下文时，会导致传输时间长，构建需要的资源多，构建出的镜像大等问题。</p><ul><li>试着找一下包含较多文件的目录试一下区别</li><li>可以通过 .dockerignore 文件从编译上下文排除文件</li></ul></li><li><p>需要确认构建上下文清晰，建议创建一个单独的目录放置 Dockerfile，并在目录中运行 <code>docker build</code>。</p></li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>docker build .
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl><span class=c1>#16 [internal] load build context</span>
+</span></span><span class=line><span class=cl><span class=c1>#16 sha256:23ca2f94460dcbaf5b3c3edbaaa933281a4e0ea3d92fe295193e4df44dc68f85</span>
+</span></span><span class=line><span class=cl><span class=c1>#16 transferring context: 13.16MB 2.2s done</span>
+</span></span><span class=line><span class=cl>...
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/docker-10/04.png loading=lazy alt=img></p><h2 id=8--dockerignore--文件>8. <code>.dockerignore </code>文件</h2><p>在使用 Docker 构建镜像时，我们通常会将项目的文件和文件夹复制到镜像中。然而，并不是所有的文件和文件夹都需要被复制进镜像中，有时我们需要排除一些不需要的文件夹或文件。这就是使用 .dockerignore 文件的作用。</p><p>.dockerignore 文件类似于 .gitignore 文件，它用于告诉 Docker 哪些文件或文件夹不应该被复制到镜像中。当构建镜像时，Docker 引擎会根据 .dockerignore 文件的规则来排除指定的文件和文件夹。</p><p>我们看一下例子：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Plain data-lang=Plain><span class=line><span class=cl>myapp/
+</span></span><span class=line><span class=cl>├── app/
+</span></span><span class=line><span class=cl>│   ├── index.js
+</span></span><span class=line><span class=cl>│   ├── styles.css
+</span></span><span class=line><span class=cl>│   └── images/
+</span></span><span class=line><span class=cl>│       ├── logo.png
+</span></span><span class=line><span class=cl>│       └── bg.png
+</span></span><span class=line><span class=cl>├── config/
+</span></span><span class=line><span class=cl>│   ├── db.js
+</span></span><span class=line><span class=cl>│   └── secret.js
+</span></span><span class=line><span class=cl>├── tests/
+</span></span><span class=line><span class=cl>│   ├── test1.js
+</span></span><span class=line><span class=cl>│   └── test2.js
+</span></span><span class=line><span class=cl>├── README.md
+</span></span><span class=line><span class=cl>└── .dockerignore
+</span></span></code></pre></td></tr></table></div></div><p>如果我们只想将 app 文件夹复制到镜像中，而不包含 config 和 tests 文件夹，我们可以在 .dockerignore 文件中添加以下内容：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Plain data-lang=Plain><span class=line><span class=cl>config/
+</span></span><span class=line><span class=cl>tests/
+</span></span></code></pre></td></tr></table></div></div><p>.dockerignore 文件的规则</p><ul><li>#：用于添加注释。以 # 开头的行将被忽略。</li><li>/path/to/folder：排除指定的文件夹以及其内容。</li><li>/path/to/file：排除指定的文件。</li><li>!：用于取反。如果文件夹被排除了，但是又想包含此文件夹内的某个文件，可以在前面加上 !。</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Plain data-lang=Plain><span class=line><span class=cl># 忽略所有 .txt 文件
+</span></span><span class=line><span class=cl>*.txt
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 忽略所有文件夹和子文件夹中的 .log 文件
+</span></span><span class=line><span class=cl>**/*.log
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 排除 .git 文件夹及其内容
+</span></span><span class=line><span class=cl>.git/
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 排除 node_modules 文件夹及其内容
+</span></span><span class=line><span class=cl>node_modules/
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl># 但是包含 node_modules/myapp 文件夹及其内容
+</span></span><span class=line><span class=cl>!node_modules/myapp/
+</span></span></code></pre></td></tr></table></div></div><h2 id=附录>附录：</h2><h3 id=安装-nginx-报错解决方案>安装 Nginx 报错解决方案</h3><p>Docker build 过程中，安装 Nginx 报错，开启宿主机的包转发参数</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;net.ipv4.ip_forward=1&#34;</span> &gt;&gt; /etc/sysctl.conf  <span class=o>&amp;&amp;</span> sysctl -p
+</span></span></code></pre></td></tr></table></div></div><h3 id=多平台架构-镜像-介绍>多平台/架构 镜像 介绍</h3><h4 id=查看-镜像-支持的平台架构>查看 镜像 支持的平台架构</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 查看本地镜像支持的架构 </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker inspect  nginx:1.22.1 | grep -i arch</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;Architecture&#34;</span>: <span class=s2>&#34;amd64&#34;</span>,
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看远端仓库中的镜像支持的架构 </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker manifest inspect nginx:1.22.1  | grep architecture</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;architecture&#34;</span>: <span class=s2>&#34;amd64&#34;</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;architecture&#34;</span>: <span class=s2>&#34;arm&#34;</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;architecture&#34;</span>: <span class=s2>&#34;arm&#34;</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;architecture&#34;</span>: <span class=s2>&#34;arm64&#34;</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;architecture&#34;</span>: <span class=s2>&#34;386&#34;</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;architecture&#34;</span>: <span class=s2>&#34;mips64le&#34;</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;architecture&#34;</span>: <span class=s2>&#34;ppc64le&#34;</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;architecture&#34;</span>: <span class=s2>&#34;s390x&#34;</span>,
+</span></span></code></pre></td></tr></table></div></div><h4 id=制作多平台架构-镜像>制作多平台架构 镜像</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 确认 buildx 功能启用 </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-multi-platform<span class=o>]</span><span class=c1># docker buildx create --use</span>
+</span></span><span class=line><span class=cl>quizzical_mahavira
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 构建多平台镜像，并推送到仓库 </span>
+</span></span><span class=line><span class=cl>docker buildx build --platform linux/amd64,linux/arm64 -t reg.xxhf.cc/library/rockylinux:v1  --push .
+</span></span></code></pre></td></tr></table></div></div><p>docker buildx 构建的镜像只保存在缓存中，本地无法查看，如果需要在本地显示，需要加 &ndash;load 参数</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># docker buildx build \</span>
+</span></span><span class=line><span class=cl>  --platform linux/amd64,linux/arm64 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>  -t reg.xxhf.cc/library/rockylinux:v1  . 
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl><span class=o>[</span>+<span class=o>]</span> Building 75.7s <span class=o>(</span>11/11<span class=o>)</span> FINISHED
+</span></span><span class=line><span class=cl>... ... 
+</span></span><span class=line><span class=cl>WARNING: No output specified with docker-container driver. Build result will only remain in the build cache. To push result image into registry use --push or to load image into docker use --load     
+</span></span></code></pre></td></tr></table></div></div><p>在本地加载镜像，注意 &ndash;load 参数只可以指定一个平台</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># docker buildx build --platform linux/amd64 -t reg.xxhf.cc/library/rockylinux:v1 --load .</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># docker images reg.xxhf.cc/library/rockylinux:v1</span>
+</span></span><span class=line><span class=cl>REPOSITORY                       TAG       IMAGE ID       CREATED          SIZE
+</span></span><span class=line><span class=cl>reg.xxhf.cc/library/rockylinux   v1        b709c3d79580   <span class=m>11</span> minutes ago   183MB
+</span></span></code></pre></td></tr></table></div></div><h3 id=镜像地址>镜像地址：</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>ccr.ccs.tencentyun.com/chijinjing/rockylinux:9
+</span></span><span class=line><span class=cl>registry.cn-beijing.aliyuncs.com/xxhf/mysql:8.0
+</span></span></code></pre></td></tr></table></div></div><h3 id=官网文档>官网文档</h3><p><a class=link href=https://docs.docker.com/build/ target=_blank rel=noopener>https://docs.docker.com/build/</a></p><p><a class=link href=https://docs.docker.com/reference/dockerfile/#overview target=_blank rel=noopener>https://docs.docker.com/reference/dockerfile/#overview</a></p><p><a class=link href=https://docs.docker.com/build/building/best-practices/ target=_blank rel=noopener>https://docs.docker.com/build/building/best-practices/</a></p><h2 id=来源>来源</h2><ul><li><a class=link href=https://rcnmegz4pby5.feishu.cn/wiki/RIxYwKc41iP8Lmky4AFcFQtqncd target=_blank rel=noopener>飞书原文</a></li><li>导入日期：2026-06-22</li></ul></section><footer class=article-footer><section class=article-tags><a href=/fuyou/tags/docker/>Docker</a>
+<a href=/fuyou/tags/obsidian/>Obsidian</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>本作品采用 CC BY-NC-SA 4.0 许可协议</span></section><section class=article-lastmod><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<span>最后更新于 2026-07-11 16:45 +0800</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/fuyou/p/docker-01/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-01/1200/675 loading=lazy data-key=docker-01 data-hash=https://picsum.photos/seed/fuyou-docker-01/1200/675></div><div class=article-details><h2 class=article-title>Docker Compose 使用指南</h2></div></a></article><article class=has-image><a href=/fuyou/p/docker-14/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-14/1200/675 loading=lazy data-key=docker-14 data-hash=https://picsum.photos/seed/fuyou-docker-14/1200/675></div><div class=article-details><h2 class=article-title>Docker 基础概念入门</h2></div></a></article><article class=has-image><a href=/fuyou/p/docker-07/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-07/1200/675 loading=lazy data-key=docker-07 data-hash=https://picsum.photos/seed/fuyou-docker-07/1200/675></div><div class=article-details><h2 class=article-title>Docker 存储与 Volume 管理</h2></div></a></article><article class=has-image><a href=/fuyou/p/docker-15/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-15/1200/675 loading=lazy data-key=docker-15 data-hash=https://picsum.photos/seed/fuyou-docker-15/1200/675></div><div class=article-details><h2 class=article-title>Docker 学习索引</h2></div></a></article><article class=has-image><a href=/fuyou/p/docker-04/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-04/1200/675 loading=lazy data-key=docker-04 data-hash=https://picsum.photos/seed/fuyou-docker-04/1200/675></div><div class=article-details><h2 class=article-title>Docker 安装与初始化配置</h2></div></a></article></div></div></aside>...<div class=comment></div><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 小杨</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.26.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/fuyou/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script><style>body{background:url(https://luckycloveryh.github.io/fuyou/background/jinlin.png)no-repeat 50% 0;background-size:cover;background-attachment:fixed}@media(max-width:767px){body{background-attachment:scroll;background-position:50% 0}}.article-details{position:relative;z-index:1}.article-title,.article-title a{color:var(--card-text-color-main)!important}.search-form input{background-color:var(--card-background)!important;color:var(--card-text-color-main)!important;border-color:var(--card-separator-color)!important}.search-form button{background-color:transparent!important;color:var(--card-text-color-secondary)!important}.left-sidebar .site-name,.left-sidebar .site-name a,.left-sidebar .site-description,.left-sidebar #main-menu li a,.left-sidebar #main-menu li.current a,.left-sidebar #dark-mode-toggle,.left-sidebar #i18n-switch,.left-sidebar .menu-social svg,.right-sidebar .widget-icon svg,.right-sidebar .widget-title,.site-footer{color:#fff!important;stroke:#fff!important;text-shadow:0 1px 4px rgba(0,0,0,.65)}.left-sidebar #main-menu li a:hover,.left-sidebar .site-name a:hover{color:#fff!important;opacity:.9}</style><script src=https://luckycloveryh.github.io/fuyou/background/sakura.js></script><div id=particles-js></div><script src=https://luckycloveryh.github.io/fuyou/background/particles.min.js></script><script>window.matchMedia("(min-width: 768px)").matches&&particlesJS.load("particles-js","https://luckycloveryh.github.io/fuyou/background/particlesjs-config.json",function(){console.log("particles.js loaded - callback")})</script><style>#particles-js{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}#particles-js canvas{pointer-events:none!important}@media(max-width:767px){#particles-js,#canvas_sakura{display:none!important}}</style><style>:root{--base-font-family:"Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Segoe UI", Arial, sans-serif;--article-font-family:var(--base-font-family);--code-font-family:"Cascadia Mono", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei UI", monospace}</style><style>#TableOfContents>ul,ol{ul, ol { display: none; } .open { display: block; }}</style><script>function initTocHide(){let e=document.querySelector(".widget--toc");if(!e)return;window.fuyouTocScrollHandler&&window.removeEventListener("scroll",window.fuyouTocScrollHandler),window.fuyouTocScrollHandler=function(){let n=document.querySelectorAll(".open");n.length>0&&n.forEach(e=>{e.classList.remove("open")});let t=document.querySelector(".active-class");if(!t)return;t.children.length>1&&t.children[1].classList.add("open");let e=t.parentElement;do e.classList.add("open"),e=e.parentElement.parentElement;while(e!==void 0&&(e.localName==="ul"||e.localName==="ol"))},window.addEventListener("scroll",window.fuyouTocScrollHandler,{passive:!0})}initTocHide()</script><style>#backTopBtn{display:none;position:fixed;right:30px;bottom:30px;z-index:99;cursor:pointer;width:30px;height:30px;background-image:url(https://luckycloveryh.github.io/fuyou/icons/backTop.svg);background-repeat:no-repeat;background-position:50%;background-size:contain}@media(max-width:767px){#backTopBtn{right:14px;bottom:calc(82px + env(safe-area-inset-bottom));width:42px;height:42px;border:0;border-radius:50%;background-color:rgba(35,35,35,.74);background-size:22px 22px;box-shadow:0 8px 20px rgba(0,0,0,.28)}}</style><script>function initScrollTop(){let e=document.getElementById("backTopBtn");e||(e=document.createElement("button"),e.id="backTopBtn",e.type="button",e.setAttribute("aria-label","Back to top"),e.onclick=backToTop,document.body.appendChild(e)),window.fuyouBackTopHandler&&window.removeEventListener("scroll",window.fuyouBackTopHandler),window.fuyouBackTopHandler=function(){document.body.scrollTop>20||document.documentElement.scrollTop>20?e.style.display="block":e.style.display="none"},window.addEventListener("scroll",window.fuyouBackTopHandler,{passive:!0}),window.fuyouBackTopHandler()}function backToTop(){window.scrollTo({top:0,behavior:"smooth"})}initScrollTop()</script><style>.highlight{max-height:400px;overflow:hidden}.code-show{max-height:none!important}.code-more-box{width:100%;padding-top:78px;background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0)),to(#fff));position:absolute;left:0;right:0;bottom:0;z-index:1}.code-more-btn{display:block;margin:auto;width:44px;height:22px;background:#f0f0f5;border-top-left-radius:8px;border-top-right-radius:8px;padding-top:6px;cursor:pointer}.code-more-img{cursor:pointer!important;display:block;margin:auto;width:22px;height:16px}</style><script>function initCodeMoreBox(){let e=document.querySelectorAll(".highlight");if(!e)return;e.forEach(e=>{if(e.scrollHeight<=e.clientHeight)return;let t=document.createElement("div");t.classList.add("code-more-box");let n=document.createElement("span");n.classList.add("code-more-btn"),n.addEventListener("click",()=>{e.classList.add("code-show"),t.style.display="none",window.dispatchEvent(new Event("resize"))});let s=document.createElement("img");s.classList.add("code-more-img"),s.src="https://luckycloveryh.github.io/fuyou/icons/codeMore.png",n.appendChild(s),t.appendChild(n),e.appendChild(t)})}initCodeMoreBox()</script><script>const cdnPath="https://cdn.jsdelivr.net/gh/letere-gzj/live2d-widget-v3@main",config={path:{homePath:"/",modelPath:cdnPath+"/Resources/",cssPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu.css",tipsJsonPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu-tips.json",tipsJsPath:cdnPath+"/waifu-tips.js",live2dCorePath:cdnPath+"/Core/live2dcubismcore.js",live2dSdkPath:cdnPath+"/live2d-sdk.js"},tools:["hitokoto","asteroids","express","switch-model","switch-texture","photo","info","quit"],drag:{enable:!0,direction:["x","y"]},switchType:"order"};function loadExternalResource(e,t){return new Promise((n,s)=>{let o;t==="css"?(o=document.createElement("link"),o.rel="stylesheet",o.href=e):t==="js"&&(o=document.createElement("script"),o.src=e),o&&(o.onload=()=>n(e),o.onerror=()=>s(e),document.head.appendChild(o))})}let live2dInitialized=!1;function initLive2d(){if(live2dInitialized)return;window.matchMedia("(min-width: 768px)").matches&&Promise.all([loadExternalResource(config.path.cssPath,"css"),loadExternalResource(config.path.live2dCorePath,"js"),loadExternalResource(config.path.live2dSdkPath,"js"),loadExternalResource(config.path.tipsJsPath,"js")]).then(()=>{initWidget({waifuPath:config.path.tipsJsonPath,cdnPath:config.path.modelPath,tools:config.tools,dragEnable:config.drag.enable,dragDirection:config.drag.direction,switchType:config.switchType}),live2dInitialized=!0}).catch(e=>{console.error("Failed to load live2d:",e)})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",initLive2d):initLive2d()</script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css><style>@media(max-width:767px){.aplayer.aplayer-fixed,.aplayer.aplayer-fixed .aplayer-body{max-width:100vw}.aplayer.aplayer-fixed .aplayer-body{padding-right:18px;padding-bottom:env(safe-area-inset-bottom)}.aplayer.aplayer-fixed .aplayer-info{width:calc(100vw - 66px)}.aplayer.aplayer-fixed .aplayer-lrc{display:none!important}}</style><div id=aplayer></div><script src=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js></script><script>(function(){const e="https://luckycloveryh.github.io/fuyou/",t=document.getElementById("aplayer");if(!t||window.ap)return;window.ap=new APlayer({container:t,fixed:!0,lrcType:3,audio:[{name:"归期",artist:"钱润玉",url:e+"music/归期-钱润玉/song.mp3",cover:e+"music/归期-钱润玉/cover.jpg"}]})})()</script><script>window.addEventListener("beforeunload",()=>{if(!window.ap)return;const e={index:window.ap.list.index,currentTime:window.ap.audio.currentTime,paused:window.ap.paused};sessionStorage.setItem("playInfo",JSON.stringify(e))}),window.addEventListener("load",()=>{if(!window.ap)return;if(window._pjaxNavigating)return;const e=JSON.parse(sessionStorage.getItem("playInfo"));if(!e)return;window.ap.list.switch(e.index),setTimeout(()=>{if(window.ap.seek(e.currentTime),!e.paused){const e=window.ap.play();e&&typeof e.catch=="function"&&e.catch(()=>{})}},500)}),document.addEventListener("pjax:send",()=>{window._pjaxNavigating=!0}),document.addEventListener("pjax:complete",()=>{window._pjaxNavigating=!1})</script><script>window.fuyouPjaxInitialized=window.fuyouPjaxInitialized||!1;function reinitFuyouPageScripts(){try{window.Stack&&window.Stack.init&&window.Stack.init()}catch(e){console.warn("Stack初始化失败:",e)}try{typeof initTocHide=="function"&&initTocHide(),typeof initScrollTop=="function"&&initScrollTop(),typeof initCodeMoreBox=="function"&&initCodeMoreBox(),typeof showHideView=="function"&&showHideView(),typeof renderKaTeX=="function"&&renderKaTeX()}catch(e){console.warn("页面脚本重新初始化失败:",e)}try{typeof RENDERER!="undefined"&&RENDERER.setup()}catch(e){console.warn("底部小鱼初始化失败:",e)}}function shouldFuyouHandleLink(e,t){if(!t||e.defaultPrevented)return!1;if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return!1;if(t.target&&t.target!=="_self")return!1;if(t.hasAttribute("download"))return!1;const n=new URL(t.href,window.location.href);return n.origin===window.location.origin&&!!n.pathname.startsWith("/fuyou/")&&(n.pathname!==window.location.pathname||n.search!==window.location.search)&&!(n.hash&&n.pathname===window.location.pathname&&n.search===window.location.search)}async function fuyouLoadPage(e,t){document.dispatchEvent(new CustomEvent("pjax:send")),window._pjaxNavigating=!0;try{const s=await fetch(e,{headers:{"X-Requested-With":"fuyou-pjax"},credentials:"same-origin"});if(!s.ok)throw new Error("HTTP "+s.status);const r=await s.text(),n=(new DOMParser).parseFromString(r,"text/html"),o=n.querySelector(".main-container"),i=document.querySelector(".main-container");if(!o||!i){window.location.href=e;return}document.title=n.title,document.body.className=n.body.className,i.replaceWith(o);const c=document.querySelectorAll(".js-Pjax"),a=n.querySelectorAll(".js-Pjax");c.forEach((e,t)=>{a[t]&&e.replaceWith(a[t])}),t&&history.pushState({fuyouPjax:!0},"",e),window.scrollTo({top:0,behavior:"auto"}),reinitFuyouPageScripts(),document.dispatchEvent(new CustomEvent("pjax:complete"))}catch(t){console.warn("无刷新切换失败，回退到普通跳转:",t),window.location.href=e}finally{window._pjaxNavigating=!1}}window.addEventListener("load",()=>{if(window.fuyouPjaxInitialized)return;window.fuyouPjaxInitialized=!0,history.replaceState({fuyouPjax:!0},"",window.location.href),document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("a[href]");if(!shouldFuyouHandleLink(e,t))return;e.preventDefault(),fuyouLoadPage(t.href,!0)}),window.addEventListener("popstate",()=>{fuyouLoadPage(window.location.href,!1)}),window.pjax={refresh:function(){},loadUrl:function(e){fuyouLoadPage(e,!0)}}})</script><div class=js-Pjax><script>(function(){let t=document.querySelector(".comment");if(!t)return;let e=document.createElement("script");e.setAttribute("src","https://giscus.app/client.js"),e.setAttribute("data-repo",""),e.setAttribute("data-repo-id",""),e.setAttribute("data-category",""),e.setAttribute("data-category-id",""),e.setAttribute("data-mapping",""),e.setAttribute("data-strict",""),e.setAttribute("data-reactions-enabled","1"),e.setAttribute("data-emit-metadata","0"),e.setAttribute("data-input-position",""),e.setAttribute("data-theme",""),e.setAttribute("data-lang",""),e.async=!0,e.crossOrigin="anonymous",t.appendChild(e)})(document)</script></div><script>async function renderKaTeX(){let e=document.querySelector(".math-katex");if(!e)return;for(;typeof renderMathInElement!="function";)await delay(500);renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],ignoredClasses:["gist"]})}function delay(e){return new Promise(t=>{setTimeout(t,e)})}document.addEventListener("pjax:complete",()=>{renderKaTeX()})</script><script src=https://luckycloveryh.github.io/fuyou/js/topbar.min.js></script><script>topbar.config({barColors:{0:"rgba(255, 255, 255, 1)",1.0:"rgba(0, 149, 234, 1)"}}),document.addEventListener("pjax:send",()=>{topbar.show()}),document.addEventListener("pjax:complete",()=>{topbar.hide()})</script><script defer src=https://cn.vercount.one/js></script><script>function showHideView(){let e=document.querySelectorAll("#viewCount");if(e){let t=document.querySelector(".article-page");t||e.forEach(e=>{e.style.display="none"})}}showHideView()</script><div id=jsi-flying-fish-container class=flying-fish-container></div><style>.flying-fish-container{width:100%;height:200px;position:fixed;z-index:0;pointer-events:none;bottom:0;left:0;opacity:.6}.flying-fish-container canvas{display:block;pointer-events:none}@media(max-width:767px){.flying-fish-container{height:96px;opacity:.38}}</style><script src=https://luckycloveryh.github.io/fuyou/js/flying-fish.js></script><script>window.addEventListener("load",function(){typeof RENDERER!="undefined"&&document.getElementById("jsi-flying-fish-container")&&RENDERER.init()}),document.addEventListener("pjax:complete",function(){typeof RENDERER!="undefined"&&RENDERER.setup()})</script></body></html>

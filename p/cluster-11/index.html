@@ -1,0 +1,2252 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="介绍《Prometheus 监控系统部署教程》，涵盖Prometheus 监控部署教程、Prometheus 介绍和什么是Prometheus？等实践要点。"><title>Prometheus 监控系统部署教程</title>
+<link rel=canonical href=https://luckycloveryh.github.io/fuyou/p/cluster-11/><link rel=stylesheet href=/fuyou/scss/style.min.4f12ea1fa4ca7ef3f419897549c88b4c242f129d29316c950cdb3b0754157538.css><meta property='og:title' content="Prometheus 监控系统部署教程"><meta property='og:description' content="介绍《Prometheus 监控系统部署教程》，涵盖Prometheus 监控部署教程、Prometheus 介绍和什么是Prometheus？等实践要点。"><meta property='og:url' content='https://luckycloveryh.github.io/fuyou/p/cluster-11/'><meta property='og:site_name' content='小杨的博客'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='集群'><meta property='article:tag' content='Obsidian'><meta property='article:published_time' content='2026-06-22T09:00:00+08:00'><meta property='article:modified_time' content='2026-07-11T16:45:03+08:00'><meta property='og:image' content='https://picsum.photos/seed/fuyou-cluster-11/1200/675'><meta name=twitter:title content="Prometheus 监控系统部署教程"><meta name=twitter:description content="介绍《Prometheus 监控系统部署教程》，涵盖Prometheus 监控部署教程、Prometheus 介绍和什么是Prometheus？等实践要点。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://picsum.photos/seed/fuyou-cluster-11/1200/675'><link rel=alternate type=application/json href=https://luckycloveryh.github.io/fuyou/p/cluster-11/index.json><link rel="shortcut icon" href=/fuyou/favicon.png><div class=loading-container><div class=card><div class=loader><p>loading</p><div class=words><span class=word>buttons</span>
+<span class=word>forms</span>
+<span class=word>switches</span>
+<span class=word>cards</span>
+<span class=word>buttons</span></div></div></div></div><style>.loading-container{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(17,17,17,.98);display:flex;align-items:center;justify-content:center;z-index:999999;transition:opacity 1.2s ease;pointer-events:none}.card{--bg-color:#111;background-color:var(--bg-color);padding:1.2rem 2.5rem;border-radius:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.7)}.loader{color:#7c7c7c;font-family:poppins,system-ui,sans-serif;font-weight:500;font-size:25px;height:42px;padding:8px 12px;display:flex;align-items:center;gap:12px;border-radius:8px;white-space:nowrap}.words{overflow:hidden;position:relative;height:100%;min-width:110px}.words::after{content:"";position:absolute;inset:0;background:linear-gradient( var(--bg-color) 10%,transparent 30%,transparent 70%,var(--bg-color) 90% );z-index:20}.word{display:block;height:100%;padding-left:4px;color:#956afa;animation:spin_4991 4s infinite linear}@keyframes spin_4991{10%{transform:translateY(-102%)}25%{transform:translateY(-100%)}35%{transform:translateY(-202%)}50%{transform:translateY(-200%)}60%{transform:translateY(-302%)}75%{transform:translateY(-300%)}85%{transform:translateY(-402%)}100%{transform:translateY(-400%)}}.loading-container.fade-out{opacity:0;pointer-events:none}</style><script>(function(){const e=()=>{const e=document.querySelector(".loading-container");if(!e)return;e.classList.add("fade-out"),e.style.display="none",e.style.pointerEvents="none"},n=sessionStorage.getItem("visited");if(n){e();return}const t=()=>{const t=document.querySelector(".loading-container");if(!t)return;t.classList.add("fade-out"),setTimeout(()=>{e(),sessionStorage.setItem("visited","true")},400)};setTimeout(t,1200),window.addEventListener("load",t,{once:!0})})()</script></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/fuyou/><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/muzimi.gif width=300 height=300 class=site-logo loading=lazy alt=Avatar>
+</a><span class=emoji>🌸</span></figure><div class=site-meta><h1 class=site-name><a href=/fuyou>小杨的博客</a></h1><h2 class=site-description>技术分享，日常分享</h2></div></header><ol class=menu-social><li><a href=https://space.bilibili.com/81116666 title=Bilibili rel=me><svg class="icon icon-bilibili-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 6.1 5.8 3.3"/><path d="M15.8 6.1l2.4-2.8"/><path d="M7.2 7h9.6a4 4 0 014 4v4a4 4 0 01-4 4H7.2a4 4 0 01-4-4v-4a4 4 0 014-4z"/><path d="M9 12.1l1.3 1.4"/><path d="M15 12.1l-1.3 1.4"/></svg></a></li><li><a href=https://github.com/luckycloveryh/fuyou title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/fuyou/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>主页 | Home</span></a></li><li><a href=/fuyou/categories/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>分类&标签 | Cats&amp;Tags</span></a></li><li><a href=/fuyou/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>归档 | Archives</span></a></li><li><a href=/fuyou/%E6%90%9C%E7%B4%A2/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>搜索 | Search</span></a></li><li><a href=/fuyou/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97-logs/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>更新日志 | Logs</span></a></li><li><a href=/fuyou/%E6%8A%80%E6%9C%AF%E9%93%BE%E6%8E%A5-links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>技术链接 | Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#prometheus-监控部署教程>Prometheus 监控部署教程</a></li><li><a href=#一prometheus-介绍>一、Prometheus 介绍</a><ol><li><a href=#1-什么是prometheus>1. 什么是Prometheus？</a></li><li><a href=#2-各监控系统对比>2. 各监控系统对比</a></li><li><a href=#3-prometheus的特性>3. Prometheus的特性</a></li><li><a href=#4-prometheus架构图和组件介绍>4. Prometheus架构图和组件介绍</a></li><li><a href=#5-prometheus服务工作过程>5. Prometheus服务工作过程</a></li><li><a href=#6-实验前准备>6. 实验前准备</a></li></ol></li><li><a href=#二prometheus---prometheus-server部署>二、Prometheus - Prometheus Server部署</a></li><li><a href=#三prometheus---node-exporter部署>三、Prometheus - Node Exporter部署</a></li><li><a href=#四prometheus---promql查询语言>四、Prometheus - PromQL查询语言</a><ol><li><a href=#1-promql语法>1. PromQL语法</a></li><li><a href=#2-promql操作符了解>2. PromQL操作符（了解）</a><ol><li><a href=#many-to-one--one-to-many-向量匹配>Many-to-one / one-to-many 向量匹配</a></li></ol></li><li><a href=#3-promql函数了解>3. PromQL函数（了解）</a></li></ol></li><li><a href=#五prometheus---alertmanager部署>五、Prometheus - AlertManager部署</a><ol><li><a href=#1-alertmanager组件安装>1. alertmanager组件安装</a></li><li><a href=#2-alertmanager组件配置>2. alertmanager组件配置</a><ol><li></li></ol></li></ol></li><li><a href=#六prometheus---grafana部署>六、Prometheus - Grafana部署</a><ol><li><a href=#1-grafana组件安装>1. Grafana组件安装</a></li><li><a href=#2-grafana组件配置>2. Grafana组件配置</a></li></ol></li><li><a href=#七blackbox_exporter配置>七、blackbox_exporter配置</a><ol><li><a href=#blackbox-exporter-七种默认探测模块的-blackbox配置模板>Blackbox Exporter 七种默认探测模块的 Blackbox配置模板</a></li><li><a href=#blackbox-exporter-七种默认探测模块的-prometheus配置模板>Blackbox Exporter 七种默认探测模块的 Prometheus配置模板</a></li></ol></li><li><a href=#八自动发现>八、自动发现</a><ol><li><a href=#-prometheus-自动发现分类>📥 Prometheus 自动发现分类</a></li></ol></li><li><a href=#九mysql-exporter>九、mysql-exporter</a></li><li><a href=#十pushgateway>十、pushgateway</a></li></ol></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/fuyou/p/cluster-11/><img src=https://picsum.photos/seed/fuyou-cluster-11/1200/675 loading=lazy alt="Featured image of post Prometheus 监控系统部署教程"></a></div><div class=article-details><header class=article-category><a href=/fuyou/categories/5.-%E9%9B%86%E7%BE%A4%E9%98%B6%E6%AE%B5/>5. 集群阶段</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/fuyou/p/cluster-11/>Prometheus 监控系统部署教程</a></h2><h3 class=article-subtitle>介绍《Prometheus 监控系统部署教程》，涵盖Prometheus 监控部署教程、Prometheus 介绍和什么是Prometheus？等实践要点。</h3></div><footer class="article-time article-time--template"><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>2026-06-22</time></div><div><svg class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7H6A2 2 0 004 9v9a2 2 0 002 2h9a2 2 0 002-2v-1"/><path d="M20.385 6.585a2.1 2.1.0 00-2.97-2.97L9 12v3h3l8.385-8.415z"/><path d="M16 5l3 3"/></svg>
+<time class=article-time--modified>2026-07-11</time></div><div><svg class="icon icon-tabler icon-tabler-file-text" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 001 1h4"/><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path d="M9 9h1"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+<span class=article-time--word-count>13753字</span></div></footer></div></header><section class=article-content><h2 id=prometheus-监控部署教程>Prometheus 监控部署教程</h2><h2 id=一prometheus-介绍>一、Prometheus 介绍</h2><h3 id=1-什么是prometheus>1. 什么是Prometheus？</h3><p>Prometheus 是一个开源的报警系统和监控工具包，是由SoundCloud公司开发的开源监控报警系统和时序数据库(TSDB)。Prometheus使用Go语言开发，是Google BorgMon监控系统的开源版本。从 2012 年成立以来，许多公司和组织都采用promethues，并且该项目有着很活跃的社区和开发者；现在是一个开源项目，可以独立于任何公司进行维护；2016年prometheus成为继Kubernetes之后第二个加入Linux基金会旗下的原生云基金会(Cloud Native Computing Foundation)的托管项目。</p><p>官网：https://prometheus.io/ 文献：https://prometheus.io/docs/introduction/overview/</p><h3 id=2-各监控系统对比>2. 各监控系统对比</h3><div class=table-wrapper><table><thead><tr><th style=text-align:center>监控方案</th><th style=text-align:center>数据收集</th><th>自动发现</th><th>侧重点</th><th>数据展示方案</th><th>贴合云原生</th></tr></thead><tbody><tr><td style=text-align:center><strong>Cacti</strong></td><td style=text-align:center>SNMP</td><td>插件支持</td><td>数据展示</td><td>RRDTOOL</td><td>差</td></tr><tr><td style=text-align:center><strong>Nagios</strong></td><td style=text-align:center>各种脚本插件</td><td>脚本插入</td><td>状态展示</td><td>阈值</td><td>差</td></tr><tr><td style=text-align:center><strong>Zabbix</strong></td><td style=text-align:center>zabbix-agent为主</td><td>主机地址自动发现</td><td>状态、数据展示</td><td>PHP</td><td>中等</td></tr><tr><td style=text-align:center><strong>Prometheus</strong></td><td style=text-align:center>Exporter为主</td><td>各种模式支持</td><td>以时间序列保存数据</td><td>通过结合Grafana 进行结合展示</td><td>优秀</td></tr></tbody></table></div><h3 id=3-prometheus的特性>3. Prometheus的特性</h3><ul><li>由 metric 名称和 K/V 键值对标识的时间序列的多维数据模型</li><li>简单的查询语言 PromQL（TSDB数据库的查询语言）</li><li>不依赖分布式存储，单个服务节点自动治理</li><li>通过 http 的 pull 模型获取数据的时序集合</li><li>支持通过网关 push 时序数据</li><li>通过服务发现或者静态配置发现目标</li><li>支持多种图表和仪表盘模式（grafana）</li></ul><h3 id=4-prometheus架构图和组件介绍>4. Prometheus架构图和组件介绍</h3><p>**Prometheus Server：**负责定时去目标抓取 metrics数据，每个被抓取对象需要开放一个http服务接口；pull下来的数据经过整理后写入到本地的时序数据库（TSDB）中。</p><p>**Client Library：**客户端类库（例如官方提供的：Go，Python，Java等），为需要监控的服务产生相应的 metrics数据并开放一个http服务接口给 Prometheus Server。目前很多软件原生就支持Prometheus，提供了metrics数据，可以直接使用 Prometheus pull。对于像操作系统不提供metrics数据的情况，可以使用exporter，或者自己开发exporter来提供metrics数据服务。</p><p>**Exporter：**泛指能向Prometheus提供监控数据（metrics数据）的都可以称为一个 exporter，一个 exporter的实例称为 target，exporter来源主要2个方面，一个是社区提供的，一种是用户自定义的。主要用来支持其他数据源的metrics数据导入到 Prometheus，支持数据库、硬件、消息中间件、存储系统、HTTP服务器、jmx等。</p><p>**PushGateway：**主要用于临时性的 short-lived job。由于这类 jobs 存在时间较短，可能在 Prometheus 来 pull 之前就消失了。对此类 jobs 定时将 metrics数据 push 到 pushgateway 上，再由 Prometheus Server 从 Pushgateway 上 pull 到本地。这种方式主要用于服务层面的metrics，对于机器层面的metrices，需要使用node exporter。</p><p>**Promdash 和 Grafana：**Prometheus内置一个简单的Web控制台Promdash，可以查询metrics数据，查看配置信息或者Service Discovery等，实际工作中，查看指标或者创建仪表盘通常使用Grafana，Prometheus作为Grafana的数据源。</p><p>**alertmanager：**从 Prometheus server 端接收到 alerts 后，会进行去除重复数据，分组，并路由到对应的接收方式上，发出报警。常见的接收方式有：电子邮件，pagerduty，OpsGenie, webhook 等。</p><p>**PromQL：**是Prometheus TSDB的查询语言。是结合Grafana进行数据展示和告警规则的配置的关键部分。</p><div class=table-wrapper><table><thead><tr><th>类型</th><th>通俗解释（像聊天一样）</th><th>数值特性</th><th>典型使用场景</th><th>常用 PromQL 函数</th></tr></thead><tbody><tr><td><strong>Counter</strong></td><td>“只增不减的计数器” 就像汽车里程表，只能往前跑，永远不会倒退。进程重启才会归零。</td><td>只增不减 （monotonically increasing） 可重置为 0</td><td>请求总数、错误总数、已处理任务数、GC 次数等“累计次数”</td><td><code>rate()</code> <code>irate()</code> <code>increase()</code></td></tr><tr><td><strong>Gauge</strong></td><td>“可以随意上下波动的指针” 像温度计、内存使用率、当前连接数，随时可能升降。</td><td>可增可减</td><td>当前内存使用量、CPU 使用率、队列长度、温度、在线用户数</td><td>直接取值 <code>delta()</code> <code>predict_linear()</code> 等</td></tr><tr><td><strong>Histogram</strong></td><td>“带桶的分布统计器” 把延迟、响应大小等值扔进预设的桶（如 &lt;0.1s、&lt;0.5s、&lt;1s…），统计每个桶有多少次，还带总数和总和。</td><td>多个累加 Counter + _sum + _count</td><td>请求延迟分布、响应大小分布、文件大小分布 （最常用于计算 p99、p95 等 SLO/SLI）</td><td><code>histogram_quantile()</code> <code>rate()</code> on <code>_bucket</code> / <code>_sum</code> / <code>_count</code></td></tr><tr><td><strong>Summary</strong></td><td>“客户端自己算分位数的版本” 类似 Histogram，但客户端直接算出 p50/p90/p99，而不是服务器算。</td><td>客户端计算的分位数 + sum + count</td><td>需要精确分位数，但不想让服务器负担计算 （老版本或特定场景）</td><td><code>quantile()</code> 等</td></tr></tbody></table></div><h3 id=5-prometheus服务工作过程>5. Prometheus服务工作过程</h3><ul><li>Prometheus Daemon负责定时去被监控目标上抓取metrics(指标)数据，每个被抓取目标需要暴露一个http服务的接口给它定时抓取。Prometheus支持通过配置文件、文本文件、Zookeeper、Consul、DNS SRV Lookup等方式指定抓取目标。Prometheus采用PULL的方式进行监控，即服务器可以直接通过目标PULL数据或者间接地通过中间网关来PULL数据。</li><li>Prometheus 在本地处理抓取到的所有数据，并通过一定规则进行整理数据，并把得到的结果存储到新的时间序列中。</li><li>Prometheus通过PromQL和其他API可视化地展示收集的数据。Prometheus支持很多方式的图表可视化，例如Grafana、自带的Promdash以及自身提供的模版引擎等等。Prometheus还提供HTTP API的查询方式，自定义所需要的输出。</li><li>PushGateway支持Client主动推送metrics到PushGateway，而Prometheus只是定时去Gateway上抓取数据。</li><li>Alertmanager是独立于Prometheus的一个组件，可以支持Prometheus的查询语句，提供十分灵活的报警方式。</li></ul><h3 id=6-实验前准备>6. 实验前准备</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>0.	一定要先配置多台服务器之间的时间同步（ntp 或 chrony）
+</span></span><span class=line><span class=cl>dnf -y install chrony
+</span></span><span class=line><span class=cl>1.	由于使用单机模式部署，所以有些软件的安装或者配置的生效需要连接到互联网<span class=o>(</span>通网<span class=o>)</span>
+</span></span><span class=line><span class=cl>2.	为了方便识别主机身份，可以给主机设置不同的主机名和域名解析<span class=o>(</span>hosts<span class=o>)</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=二prometheus---prometheus-server部署>二、Prometheus - Prometheus Server部署</h2><ol><li>下载并安装Prometheus Server服务</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 上传本地Prometheus及相关软件包</span>
+</span></span><span class=line><span class=cl>$ rz promethues.zip
+</span></span><span class=line><span class=cl>$ unzip promethues.zip
+</span></span><span class=line><span class=cl>$ ls -l promethues/
+</span></span><span class=line><span class=cl>-rw-r--r-- <span class=m>1</span> root root <span class=m>23928771</span> 12月 <span class=m>17</span> <span class=m>2019</span> alertmanager-0.20.0.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>-rw-r--r-- <span class=m>1</span> root root <span class=m>61032119</span> 12月 <span class=m>17</span> <span class=m>2019</span> grafana-6.5.2.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>-rw-r--r-- <span class=m>1</span> root root  <span class=m>8083296</span> 12月 <span class=m>17</span> <span class=m>2019</span> node_exporter-0.18.1.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>-rw-r--r-- <span class=m>1</span> root root <span class=m>58625125</span> 12月 <span class=m>17</span> <span class=m>2019</span> prometheus-2.14.0.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 单独解压缩Prometheus软件，完成安装</span>
+</span></span><span class=line><span class=cl>$ tar -xf prometheus-2.14.0.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>$ <span class=nb>cd</span> prometheus-2.14.0.linux-amd64/
+</span></span><span class=line><span class=cl>$ tree ./
+</span></span><span class=line><span class=cl>./
+</span></span><span class=line><span class=cl>├── console_libraries
+</span></span><span class=line><span class=cl>│   ├── menu.lib
+</span></span><span class=line><span class=cl>│   └── prom.lib
+</span></span><span class=line><span class=cl>├── consoles
+</span></span><span class=line><span class=cl>│   ├── index.html.example
+</span></span><span class=line><span class=cl>│   ├── node-cpu.html
+</span></span><span class=line><span class=cl>│   ├── node-disk.html
+</span></span><span class=line><span class=cl>│   ├── node.html
+</span></span><span class=line><span class=cl>│   ├── node-overview.html
+</span></span><span class=line><span class=cl>│   ├── prometheus.html
+</span></span><span class=line><span class=cl>│   └── prometheus-overview.html
+</span></span><span class=line><span class=cl>├── LICENSE
+</span></span><span class=line><span class=cl>├── NOTICE
+</span></span><span class=line><span class=cl>├── prometheus		<span class=c1># 启动文件</span>
+</span></span><span class=line><span class=cl>├── prometheus.yml	<span class=c1># 配置文件(启动时被调用)</span>
+</span></span><span class=line><span class=cl>├── promtool
+</span></span><span class=line><span class=cl>└── tsdb
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Prometheus安装非常简单，解压缩复制到自定义目录下即可，约定成俗的习惯：/usr/local/prometheus</span>
+</span></span><span class=line><span class=cl>$ cp -r prometheus-2.14.0.linux-amd64/ /usr/local/prometheus
+</span></span></code></pre></td></tr></table></div></div><ol start=2><li>编写Prometheus service启动脚本</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ cat&gt;/usr/local/prometheus/prometheus.service<span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>[Unit]
+</span></span></span><span class=line><span class=cl><span class=s>Description=Prometheus
+</span></span></span><span class=line><span class=cl><span class=s>After=network.target
+</span></span></span><span class=line><span class=cl><span class=s> 
+</span></span></span><span class=line><span class=cl><span class=s>[Service]
+</span></span></span><span class=line><span class=cl><span class=s>Type=simple
+</span></span></span><span class=line><span class=cl><span class=s>User=root
+</span></span></span><span class=line><span class=cl><span class=s>WorkingDirectory=/usr/local/prometheus
+</span></span></span><span class=line><span class=cl><span class=s>ExecStart=/usr/local/prometheus/prometheus --config.file=/usr/local/prometheus/prometheus.yml
+</span></span></span><span class=line><span class=cl><span class=s> 
+</span></span></span><span class=line><span class=cl><span class=s>Restart=on-failure
+</span></span></span><span class=line><span class=cl><span class=s>LimitNOFILE=65536
+</span></span></span><span class=line><span class=cl><span class=s> 
+</span></span></span><span class=line><span class=cl><span class=s>[Install]
+</span></span></span><span class=line><span class=cl><span class=s>WantedBy=multi-user.target
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></td></tr></table></div></div><ol start=3><li>添加启动脚本到systemd启动管理中</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ ln -s /usr/local/prometheus/prometheus.service /etc/systemd/system/
+</span></span><span class=line><span class=cl>$ systemctl daemon-reload
+</span></span><span class=line><span class=cl>$ systemctl start prometheus
+</span></span><span class=line><span class=cl>$ systemctl <span class=nb>enable</span> prometheus
+</span></span><span class=line><span class=cl>$ netstat -antp <span class=p>|</span> grep LISTEN <span class=p>|</span> grep :9090
+</span></span><span class=line><span class=cl>tcp6       <span class=m>0</span>      <span class=m>0</span> :::9090                 :::*                    LISTEN      37984/prometheus
+</span></span></code></pre></td></tr></table></div></div><ol start=4><li>配置文件讲解</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 配置文件（原版未改）</span>
+</span></span><span class=line><span class=cl>$ vim /usr/local/prometheus/prometheus.yml
+</span></span><span class=line><span class=cl><span class=c1># 我的全局配置</span>
+</span></span><span class=line><span class=cl>global:
+</span></span><span class=line><span class=cl>  scrape_interval:     15s   <span class=c1># 将抓取间隔设置为每 15 秒，默认是每 1 分钟</span>
+</span></span><span class=line><span class=cl>  evaluation_interval: 15s   <span class=c1># 每隔 15 秒评估一次规则，默认是每 1 分钟</span>
+</span></span><span class=line><span class=cl>  <span class=c1># scrape_timeout 使用全局默认值（10 秒）</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Alertmanager 配置</span>
+</span></span><span class=line><span class=cl>alerting:
+</span></span><span class=line><span class=cl>  alertmanagers:
+</span></span><span class=line><span class=cl>  - static_configs:
+</span></span><span class=line><span class=cl>    - targets:
+</span></span><span class=line><span class=cl>      <span class=c1># - alertmanager:9093</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 加载规则文件，并按照全局的 &#39;evaluation_interval&#39; 定期评估它们</span>
+</span></span><span class=line><span class=cl>rule_files:
+</span></span><span class=line><span class=cl>  <span class=c1># - &#34;first_rules.yml&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=c1># - &#34;second_rules.yml&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 一个抓取配置，包含且仅包含一个抓取端点：</span>
+</span></span><span class=line><span class=cl><span class=c1># 这里就是 Prometheus 自身</span>
+</span></span><span class=line><span class=cl>scrape_configs:
+</span></span><span class=line><span class=cl>  <span class=c1># 抓取到的时间序列会添加一个标签 `job=&lt;job_name&gt;`，这里的 job_name 是 &#39;prometheus&#39;</span>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s1>&#39;prometheus&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># metrics_path 默认值是 &#39;/metrics&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># scheme 默认值是 &#39;http&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>    - targets: <span class=o>[</span><span class=s1>&#39;localhost:9090&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=c1># -----------------------------------------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 配置文件关键词介绍（由于alertmanager、exporter等都未安装，相关配置后面详细讲）</span>
+</span></span><span class=line><span class=cl>global:			<span class=c1># 全局配置 （如果有内部单独设定，会覆盖这个参数）</span>
+</span></span><span class=line><span class=cl>  scrape_interval:     15s
+</span></span><span class=line><span class=cl>  <span class=c1># 全局默认的数据拉取间隔</span>
+</span></span><span class=line><span class=cl>  evaluation_interval: 15s
+</span></span><span class=line><span class=cl>  <span class=c1># 全局默认的规则(主要是报警规则)拉取间隔</span>
+</span></span><span class=line><span class=cl>  scrape_timeout: 	   10s
+</span></span><span class=line><span class=cl>  <span class=c1># 全局默认的单次数据拉取超时间，默认不开启，当报context deadline exceeded错误时需要在特定的job下配置该字段，注意：scrape_timeout时间不能大于scrape_interval，否则Prometheus将会报错。</span>
+</span></span><span class=line><span class=cl>alerting:		<span class=c1># 告警插件定义，这里会设定alertmanager这个报警插件。</span>
+</span></span><span class=line><span class=cl>rule_files:		<span class=c1># 告警规则，按照设定参数进行扫描加载，用于自定义报警规则（类似触发器trigger），其报警媒介由alertmanager插件实现。</span>
+</span></span><span class=line><span class=cl>scrape_configs:	<span class=c1># 采集配置，配置数据源，包含分组job_name以及具体target，又分为静态配置和服务发现。</span>
+</span></span></code></pre></td></tr></table></div></div><ol start=5><li>通过浏览器访问指标数据和图形化界面(效果见下图)</li></ol><p>http://192.168.88.10:9090/metrics</p><p>http://192.168.88.10:9090/graph</p><h2 id=三prometheus---node-exporter部署>三、Prometheus - Node Exporter部署</h2><ol><li>解压缩并安装Node Exporter</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tar -xf node_exporter-0.18.1.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>$ cp -r node_exporter-0.18.1.linux-amd64 /usr/local/node_exporter
+</span></span></code></pre></td></tr></table></div></div><ol start=2><li>编写Node Exporter启动脚本</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ cat&gt;/usr/local/node_exporter/node_exporter.service<span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>[Unit]
+</span></span></span><span class=line><span class=cl><span class=s>Description=Node Exporter
+</span></span></span><span class=line><span class=cl><span class=s>After=network.target
+</span></span></span><span class=line><span class=cl><span class=s>Wants=network-online.target
+</span></span></span><span class=line><span class=cl><span class=s> 
+</span></span></span><span class=line><span class=cl><span class=s>[Service]
+</span></span></span><span class=line><span class=cl><span class=s>Type=simple
+</span></span></span><span class=line><span class=cl><span class=s>User=root
+</span></span></span><span class=line><span class=cl><span class=s>ExecStart=/usr/local/node_exporter/node_exporter
+</span></span></span><span class=line><span class=cl><span class=s> 
+</span></span></span><span class=line><span class=cl><span class=s>Restart=on-failure
+</span></span></span><span class=line><span class=cl><span class=s>LimitNOFILE=65536
+</span></span></span><span class=line><span class=cl><span class=s> 
+</span></span></span><span class=line><span class=cl><span class=s>[Install]
+</span></span></span><span class=line><span class=cl><span class=s>WantedBy=multi-user.target
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></td></tr></table></div></div><ol start=3><li>添加启动脚本到systemd启动管理中</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ ln -s /usr/local/node_exporter/node_exporter.service /etc/systemd/system/
+</span></span><span class=line><span class=cl>$ systemctl daemon-reload
+</span></span><span class=line><span class=cl>$ systemctl start node_exporter
+</span></span><span class=line><span class=cl>$ systemctl <span class=nb>enable</span> node_exporter
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now node_exporter
+</span></span><span class=line><span class=cl>$ netstat -antp <span class=p>|</span> grep LISTEN <span class=p>|</span> grep :9100
+</span></span><span class=line><span class=cl>tcp6       <span class=m>0</span>      <span class=m>0</span> :::9100                 :::*                    LISTEN      38150/node_exporter
+</span></span></code></pre></td></tr></table></div></div><p><font color=red>注意：以上安装除了在Prometheus Server服务器端安装也可以单独安装在其他被监控节点上</font></p><ol start=4><li>配置文件修改（修改Prometheus配置文件实现metrics数据获取）</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ vim /usr/local/prometheus/prometheus.yml 
+</span></span><span class=line><span class=cl><span class=c1># alertmanager 监控区域</span>
+</span></span><span class=line><span class=cl>alerting:
+</span></span><span class=line><span class=cl>  alertmanagers:
+</span></span><span class=line><span class=cl>  <span class=c1># 指定监控类型为静态配置</span>
+</span></span><span class=line><span class=cl>  - static_configs:
+</span></span><span class=line><span class=cl>    - targets: <span class=o>[</span><span class=s1>&#39;127.0.0.1:9093&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 指定当前 alertmanager 服务器连接方式</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>scrape_configs:
+</span></span><span class=line><span class=cl>  <span class=c1># 当前任务名称</span>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s1>&#39;prometheus&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 当前配置为静态配置，指定 Node_exporter 服务连接方式</span>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>    - targets: <span class=o>[</span><span class=s1>&#39;127.0.0.1:9100&#39;</span>,<span class=s1>&#39;192.168.5.110:9100&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>   
+</span></span><span class=line><span class=cl>$ systemctl restart prometheus
+</span></span><span class=line><span class=cl><span class=c1>#重启prometheus，加载最新配置</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=四prometheus---promql查询语言>四、Prometheus - PromQL查询语言</h2><p>​ PromQL（Prometheus Query Language）是 Prometheus 自己开发的表达式语言，语言表现力很丰富，内置函数也很多。使用它可以对时序数据进行筛选和聚合。</p><h3 id=1-promql语法>1. PromQL语法</h3><ol><li><p>数据类型</p><p>PromQL 表达式计算出来的值有以下几种类型：</p><ul><li><p><strong>瞬时向量 (Instant vector)：</strong> 一组时序，每个时序只有一个采样值</p></li><li><p><strong>区间向量 (Range vector)：</strong> 一组时序，每个时序包含一段时间内的多个采样值</p></li><li><p><strong>标量数据 (Scalar)：</strong></p></li><li><p><strong>字符串 (String)：</strong> 一个字符串，暂时未用</p></li></ul></li><li><p>时序选择器</p><p>2.1 **瞬时向量选择器：**瞬时向量选择器用来选择一组时序在某个采样点的采样值</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 最简单的情况就是指定一个度量指标，选择出所有属于该度量指标的时序的当前采样值。比如下面的表达式</span>
+</span></span><span class=line><span class=cl>http_requests_total  或 promhttp_metric_handler_requests_total
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 可以通过在后面添加用大括号包围起来的一组标签键值对来对时序进行过滤。比如下面的表达式筛选出了 `job` 为 `prometheus`，并且 `group` 为 `canary` 的时序</span>
+</span></span><span class=line><span class=cl>http_requests_total<span class=o>{</span><span class=nv>job</span><span class=o>=</span><span class=s2>&#34;prometheus&#34;</span>, <span class=nv>group</span><span class=o>=</span><span class=s2>&#34;canary&#34;</span><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 匹配标签值时可以是等于，也可以使用正则表达式。总共有下面几种匹配操作符：</span>
+</span></span><span class=line><span class=cl><span class=o>=</span> ： 完全相等
+</span></span><span class=line><span class=cl>!<span class=o>=</span>： <span class=nv>不相等</span>
+</span></span><span class=line><span class=cl><span class=o>=</span>~： 正则表达式包含匹配
+</span></span><span class=line><span class=cl>!~： 正则表达式不包含不匹配
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 下面的表达式筛选出了 environment 为 staging 或 testing 或 development，并且 method 不是 GET 的时序：</span>
+</span></span><span class=line><span class=cl>http_requests_total<span class=o>{</span><span class=nv>environment</span><span class=o>=</span>~<span class=s2>&#34;staging|testing|development&#34;</span>,method!<span class=o>=</span><span class=s2>&#34;GET&#34;</span><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 度量指标名可以使用内部标签 `__name__` 来匹配，表达式 `http_requests_total` 也可以写成 `{__name__=&#34;http_requests_total&#34;}`。表达式 `{__name__=~&#34;job:.*&#34;}` 匹配所有度量指标名称以 `job:` 打头的时序</span>
+</span></span><span class=line><span class=cl><span class=o>{</span><span class=nv>environment</span><span class=o>=</span>~<span class=s2>&#34;staging|testing|development&#34;</span>,method!<span class=o>=</span><span class=s2>&#34;GET&#34;</span>,__name__<span class=o>=</span><span class=s2>&#34;http_requests_total&#34;</span><span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=c1># 这种写法效果等同于 http_requests_total{environment=~&#34;staging|testing|development&#34;,method!=&#34;GET&#34;}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 案例：cpu_load数据抓取（浏览器访问：http://192.168.88.10:9090/graph 进行查询）</span>
+</span></span><span class=line><span class=cl>node_load15
+</span></span><span class=line><span class=cl>node_load15<span class=o>{</span><span class=nv>job</span><span class=o>=</span><span class=s2>&#34;prometheus&#34;</span><span class=o>}</span>
+</span></span><span class=line><span class=cl>node_load15<span class=o>{</span><span class=nv>instance</span><span class=o>=</span><span class=s2>&#34;192.168.88.20:9100&#34;</span>,job<span class=o>=</span><span class=s2>&#34;prometheus&#34;</span><span class=o>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>2.2 **区间向量选择器：**区间向量选择器类似于瞬时向量选择器，不同的是它选择的是过去一段时间的采样值。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 可以通过在瞬时向量选择器后面添加包含在 `[]` 里的时长来得到区间向量选择器。比如下面的表达式选出了所有度量指标为 `http_requests_total` 且 `job` 为 `prometheus` 的时序在过去 1 或 5 分钟的采样值</span>
+</span></span><span class=line><span class=cl>node_load15<span class=o>{</span><span class=nv>instance</span><span class=o>=</span><span class=s2>&#34;192.168.88.20:9100&#34;</span>,job<span class=o>=</span><span class=s2>&#34;prometheus&#34;</span><span class=o>}[</span>1m<span class=o>]</span>
+</span></span><span class=line><span class=cl>node_load15<span class=o>{</span><span class=nv>instance</span><span class=o>=</span><span class=s2>&#34;192.168.88.20:9100&#34;</span>,job<span class=o>=</span><span class=s2>&#34;prometheus&#34;</span><span class=o>}[</span>5m<span class=o>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 时长的单位可以是下面几种之一</span>
+</span></span><span class=line><span class=cl>- s：seconds
+</span></span><span class=line><span class=cl>- m：minutes
+</span></span><span class=line><span class=cl>- h：hours
+</span></span><span class=line><span class=cl>- d：days
+</span></span><span class=line><span class=cl>- w：weeks
+</span></span><span class=line><span class=cl>- y：years
+</span></span></code></pre></td></tr></table></div></div><p>2.3 <strong>偏移修饰器</strong></p><p>前面介绍的选择器默认都是以当前时间为基准时间，偏移修饰器用来调整基准时间，使其往前偏移一段时间。偏移修饰器紧跟在选择器后面，使用 offset 来指定要偏移的量。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 比如下面的表达式选择度量名称为 `node_load15` 的所有时序在 `5` 分钟前的采样值。</span>
+</span></span><span class=line><span class=cl>node_load15<span class=o>{</span><span class=nv>instance</span><span class=o>=</span><span class=s2>&#34;192.168.88.20:9100&#34;</span>,job<span class=o>=</span><span class=s2>&#34;prometheus&#34;</span><span class=o>}</span> offset 5m
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 下面的表达式选择度量名称为 `node_load15` 的所有时序在 `1` 小时前的采样值，并列出连续五分钟内的采样值。</span>
+</span></span><span class=line><span class=cl>node_load15<span class=o>{</span><span class=nv>instance</span><span class=o>=</span><span class=s2>&#34;192.168.88.20:9100&#34;</span>,job<span class=o>=</span><span class=s2>&#34;prometheus&#34;</span><span class=o>}[</span>5m<span class=o>]</span> offset 1h
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=2-promql操作符了解>2. PromQL操作符（了解）</h3><ol><li><p>二元操作符</p><p>PromQL 的二元操作符支持基本的逻辑判断和算术运算，包含算术类、比较类和逻辑类三大类</p><p>1.1 算术类二元操作符</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>+：加
+</span></span><span class=line><span class=cl>-：减
+</span></span><span class=line><span class=cl>*：乘
+</span></span><span class=line><span class=cl>/：除
+</span></span><span class=line><span class=cl>%：求余
+</span></span><span class=line><span class=cl>^：乘方
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>算术类二元操作符可以使用在标量与标量、向量与标量，以及向量与向量之间
+</span></span><span class=line><span class=cl>- 标量与标量之间，结果很明显，跟通常的算术运算一致
+</span></span><span class=line><span class=cl>- 向量与标量之间，相当于把标量跟向量里的每一个值进行运算，这些计算结果组成了一个新的向量
+</span></span><span class=line><span class=cl>- 向量与向量之间，会稍微麻烦一些。运算的时候首先会为左边向量里的每一个元素在右边向量里去寻找一个匹配元素（匹配规则后面会讲），然后对这两个匹配元素执行计算，这样每对匹配元素的计算结果组成了一个新的向量。如果没有找到匹配元素，则该元素丢弃
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 标量&amp;向量：简单来比喻就是标量是一个数字，向量是一组数字！</span>
+</span></span></code></pre></td></tr></table></div></div><p>1.2 <strong>比较类二元操作符</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=o>==</span> <span class=o>(</span>equal<span class=o>)</span>
+</span></span><span class=line><span class=cl>!<span class=o>=</span> <span class=o>(</span>not-equal<span class=o>)</span>
+</span></span><span class=line><span class=cl>&gt;  <span class=o>(</span>greater-than<span class=o>)</span>
+</span></span><span class=line><span class=cl>&lt;  <span class=o>(</span>less-than<span class=o>)</span>
+</span></span><span class=line><span class=cl>&gt;<span class=o>=</span> <span class=o>(</span>greater-or-equal<span class=o>)</span>
+</span></span><span class=line><span class=cl>&lt;<span class=o>=</span> <span class=o>(</span>less-or-equal<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>比较类二元操作符同样可以使用在标量与标量、向量与标量，以及向量与向量之间。默认执行的是过滤，也就是保留值
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>也可以通过在运算符后面跟 bool 修饰符来使得返回值 <span class=m>0</span> 和 1，而不是过滤
+</span></span><span class=line><span class=cl>node_load15<span class=o>{</span><span class=nv>instance</span><span class=o>=</span><span class=s2>&#34;192.168.88.130:9100&#34;</span><span class=o>}</span> offset 23h  &gt;  bool <span class=m>1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>- 标量与标量之间，必须跟 bool 修饰符，因此结果只可能是 0（false） 或 1（true）
+</span></span><span class=line><span class=cl>- 向量与标量之间，相当于把向量里的每一个值跟标量进行比较，结果为真则保留，否则丢弃。如果后面跟了 bool 修饰符，则结果分别为 <span class=m>1</span> 和 <span class=m>0</span>
+</span></span><span class=line><span class=cl>- 向量与向量之间，运算过程类似于算术类操作符，只不过如果比较结果为真则保留左边的值（包括度量指标和标签这些属性），否则丢弃，没找到匹配也是丢弃。如果后面跟了 bool 修饰符，则保留和丢弃时结果相应为 <span class=m>1</span> 和 <span class=m>0</span>
+</span></span></code></pre></td></tr></table></div></div><p>1.3 <strong>逻辑类二元操作符</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>and：	交集
+</span></span><span class=line><span class=cl>or：		并集
+</span></span><span class=line><span class=cl>unless：	补集
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>具体运算规则如下：
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>- <span class=sb>`</span>vector1 and vector2<span class=sb>`</span> 的结果由在 vector2 里有匹配（标签键值对组合相同）元素的 vector1 里的元素组成
+</span></span><span class=line><span class=cl>- <span class=sb>`</span>vector1 or vector2<span class=sb>`</span> 的结果由所有 vector1 里的元素加上在 vector1 里没有匹配（标签键值对组合相同）元素的 vector2 里的元素组成
+</span></span><span class=line><span class=cl>- <span class=sb>`</span>vector1 unless vector2<span class=sb>`</span> 的结果由在 vector2 里没有匹配（标签键值对组合相同）元素的 vector1 里的元素组成
+</span></span></code></pre></td></tr></table></div></div><p>1.4 <strong>二元操作符优先级</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1>#PromQL 的各类二元操作符运算优先级如下：</span>
+</span></span><span class=line><span class=cl>^
+</span></span><span class=line><span class=cl>*, /, %
+</span></span><span class=line><span class=cl>+, -
+</span></span><span class=line><span class=cl><span class=o>==</span>, !<span class=o>=</span>, &lt;<span class=o>=</span>, &lt;, &gt;<span class=o>=</span>, &gt;
+</span></span><span class=line><span class=cl>and, unless
+</span></span><span class=line><span class=cl>or
+</span></span></code></pre></td></tr></table></div></div></li><li><p>向量匹配</p><p>前面算术类和比较类操作符都需要在向量之间进行匹配。共有两种匹配类型，<code>one-to-one</code> 和 <code>many-to-one</code> | <code>one-to-many</code></p><p><strong>One-to-one 向量匹配</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>这种匹配模式下，两边向量里的元素如果其标签键值对组合相同则为匹配，并且只会有一个匹配元素。可以使用 <span class=sb>`</span>ignoring<span class=sb>`</span> 关键词来忽略不参与匹配的标签，或者使用 <span class=sb>`</span>on<span class=sb>`</span> 关键词来指定要参与匹配的标签。语法如下：
+</span></span><span class=line><span class=cl>&lt;vector expr&gt; &lt;bin-op&gt; ignoring<span class=o>(</span>&lt;label list&gt;<span class=o>)</span> &lt;vector expr&gt;
+</span></span><span class=line><span class=cl>&lt;vector expr&gt; &lt;bin-op&gt; on<span class=o>(</span>&lt;label list&gt;<span class=o>)</span> &lt;vector expr&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>比如对于下面的输入：
+</span></span><span class=line><span class=cl>method_code:http_errors:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;get&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;500&#34;</span><span class=o>}</span>  <span class=m>24</span>
+</span></span><span class=line><span class=cl>method_code:http_errors:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;get&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;404&#34;</span><span class=o>}</span>  <span class=m>30</span>
+</span></span><span class=line><span class=cl>method_code:http_errors:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;put&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;501&#34;</span><span class=o>}</span>  <span class=m>3</span>
+</span></span><span class=line><span class=cl>method_code:http_errors:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;post&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;500&#34;</span><span class=o>}</span> <span class=m>6</span>
+</span></span><span class=line><span class=cl>method_code:http_errors:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;post&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;404&#34;</span><span class=o>}</span> <span class=m>21</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>method:http_requests:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;get&#34;</span><span class=o>}</span>  <span class=m>600</span>
+</span></span><span class=line><span class=cl>method:http_requests:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;del&#34;</span><span class=o>}</span>  <span class=m>34</span>
+</span></span><span class=line><span class=cl>method:http_requests:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;post&#34;</span><span class=o>}</span> <span class=m>120</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>执行下面的查询：
+</span></span><span class=line><span class=cl>method_code:http_errors:rate5m<span class=o>{</span><span class=nv>code</span><span class=o>=</span><span class=s2>&#34;500&#34;</span><span class=o>}</span> / ignoring<span class=o>(</span>code<span class=o>)</span> method:http_requests:rate5m
+</span></span><span class=line><span class=cl>得到的结果为：
+</span></span><span class=line><span class=cl><span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;get&#34;</span><span class=o>}</span>  0.04            <span class=c1>#  24 / 600</span>
+</span></span><span class=line><span class=cl><span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;post&#34;</span><span class=o>}</span> 0.05             <span class=c1>#   6 / 120</span>
+</span></span><span class=line><span class=cl>也就是每一种 method 里 code 为 <span class=m>500</span> 的请求数占总数的百分比。由于 method 为 put 和 del 的没有匹配元素所以没有出现在结果里
+</span></span></code></pre></td></tr></table></div></div><h4 id=many-to-one--one-to-many-向量匹配>Many-to-one / one-to-many 向量匹配</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>这种匹配模式下，某一边会有多个元素跟另一边的元素匹配。这时就需要使用 <span class=sb>`</span>group_left<span class=sb>`</span> 或 <span class=sb>`</span>group_right<span class=sb>`</span> 组修饰符来指明哪边匹配元素较多，左边多则用 <span class=sb>`</span>group_left<span class=sb>`</span>，右边多则用 <span class=sb>`</span>group_right<span class=sb>`</span>。其语法如下：
+</span></span><span class=line><span class=cl>&lt;vector expr&gt; &lt;bin-op&gt; ignoring<span class=o>(</span>&lt;label list&gt;<span class=o>)</span> group_left<span class=o>(</span>&lt;label list&gt;<span class=o>)</span> &lt;vector expr&gt;
+</span></span><span class=line><span class=cl>&lt;vector expr&gt; &lt;bin-op&gt; ignoring<span class=o>(</span>&lt;label list&gt;<span class=o>)</span> group_right<span class=o>(</span>&lt;label list&gt;<span class=o>)</span> &lt;vector expr&gt;
+</span></span><span class=line><span class=cl>&lt;vector expr&gt; &lt;bin-op&gt; on<span class=o>(</span>&lt;label list&gt;<span class=o>)</span> group_left<span class=o>(</span>&lt;label list&gt;<span class=o>)</span> &lt;vector expr&gt;
+</span></span><span class=line><span class=cl>&lt;vector expr&gt; &lt;bin-op&gt; on<span class=o>(</span>&lt;label list&gt;<span class=o>)</span> group_right<span class=o>(</span>&lt;label list&gt;<span class=o>)</span> &lt;vector expr&gt;
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>比如对于下面的输入：
+</span></span><span class=line><span class=cl>method_code:http_errors:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;get&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;500&#34;</span><span class=o>}</span>  <span class=m>24</span>
+</span></span><span class=line><span class=cl>method_code:http_errors:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;get&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;404&#34;</span><span class=o>}</span>  <span class=m>30</span>
+</span></span><span class=line><span class=cl>method_code:http_errors:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;put&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;501&#34;</span><span class=o>}</span>  <span class=m>3</span>
+</span></span><span class=line><span class=cl>method_code:http_errors:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;post&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;500&#34;</span><span class=o>}</span> <span class=m>6</span>
+</span></span><span class=line><span class=cl>method_code:http_errors:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;post&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;404&#34;</span><span class=o>}</span> <span class=m>21</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>method:http_requests:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;get&#34;</span><span class=o>}</span>  <span class=m>600</span>
+</span></span><span class=line><span class=cl>method:http_requests:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;del&#34;</span><span class=o>}</span>  <span class=m>34</span>
+</span></span><span class=line><span class=cl>method:http_requests:rate5m<span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;post&#34;</span><span class=o>}</span> <span class=m>120</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>组修饰符只适用于算术类和比较类操作符，对于前面的输入，执行下面的查询：
+</span></span><span class=line><span class=cl>method_code:http_errors:rate5m / ignoring<span class=o>(</span>code<span class=o>)</span> group_left method:http_requests:rate5m
+</span></span><span class=line><span class=cl>将得到下面的结果：
+</span></span><span class=line><span class=cl><span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;get&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;500&#34;</span><span class=o>}</span>  0.04            //  <span class=m>24</span> / <span class=m>600</span>
+</span></span><span class=line><span class=cl><span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;get&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;404&#34;</span><span class=o>}</span>  0.05            //  <span class=m>30</span> / <span class=m>600</span>
+</span></span><span class=line><span class=cl><span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;post&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;500&#34;</span><span class=o>}</span> 0.05            //   <span class=m>6</span> / <span class=m>120</span>
+</span></span><span class=line><span class=cl><span class=o>{</span><span class=nv>method</span><span class=o>=</span><span class=s2>&#34;post&#34;</span>, <span class=nv>code</span><span class=o>=</span><span class=s2>&#34;404&#34;</span><span class=o>}</span> 0.175           //  <span class=m>21</span> / <span class=m>120</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>也就是每种 method 的每种 code 错误次数占每种 method 请求数的比例。这里匹配的时候 ignoring 了 code，才使得两边可以形成 Many-to-one 形式的匹配。由于左边多，所以需要使用 group_left 来指明
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Many-to-one / one-to-many 过于高级和复杂，要尽量避免使用。但很多时候通过 ignoring 就可以解决问题
+</span></span></code></pre></td></tr></table></div></div></li><li><p>聚合操作符</p><p>PromQL 的聚合操作符用来将向量里的元素聚合得更少。总共有下面这些聚合操作符：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sum：求和
+</span></span><span class=line><span class=cl>min：最小值
+</span></span><span class=line><span class=cl>max：最大值
+</span></span><span class=line><span class=cl>avg：平均值
+</span></span><span class=line><span class=cl>stddev：标准差
+</span></span><span class=line><span class=cl>stdvar：方差
+</span></span><span class=line><span class=cl>count：元素个数
+</span></span><span class=line><span class=cl>count_values：等于某值的元素个数
+</span></span><span class=line><span class=cl>bottomk：最小的 k 个元素
+</span></span><span class=line><span class=cl>topk：最大的 k 个元素
+</span></span><span class=line><span class=cl>quantile：分位数
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>聚合操作符语法如下：
+</span></span><span class=line><span class=cl>&lt;aggr-op&gt;<span class=o>([</span>parameter,<span class=o>]</span> &lt;vector expression&gt;<span class=o>)</span> <span class=o>[</span>without<span class=p>|</span>by <span class=o>(</span>&lt;label list&gt;<span class=o>)]</span>
+</span></span><span class=line><span class=cl>其中 <span class=sb>`</span>without<span class=sb>`</span> 用来指定不需要保留的标签（也就是这些标签的多个值会被聚合），而 <span class=sb>`</span>by<span class=sb>`</span> 正好相反，用来指定需要保留的标签（也就是按这些标签来聚合）
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>下面来看几个示例：
+</span></span><span class=line><span class=cl>sum<span class=o>(</span>http_requests_total<span class=o>)</span> without <span class=o>(</span>instance<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>http_requests_total 度量指标带有 application、instance 和 group 三个标签。上面的表达式会得到每个 application 的每个 group 在所有 instance 上的请求总数。效果等同于下面的表达式：
+</span></span><span class=line><span class=cl>sum<span class=o>(</span>http_requests_total<span class=o>)</span> by <span class=o>(</span>application, group<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>下面的表达式可以得到所有 application 的所有 group 的所有 instance 的请求总数
+</span></span><span class=line><span class=cl>sum<span class=o>(</span>http_requests_total<span class=o>)</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=3-promql函数了解>3. PromQL函数（了解）</h3><p>Prometheus 内置了一些函数来辅助计算，下面介绍一些典型的</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>abs<span class=o>()</span>：绝对值
+</span></span><span class=line><span class=cl>sqrt<span class=o>()</span>：平方根
+</span></span><span class=line><span class=cl>exp<span class=o>()</span>：指数计算
+</span></span><span class=line><span class=cl>ln<span class=o>()</span>：自然对数
+</span></span><span class=line><span class=cl>ceil<span class=o>()</span>：向上取整
+</span></span><span class=line><span class=cl>floor<span class=o>()</span>：向下取整
+</span></span><span class=line><span class=cl>round<span class=o>()</span>：四舍五入取整
+</span></span><span class=line><span class=cl>delta<span class=o>()</span>：计算区间向量里每一个时序第一个和最后一个的差值
+</span></span><span class=line><span class=cl>sort<span class=o>()</span>：排序
+</span></span></code></pre></td></tr></table></div></div><h2 id=五prometheus---alertmanager部署>五、Prometheus - AlertManager部署</h2><h3 id=1-alertmanager组件安装>1. alertmanager组件安装</h3><ol><li><p>下载并安装alertmanager组件</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tar -xf alertmanager-0.20.0.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>$ cp -r alertmanager-0.20.0.linux-amd64 /usr/local/alertmanager
+</span></span></code></pre></td></tr></table></div></div></li><li><p>编写alertmanager启动脚本</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ cat&gt;/usr/local/alertmanager/alertmanager.service<span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>[Unit]
+</span></span></span><span class=line><span class=cl><span class=s>Description=Alertmanager
+</span></span></span><span class=line><span class=cl><span class=s>After=network.target
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Service]
+</span></span></span><span class=line><span class=cl><span class=s>Type=simple
+</span></span></span><span class=line><span class=cl><span class=s>User=root
+</span></span></span><span class=line><span class=cl><span class=s>WorkingDirectory=/usr/local/alertmanager
+</span></span></span><span class=line><span class=cl><span class=s>ExecStart=/usr/local/alertmanager/alertmanager
+</span></span></span><span class=line><span class=cl><span class=s>Restart=on-failure
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Install]
+</span></span></span><span class=line><span class=cl><span class=s>WantedBy=multi-user.target
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>添加启动脚本到systemd启动管理中</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ ln -s /usr/local/alertmanager/alertmanager.service /lib/systemd/system/
+</span></span><span class=line><span class=cl>$ systemctl daemon-reload
+</span></span><span class=line><span class=cl>$ systemctl start alertmanager
+</span></span><span class=line><span class=cl>$ systemctl <span class=nb>enable</span> alertmanager
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#默认没有被Prometheus调用，需要修改peometheus配置文件调用alertmanager组件</span>
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=2-alertmanager组件配置>2. alertmanager组件配置</h3><ol><li><p>修改配置文件 - 实现基于邮件的报警（备份原始的，覆盖修改）</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$  vim /usr/local/alertmanager/alertmanager.yml 
+</span></span><span class=line><span class=cl>global:
+</span></span><span class=line><span class=cl>  <span class=c1># 在没有报警的情况下声明为已解决的时间</span>
+</span></span><span class=line><span class=cl>  resolve_timeout: 5m
+</span></span><span class=line><span class=cl>  <span class=c1># 配置邮件发送信息</span>
+</span></span><span class=line><span class=cl>  smtp_smarthost: <span class=s1>&#39;smtp.126.com:25&#39;</span>
+</span></span><span class=line><span class=cl>  smtp_from: <span class=s1>&#39;xbz_001@126.com&#39;</span>
+</span></span><span class=line><span class=cl>  smtp_auth_username: <span class=s1>&#39;xbz_001@126.com&#39;</span>
+</span></span><span class=line><span class=cl>  smtp_auth_password: <span class=s1>&#39;xbz_001@126.com-password&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=c1># 需要去网页端申请第三方登录专属密码</span>
+</span></span><span class=line><span class=cl>  smtp_hello: <span class=s1>&#39;126.com&#39;</span>
+</span></span><span class=line><span class=cl>  smtp_require_tls: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>route:
+</span></span><span class=line><span class=cl>  group_by: <span class=o>[</span><span class=s1>&#39;alertname&#39;</span>, <span class=s1>&#39;cluster&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>  group_wait: 30s
+</span></span><span class=line><span class=cl>  group_interval: 5m
+</span></span><span class=line><span class=cl>  repeat_interval: 5m
+</span></span><span class=line><span class=cl>  receiver: default
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>receivers:
+</span></span><span class=line><span class=cl>- name: <span class=s1>&#39;default&#39;</span>
+</span></span><span class=line><span class=cl>  email_configs:
+</span></span><span class=line><span class=cl>  - to: <span class=s1>&#39;xbz_002@126.com&#39;</span>
+</span></span><span class=line><span class=cl>    send_resolved: <span class=nb>true</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>添加报警规则，进行效果测试</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 修改 /usr/local/prometheus/prometheus.yml 文件添加规则文件</span>
+</span></span><span class=line><span class=cl>$ vim /usr/local/prometheus/prometheus.yml
+</span></span><span class=line><span class=cl>alerting:
+</span></span><span class=line><span class=cl>  alertmanagers:
+</span></span><span class=line><span class=cl>  - static_configs:
+</span></span><span class=line><span class=cl>    - targets:
+</span></span><span class=line><span class=cl>       - node1.hongfuedu.com:9093
+</span></span><span class=line><span class=cl>       <span class=c1># 一定要开启prometheus对alertmanager的端口调用！！！</span>
+</span></span><span class=line><span class=cl>rule_files:
+</span></span><span class=line><span class=cl>  - <span class=s2>&#34;rules/*rules.yml&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 创建并修改 /usr/local/prometheus/rules/node1_rules.yml 文件添加监控规则</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>$ mkdir /usr/local/prometheus/rules/
+</span></span><span class=line><span class=cl>$ vim /usr/local/prometheus/rules/node1_rules.yml
+</span></span><span class=line><span class=cl>groups:
+</span></span><span class=line><span class=cl>  - name: test-rules
+</span></span><span class=line><span class=cl>    rules:
+</span></span><span class=line><span class=cl>      - alert: InstanceDown
+</span></span><span class=line><span class=cl>        <span class=c1># 改用 1 分钟窗口，且降低阈值到 0.01 确保必触发</span>
+</span></span><span class=line><span class=cl>        expr: avg<span class=o>(</span>irate<span class=o>(</span>node_cpu_seconds_total<span class=o>{</span><span class=nv>mode</span><span class=o>=</span><span class=s2>&#34;user&#34;</span><span class=o>}[</span>1m<span class=o>]))</span> by <span class=o>(</span>instance<span class=o>)</span> &gt;<span class=o>=</span> 0.01
+</span></span><span class=line><span class=cl>        <span class=c1># 持续 10 秒即报警</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span>: 10s
+</span></span><span class=line><span class=cl>        labels:
+</span></span><span class=line><span class=cl>          status: warning
+</span></span><span class=line><span class=cl>        annotations:
+</span></span><span class=line><span class=cl>          summary: <span class=s2>&#34;{{</span><span class=nv>$labels</span><span class=s2>.instance}}: CPU Load is too high&#34;</span>
+</span></span><span class=line><span class=cl>          description: <span class=s2>&#34;关键词: 2509, {{</span><span class=nv>$labels</span><span class=s2>.instance}} CPU负载异常&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>报警规则模版
+</span></span><span class=line><span class=cl>groups:
+</span></span><span class=line><span class=cl>- name: <span class=nb>test</span>
+</span></span><span class=line><span class=cl>  rules:
+</span></span><span class=line><span class=cl>  - alert: CPU负载1分钟告警
+</span></span><span class=line><span class=cl>    expr:  node_load1 / count <span class=o>(</span>count <span class=o>(</span>node_cpu_seconds_total<span class=o>)</span> without <span class=o>(</span>mode<span class=o>))</span> by <span class=o>(</span>instance, job<span class=o>)</span> &gt; 2.5
+</span></span><span class=line><span class=cl>    <span class=k>for</span>: 1m  
+</span></span><span class=line><span class=cl>    labels:
+</span></span><span class=line><span class=cl>      level: warning
+</span></span><span class=line><span class=cl>    annotations:
+</span></span><span class=line><span class=cl>      summary: <span class=s2>&#34;{{ </span><span class=nv>$labels</span><span class=s2>.instance }} CPU负载告警 &#34;</span>
+</span></span><span class=line><span class=cl>      description: <span class=s2>&#34;{{</span><span class=nv>$labels</span><span class=s2>.instance}} 1分钟CPU负载(当前值: {{ </span><span class=nv>$value</span><span class=s2> }})&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  - alert: CPU使用率告警
+</span></span><span class=line><span class=cl>    expr:  <span class=m>1</span> - avg<span class=o>(</span>irate<span class=o>(</span>node_cpu_seconds_total<span class=o>{</span><span class=nv>mode</span><span class=o>=</span><span class=s2>&#34;idle&#34;</span><span class=o>}[</span>30m<span class=o>]))</span> by <span class=o>(</span>instance<span class=o>)</span> &gt; 0.85
+</span></span><span class=line><span class=cl>    <span class=k>for</span>: 1m  
+</span></span><span class=line><span class=cl>    labels:
+</span></span><span class=line><span class=cl>      level: warning
+</span></span><span class=line><span class=cl>    annotations:
+</span></span><span class=line><span class=cl>      summary: <span class=s2>&#34;{{ </span><span class=nv>$labels</span><span class=s2>.instance }} CPU使用率告警 &#34;</span>
+</span></span><span class=line><span class=cl>      description: <span class=s2>&#34;{{</span><span class=nv>$labels</span><span class=s2>.instance}} CPU使用率超过85%(当前值: {{ </span><span class=nv>$value</span><span class=s2> }} )&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  - alert: CPU使用率告警 
+</span></span><span class=line><span class=cl>    expr: <span class=m>1</span> - avg<span class=o>(</span>irate<span class=o>(</span>node_cpu_seconds_total<span class=o>{</span><span class=nv>mode</span><span class=o>=</span><span class=s2>&#34;idle&#34;</span><span class=o>}[</span>30m<span class=o>]))</span> by <span class=o>(</span>instance<span class=o>)</span> &gt; 0.9
+</span></span><span class=line><span class=cl>    <span class=k>for</span>: 1m
+</span></span><span class=line><span class=cl>    labels:
+</span></span><span class=line><span class=cl>      level: warning
+</span></span><span class=line><span class=cl>    annotations:
+</span></span><span class=line><span class=cl>      summary: <span class=s2>&#34;{{ </span><span class=nv>$labels</span><span class=s2>.instance }} CPU负载告警 &#34;</span>
+</span></span><span class=line><span class=cl>      description: <span class=s2>&#34;{{</span><span class=nv>$labels</span><span class=s2>.instance}} CPU使用率超过90%(当前值: {{ </span><span class=nv>$value</span><span class=s2> }})&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  - alert:  内存使用率告警
+</span></span><span class=line><span class=cl>    expr:  <span class=o>(</span>1-node_memory_MemAvailable_bytes /  node_memory_MemTotal_bytes<span class=o>)</span> * <span class=m>100</span> &gt; <span class=m>60</span>
+</span></span><span class=line><span class=cl>    labels:
+</span></span><span class=line><span class=cl>      level: critical
+</span></span><span class=line><span class=cl>    annotations:
+</span></span><span class=line><span class=cl>      summary: <span class=s2>&#34;{{ </span><span class=nv>$labels</span><span class=s2>.instance }} 可用内存不足告警&#34;</span>
+</span></span><span class=line><span class=cl>      description: <span class=s2>&#34;{{</span><span class=nv>$labels</span><span class=s2>.instance}} 内存使用率已达90% (当前值: {{ </span><span class=nv>$value</span><span class=s2> }})&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  - alert:  磁盘使用率告警
+</span></span><span class=line><span class=cl>    expr: <span class=m>100</span> - <span class=o>(</span>node_filesystem_avail_bytes<span class=o>{</span><span class=nv>fstype</span><span class=o>=</span>~<span class=s2>&#34;ext4|xfs&#34;</span><span class=o>}</span> / node_filesystem_size_bytes<span class=o>{</span><span class=nv>fstype</span><span class=o>=</span>~<span class=s2>&#34;ext4|xfs&#34;</span><span class=o>})</span> * <span class=m>100</span> &gt; <span class=m>85</span>
+</span></span><span class=line><span class=cl>    labels:
+</span></span><span class=line><span class=cl>      level: warning
+</span></span><span class=line><span class=cl>    annotations:
+</span></span><span class=line><span class=cl>      summary: <span class=s2>&#34;{{ </span><span class=nv>$labels</span><span class=s2>.instance }} 磁盘使用率告警&#34;</span>
+</span></span><span class=line><span class=cl>      description: <span class=s2>&#34;{{</span><span class=nv>$labels</span><span class=s2>.instance}} 磁盘使用率已超过85% (当前值: {{ </span><span class=nv>$value</span><span class=s2> }})&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><p>注意：修改后重启prometheus服务，然后网页访问测试。</p></li><li><p>创建资源消耗任务，触发报警规则实现报警</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ dd <span class=k>if</span><span class=o>=</span>/dev/zero <span class=nv>of</span><span class=o>=</span>/dev/null <span class=p>&amp;</span>
+</span></span><span class=line><span class=cl><span class=c1>#多次执行消耗CPU性能</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>接入微信报警媒介（需大家自行创建企业微信的组织才能获取以下信息，微信版本变更导致配置不一样）</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ vim /usr/local/alertmanager/alertmanaget.yml
+</span></span><span class=line><span class=cl>global:
+</span></span><span class=line><span class=cl>  resolve_timeout: 2m
+</span></span><span class=line><span class=cl>  <span class=c1># 微信的外部接口</span>
+</span></span><span class=line><span class=cl>  wechat_api_url: <span class=s1>&#39;https://qyapi.weixin.qq.com/cgi-bin/&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=c1># 指定机器人访问接口</span>
+</span></span><span class=line><span class=cl>  wechat_api_secret: <span class=s1>&#39;421b673f-fcd9-4ea8-aa59-43536d1e38dd&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=c1># 指定企业 Id 号，在我的企业最后一行中查看</span>
+</span></span><span class=line><span class=cl>  wechat_api_corp_id: <span class=s1>&#39;wwdc570252afe3c2ee&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>route:
+</span></span><span class=line><span class=cl>  group_by: <span class=o>[</span><span class=s1>&#39;alertname&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>  group_wait: 10s
+</span></span><span class=line><span class=cl>  group_interval: 10s
+</span></span><span class=line><span class=cl>  repeat_interval: 1h
+</span></span><span class=line><span class=cl>  receiver: <span class=s1>&#39;wechat&#39;</span>
+</span></span><span class=line><span class=cl>receivers:
+</span></span><span class=line><span class=cl>- name: <span class=s1>&#39;wechat&#39;</span>
+</span></span><span class=line><span class=cl>  wechat_configs:
+</span></span><span class=line><span class=cl>  - send_resolved: <span class=nb>true</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 指定发送到的用户或者组的 ID 号</span>
+</span></span><span class=line><span class=cl>    to_party: <span class=s1>&#39;1&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 指定机器人的 ID 号</span>
+</span></span><span class=line><span class=cl>    agent_id: <span class=s1>&#39;1&#39;</span>
+</span></span></code></pre></td></tr></table></div></div><p>重启alertmanager测试效果</p></li><li><p>接入钉钉报警媒介</p><h5 id=1-钉钉转发插件部署-prometheus-webhook-dingtalk>1. 钉钉转发插件部署 (prometheus-webhook-dingtalk)</h5><p>由于 Alertmanager 不支持直接对接钉钉，需部署中间件进行协议转换。</p><h6 id=11-安装与目录规划>1.1 安装与目录规划</h6><p>Bash</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-gdscript3 data-lang=gdscript3><span class=line><span class=cl><span class=c1># 下载并解压插件</span>
+</span></span><span class=line><span class=cl><span class=n>wget</span> <span class=n>https</span><span class=p>:</span><span class=o>//</span><span class=n>github</span><span class=o>.</span><span class=n>com</span><span class=o>/</span><span class=n>timonwong</span><span class=o>/</span><span class=n>prometheus</span><span class=o>-</span><span class=n>webhook</span><span class=o>-</span><span class=n>dingtalk</span><span class=o>/</span><span class=n>releases</span><span class=o>/</span><span class=n>download</span><span class=o>/</span><span class=n>v2</span><span class=o>.</span><span class=mf>1.0</span><span class=o>/</span><span class=n>prometheus</span><span class=o>-</span><span class=n>webhook</span><span class=o>-</span><span class=n>dingtalk</span><span class=o>-</span><span class=mf>2.1</span><span class=o>.</span><span class=mf>0.</span><span class=n>linux</span><span class=o>-</span><span class=n>amd64</span><span class=o>.</span><span class=n>tar</span><span class=o>.</span><span class=n>gz</span>
+</span></span><span class=line><span class=cl><span class=n>tar</span> <span class=o>-</span><span class=n>xf</span> <span class=n>prometheus</span><span class=o>-</span><span class=n>webhook</span><span class=o>-</span><span class=n>dingtalk</span><span class=o>-</span><span class=mf>2.1</span><span class=o>.</span><span class=mf>0.</span><span class=n>linux</span><span class=o>-</span><span class=n>amd64</span><span class=o>.</span><span class=n>tar</span><span class=o>.</span><span class=n>gz</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 移动至标准存放路径</span>
+</span></span><span class=line><span class=cl><span class=n>mkdir</span> <span class=o>-</span><span class=n>p</span> <span class=o>/</span><span class=n>usr</span><span class=o>/</span><span class=n>local</span><span class=o>/</span><span class=n>dingtalk</span>
+</span></span><span class=line><span class=cl><span class=n>cp</span> <span class=o>-</span><span class=n>r</span> <span class=n>prometheus</span><span class=o>-</span><span class=n>webhook</span><span class=o>-</span><span class=n>dingtalk</span><span class=o>-</span><span class=mf>2.1</span><span class=o>.</span><span class=mf>0.</span><span class=n>linux</span><span class=o>-</span><span class=n>amd64</span> <span class=o>/</span><span class=n>usr</span><span class=o>/</span><span class=n>local</span><span class=o>/</span><span class=n>dingtalk</span><span class=o>/</span>
+</span></span></code></pre></td></tr></table></div></div><h6 id=12-创建插件配置文件-关键包含关键词-2509>1.2 创建插件配置文件 (关键：包含关键词 2509)</h6><p>必须创建一个 <code>config.yml</code> 来配置钉钉机器人 Token，并在模板中固定加入关键词。</p><p>Bash</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>cat &gt; /usr/local/dingtalk/config.yml &lt;&lt;EOF
+</span></span><span class=line><span class=cl>targets:
+</span></span><span class=line><span class=cl>  webhook1:
+</span></span><span class=line><span class=cl>    url: https://oapi.dingtalk.com/robot/send?access_token=a7c0ba5ccc60bc02f3b180f081f75092bb72360a2a9e353dec27c21f7c7df8ac
+</span></span><span class=line><span class=cl>    message:
+</span></span><span class=line><span class=cl>      # 固定加上关键词 2509 以通过钉钉安全校验
+</span></span><span class=line><span class=cl>      title: &#39;{{ .Status | upper }} - 监控报警 (2509)&#39;
+</span></span><span class=line><span class=cl>      text: |
+</span></span><span class=line><span class=cl>        {{ range .Alerts }}
+</span></span><span class=line><span class=cl>        **报警项目**: {{ .Labels.alertname }}
+</span></span><span class=line><span class=cl>        **详细内容**: {{ .Annotations.description }} (Code: 2509)
+</span></span><span class=line><span class=cl>        ---
+</span></span><span class=line><span class=cl>        {{ end }}
+</span></span><span class=line><span class=cl>EOF
+</span></span></code></pre></td></tr></table></div></div><h6 id=13-注册-systemd-服务>1.3 注册 Systemd 服务</h6><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>cat &gt; /usr/local/dingtalk/dingtalk.service <span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>[Unit]
+</span></span></span><span class=line><span class=cl><span class=s>Description=dingtalk
+</span></span></span><span class=line><span class=cl><span class=s>After=network.target
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Service]
+</span></span></span><span class=line><span class=cl><span class=s>Type=simple
+</span></span></span><span class=line><span class=cl><span class=s>User=root
+</span></span></span><span class=line><span class=cl><span class=s>WorkingDirectory=/usr/local/dingtalk/
+</span></span></span><span class=line><span class=cl><span class=s># 必须指定配置文件路径
+</span></span></span><span class=line><span class=cl><span class=s>ExecStart=/usr/local/dingtalk/prometheus-webhook-dingtalk --config.file=/usr/local/dingtalk/config.yml
+</span></span></span><span class=line><span class=cl><span class=s>Restart=on-failure
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Install]
+</span></span></span><span class=line><span class=cl><span class=s>WantedBy=multi-user.target
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>注意prometheus-webhook-dingtalk一定要放在dingtalk目录下面
+</span></span><span class=line><span class=cl><span class=c1># 启动并设置开机自启</span>
+</span></span><span class=line><span class=cl>ln -sf /usr/local/dingtalk/dingtalk.service /lib/systemd/system/
+</span></span><span class=line><span class=cl>systemctl daemon-reload
+</span></span><span class=line><span class=cl>systemctl start dingtalk
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> dingtalk
+</span></span></code></pre></td></tr></table></div></div><hr><h5 id=2-alertmanager-配置优化>2. Alertmanager 配置优化</h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>global:
+</span></span><span class=line><span class=cl>  resolve_timeout: 5m
+</span></span><span class=line><span class=cl>  <span class=c1># 邮件发送服务器配置 (使用 xbz_002 作为发件人)</span>
+</span></span><span class=line><span class=cl>  smtp_smarthost: <span class=s1>&#39;smtp.126.com:25&#39;</span>
+</span></span><span class=line><span class=cl>  smtp_from: <span class=s1>&#39;xbz_002@126.com&#39;</span>
+</span></span><span class=line><span class=cl>  smtp_auth_username: <span class=s1>&#39;xbz_002@126.com&#39;</span>
+</span></span><span class=line><span class=cl>  smtp_auth_password: <span class=s1>&#39;xbz_002@126.com-password&#39;</span> <span class=c1># 替换为授权码</span>
+</span></span><span class=line><span class=cl>  smtp_hello: <span class=s1>&#39;126.com&#39;</span>
+</span></span><span class=line><span class=cl>  smtp_require_tls: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>route:
+</span></span><span class=line><span class=cl>  group_by: <span class=o>[</span><span class=s1>&#39;alertname&#39;</span>, <span class=s1>&#39;cluster&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>  group_wait: 30s
+</span></span><span class=line><span class=cl>  group_interval: 5m
+</span></span><span class=line><span class=cl>  repeat_interval: 5m
+</span></span><span class=line><span class=cl>  receiver: default
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>receivers:
+</span></span><span class=line><span class=cl>- name: <span class=s1>&#39;default&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=c1># 邮件接收者配置 (发送至 xbz_002)</span>
+</span></span><span class=line><span class=cl>  email_configs:
+</span></span><span class=line><span class=cl>  - to: <span class=s1>&#39;xbz_002@126.com&#39;</span>
+</span></span><span class=line><span class=cl>    send_resolved: <span class=nb>true</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># 钉钉 Webhook 配置</span>
+</span></span><span class=line><span class=cl>  webhook_configs:
+</span></span><span class=line><span class=cl>  - url: <span class=s1>&#39;http://127.0.0.1:8060/dingtalk/webhook1/send&#39;</span> 
+</span></span><span class=line><span class=cl>  <span class=c1># 如果在一台机器，建议用回环地址，对应插件 config 中的 webhook1</span>
+</span></span><span class=line><span class=cl>    send_resolved: <span class=nb>true</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl> systemctl restart alertmanager.service
+</span></span></code></pre></td></tr></table></div></div><hr><h5 id=3-链路检查清单>3. 链路检查清单</h5><ol><li><strong>服务状态</strong>：检查端口 <code>8060</code> 是否正常监听（<code>netstat -lntp</code>）。</li><li><strong>关键词匹配</strong>：钉钉后台设置的关键词为 <code>2509</code>，确保 <code>config.yml</code> 模板中包含此数字。</li><li><strong>Webhook 路径</strong>：Alertmanager 填写的 URL 结尾必须是 <code>/send</code>。</li><li><strong>邮件验证</strong>：确保 <code>xbz_002@126.com</code> 已开启 SMTP 服务并获取了第三方登录授权码。</li></ol></li></ol><h2 id=六prometheus---grafana部署>六、Prometheus - Grafana部署</h2><h3 id=1-grafana组件安装>1. Grafana组件安装</h3><ol><li><p>下载并安装Prometheus Server服务</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ tar -xf grafana-6.5.2.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>$ cp -r grafana-6.5.2 /usr/local/grafana
+</span></span></code></pre></td></tr></table></div></div></li><li><p>编写Prometheus service启动脚本</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ cat&gt;/usr/local/grafana/grafana-server.service<span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>[Unit]
+</span></span></span><span class=line><span class=cl><span class=s>Description=Grafana Server
+</span></span></span><span class=line><span class=cl><span class=s>After=network.target
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Service]
+</span></span></span><span class=line><span class=cl><span class=s>Type=simple
+</span></span></span><span class=line><span class=cl><span class=s>User=root
+</span></span></span><span class=line><span class=cl><span class=s>WorkingDirectory=/usr/local/grafana
+</span></span></span><span class=line><span class=cl><span class=s>ExecStart=/usr/local/grafana/bin/grafana-server
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>Restart=on-failure
+</span></span></span><span class=line><span class=cl><span class=s>LimitNOFILE=65536
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Install]
+</span></span></span><span class=line><span class=cl><span class=s>WantedBy=multi-user.target
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>添加启动脚本到systemd启动管理中</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ ln -s /usr/local/grafana/grafana-server.service /etc/systemd/system/
+</span></span><span class=line><span class=cl>$ systemctl daemon-reload
+</span></span><span class=line><span class=cl>$ systemctl start grafana-server
+</span></span><span class=line><span class=cl>$ systemctl <span class=nb>enable</span> grafana-server
+</span></span><span class=line><span class=cl>$ systemctl <span class=nb>enable</span> --now grafana-server
+</span></span><span class=line><span class=cl>$ ss -antp <span class=p>|</span> grep :3000
+</span></span></code></pre></td></tr></table></div></div></li></ol><h3 id=2-grafana组件配置>2. Grafana组件配置</h3><ol><li><p>web访问：http://192.168.88.10:3000/login</p></li><li><p>安装监控Linux系统资源模板</p><p>模板号：8919，由于图形模板作者会更新版本，软件版本和图形模板由于版本变更导致不兼容，要让软件跟随图形模板进行更新。</p><p>默认没有数据源，无法选择Proetheus数据源，需要提前创建（根据添加模板的要求）</p></li><li><p>效果展示</p></li></ol><h2 id=七blackbox_exporter配置>七、blackbox_exporter配置</h2><p>Blackbox Exporter 是由 Prometheus 官方提供的一个导出器（Exporter），它允许通过 HTTP、HTTPS、DNS、TCP 和 ICMP 等协议对网络端点进行探测 。</p><ul><li><strong>黑盒监控 vs 白盒监控</strong>：<ul><li><strong>白盒监控</strong>（如 Node Exporter）：从系统内部观察，获取内存、CPU 等指标。</li><li><strong>黑盒监控</strong>（如 Blackbox Exporter）：从外部观察，只关注服务是否可用、响应时间以及端口是否存活。</li></ul></li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># 黑盒安装blackbox_exporter</span>
+</span></span><span class=line><span class=cl><span class=c1># 黑盒组件的作用：对没有管理权限的对象进行一些监控</span>
+</span></span><span class=line><span class=cl>wget https://github.com/prometheus/blackbox_exporter/releases/download/v0.25.0/blackbox_exporter-0.25.0.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>tar -xf blackbox_exporter-0.25.0.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>cp -r blackbox_exporter-0.25.0.linux-amd64/ /usr/local/blackbox_exporter
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cat &gt; /usr/local/blackbox_exporter/blackbox-exporter.service <span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>[Unit]
+</span></span></span><span class=line><span class=cl><span class=s>Description=Prometheus Blackbox Exporter
+</span></span></span><span class=line><span class=cl><span class=s>After=network.target
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Service]
+</span></span></span><span class=line><span class=cl><span class=s>Type=simple
+</span></span></span><span class=line><span class=cl><span class=s>User=root
+</span></span></span><span class=line><span class=cl><span class=s>Group=root
+</span></span></span><span class=line><span class=cl><span class=s>ExecStart=/usr/local/blackbox_exporter/blackbox_exporter \
+</span></span></span><span class=line><span class=cl><span class=s>--config.file=/usr/local/blackbox_exporter/blackbox.yml \
+</span></span></span><span class=line><span class=cl><span class=s>--web.listen-address=:9115
+</span></span></span><span class=line><span class=cl><span class=s>Restart=on-failure
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Install]
+</span></span></span><span class=line><span class=cl><span class=s>WantedBy=multi-user.target
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>ln -s /usr/local/blackbox_exporter/blackbox-exporter.service /etc/systemd/system/
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now blackbox-exporter.service
+</span></span><span class=line><span class=cl>netstat -antp<span class=p>|</span>grep <span class=m>9115</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#blackbox_exporter默认支持的探测模块</span>
+</span></span><span class=line><span class=cl><span class=c1>#共有以下7种</span>
+</span></span><span class=line><span class=cl>http_2xx代表http get方法,返回code为2xx代表正常
+</span></span><span class=line><span class=cl>http_post_2xx代表http post方法,返回code为2xx代表正常
+</span></span><span class=line><span class=cl>icmp 代表icmp 协议
+</span></span><span class=line><span class=cl>irc_banner代表irc协议,需要匹配发送的请求和响应
+</span></span><span class=line><span class=cl>pop3s_banner代表邮局协议
+</span></span><span class=line><span class=cl>ssh_banner代表ssh探活
+</span></span><span class=line><span class=cl>tcp_connect代表tcp端口探活
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#配置prometheus抓取</span>
+</span></span><span class=line><span class=cl>blackbox_exporter比较特殊,它的监控对象需要由prometheus提供
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>示例1:blackbox exporter 实现 URL 监控
+</span></span><span class=line><span class=cl>  - job_name: <span class=s1>&#39;http_status&#39;</span>
+</span></span><span class=line><span class=cl>    metrics_path: /probe
+</span></span><span class=line><span class=cl>    params:
+</span></span><span class=line><span class=cl>      module: <span class=o>[</span>http_2xx<span class=o>]</span> <span class=c1>#2xx状态码检测</span>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>      - targets: <span class=o>[</span><span class=s1>&#39;http://www.xinxianghf.cn&#39;</span>, <span class=s1>&#39;http://www.baidu.com/&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>        labels:
+</span></span><span class=line><span class=cl>          group: web
+</span></span><span class=line><span class=cl>    relabel_configs:
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__address__<span class=o>]</span> <span class=c1>#relabel 通过将__address__(当前目标地址)写入__param_target 标签来创建一个 label。</span>
+</span></span><span class=line><span class=cl>        target_label: __param_target <span class=c1>#监控目标 www.xiaomi.com,作为__address__的 value</span>
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__param_target<span class=o>]</span> <span class=c1>#监控目标</span>
+</span></span><span class=line><span class=cl>        target_label: instance <span class=c1>#将监控目标与 url 创建一个 label</span>
+</span></span><span class=line><span class=cl>      - target_label: __address__
+</span></span><span class=line><span class=cl>        replacement: 192.168.88.110:9115
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 配置grafana监控模板</span>
+</span></span><span class=line><span class=cl>推荐模板: ID 9965/16292/13659
+</span></span></code></pre></td></tr></table></div></div><h3 id=blackbox-exporter-七种默认探测模块的-blackbox配置模板>Blackbox Exporter 七种默认探测模块的 Blackbox配置模板</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>modules:
+</span></span><span class=line><span class=cl>  <span class=c1># 1. HTTP GET 探测 - http_2xx（官方預設 module，可直接使用或覆蓋）</span>
+</span></span><span class=line><span class=cl>  http_2xx:
+</span></span><span class=line><span class=cl>    prober: http
+</span></span><span class=line><span class=cl>    timeout: 10s
+</span></span><span class=line><span class=cl>    http:
+</span></span><span class=line><span class=cl>      method: GET
+</span></span><span class=line><span class=cl>      headers:
+</span></span><span class=line><span class=cl>        User-Agent: <span class=s2>&#34;Prometheus-Blackbox/1.0&#34;</span>
+</span></span><span class=line><span class=cl>      valid_status_codes: <span class=o>[</span>200, 201, 202, 203, 204, 205, 206<span class=o>]</span>  <span class=c1># 默認所有 2xx</span>
+</span></span><span class=line><span class=cl>      valid_http_versions: <span class=o>[</span><span class=s2>&#34;HTTP/1.1&#34;</span>, <span class=s2>&#34;HTTP/2.0&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>      no_follow_redirects: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>      fail_if_ssl: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>      fail_if_not_ssl: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>      preferred_ip_protocol: ip4
+</span></span><span class=line><span class=cl>      ip_protocol_fallback: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># 2. HTTP POST 探测 - http_post_2xx（非官方預設，必須自訂）</span>
+</span></span><span class=line><span class=cl>  http_post_2xx:
+</span></span><span class=line><span class=cl>    prober: http
+</span></span><span class=line><span class=cl>    timeout: 10s
+</span></span><span class=line><span class=cl>    http:
+</span></span><span class=line><span class=cl>      method: POST
+</span></span><span class=line><span class=cl>      headers:
+</span></span><span class=line><span class=cl>        Content-Type: application/json
+</span></span><span class=line><span class=cl>        User-Agent: <span class=s2>&#34;Prometheus-Blackbox/1.0&#34;</span>
+</span></span><span class=line><span class=cl>      <span class=c1># 建議發一個「故意無效但格式正確」的 body，讓正常接口返回 4xx 而不是 405</span>
+</span></span><span class=line><span class=cl>      body: <span class=s1>&#39;{&#34;probe&#34;: &#34;blackbox-test&#34;}&#39;</span>
+</span></span><span class=line><span class=cl>      <span class=c1># 根據你的接口實際行為調整：</span>
+</span></span><span class=line><span class=cl>      <span class=c1># - 如果空 body 會返回 400/401 → 把 400,401 加進來</span>
+</span></span><span class=line><span class=cl>      <span class=c1># - 如果需要成功登入才 2xx → 提供正確 body + 只接受 200/201</span>
+</span></span><span class=line><span class=cl>      valid_status_codes: <span class=o>[</span>200, 201, 400, 401, 422<span class=o>]</span>  <span class=c1># 推薦：接受常見錯誤碼，表示接口有處理 POST</span>
+</span></span><span class=line><span class=cl>      <span class=c1># 如果想更嚴格檢測「不返回 405 Method Not Allowed」</span>
+</span></span><span class=line><span class=cl>      <span class=c1># fail_if_body_matches_regexp:</span>
+</span></span><span class=line><span class=cl>      <span class=c1>#   - &#34;Method Not Allowed&#34;</span>
+</span></span><span class=line><span class=cl>      valid_http_versions: <span class=o>[</span><span class=s2>&#34;HTTP/1.1&#34;</span>, <span class=s2>&#34;HTTP/2.0&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>      preferred_ip_protocol: ip4
+</span></span><span class=line><span class=cl>      ip_protocol_fallback: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># 3. ICMP 探测 - icmp（官方預設，可覆蓋）</span>
+</span></span><span class=line><span class=cl>  icmp:
+</span></span><span class=line><span class=cl>    prober: icmp
+</span></span><span class=line><span class=cl>    timeout: 5s
+</span></span><span class=line><span class=cl>    icmp:
+</span></span><span class=line><span class=cl>      preferred_ip_protocol: ip4
+</span></span><span class=line><span class=cl>      ip_protocol_fallback: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>      <span class=c1># source_ip_address: &#34;192.168.88.x&#34;  # 如需指定源 IP 可取消註釋</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># 4. SSH Banner 探测 - ssh_banner（官方預設，可覆蓋）</span>
+</span></span><span class=line><span class=cl>  ssh_banner:
+</span></span><span class=line><span class=cl>    prober: tcp
+</span></span><span class=line><span class=cl>    timeout: 10s
+</span></span><span class=line><span class=cl>    tcp:
+</span></span><span class=line><span class=cl>      preferred_ip_protocol: ip4
+</span></span><span class=line><span class=cl>      ip_protocol_fallback: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>      <span class=c1># 期待的 banner 正則（可根據你的 SSH 服務器調整）</span>
+</span></span><span class=line><span class=cl>      query_response:
+</span></span><span class=line><span class=cl>        - expect: <span class=s2>&#34;^SSH-2.0-&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># 5. TCP 端口连通性探测 - tcp_connect（官方預設，可覆蓋）</span>
+</span></span><span class=line><span class=cl>  tcp_connect:
+</span></span><span class=line><span class=cl>    prober: tcp
+</span></span><span class=line><span class=cl>    timeout: 5s
+</span></span><span class=line><span class=cl>    tcp:
+</span></span><span class=line><span class=cl>      preferred_ip_protocol: ip4
+</span></span><span class=line><span class=cl>      ip_protocol_fallback: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>      <span class=c1># 僅檢查能否建立 TCP 連接，不檢查 banner</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># 6. POP3S Banner 探测 - pop3s_banner（官方預設，可覆蓋）</span>
+</span></span><span class=line><span class=cl>  pop3s_banner:
+</span></span><span class=line><span class=cl>    prober: tcp
+</span></span><span class=line><span class=cl>    timeout: 10s
+</span></span><span class=line><span class=cl>    tcp:
+</span></span><span class=line><span class=cl>      preferred_ip_protocol: ip4
+</span></span><span class=line><span class=cl>      ip_protocol_fallback: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>      tls: <span class=nb>true</span>
+</span></span><span class=line><span class=cl>      tls_config:
+</span></span><span class=line><span class=cl>        insecure_skip_verify: <span class=nb>false</span>  <span class=c1># 生產環境建議 false</span>
+</span></span><span class=line><span class=cl>      query_response:
+</span></span><span class=line><span class=cl>        - send: <span class=s2>&#34;QUIT&#34;</span>
+</span></span><span class=line><span class=cl>        - expect: <span class=s2>&#34;+OK&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># 7. IRC Banner 探测 - irc_banner（官方預設，可覆蓋）</span>
+</span></span><span class=line><span class=cl>  irc_banner:
+</span></span><span class=line><span class=cl>    prober: tcp
+</span></span><span class=line><span class=cl>    timeout: 10s
+</span></span><span class=line><span class=cl>    tcp:
+</span></span><span class=line><span class=cl>      preferred_ip_protocol: ip4
+</span></span><span class=line><span class=cl>      ip_protocol_fallback: <span class=nb>false</span>
+</span></span><span class=line><span class=cl>      query_response:
+</span></span><span class=line><span class=cl>        - expect: <span class=s2>&#34;^:server.* 001&#34;</span>  <span class=c1># 典型 IRC 歡迎訊息</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 有些 IRC 服務器可能沒有 tls，視情況加 tls: true</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=blackbox-exporter-七种默认探测模块的-prometheus配置模板>Blackbox Exporter 七种默认探测模块的 Prometheus配置模板</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Prometheus 监控 Blackbox Exporter 完整任务集合 (无锚点展开版)</span>
+</span></span><span class=line><span class=cl>scrape_configs:
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  <span class=c1># 1. ICMP 存活检测 (Ping)</span>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s1>&#39;blackbox_icmp&#39;</span>
+</span></span><span class=line><span class=cl>    metrics_path: /probe
+</span></span><span class=line><span class=cl>    params:
+</span></span><span class=line><span class=cl>      module: <span class=o>[</span>icmp<span class=o>]</span>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>      - targets: <span class=o>[</span><span class=s1>&#39;192.168.1.1&#39;</span>, <span class=s1>&#39;8.8.8.8&#39;</span>, <span class=s1>&#39;www.baidu.com&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>    relabel_configs:
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__address__<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: __param_target
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__param_target<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: instance
+</span></span><span class=line><span class=cl>      - target_label: __address__
+</span></span><span class=line><span class=cl>        replacement: 192.168.36.102:9115
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  <span class=c1># 2. TCP 端口检测 (如数据库、中间件)</span>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s1>&#39;blackbox_tcp_port&#39;</span>
+</span></span><span class=line><span class=cl>    metrics_path: /probe
+</span></span><span class=line><span class=cl>    params:
+</span></span><span class=line><span class=cl>      module: <span class=o>[</span>tcp_connect<span class=o>]</span>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>      - targets: 
+</span></span><span class=line><span class=cl>          - <span class=s1>&#39;192.168.36.102:3306&#39;</span>  <span class=c1># MySQL</span>
+</span></span><span class=line><span class=cl>          - <span class=s1>&#39;192.168.36.102:6379&#39;</span>  <span class=c1># Redis</span>
+</span></span><span class=line><span class=cl>    relabel_configs:
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__address__<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: __param_target
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__param_target<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: instance
+</span></span><span class=line><span class=cl>      - target_label: __address__
+</span></span><span class=line><span class=cl>        replacement: 192.168.36.102:9115
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  <span class=c1># 3. HTTP GET 状态检测 (2xx 状态码)</span>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s1>&#39;blackbox_http_get&#39;</span>
+</span></span><span class=line><span class=cl>    metrics_path: /probe
+</span></span><span class=line><span class=cl>    params:
+</span></span><span class=line><span class=cl>      module: <span class=o>[</span>http_2xx<span class=o>]</span>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>      - targets:
+</span></span><span class=line><span class=cl>          - <span class=s1>&#39;http://192.168.36.102:8080/health&#39;</span>
+</span></span><span class=line><span class=cl>          - <span class=s1>&#39;https://www.google.com&#39;</span>
+</span></span><span class=line><span class=cl>    relabel_configs:
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__address__<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: __param_target
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__param_target<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: instance
+</span></span><span class=line><span class=cl>      - target_label: __address__
+</span></span><span class=line><span class=cl>        replacement: 192.168.36.102:9115
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  <span class=c1># 4. HTTP POST 接口检测</span>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s1>&#39;blackbox_http_post&#39;</span>
+</span></span><span class=line><span class=cl>    metrics_path: /probe
+</span></span><span class=line><span class=cl>    params:
+</span></span><span class=line><span class=cl>      module: <span class=o>[</span>http_post_2xx<span class=o>]</span>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>      - targets: <span class=o>[</span><span class=s1>&#39;http://192.168.36.102:8080/api/login&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>    relabel_configs:
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__address__<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: __param_target
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__param_target<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: instance
+</span></span><span class=line><span class=cl>      - target_label: __address__
+</span></span><span class=line><span class=cl>        replacement: 192.168.36.102:9115
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  <span class=c1># 5. SSH 协议检测</span>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s1>&#39;blackbox_ssh&#39;</span>
+</span></span><span class=line><span class=cl>    metrics_path: /probe
+</span></span><span class=line><span class=cl>    params:
+</span></span><span class=line><span class=cl>      module: <span class=o>[</span>ssh_banner<span class=o>]</span>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>      - targets: <span class=o>[</span><span class=s1>&#39;192.168.36.102:22&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>    relabel_configs:
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__address__<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: __param_target
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__param_target<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: instance
+</span></span><span class=line><span class=cl>      - target_label: __address__
+</span></span><span class=line><span class=cl>        replacement: 192.168.36.102:9115
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  <span class=c1># 6. gRPC 服务检测</span>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s1>&#39;blackbox_grpc&#39;</span>
+</span></span><span class=line><span class=cl>    metrics_path: /probe
+</span></span><span class=line><span class=cl>    params:
+</span></span><span class=line><span class=cl>      module: <span class=o>[</span>grpc<span class=o>]</span>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>      - targets: <span class=o>[</span><span class=s1>&#39;192.168.36.102:50051&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>    relabel_configs:
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__address__<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: __param_target
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__param_target<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: instance
+</span></span><span class=line><span class=cl>      - target_label: __address__
+</span></span><span class=line><span class=cl>        replacement: 192.168.36.102:9115
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  <span class=c1># 7. DNS 解析检测</span>
+</span></span><span class=line><span class=cl>  <span class=c1># ----------------------------------------------------------------</span>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s1>&#39;blackbox_dns&#39;</span>
+</span></span><span class=line><span class=cl>    metrics_path: /probe
+</span></span><span class=line><span class=cl>    params:
+</span></span><span class=line><span class=cl>      module: <span class=o>[</span>dns_udp<span class=o>]</span>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>      - targets: <span class=o>[</span><span class=s1>&#39;8.8.8.8&#39;</span>, <span class=s1>&#39;114.114.114.114&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>    relabel_configs:
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__address__<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: __param_target
+</span></span><span class=line><span class=cl>      - source_labels: <span class=o>[</span>__param_target<span class=o>]</span>
+</span></span><span class=line><span class=cl>        target_label: instance
+</span></span><span class=line><span class=cl>      - target_label: __address__
+</span></span><span class=line><span class=cl>        replacement: 192.168.36.102:9115
+</span></span></code></pre></td></tr></table></div></div><h2 id=八自动发现>八、自动发现</h2><h3 id=-prometheus-自动发现分类>📥 Prometheus 自动发现分类</h3><p>在监控规模较小时，手动维护配置还能应付；但当机器成百上千时，<strong>服务发现（Service Discovery）</strong> 就是救命稻草，它让 Prometheus 能够动态地获取监控目标，实现“配置即监控”。</p><pre><code>1.	静态配置
+2.	基于文件的自动发现
+3.	基于DNS的自动发现	
+4.	基于consul自动发现	
+5.	基于kubernetes的自动发现	
+</code></pre><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>1.	静态配置
+</span></span><span class=line><span class=cl>   手动修改,在prometheus配置中添加主机
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s2>&#34;prometheus&#34;</span>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>      - targets: <span class=o>[</span><span class=s2>&#34;192.168.88.130:9100&#34;</span>,<span class=s2>&#34;192.168.88.140:9100&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s2>&#34;prometheus&#34;</span>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>      - targets: 
+</span></span><span class=line><span class=cl>        - 192.168.88.130:9100
+</span></span><span class=line><span class=cl>        - 192.168.88.140:9100	  
+</span></span><span class=line><span class=cl>          <span class=c1>#以上两种静态配置格式均可</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2.	基于文件的自动发现
+</span></span><span class=line><span class=cl>   vim /usr/local/prometheus/prometheus.yml
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s1>&#39;host_discovery&#39;</span>
+</span></span><span class=line><span class=cl>    file_sd_configs:
+</span></span><span class=line><span class=cl>    - files:
+</span></span><span class=line><span class=cl>      - <span class=s2>&#34;/usr/local/prometheus/target/node/host_discovery.yml&#34;</span>
+</span></span><span class=line><span class=cl>        refresh_interval: 6s
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vim /usr/local/prometheus/target/node/host_discovery.yml
+</span></span><span class=line><span class=cl>	- targets:
+</span></span><span class=line><span class=cl>	  - <span class=s2>&#34;192.168.88.160:9100&#34;</span>
+</span></span><span class=line><span class=cl>	  labels:
+</span></span><span class=line><span class=cl>		instance: <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>/usr/local/prometheus/targets/node_exporter
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>3.	基于DNS的自动发现
+</span></span><span class=line><span class=cl>   使用搭建的DNS服务实现域名解析
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>vim /usr/local/prometheus/prometheus.yml
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s1>&#39;dns_discovery&#39;</span>
+</span></span><span class=line><span class=cl>    dns_sd_configs:
+</span></span><span class=line><span class=cl>    - names: <span class=o>[</span><span class=s1>&#39;www.hongfuedu.com&#39;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>      type: A
+</span></span><span class=line><span class=cl>      port: <span class=m>9100</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>4.	基于consul自动发现
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#如果有新的虚拟机，只需要安装node之后curl consul服务器，不再需要在Prometheus服务器中修改配置文件</span>
+</span></span><span class=line><span class=cl>4.1 组件下载:https://releases.hashicorp.com/consul/
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=c1>#解压缩后就一个命令而已，可以直接复制到PATH变量下</span>
+</span></span><span class=line><span class=cl><span class=c1># 1. 下载适用于 Linux 的正确版本 (1.20.1 为例)</span>
+</span></span><span class=line><span class=cl>wget https://releases.hashicorp.com/consul/1.20.1/consul_1.20.1_linux_amd64.zip
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 2. 安装解压工具</span>
+</span></span><span class=line><span class=cl>yum install -y unzip
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 3. 解压并移动到系统命令目录 /usr/local/bin</span>
+</span></span><span class=line><span class=cl>unzip consul_1.20.1_linux_amd64.zip
+</span></span><span class=line><span class=cl>mv consul /usr/local/bin/
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 4. 赋予执行权限并验证</span>
+</span></span><span class=line><span class=cl>chmod +x /usr/local/bin/consul
+</span></span><span class=line><span class=cl>consul --version
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>mkdir -p /data/consul 
+</span></span><span class=line><span class=cl>nohup consul agent -dev -ui -client 0.0.0.0 -enable-script-checks -data-dir /data/consul <span class=p>&amp;</span>
+</span></span><span class=line><span class=cl>------------------------------------------------------------------------------------
+</span></span><span class=line><span class=cl>cat &gt; /usr/lib/systemd/system/consul.service <span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>[Unit]
+</span></span></span><span class=line><span class=cl><span class=s>Description=Consul Service Discovery Agent
+</span></span></span><span class=line><span class=cl><span class=s>After=network-online.target
+</span></span></span><span class=line><span class=cl><span class=s>Wants=network-online.target
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Service]
+</span></span></span><span class=line><span class=cl><span class=s>Type=simple
+</span></span></span><span class=line><span class=cl><span class=s>User=root
+</span></span></span><span class=line><span class=cl><span class=s># 注意：WorkingDirectory 需要确保该目录已存在，用于存放数据
+</span></span></span><span class=line><span class=cl><span class=s>WorkingDirectory=/data/consul
+</span></span></span><span class=line><span class=cl><span class=s>ExecStart=/usr/local/bin/consul agent -dev -ui -client 0.0.0.0 -enable-script-checks -data-dir=/data/consul
+</span></span></span><span class=line><span class=cl><span class=s>Restart=on-failure
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Install]
+</span></span></span><span class=line><span class=cl><span class=s>WantedBy=multi-user.target
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>------------------------------------------------------------------------------------
+</span></span><span class=line><span class=cl>systemctl daemon-reload
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now consul.service
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>http://192.168.88.140:8500/ui/dc1/overview/server-status
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>在被监控节点（node_exporter为例）执行消息发送，
+</span></span><span class=line><span class=cl>curl -X PUT -d <span class=s1>&#39;{
+</span></span></span><span class=line><span class=cl><span class=s1>  &#34;id&#34;: &#34;node_136_101&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>  &#34;name&#34;: &#34;node-exporter&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>  &#34;address&#34;: &#34;192.168.45.120&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>  &#34;port&#34;: 9100,
+</span></span></span><span class=line><span class=cl><span class=s1>  &#34;tags&#34;: [&#34;node_exporter&#34;],
+</span></span></span><span class=line><span class=cl><span class=s1>  &#34;checks&#34;: [{
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;http&#34;: &#34;http://192.168.45.120:9100/metrics&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;interval&#34;: &#34;30s&#34;
+</span></span></span><span class=line><span class=cl><span class=s1>  }]
+</span></span></span><span class=line><span class=cl><span class=s1>}&#39;</span> http://127.0.0.1:8500/v1/agent/service/register
+</span></span><span class=line><span class=cl>注解:
+</span></span><span class=line><span class=cl><span class=c1>#	name:consul的service注册名称</span>
+</span></span><span class=line><span class=cl><span class=c1>#	id:consul的实例名称</span>
+</span></span><span class=line><span class=cl><span class=c1>#	address:被监控地址ip</span>
+</span></span><span class=line><span class=cl><span class=c1>#	port:被监控的端口号</span>
+</span></span><span class=line><span class=cl><span class=c1>#	tags:标签名</span>
+</span></span><span class=line><span class=cl><span class=c1>#	checks:检查的节点的路径</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>取消注册：
+</span></span><span class=line><span class=cl>curl -X PUT http://192.168.88.160:8500/v1/agent/service/deregister/test_node
+</span></span><span class=line><span class=cl><span class=c1>#源url结尾添加注册时声明的id作为结尾即可注销</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>4.2 
+</span></span><span class=line><span class=cl>  $ vim prometheus.yml
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  - job_name: <span class=s1>&#39;consul-services&#39;</span>
+</span></span><span class=line><span class=cl>    consul_sd_configs:
+</span></span><span class=line><span class=cl>      - server: <span class=s1>&#39;192.168.88.120:8500&#39;</span>  	<span class=c1># Consul 服务器地址和端口</span>
+</span></span><span class=line><span class=cl>        datacenter: <span class=s1>&#39;dc1&#39;</span>      			<span class=c1># Consul 数据中心</span>
+</span></span><span class=line><span class=cl>        scheme: <span class=s1>&#39;http&#39;</span>          		<span class=c1># Consul 服务的访问协议</span>
+</span></span><span class=line><span class=cl>        tags:
+</span></span><span class=line><span class=cl>          - <span class=s1>&#39;node_exporter&#39;</span>	
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>5.	基于kubernetes的自动发现
+</span></span><span class=line><span class=cl>   云计算阶段学习
+</span></span></code></pre></td></tr></table></div></div><h2 id=九mysql-exporter>九、mysql-exporter</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># mysql_exporter节点</span>
+</span></span><span class=line><span class=cl><span class=c1># 创建一个mysql配置文件,写上连接的用户名与密码</span>
+</span></span><span class=line><span class=cl>dnf -y install mariadb mariadb-server
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now mariadb
+</span></span><span class=line><span class=cl>mysql
+</span></span><span class=line><span class=cl>create user root@<span class=s1>&#39;%&#39;</span> identified by <span class=s1>&#39;123456&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>cat &gt; /usr/local/mysqld_exporter/.my.cnf <span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>[client]
+</span></span></span><span class=line><span class=cl><span class=s>user=root
+</span></span></span><span class=line><span class=cl><span class=s>password=123456
+</span></span></span><span class=line><span class=cl><span class=s>host=192.168.36.104
+</span></span></span><span class=line><span class=cl><span class=s>port=3306
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>启动:
+</span></span><span class=line><span class=cl><span class=c1>#直接使用默认配置文件,后台启动,调试使用，可以不执行</span>
+</span></span><span class=line><span class=cl>nohup /usr/local/mysqld_exporter/mysqld_exporter --config.my-cnf<span class=o>=</span>/usr/local/mysqld_exporter/.my.cnf <span class=p>&amp;</span>
+</span></span><span class=line><span class=cl>-----------------------------------------------------------------------------------
+</span></span><span class=line><span class=cl>cat&gt;/usr/local/mysqld_exporter/mysqld_exporter.service<span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>[Unit]
+</span></span></span><span class=line><span class=cl><span class=s>Description=mysql_exporter
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Service]
+</span></span></span><span class=line><span class=cl><span class=s>Type=simple
+</span></span></span><span class=line><span class=cl><span class=s>User=root
+</span></span></span><span class=line><span class=cl><span class=s>WorkingDirectory=/usr/local/mysqld_exporter
+</span></span></span><span class=line><span class=cl><span class=s>ExecStart=/usr/local/mysqld_exporter/mysqld_exporter --config.my-cnf=/usr/local/mysqld_exporter/.my.cnf
+</span></span></span><span class=line><span class=cl><span class=s>
+</span></span></span><span class=line><span class=cl><span class=s>[Install]
+</span></span></span><span class=line><span class=cl><span class=s>WantedBy=multi-user.target
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#确认端口(9104)</span>
+</span></span><span class=line><span class=cl>lsof -i:9104
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 配置</span>
+</span></span><span class=line><span class=cl>静态注册:<span class=o>(</span>配置Prometheus<span class=o>)</span>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> /usr/local/prometheus/prometheus
+</span></span><span class=line><span class=cl>vim prometheus.yml
+</span></span><span class=line><span class=cl>添加如下内容:
+</span></span><span class=line><span class=cl>  - job_name: <span class=s2>&#34;mysql_exporter&#34;</span>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>      - targets: <span class=o>[</span><span class=s2>&#34;192.168.36.104:9104&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>重启Prometheus
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>ln -s /usr/local/mysqld_exporter/mysqld_exporter.service /etc/systemd/system/
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>启动命令:
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now mysqld_exporter
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Grafana可视化展示</span>
+</span></span><span class=line><span class=cl>导入模板:MySQL Exporter Quickstart and Dashboard
+</span></span><span class=line><span class=cl>模板id:14057
+</span></span></code></pre></td></tr></table></div></div><h2 id=十pushgateway>十、pushgateway</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># pushgateway 是采用被动推送的方式,而不是类似于 prometheus server 主动连接 exporter 获取监控数据。</span>
+</span></span><span class=line><span class=cl><span class=c1># pushgateway 可以单独运行在一个节点,然后需要自定义监控脚本把需要监控的主动推送给 pushgateway的 API 接口, 然后 pushgateway 再等待 prometheus server 抓取数据, 即 pushgateway 本身没有任何抓取监控数据的功能, 目前 pushgateway 只是被动的等待数据从客户端推送过来。</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>wget https://github.com/prometheus/pushgateway/releases/download/v1.6.0/pushgateway-1.6.0.linux-amd64.tar.gz
+</span></span><span class=line><span class=cl>tar xf pushgateway-1.6.0.linux-amd64.tar.gz 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cp -r pushgateway-1.6.0.linux-amd64 /usr/local/pushgateway
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>cat&gt;/usr/local/pushgateway/pushgateway.service<span class=s>&lt;&lt;EOF
+</span></span></span><span class=line><span class=cl><span class=s>[Unit]
+</span></span></span><span class=line><span class=cl><span class=s>Description=pushgateway
+</span></span></span><span class=line><span class=cl><span class=s>After=network.target
+</span></span></span><span class=line><span class=cl><span class=s> 
+</span></span></span><span class=line><span class=cl><span class=s>[Service]
+</span></span></span><span class=line><span class=cl><span class=s>Type=simple
+</span></span></span><span class=line><span class=cl><span class=s>User=root
+</span></span></span><span class=line><span class=cl><span class=s>WorkingDirectory=/usr/local/pushgateway
+</span></span></span><span class=line><span class=cl><span class=s>ExecStart=/usr/local/pushgateway/pushgateway --persistence.file=&#34;/usr/local/pushgateway/data/pg.db&#34; --persistence.interval=5m
+</span></span></span><span class=line><span class=cl><span class=s> 
+</span></span></span><span class=line><span class=cl><span class=s>Restart=on-failure
+</span></span></span><span class=line><span class=cl><span class=s>LimitNOFILE=65536
+</span></span></span><span class=line><span class=cl><span class=s> 
+</span></span></span><span class=line><span class=cl><span class=s>[Install]
+</span></span></span><span class=line><span class=cl><span class=s>WantedBy=multi-user.target
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>mkdir /usr/local/pushgateway/data/
+</span></span><span class=line><span class=cl>ln -s /usr/local/pushgateway/pushgateway.service /etc/systemd/system
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> --now pushgateway.service
+</span></span><span class=line><span class=cl>netstat -antp 			<span class=c1>#默认监控9091端口</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#常用选项</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>--persistence.file<span class=o>=</span><span class=s2>&#34;/usr/local/pushgateway/data/pg.db&#34;</span> 		<span class=c1>#数据保存的文件,默认只保存在内存中</span>
+</span></span><span class=line><span class=cl>--persistence.interval<span class=o>=</span>5m   <span class=c1>#数据持久化的间隔时间</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 配置prometheus抓取pushgateway</span>
+</span></span><span class=line><span class=cl>vim prometheus.yml
+</span></span><span class=line><span class=cl>  - job_name: <span class=s2>&#34;pushgateway metrics&#34;</span>
+</span></span><span class=line><span class=cl>    static_configs:
+</span></span><span class=line><span class=cl>      - targets: <span class=o>[</span><span class=s2>&#34;192.168.88.160:9091&#34;</span><span class=o>]</span> <span class=c1>#pushgateway 地址和端口</span>
+</span></span><span class=line><span class=cl>    honor_labels: <span class=nb>true</span> <span class=c1>#保留源标签</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 客户端手动推送数据</span>
+</span></span><span class=line><span class=cl>1.推送单条数据
+</span></span><span class=line><span class=cl>要 Push 数据到 PushGateway 中, 可以通过其提供的 API 标准接口来添加, 默认 URL 地址为:
+</span></span><span class=line><span class=cl>http://&lt;ip&gt;:9091/metrics/job/&lt;JOBNAME&gt;<span class=o>{</span>/&lt;LABEL_NAME&gt;/&lt;LABEL_VALUE&gt;<span class=o>}</span>,
+</span></span><span class=line><span class=cl>其中&lt;JOBNAME&gt;是必填项, 为 job 标签值, 后边可以跟任意数量的标签对, 一般我们会添加一个 instance/&lt;INSTANCE_NAME&gt;实例名称标签, 来方便区分各个指标。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#推送一个 job 名称为 mytest_job, key 为 mytest_metric 值为 2024</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;mytest_metric 2024&#34;</span> <span class=p>|</span> curl --data-binary @- http://192.168.88.110:9091/metrics/job/mytest_job
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>mytest_metric  命令行创建的job名称,实际同prometheus中的job一样
+</span></span><span class=line><span class=cl>push_time_seconds  自动生成,记录指标数据的失败上传时间
+</span></span><span class=line><span class=cl>push_failure_time_seconds 自动生成,记录指标数据的成功上传时间
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>prometheus验证数据
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2.推送多条数据
+</span></span><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF | curl --data-binary @- http://192.168.88.110:9091/metrics/job/test_job/instance/192.168.88.120
+</span></span></span><span class=line><span class=cl><span class=s># TYPE node_memory_usage gauge
+</span></span></span><span class=line><span class=cl><span class=s>node_memory_usage 4311744512
+</span></span></span><span class=line><span class=cl><span class=s># TYPE node_memory_total gauge
+</span></span></span><span class=line><span class=cl><span class=s>node_memory_total 103481868288
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>查看pushgateway的metric
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>3.简易推送数据脚本样例，注意改网卡！！！！！
+</span></span><span class=line><span class=cl><span class=c1># cat mem_monitor.sh</span>
+</span></span><span class=line><span class=cl><span class=c1>#!/bin/bash</span>
+</span></span><span class=line><span class=cl><span class=nv>total_memory</span><span class=o>=</span><span class=k>$(</span>free <span class=p>|</span>awk <span class=s1>&#39;/Mem/{print $2}&#39;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl><span class=nv>used_memory</span><span class=o>=</span><span class=k>$(</span>free <span class=p>|</span>awk <span class=s1>&#39;/Mem/{print $3}&#39;</span><span class=k>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>job_name</span><span class=o>=</span><span class=s2>&#34;custom_memory_monitor&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>instance_name</span><span class=o>=</span><span class=sb>`</span>ifconfig eth0 <span class=p>|</span> grep -w inet <span class=p>|</span> awk <span class=s1>&#39;{print $2}&#39;</span><span class=sb>`</span>
+</span></span><span class=line><span class=cl><span class=nv>pushgateway_server</span><span class=o>=</span><span class=s2>&#34;http://192.168.36.105:9091/metrics&#34;</span>
+</span></span><span class=line><span class=cl>cat <span class=s>&lt;&lt;EOF | curl --data-binary @- ${pushgateway_server}/job/${job_name}/instance/${instance_name}
+</span></span></span><span class=line><span class=cl><span class=s>#TYPE custom_memory_total gauge
+</span></span></span><span class=line><span class=cl><span class=s>custom_memory_total $total_memory
+</span></span></span><span class=line><span class=cl><span class=s>#TYPE custom_memory_used gauge
+</span></span></span><span class=line><span class=cl><span class=s>custom_memory_used $used_memory
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span><span class=line><span class=cl>  <span class=c1>#可以写多个标签,格式为  key/value,如果新增一个zone标签,可以写成为 /instance/${instance_name}/zone/ShangHai ,后面可以一直加</span>
+</span></span><span class=line><span class=cl>instance的IP地址不显示解决问题，在子bash中无法获取环境变量，需要在脚本里面声名
+</span></span><span class=line><span class=cl>推荐在脚本里面声名全局变量
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>PATH</span><span class=o>=</span><span class=s2>&#34;/root/.local/bin:/root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 删除数据</span>
+</span></span><span class=line><span class=cl><span class=c1>#根据job及标签删除对应的数据，pushgateway服务器IP地址，后面是</span>
+</span></span><span class=line><span class=cl>curl -X DELETE http://192.168.88.110:9091/metrics/job/mytest_job/instance/192.168.88.160
+</span></span></code></pre></td></tr></table></div></div><div class=table-wrapper><table><thead><tr><th><strong>工具包名称</strong></th><th><strong>默认端口</strong></th><th><strong>主要用途</strong></th></tr></thead><tbody><tr><td><strong>Prometheus Server</strong></td><td><code>9090</code></td><td>核心服务端口，用于 Web UI、查询 API 及指标抓取</td></tr><tr><td><strong>Alertmanager</strong></td><td><code>9093</code></td><td>告警处理中心，处理去重、分组及静默</td></tr><tr><td><strong>Pushgateway</strong></td><td><code>9091</code></td><td>用于接收短期作业主动推送的指标</td></tr><tr><td><strong>Grafana</strong></td><td><code>3000</code></td><td>数据可视化展示面板</td></tr><tr><td><strong>Node Exporter</strong></td><td><code>9100</code></td><td>采集主机硬件（CPU、内存、磁盘等）指标</td></tr><tr><td><strong>Blackbox Exporter</strong></td><td><code>9115</code></td><td>网络探测（HTTP, ICMP, TCP, DNS 等探测）</td></tr><tr><td><strong>MySQLd Exporter</strong></td><td><code>9104</code></td><td>采集 MySQL 数据库性能指标</td></tr><tr><td><strong>Consul Exporter</strong></td><td><code>9107</code></td><td>采集 Consul 集群状态与服务发现信息</td></tr><tr><td><strong>Webhook Dingtalk</strong></td><td><code>8060</code></td><td>钉钉告警通知转发插件</td></tr></tbody></table></div></section><footer class=article-footer><section class=article-tags><a href=/fuyou/tags/%E9%9B%86%E7%BE%A4/>集群</a>
+<a href=/fuyou/tags/obsidian/>Obsidian</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>本作品采用 CC BY-NC-SA 4.0 许可协议</span></section><section class=article-lastmod><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<span>最后更新于 2026-07-11 16:45 +0800</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/fuyou/p/cluster-06/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-06/1200/675 loading=lazy data-key=cluster-06 data-hash=https://picsum.photos/seed/fuyou-cluster-06/1200/675></div><div class=article-details><h2 class=article-title>LVS 负载均衡集群部署</h2></div></a></article><article class=has-image><a href=/fuyou/p/cluster-09/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-09/1200/675 loading=lazy data-key=cluster-09 data-hash=https://picsum.photos/seed/fuyou-cluster-09/1200/675></div><div class=article-details><h2 class=article-title>MooseFS 分布式存储系统部署</h2></div></a></article><article class=has-image><a href=/fuyou/p/cluster-07/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-07/1200/675 loading=lazy data-key=cluster-07 data-hash=https://picsum.photos/seed/fuyou-cluster-07/1200/675></div><div class=article-details><h2 class=article-title>Squid 代理服务器部署与缓存策略</h2></div></a></article><article class=has-image><a href=/fuyou/p/cluster-08/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-08/1200/675 loading=lazy data-key=cluster-08 data-hash=https://picsum.photos/seed/fuyou-cluster-08/1200/675></div><div class=article-details><h2 class=article-title>iSCSI 块存储部署与配置</h2></div></a></article><article class=has-image><a href=/fuyou/p/cluster-04/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-04/1200/675 loading=lazy data-key=cluster-04 data-hash=https://picsum.photos/seed/fuyou-cluster-04/1200/675></div><div class=article-details><h2 class=article-title>DevOps 构建：基于 GitLab 和 Jenkins 的 CI/CD 实践</h2></div></a></article></div></div></aside>...<div class=comment></div><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 小杨</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.26.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/fuyou/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script><style>body{background:url(https://luckycloveryh.github.io/fuyou/background/jinlin.png)no-repeat 50% 0;background-size:cover;background-attachment:fixed}@media(max-width:767px){body{background-attachment:scroll;background-position:50% 0}}.article-details{position:relative;z-index:1}.article-title,.article-title a{color:var(--card-text-color-main)!important}.search-form input{background-color:var(--card-background)!important;color:var(--card-text-color-main)!important;border-color:var(--card-separator-color)!important}.search-form button{background-color:transparent!important;color:var(--card-text-color-secondary)!important}.left-sidebar .site-name,.left-sidebar .site-name a,.left-sidebar .site-description,.left-sidebar #main-menu li a,.left-sidebar #main-menu li.current a,.left-sidebar #dark-mode-toggle,.left-sidebar #i18n-switch,.left-sidebar .menu-social svg,.right-sidebar .widget-icon svg,.right-sidebar .widget-title,.site-footer{color:#fff!important;stroke:#fff!important;text-shadow:0 1px 4px rgba(0,0,0,.65)}.left-sidebar #main-menu li a:hover,.left-sidebar .site-name a:hover{color:#fff!important;opacity:.9}</style><script src=https://luckycloveryh.github.io/fuyou/background/sakura.js></script><div id=particles-js></div><script src=https://luckycloveryh.github.io/fuyou/background/particles.min.js></script><script>window.matchMedia("(min-width: 768px)").matches&&particlesJS.load("particles-js","https://luckycloveryh.github.io/fuyou/background/particlesjs-config.json",function(){console.log("particles.js loaded - callback")})</script><style>#particles-js{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}#particles-js canvas{pointer-events:none!important}@media(max-width:767px){#particles-js,#canvas_sakura{display:none!important}}</style><style>:root{--base-font-family:"Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Segoe UI", Arial, sans-serif;--article-font-family:var(--base-font-family);--code-font-family:"Cascadia Mono", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei UI", monospace}</style><style>#TableOfContents>ul,ol{ul, ol { display: none; } .open { display: block; }}</style><script>function initTocHide(){let e=document.querySelector(".widget--toc");if(!e)return;window.fuyouTocScrollHandler&&window.removeEventListener("scroll",window.fuyouTocScrollHandler),window.fuyouTocScrollHandler=function(){let n=document.querySelectorAll(".open");n.length>0&&n.forEach(e=>{e.classList.remove("open")});let t=document.querySelector(".active-class");if(!t)return;t.children.length>1&&t.children[1].classList.add("open");let e=t.parentElement;do e.classList.add("open"),e=e.parentElement.parentElement;while(e!==void 0&&(e.localName==="ul"||e.localName==="ol"))},window.addEventListener("scroll",window.fuyouTocScrollHandler,{passive:!0})}initTocHide()</script><style>#backTopBtn{display:none;position:fixed;right:30px;bottom:30px;z-index:99;cursor:pointer;width:30px;height:30px;background-image:url(https://luckycloveryh.github.io/fuyou/icons/backTop.svg);background-repeat:no-repeat;background-position:50%;background-size:contain}@media(max-width:767px){#backTopBtn{right:14px;bottom:calc(82px + env(safe-area-inset-bottom));width:42px;height:42px;border:0;border-radius:50%;background-color:rgba(35,35,35,.74);background-size:22px 22px;box-shadow:0 8px 20px rgba(0,0,0,.28)}}</style><script>function initScrollTop(){let e=document.getElementById("backTopBtn");e||(e=document.createElement("button"),e.id="backTopBtn",e.type="button",e.setAttribute("aria-label","Back to top"),e.onclick=backToTop,document.body.appendChild(e)),window.fuyouBackTopHandler&&window.removeEventListener("scroll",window.fuyouBackTopHandler),window.fuyouBackTopHandler=function(){document.body.scrollTop>20||document.documentElement.scrollTop>20?e.style.display="block":e.style.display="none"},window.addEventListener("scroll",window.fuyouBackTopHandler,{passive:!0}),window.fuyouBackTopHandler()}function backToTop(){window.scrollTo({top:0,behavior:"smooth"})}initScrollTop()</script><style>.highlight{max-height:400px;overflow:hidden}.code-show{max-height:none!important}.code-more-box{width:100%;padding-top:78px;background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0)),to(#fff));position:absolute;left:0;right:0;bottom:0;z-index:1}.code-more-btn{display:block;margin:auto;width:44px;height:22px;background:#f0f0f5;border-top-left-radius:8px;border-top-right-radius:8px;padding-top:6px;cursor:pointer}.code-more-img{cursor:pointer!important;display:block;margin:auto;width:22px;height:16px}</style><script>function initCodeMoreBox(){let e=document.querySelectorAll(".highlight");if(!e)return;e.forEach(e=>{if(e.scrollHeight<=e.clientHeight)return;let t=document.createElement("div");t.classList.add("code-more-box");let n=document.createElement("span");n.classList.add("code-more-btn"),n.addEventListener("click",()=>{e.classList.add("code-show"),t.style.display="none",window.dispatchEvent(new Event("resize"))});let s=document.createElement("img");s.classList.add("code-more-img"),s.src="https://luckycloveryh.github.io/fuyou/icons/codeMore.png",n.appendChild(s),t.appendChild(n),e.appendChild(t)})}initCodeMoreBox()</script><script>const cdnPath="https://cdn.jsdelivr.net/gh/letere-gzj/live2d-widget-v3@main",config={path:{homePath:"/",modelPath:cdnPath+"/Resources/",cssPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu.css",tipsJsonPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu-tips.json",tipsJsPath:cdnPath+"/waifu-tips.js",live2dCorePath:cdnPath+"/Core/live2dcubismcore.js",live2dSdkPath:cdnPath+"/live2d-sdk.js"},tools:["hitokoto","asteroids","express","switch-model","switch-texture","photo","info","quit"],drag:{enable:!0,direction:["x","y"]},switchType:"order"};function loadExternalResource(e,t){return new Promise((n,s)=>{let o;t==="css"?(o=document.createElement("link"),o.rel="stylesheet",o.href=e):t==="js"&&(o=document.createElement("script"),o.src=e),o&&(o.onload=()=>n(e),o.onerror=()=>s(e),document.head.appendChild(o))})}let live2dInitialized=!1;function initLive2d(){if(live2dInitialized)return;window.matchMedia("(min-width: 768px)").matches&&Promise.all([loadExternalResource(config.path.cssPath,"css"),loadExternalResource(config.path.live2dCorePath,"js"),loadExternalResource(config.path.live2dSdkPath,"js"),loadExternalResource(config.path.tipsJsPath,"js")]).then(()=>{initWidget({waifuPath:config.path.tipsJsonPath,cdnPath:config.path.modelPath,tools:config.tools,dragEnable:config.drag.enable,dragDirection:config.drag.direction,switchType:config.switchType}),live2dInitialized=!0}).catch(e=>{console.error("Failed to load live2d:",e)})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",initLive2d):initLive2d()</script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css><style>@media(max-width:767px){.aplayer.aplayer-fixed,.aplayer.aplayer-fixed .aplayer-body{max-width:100vw}.aplayer.aplayer-fixed .aplayer-body{padding-right:18px;padding-bottom:env(safe-area-inset-bottom)}.aplayer.aplayer-fixed .aplayer-info{width:calc(100vw - 66px)}.aplayer.aplayer-fixed .aplayer-lrc{display:none!important}}</style><div id=aplayer></div><script src=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js></script><script>(function(){const e="https://luckycloveryh.github.io/fuyou/",t=document.getElementById("aplayer");if(!t||window.ap)return;window.ap=new APlayer({container:t,fixed:!0,lrcType:3,audio:[{name:"归期",artist:"钱润玉",url:e+"music/归期-钱润玉/song.mp3",cover:e+"music/归期-钱润玉/cover.jpg"}]})})()</script><script>window.addEventListener("beforeunload",()=>{if(!window.ap)return;const e={index:window.ap.list.index,currentTime:window.ap.audio.currentTime,paused:window.ap.paused};sessionStorage.setItem("playInfo",JSON.stringify(e))}),window.addEventListener("load",()=>{if(!window.ap)return;if(window._pjaxNavigating)return;const e=JSON.parse(sessionStorage.getItem("playInfo"));if(!e)return;window.ap.list.switch(e.index),setTimeout(()=>{if(window.ap.seek(e.currentTime),!e.paused){const e=window.ap.play();e&&typeof e.catch=="function"&&e.catch(()=>{})}},500)}),document.addEventListener("pjax:send",()=>{window._pjaxNavigating=!0}),document.addEventListener("pjax:complete",()=>{window._pjaxNavigating=!1})</script><script>window.fuyouPjaxInitialized=window.fuyouPjaxInitialized||!1;function reinitFuyouPageScripts(){try{window.Stack&&window.Stack.init&&window.Stack.init()}catch(e){console.warn("Stack初始化失败:",e)}try{typeof initTocHide=="function"&&initTocHide(),typeof initScrollTop=="function"&&initScrollTop(),typeof initCodeMoreBox=="function"&&initCodeMoreBox(),typeof showHideView=="function"&&showHideView(),typeof renderKaTeX=="function"&&renderKaTeX()}catch(e){console.warn("页面脚本重新初始化失败:",e)}try{typeof RENDERER!="undefined"&&RENDERER.setup()}catch(e){console.warn("底部小鱼初始化失败:",e)}}function shouldFuyouHandleLink(e,t){if(!t||e.defaultPrevented)return!1;if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return!1;if(t.target&&t.target!=="_self")return!1;if(t.hasAttribute("download"))return!1;const n=new URL(t.href,window.location.href);return n.origin===window.location.origin&&!!n.pathname.startsWith("/fuyou/")&&(n.pathname!==window.location.pathname||n.search!==window.location.search)&&!(n.hash&&n.pathname===window.location.pathname&&n.search===window.location.search)}async function fuyouLoadPage(e,t){document.dispatchEvent(new CustomEvent("pjax:send")),window._pjaxNavigating=!0;try{const s=await fetch(e,{headers:{"X-Requested-With":"fuyou-pjax"},credentials:"same-origin"});if(!s.ok)throw new Error("HTTP "+s.status);const r=await s.text(),n=(new DOMParser).parseFromString(r,"text/html"),o=n.querySelector(".main-container"),i=document.querySelector(".main-container");if(!o||!i){window.location.href=e;return}document.title=n.title,document.body.className=n.body.className,i.replaceWith(o);const c=document.querySelectorAll(".js-Pjax"),a=n.querySelectorAll(".js-Pjax");c.forEach((e,t)=>{a[t]&&e.replaceWith(a[t])}),t&&history.pushState({fuyouPjax:!0},"",e),window.scrollTo({top:0,behavior:"auto"}),reinitFuyouPageScripts(),document.dispatchEvent(new CustomEvent("pjax:complete"))}catch(t){console.warn("无刷新切换失败，回退到普通跳转:",t),window.location.href=e}finally{window._pjaxNavigating=!1}}window.addEventListener("load",()=>{if(window.fuyouPjaxInitialized)return;window.fuyouPjaxInitialized=!0,history.replaceState({fuyouPjax:!0},"",window.location.href),document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("a[href]");if(!shouldFuyouHandleLink(e,t))return;e.preventDefault(),fuyouLoadPage(t.href,!0)}),window.addEventListener("popstate",()=>{fuyouLoadPage(window.location.href,!1)}),window.pjax={refresh:function(){},loadUrl:function(e){fuyouLoadPage(e,!0)}}})</script><div class=js-Pjax><script>(function(){let t=document.querySelector(".comment");if(!t)return;let e=document.createElement("script");e.setAttribute("src","https://giscus.app/client.js"),e.setAttribute("data-repo",""),e.setAttribute("data-repo-id",""),e.setAttribute("data-category",""),e.setAttribute("data-category-id",""),e.setAttribute("data-mapping",""),e.setAttribute("data-strict",""),e.setAttribute("data-reactions-enabled","1"),e.setAttribute("data-emit-metadata","0"),e.setAttribute("data-input-position",""),e.setAttribute("data-theme",""),e.setAttribute("data-lang",""),e.async=!0,e.crossOrigin="anonymous",t.appendChild(e)})(document)</script></div><script>async function renderKaTeX(){let e=document.querySelector(".math-katex");if(!e)return;for(;typeof renderMathInElement!="function";)await delay(500);renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],ignoredClasses:["gist"]})}function delay(e){return new Promise(t=>{setTimeout(t,e)})}document.addEventListener("pjax:complete",()=>{renderKaTeX()})</script><script src=https://luckycloveryh.github.io/fuyou/js/topbar.min.js></script><script>topbar.config({barColors:{0:"rgba(255, 255, 255, 1)",1.0:"rgba(0, 149, 234, 1)"}}),document.addEventListener("pjax:send",()=>{topbar.show()}),document.addEventListener("pjax:complete",()=>{topbar.hide()})</script><script defer src=https://cn.vercount.one/js></script><script>function showHideView(){let e=document.querySelectorAll("#viewCount");if(e){let t=document.querySelector(".article-page");t||e.forEach(e=>{e.style.display="none"})}}showHideView()</script><div id=jsi-flying-fish-container class=flying-fish-container></div><style>.flying-fish-container{width:100%;height:200px;position:fixed;z-index:0;pointer-events:none;bottom:0;left:0;opacity:.6}.flying-fish-container canvas{display:block;pointer-events:none}@media(max-width:767px){.flying-fish-container{height:96px;opacity:.38}}</style><script src=https://luckycloveryh.github.io/fuyou/js/flying-fish.js></script><script>window.addEventListener("load",function(){typeof RENDERER!="undefined"&&document.getElementById("jsi-flying-fish-container")&&RENDERER.init()}),document.addEventListener("pjax:complete",function(){typeof RENDERER!="undefined"&&RENDERER.setup()})</script></body></html>

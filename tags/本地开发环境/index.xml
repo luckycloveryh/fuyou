@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>本地开发环境 on 小杨的博客</title><link>https://luckycloveryh.github.io/fuyou/tags/%E6%9C%AC%E5%9C%B0%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/</link><description>Recent content in 本地开发环境 on 小杨的博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>小杨</copyright><lastBuildDate>Thu, 10 Sep 2026 15:15:00 +0800</lastBuildDate><atom:link href="https://luckycloveryh.github.io/fuyou/tags/%E6%9C%AC%E5%9C%B0%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/index.xml" rel="self" type="application/rss+xml"/><item><title>从系统直装到 Docker Desktop 再到 FlyEnv：一个运维工程师的本地环境折腾史</title><link>https://luckycloveryh.github.io/fuyou/p/flyenv-01/</link><pubDate>Thu, 10 Sep 2026 15:15:00 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/flyenv-01/</guid><description>&lt;img src="https://luckycloveryh.github.io/fuyou/p/flyenv-01/cover.png" alt="Featured image of post 从系统直装到 Docker Desktop 再到 FlyEnv：一个运维工程师的本地环境折腾史" />&lt;blockquote>
+&lt;p>写这篇主要是把这两年折腾本地环境的过程记下来。&lt;br>
+顺便提一句：发布后把文章链接填进 FlyEnv 的 &lt;code>设置 → License → 申请&lt;/code>，一般 24 小时内会人工发证。&lt;/p>
+&lt;/blockquote>
+&lt;p>先说结论：&lt;br>
+我不是来吹某个工具有多神的。就是一个在 Windows 笔记本上干活的运维，被环境配置反复折磨了两年，最后找到一个&lt;strong>刚好够用、又不会把机器拖死&lt;/strong>的方案。&lt;/p>
+&lt;hr>
+&lt;h2 id="一我到底在折腾什么">一、我到底在折腾什么
+&lt;/h2>&lt;p>我现在的日常大概是这样：&lt;/p>
+&lt;ul>
+&lt;li>写点 Python 运维脚本，改配置、查日志、做巡检&lt;/li>
+&lt;li>用 Node 跑一些小工具&lt;/li>
+&lt;li>本地起 MySQL / Redis，练 Zabbix、K8s 这些东西&lt;/li>
+&lt;li>偶尔还要验证一下 Nginx 配置、本地域名访问&lt;/li>
+&lt;/ul>
+&lt;p>听起来不复杂。真落地以后你会发现，&lt;strong>麻烦的从来不是“装软件”，而是“装完还能不能稳定用”。&lt;/strong>&lt;/p>
+&lt;p>最常见的场景就这几个：&lt;/p>
+&lt;ol>
+&lt;li>老脚本依赖 Python 3.9，新工具要 3.12&lt;/li>
+&lt;li>公司项目卡 Node 18，自己练手想用 20&lt;/li>
+&lt;li>想本地起个 MySQL，但不想每次都翻配置文件、改端口、查服务状态&lt;/li>
+&lt;li>笔记本内存本来就紧，Docker Desktop 一开，风扇起飞，续航直接砍半&lt;/li>
+&lt;/ol>
+&lt;p>说白了，我要的不是“生产级本地仿真”，而是：&lt;/p>
+&lt;blockquote>
+&lt;p>打开电脑，环境能用，版本不打架，服务能启停，别把机器拖死。&lt;/p>
+&lt;/blockquote>
+&lt;p>就这么点要求，居然也能折腾两年。&lt;/p>
+&lt;hr>
+&lt;h2 id="二第一阶段系统直装最直接也最脏">二、第一阶段：系统直装，最直接也最脏
+&lt;/h2>&lt;p>一开始当然是系统直装。&lt;/p>
+&lt;p>Python 装一个，Node 装一个，MySQL 再装一个。刚开始觉得挺香，点开就能用。问题出在“第二个版本”上。&lt;/p>
+&lt;p>装第二个 Python 的时候开始翻车：&lt;/p>
+&lt;ul>
+&lt;li>PATH 里谁排前面，谁就是“真·python”&lt;/li>
+&lt;li>&lt;code>pip&lt;/code> 到底绑到哪个解释器，经常要靠猜&lt;/li>
+&lt;li>系统里某些工具依赖老版本，你不敢删，也不敢动&lt;/li>
+&lt;li>卸载后残留一堆注册表、目录、环境变量，时间长了自己都不敢碰&lt;/li>
+&lt;/ul>
+&lt;p>最后就是那种很经典的状态：&lt;/p>
+&lt;blockquote>
+&lt;p>机器能用，但你心里没底。&lt;br>
+每次 &lt;code>python -V&lt;/code> 之前都有点紧张。&lt;/p>
+&lt;/blockquote>
+&lt;p>这阶段最大的收获不是学会装软件，而是明白一件事：&lt;/p>
+&lt;p>&lt;strong>系统直装适合“只用一个版本”的人。&lt;/strong>&lt;br>
+只要你开始同时维护新旧项目，它就会慢慢变成垃圾场。&lt;/p>
+&lt;hr>
+&lt;h2 id="三第二阶段pyenv--nvm能用但还是半成品">三、第二阶段：pyenv + nvm，能用，但还是半成品
+&lt;/h2>&lt;p>后来上了命令行党最爱的组合：&lt;code>pyenv&lt;/code> + &lt;code>nvm&lt;/code>。&lt;/p>
+&lt;p>方向是对的，至少语言版本切换有解了。但在 Windows 上，体验真的一般：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>nvm-windows&lt;/code> 和原版 &lt;code>nvm&lt;/code> 不是一回事，命令习惯还得重新记&lt;/li>
+&lt;li>切版本靠手敲，忘了切就报错，报错信息还经常不说人话&lt;/li>
+&lt;li>它只管语言，不管 MySQL、Redis、Nginx&lt;/li>
+&lt;li>你最后还是会变成：语言用版本管理器，数据库用系统服务，Nginx 另装一套&lt;/li>
+&lt;/ul>
+&lt;p>也就是说，它解决了“多版本 Python/Node”，但没解决“本地开发环境”这整件事。&lt;/p>
+&lt;p>我那时候的真实感受是：&lt;/p>
+&lt;blockquote>
+&lt;p>工具越装越多，心智负担也越来越重。&lt;br>
+每次开工前，先确认自己现在到底站在哪个环境上。&lt;/p>
+&lt;/blockquote>
+&lt;p>对运维来说这很烦。因为你本来就在处理一堆环境差异，本地再额外制造一层差异，纯属给自己找事。&lt;/p>
+&lt;hr>
+&lt;h2 id="四第三阶段docker-desktop隔离最干净也最重">四、第三阶段：Docker Desktop，隔离最干净，也最重
+&lt;/h2>&lt;p>再往后，我把希望寄托到 Docker Desktop 上。&lt;/p>
+&lt;p>客观讲，Docker 的优点很硬：&lt;/p>
+&lt;ul>
+&lt;li>环境隔离干净&lt;/li>
+&lt;li>一致性最好&lt;/li>
+&lt;li>复现问题方便&lt;/li>
+&lt;li>跟生产思路也更接近&lt;/li>
+&lt;/ul>
+&lt;p>但问题也很硬：它对我这种场景来说太重了。&lt;/p>
+&lt;p>我当时本地最常见的需求其实是：&lt;/p>
+&lt;ul>
+&lt;li>跑一个干净的 Python 3.12&lt;/li>
+&lt;li>起一个 MySQL 练建库&lt;/li>
+&lt;li>起一个 Redis 看队列/缓存&lt;/li>
+&lt;li>改两行配置马上验证&lt;/li>
+&lt;/ul>
+&lt;p>结果 Docker Desktop 一开：&lt;/p>
+&lt;ul>
+&lt;li>空跑就吃掉 2G+ 内存&lt;/li>
+&lt;li>风扇声音立刻上来&lt;/li>
+&lt;li>改个配置经常要重建容器&lt;/li>
+&lt;li>只是想“跑个解释器”，却先套了一层虚拟化&lt;/li>
+&lt;/ul>
+&lt;p>不是 Docker 不好。&lt;br>
+是我很多时候根本不是在做“本地复刻生产”，只是在做“本地能跑”。&lt;/p>
+&lt;p>这阶段我学到的边界很清楚：&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>需要复刻生产拓扑、微服务编排、容器网络调试：用 Docker&lt;/strong>&lt;/li>
+&lt;li>&lt;strong>只是想本地轻量开发、多版本切换、服务启停：别上来就 Docker&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;hr>
+&lt;h2 id="五换成-flyenv-之后为什么我留下了">五、换成 FlyEnv 之后，为什么我留下了
+&lt;/h2>&lt;p>FlyEnv 的思路和前面三个都不一样。&lt;/p>
+&lt;p>它不做虚拟化，也不强行接管你的系统 PATH，而是把每个运行时当成一个可以独立开关的模块。对我这种“本地练手 + 写脚本 + 起几个服务”的人来说，这个抽象刚刚好。&lt;/p>
+&lt;p>我现在用它管这些：&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>模块&lt;/th>
+&lt;th>我拿来干嘛&lt;/th>
+&lt;th>版本&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Python&lt;/td>
+&lt;td>运维脚本、临时工具&lt;/td>
+&lt;td>3.9 + 3.12&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Node.js&lt;/td>
+&lt;td>辅助脚本、小工具&lt;/td>
+&lt;td>18 + 20&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>MySQL&lt;/td>
+&lt;td>练 Zabbix 建库、本地验证&lt;/td>
+&lt;td>8.0&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Redis&lt;/td>
+&lt;td>缓存/队列练习&lt;/td>
+&lt;td>7.x&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Nginx&lt;/td>
+&lt;td>本地验证配置、反代&lt;/td>
+&lt;td>最新稳定版&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>真正让我留下来的，不是功能清单有多长，而是这几个体感：&lt;/p>
+&lt;h3 id="1-多版本共存进目录自动切">1. 多版本共存，进目录自动切
+&lt;/h3>&lt;p>这个点很实用。&lt;/p>
+&lt;p>以前最烦的不是“能不能装多个版本”，而是“你当前到底在用哪个”。&lt;br>
+FlyEnv 给我的感觉更像：项目目录自己带着环境，&lt;code>cd&lt;/code> 进去就对了，不用每次先表演一遍 &lt;code>nvm use&lt;/code> / &lt;code>pyenv local&lt;/code>。&lt;/p>
+&lt;p>对运维特别友好。因为你经常是：&lt;/p>
+&lt;ul>
+&lt;li>上午改老脚本&lt;/li>
+&lt;li>下午写新工具&lt;/li>
+&lt;li>晚上又回去排一个历史环境的问题&lt;/li>
+&lt;/ul>
+&lt;p>这种节奏下，&lt;strong>少记一个当前状态，就是在降低出错概率。&lt;/strong>&lt;/p>
+&lt;h3 id="2-原生二进制没有虚拟化税">2. 原生二进制，没有虚拟化税
+&lt;/h3>&lt;p>这是我留下来的第二大原因。&lt;/p>
+&lt;p>同样一套 Python + MySQL + Redis，FlyEnv 的内存占用比 Docker Desktop 轻一个数量级。服务启动也更快，改完配置不用先跟容器生命周期较劲。&lt;/p>
+&lt;p>最直接的体感就两句：&lt;/p>
+&lt;ul>
+&lt;li>风扇不叫了&lt;/li>
+&lt;li>续航回来了&lt;/li>
+&lt;/ul>
+&lt;p>听着很肤浅，但对笔记本用户来说，这就是生产力。&lt;/p>
+&lt;h3 id="3-服务面板比散落的命令更顺手">3. 服务面板比散落的命令更顺手
+&lt;/h3>&lt;p>MySQL、Redis、Nginx 的启停、日志、配置入口都在一个界面里。&lt;/p>
+&lt;p>运维看问题的第一反应通常是：&lt;/p>
+&lt;ol>
+&lt;li>服务起来没&lt;/li>
+&lt;li>端口冲突没&lt;/li>
+&lt;li>日志里有没有报错&lt;/li>
+&lt;li>配置文件改的是不是正在跑的那份&lt;/li>
+&lt;/ol>
+&lt;p>这些事以前分散在不同目录、不同命令、不同工具里。&lt;br>
+现在至少能先在一个面板里把状态看清楚，效率会高很多。&lt;/p>
+&lt;h3 id="4-本地域名和-https-不再是额外工程">4. 本地域名和 HTTPS 不再是额外工程
+&lt;/h3>&lt;p>以前给本地项目配个 &lt;code>xxx.test&lt;/code>，基本流程是：&lt;/p>
+&lt;ul>
+&lt;li>改 hosts&lt;/li>
+&lt;li>自己签证书&lt;/li>
+&lt;li>浏览器还不信任&lt;/li>
+&lt;li>配完还得记得下次怎么复现&lt;/li>
+&lt;/ul>
+&lt;p>现在这些变成点两下的事。&lt;br>
+对练 Nginx、反代、本地 Web 调试来说，这个收益很实在。&lt;/p>
+&lt;h3 id="5-小工具集意外好用">5. 小工具集意外好用
+&lt;/h3>&lt;p>Base64、JSON 格式化、正则测试、时间戳转换、SSL 证书、URL 解析……&lt;/p>
+&lt;p>这些我以前都是开浏览器找在线站。&lt;br>
+问题是：运维日志里经常夹着 token、密码片段、内部地址。你说你敢不敢随手贴上去？&lt;/p>
+&lt;p>内置工具最大的价值不是“方便”，而是：&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;strong>数据不出本机。&lt;/strong>&lt;/p>
+&lt;/blockquote>
+&lt;p>这个对现场实施、排障、处理客户环境信息的人来说，比花里胡哨的功能重要。&lt;/p>
+&lt;hr>
+&lt;h2 id="六我实际怎么用它">六、我实际怎么用它
+&lt;/h2>&lt;p>说点更具体的，不然容易听起来像软文。&lt;/p>
+&lt;p>我现在比较固定的用法是：&lt;/p>
+&lt;ol>
+&lt;li>装好 FlyEnv&lt;/li>
+&lt;li>把常用模块勾上：Python / Node / MySQL / Redis / Nginx&lt;/li>
+&lt;li>不同项目目录绑不同语言版本&lt;/li>
+&lt;li>需要数据库时直接面板启动，用完关掉&lt;/li>
+&lt;li>练 Nginx 或本地站点时，直接走本地域名&lt;/li>
+&lt;/ol>
+&lt;p>比如我练 Zabbix / 监控相关的时候，本地 MySQL 就够了，没必要为了“起个库”先把 Docker Desktop 整活。&lt;br>
+练脚本的时候，Python 3.9 和 3.12 也能并存，不会再出现“改完 PATH，另一个项目废了”的情况。&lt;/p>
+&lt;p>另外一个很现实的点：换电脑。&lt;/p>
+&lt;p>运维笔记本不是不会坏，也不是不会重装。&lt;br>
+以前重装完最烦的不是系统，是把本地开发环境一点点捞回来。现在流程短很多，基本就是：装 FlyEnv，勾模块，把项目目录重新挂上。&lt;/p>
+&lt;hr>
+&lt;h2 id="七必须说清楚的边界">七、必须说清楚的边界
+&lt;/h2>&lt;p>FlyEnv 不是万能钥匙，这点得讲明白。&lt;/p>
+&lt;h3 id="1-它替代不了-docker">1. 它替代不了 Docker
+&lt;/h3>&lt;p>如果你要做这些事，还是得 Docker / K8s：&lt;/p>
+&lt;ul>
+&lt;li>本地复刻生产微服务拓扑&lt;/li>
+&lt;li>容器网络、服务发现、编排问题排查&lt;/li>
+&lt;li>跟线上一致的镜像化交付流程&lt;/li>
+&lt;/ul>
+&lt;p>FlyEnv 和 Docker 不是二选一，是分工：&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>FlyEnv：本地轻量开发环境&lt;/strong>&lt;/li>
+&lt;li>&lt;strong>Docker：隔离、编排、贴近生产&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;h3 id="2-社区版有本地站点数量限制">2. 社区版有本地站点数量限制
+&lt;/h3>&lt;p>社区版本地站点大概限制 3 个。&lt;br>
+但核心运行时和数据库模块不限量。&lt;/p>
+&lt;p>如果你跟我一样，主要不是养一堆本地站点，而是管语言版本和服务，这个限制基本碰不到。&lt;/p>
+&lt;h3 id="3-它是给本地用的别拿去跑生产">3. 它是给本地用的，别拿去跑生产
+&lt;/h3>&lt;p>这句话必须写大一点。&lt;/p>
+&lt;p>本地开发工具再顺手，也不该直接扛生产。&lt;br>
+生产该走服务器部署、容器化、高可用，这些事另说。&lt;/p>
+&lt;hr>
+&lt;h2 id="八谁适合谁不适合">八、谁适合，谁不适合
+&lt;/h2>&lt;p>&lt;strong>适合：&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Windows 笔记本开发，内存吃紧&lt;/li>
+&lt;li>同时维护多个 Python / Node 版本&lt;/li>
+&lt;li>本地要 MySQL / Redis / Nginx，但不想每次都重搭&lt;/li>
+&lt;li>主要做脚本、单体应用、本地服务调试&lt;/li>
+&lt;li>讨厌把时间浪费在环境配置上的人&lt;/li>
+&lt;/ul>
+&lt;p>&lt;strong>不太适合：&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>团队已经全面容器化，本地也必须完全镜像化&lt;/li>
+&lt;li>你的核心诉求就是本地复刻 K8s / 微服务生产拓扑&lt;/li>
+&lt;li>你本来就不碰多版本，系统直装已经完全够用&lt;/li>
+&lt;/ul>
+&lt;p>一句话：&lt;/p>
+&lt;blockquote>
+&lt;p>如果你烦的是“环境太重、版本太乱、启停太碎”，它值得一试。&lt;br>
+如果你烦的是“如何更像生产”，那你该看 Docker / K8s，不是看它。&lt;/p>
+&lt;/blockquote>
+&lt;hr>
+&lt;h2 id="九总结">九、总结
+&lt;/h2>&lt;p>回头看这两年，我其实一直在找同一层抽象：&lt;/p>
+&lt;ul>
+&lt;li>太薄了，像系统直装，东西会互相打架&lt;/li>
+&lt;li>太厚了，像 Docker Desktop，机器先被吃掉一半&lt;/li>
+&lt;li>FlyEnv 刚好卡在中间：有隔离感、能切版本、又足够轻&lt;/li>
+&lt;/ul>
+&lt;p>我现在的标准流程已经很简单了：&lt;/p>
+&lt;ol>
+&lt;li>打开 FlyEnv&lt;/li>
+&lt;li>确认项目目录对应的语言版本&lt;/li>
+&lt;li>需要数据库/缓存就开服务&lt;/li>
+&lt;li>直接干活&lt;/li>
+&lt;/ol>
+&lt;p>没有那么多仪式感，也没有那么多“先配置半小时再说”。&lt;/p>
+&lt;p>工具没有绝对好坏，只有和场景配不配。&lt;br>
+如果你也在 Windows 上被本地环境反复消耗时间，尤其是运维/实施这种既要写脚本、又要起服务、还不想把笔记本变成小型机房的人，可以试试。&lt;/p>
+&lt;p>官网：https://flyenv.com&lt;br>
+GitHub：https://github.com/xpf0000/FlyEnv&lt;/p></description></item></channel></rss>

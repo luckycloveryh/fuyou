@@ -1,0 +1,1906 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>3. Shell阶段 on 小杨的博客</title><link>https://luckycloveryh.github.io/fuyou/categories/3.-shell%E9%98%B6%E6%AE%B5/</link><description>Recent content in 3. Shell阶段 on 小杨的博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>小杨</copyright><lastBuildDate>Mon, 22 Jun 2026 09:00:00 +0800</lastBuildDate><atom:link href="https://luckycloveryh.github.io/fuyou/categories/3.-shell%E9%98%B6%E6%AE%B5/index.xml" rel="self" type="application/rss+xml"/><item><title>Shell 学习索引</title><link>https://luckycloveryh.github.io/fuyou/p/shell-07/</link><pubDate>Mon, 22 Jun 2026 09:00:00 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/shell-07/</guid><description>&lt;img src="https://picsum.photos/seed/fuyou-shell-07/1200/675" alt="Featured image of post Shell 学习索引" />&lt;h1 id="shell-学习索引">Shell 学习索引
+&lt;/h1>&lt;p>本阶段按课程日期学习 Shell 编程，并通过练习题巩固脚本能力。&lt;/p>
+&lt;h2 id="课程顺序">课程顺序
+&lt;/h2>&lt;ol>
+&lt;li>Shell 第一天&lt;/li>
+&lt;li>Shell 第二天&lt;/li>
+&lt;li>Shell 第三天&lt;/li>
+&lt;li>Shell 第四天&lt;/li>
+&lt;li>Shell 第五天&lt;/li>
+&lt;li>Shell 第六天&lt;/li>
+&lt;/ol>
+&lt;h2 id="练习">练习
+&lt;/h2>&lt;ul>
+&lt;li>Shell 练习题&lt;/li>
+&lt;/ul>
+&lt;h2 id="复习主线">复习主线
+&lt;/h2>&lt;p>&lt;code>变量与参数 → 条件判断 → 循环 → 函数 → 文本处理 → 自动化脚本&lt;/code>&lt;/p>
+&lt;p>返回：知识库首页&lt;/p></description></item><item><title>Shell 条件判断、文件权限与流程控制</title><link>https://luckycloveryh.github.io/fuyou/p/shell-01/</link><pubDate>Wed, 10 Dec 2025 09:00:00 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/shell-01/</guid><description>&lt;img src="https://picsum.photos/seed/fuyou-shell-01/1200/675" alt="Featured image of post Shell 条件判断、文件权限与流程控制" />&lt;h2 id="一基础命令与文件权限核心知识">一、基础命令与文件权限核心知识
+&lt;/h2>&lt;h3 id="一昨日知识回顾">（一）昨日知识回顾
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>基础命令复习&lt;/strong>：sort（排序）、uniq（去重，-c统计重复次数，仅去除连续重复项）、tr等命令；vi编辑器操作（查看2-5行用2,5p、行前插入i、追加行、替换行c、替换字符串s，加行号指定单行替换，不加则所有行）；set命令选项功能，文件判断选项（-f普通文件、-s非空文件等）。&lt;/li>
+&lt;li>&lt;strong>awk命令核心&lt;/strong>
+&lt;ul>
+&lt;li>语法与执行逻辑：需指定操作文件，条件分预定条件（仅执行一次）和自定义条件（按行数执行）；动作中printf可格式化输出，注意列分隔符表示，命令外需加单引号。&lt;/li>
+&lt;li>工作原理：先执行BEGIN条件（如有），再逐行读取文件、判断自定义条件并执行对应动作，最后执行END条件（如有）。&lt;/li>
+&lt;li>内置变量：NR（行号）、NF（列数，取倒数第2列用NF-1）；指定分隔符推荐-F选项，也可使用FS变量。&lt;/li>
+&lt;li>计算功能：以15.6+45.78为例，支持小数计算，需用%f格式化，可传递参数实现计算。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="二文件权限相关">（二）文件权限相关
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>权限类型&lt;/strong>
+&lt;ul>
+&lt;li>基本权限：RWX（读-r、写-w、执行-x）；特殊权限：SUID（借用所有者身份，-u判断）、SGID（借用所属组身份）、SBIT（仅创建者可删除，-t判断），并举例说明对应命令/目录。&lt;/li>
+&lt;li>权限作用：目录有w权限可改名/删除/新建其下文件/子目录，但无法修改文件内容；不同用户对同一文件权限可能不同。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>权限判断脚本&lt;/strong>：接收用户输入文件名，先判断文件是否存在（不存在则提示退出），再分别判断r/w/x权限，可通过循环优化逻辑、添加颜色输出（绿色有/红色无），并创建普通用户（如李四）测试不同用户权限。&lt;/li>
+&lt;li>&lt;strong>默认权限规则&lt;/strong>：普通文件默认权限常为644，最大值666（无执行权限，因非所有普通文件需执行）；umask值默认022，影响文件默认权限。&lt;/li>
+&lt;/ol>
+&lt;h2 id="二条件判断全维度知识点">二、条件判断全维度知识点
+&lt;/h2>&lt;ol>
+&lt;li>&lt;strong>判断类型（共6类）&lt;/strong>
+&lt;ul>
+&lt;li>字符串比较：=（相等）、-z（空字符串）、-n（非空字符串）；数值比较；多条件判断（-a与、-o或、!非）；文件类型判断（-b块设备、-c字符设备、-d目录等）；文件权限判断；两个文件比较。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>文件比较示例&lt;/strong>
+&lt;ul>
+&lt;li>新旧比较：创建12.tst和13.tst，通过-nt/-ot判断文件新旧，修改文件内容改变时间可测试；若均不成立则两文件同新。&lt;/li>
+&lt;li>硬链接判断：用-EF选项判断（i节点号相同），成立则提示i节点号一致，否则提示不同，硬链接文件i节点号与原文件相同。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>单层/双层中括号区别&lt;/strong>：均用于判断，大部分功能一致；双层中括号更智能，判断空字符串不报错，支持字符串包含判断（如变量是否含某字符）。&lt;/li>
+&lt;/ol>
+&lt;h2 id="三流程控制完整体系">三、流程控制完整体系
+&lt;/h2>&lt;h3 id="一流程控制类型与分支执行">（一）流程控制类型与分支执行
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>核心类型&lt;/strong>：顺序执行（逐行执行）、分支执行（仅执行一个分支）、循环执行（重复执行）。&lt;/li>
+&lt;li>&lt;strong>if分支&lt;/strong>：以监控根分区使用率为例，从df -h提取使用率，超过阈值则输出红色错误信息并邮件报警；也可实现双分支（文件存在/不存在提示）、多分支判断。&lt;/li>
+&lt;li>&lt;strong>case语句&lt;/strong>
+&lt;ul>
+&lt;li>语法结构：以case开头、esac结尾，变量匹配不同值执行对应分支，分支以“值)”开头、;;分隔，*）处理默认情况。&lt;/li>
+&lt;li>功能特点：支持匹配具体值、通配符（?匹配任意单个字符）、或逻辑（|，如yes|Yes|YES)匹配不同大小写）。&lt;/li>
+&lt;li>应用案例：用户输入yes/no的选择判断；分数等级判断（9[0-9]|100)匹配90-100分输出优秀，依此类推，非法输入提示不合法），对比if-else更简洁。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>邮件发送（分支执行配套功能）&lt;/strong>
+&lt;ul>
+&lt;li>依赖：安装postfix服务（SMTP协议，监听25端口）、sendmail客户端，启动postfix。&lt;/li>
+&lt;li>方式：交互方式（mail 收件人，写标题/内容，Ctrl+D发送）；非交互方式（echo 内容 | mail -s 标题 收件人）；可通过mail命令查看收到的邮件。&lt;/li>
+&lt;li>脚本整合：将根分区使用率超标信息作为邮件内容，设置标题发送给管理员，可定义变量优化逻辑。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="二循环执行forwhileuntil">（二）循环执行（for/while/until）
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>for循环&lt;/strong>
+&lt;ul>
+&lt;li>两种结构：值列表循环（for 变量 in 值列表，值列表可来自ls等命令结果）；类C语言循环（for ((初始值; 循环条件; 变量变化))）。&lt;/li>
+&lt;li>应用案例：计算1-100的和（值列表循环用seq 1 100生成序列，类C循环初始化和为0，i从1到100累加）。&lt;/li>
+&lt;li>特殊用法：可实现无限循环（类C结构省略初始值/条件/增量，循环体持续执行）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>while循环（“万有循环”）&lt;/strong>
+&lt;ul>
+&lt;li>语法：while [ 条件 ]，满足则执行do-done间内容，直至条件不成立。&lt;/li>
+&lt;li>应用案例：计算1-100的和，初始化和=0、k=0，条件k&amp;lt;=100，循环体内累加（和+=k/let 和=和+k）、k++，两层小括号可写加减乘除表达式。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>until循环&lt;/strong>
+&lt;ul>
+&lt;li>语法：与while一致，仅替换为until，核心区别是条件成立时结束循环（while是条件成立进入）。&lt;/li>
+&lt;li>应用案例：计算1-100的和，初始化和3=0、t=0，条件t&amp;gt;100，循环体内累加、t++。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>循环特性&lt;/strong>
+&lt;ul>
+&lt;li>适用场景：for适合次数明确的场景；while/until适合次数不确定的场景（如等待用户输入纯数字）。&lt;/li>
+&lt;li>互换性：三种循环可灵活互换，部分场景语法复杂度不同（如while写无限循环更简洁，条件设为[ 1 -eq 1 ]）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="三异常流程控制">（三）异常流程控制
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>break&lt;/strong>：循环内满足条件时跳出当前循环，不再执行后续循环内容，继续执行循环外代码（如猜数字游戏猜对后跳出）。&lt;/li>
+&lt;li>&lt;strong>exit&lt;/strong>：终止整个脚本运行，脚本内后续代码均不执行；可指定退出状态码（如exit 3），通过echo $?查看，用于判断执行结果。&lt;/li>
+&lt;li>&lt;strong>continue&lt;/strong>：循环内满足条件时跳过本次循环剩余内容，直接进入下一次循环（如打印1-10时跳过数字4）。&lt;/li>
+&lt;li>&lt;strong>三者区别&lt;/strong>：break仅跳出当前循环，exit终止脚本，continue仅跳过本次循环；break/continue仅用于循环内，exit可在脚本任意位置。&lt;/li>
+&lt;/ol>
+&lt;h3 id="四shell函数">（四）Shell函数
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>定义与调用&lt;/strong>：语法为“函数名() { 函数逻辑 }”（function关键字可省略，小括号必须写）；仅定义不调用则不执行逻辑，调用时直接写函数名（无需括号/参数列表）。&lt;/li>
+&lt;li>&lt;strong>参数传递&lt;/strong>：通过$1、$2等位置参数接收外部值（如调用函数名 10 9，函数内$1=10、$2=9）。&lt;/li>
+&lt;li>&lt;strong>跨脚本使用&lt;/strong>：函数定义在A脚本时，需通过source 脚本路径（或. ./脚本.sh）加载到当前环境（终端/B脚本），才能调用。&lt;/li>
+&lt;li>&lt;strong>应用案例&lt;/strong>：封装“去除数字4”函数（接收范围参数，seq生成序列，if判断跳过4）；打印星号图案函数（嵌套for循环控制行列）；九九乘法表函数（双层循环生成内容）。&lt;/li>
+&lt;/ol>
+&lt;h2 id="四实战案例">四、实战案例
+&lt;/h2>&lt;h3 id="一监控类脚本">（一）监控类脚本
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>本机服务监控&lt;/strong>：用while无限循环持续监控（如“阿发祈福”服务），循环体内通过ss命令判断服务状态并输出；加入sleep 3降低CPU占用（也可通过crontab定时任务实现，最小间隔1分钟，需更短间隔则结合sleep）。&lt;/li>
+&lt;li>&lt;strong>远程服务监控&lt;/strong>
+&lt;ul>
+&lt;li>模拟浏览器访问：&lt;font color="#ff0000">curl命令访问远程IP（如192.168.66.192），获取页面内容则服务正常，报错则异常。&lt;/font>&lt;/li>
+&lt;li>端口扫描：&lt;font color="#ff0000">nmap -ST IP命令扫描端口（SSH22、阿帕奇80），开放则服务正常；可通过grep筛选结果、$?判断命令执行结果（0正常/非0异常）。&lt;/font>&lt;/li>
+&lt;li>异常处理：服务未开启则手动重启，重启失败可重装，可扩展邮件通知功能。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="二交互类案例">（二）交互类案例
+&lt;/h3>&lt;p>猜数字游戏：通过$((RANDOM%100+1))生成1-100随机数，提示用户输入数字，if判断大小（大了/小了），猜对则break跳出循环并提示恭喜，支持无限次猜测。&lt;/p>
+&lt;h3 id="三格式输出类案例">（三）格式输出类案例
+&lt;/h3>&lt;p>星号图案打印：双层for循环实现，外层控制行数，内层控制每行星号数量，结合echo -n（不换行）和echo（换行）调整格式；可接收参数动态指定行数，实现三角形、矩形等图案。&lt;/p>
+&lt;h2 id="五补充说明">五、补充说明
+&lt;/h2>&lt;ul>
+&lt;li>循环互换性：for/while/until可互相实现相同逻辑，但需根据场景选择（如次数明确选for，次数不确定选while/until）。&lt;/li>
+&lt;li>定时任务：crontab输出默认存于/var/log/messages，也可指定自定义文件，方便查看监控结果。&lt;/li>
+&lt;/ul></description></item><item><title>Shell 正则表达式与文本处理命令</title><link>https://luckycloveryh.github.io/fuyou/p/shell-06/</link><pubDate>Tue, 09 Dec 2025 09:00:00 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/shell-06/</guid><description>&lt;img src="https://picsum.photos/seed/fuyou-shell-06/1200/675" alt="Featured image of post Shell 正则表达式与文本处理命令" />&lt;h2 id="一正则表达式回顾与深入讲解">一、正则表达式回顾与深入讲解
+&lt;/h2>&lt;ol>
+&lt;li>&lt;strong>基础匹配规则&lt;/strong>
+&lt;ul>
+&lt;li>匹配单个字符：可使用&lt;code>.&lt;/code>表示任意一个字符；若需匹配实际的&lt;code>.&lt;/code>（如&lt;code>.com&lt;/code>中的点），需进行转义。&lt;/li>
+&lt;li>中括号&lt;code>[]&lt;/code>：匹配括号内任意一个字符；若括号内开头加&lt;code>^&lt;/code>，则表示匹配除括号内字符外的任意一个字符。&lt;/li>
+&lt;li>多字符匹配：&lt;code>*&lt;/code>可匹配前面字符的多个（包括0个），若需将多个字符视为整体（如&lt;code>ABC&lt;/code>），需用小括号&lt;code>()&lt;/code>包裹；&lt;code>+&lt;/code>表示匹配前面字符至少一次，&lt;code>?&lt;/code>表示匹配前面字符0次或1次；若需匹配指定次数，可使用大括号&lt;code>{}&lt;/code>，如&lt;code>{n}&lt;/code>表示匹配n次。&lt;/li>
+&lt;li>逻辑或匹配：使用管道符&lt;code>|&lt;/code>表示“或”关系，为避免与前面内容混淆，可结合小括号&lt;code>()&lt;/code>界定范围，例如&lt;code>(a|b)&lt;/code>表示匹配&lt;code>a&lt;/code>或&lt;code>b&lt;/code>，&lt;code>(abc|def)&lt;/code>表示匹配&lt;code>abc&lt;/code>或&lt;code>def&lt;/code>。&lt;/li>
+&lt;li>位置定位：&lt;code>^&lt;/code>用于匹配行开头，&lt;code>$&lt;/code>用于匹配行结尾；&lt;code>^$&lt;/code>组合可匹配空行。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>基础正则与扩展正则区分&lt;/strong>
+&lt;ul>
+&lt;li>基础正则中，部分符号（如&lt;code>?&lt;/code>、&lt;code>+&lt;/code>、&lt;code>|&lt;/code>等）无法直接被&lt;code>grep&lt;/code>识别。&lt;/li>
+&lt;li>解决方法：一是使用支持扩展正则的命令（如&lt;code>egrep&lt;/code>）；二是在&lt;code>grep&lt;/code>中对扩展正则符号进行转义；三是部分命令（如&lt;code>awk&lt;/code>、&lt;code>sed&lt;/code>）本身支持扩展正则，无需额外处理。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="二常用命令讲解">二、常用命令讲解
+&lt;/h2>&lt;h3 id="一cut命令">（一）cut命令
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>核心功能&lt;/strong>：截取文件中的列，操作对象为文件。&lt;/li>
+&lt;li>&lt;strong>常用选项&lt;/strong>
+&lt;ul>
+&lt;li>&lt;code>-f&lt;/code>：指定需截取的列号，如&lt;code>-f3&lt;/code>表示截取第3列，多列用逗号分隔（如&lt;code>-f1,3&lt;/code>）。&lt;/li>
+&lt;li>&lt;code>-d&lt;/code>：指定列分隔符，默认识别制表符，若分隔符为斜线&lt;code>/&lt;/code>、冒号&lt;code>:&lt;/code>等，需用该选项指定，如&lt;code>-d:&lt;/code>表示以冒号为分隔符。&lt;/li>
+&lt;li>&lt;code>-c&lt;/code>：按字符截取，如&lt;code>-c1-20&lt;/code>表示截取前20个字符，计数从1开始，不可写0。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="二awk命令">（二）awk命令
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>基础语法&lt;/strong>：&lt;code>awk '条件{动作}' 文件名&lt;/code>，其中条件和动作可根据需求组合，单引号&lt;code>''&lt;/code>用于界定awk的指令部分。&lt;/li>
+&lt;li>&lt;strong>内置变量&lt;/strong>
+&lt;ul>
+&lt;li>&lt;code>$0&lt;/code>：表示当前行的所有内容。&lt;/li>
+&lt;li>&lt;code>NR&lt;/code>：表示当前行号。&lt;/li>
+&lt;li>&lt;code>NF&lt;/code>：表示当前行的总列数，可用于定位列，如&lt;code>$NF&lt;/code>表示最后一列，&lt;code>$(NF-2)&lt;/code>表示倒数第三列。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>条件与动作&lt;/strong>
+&lt;ul>
+&lt;li>&lt;strong>数值比较条件&lt;/strong>：可进行大于（&lt;code>&amp;gt;&lt;/code>）、小于（&lt;code>&amp;lt;&lt;/code>）、等于（&lt;code>==&lt;/code>）等比较，例如筛选“当课成绩大于80”的记录，条件可写为&lt;code>$NF&amp;gt;80&lt;/code>（假设成绩在最后一列），动作可搭配&lt;code>print&lt;/code>打印指定列（如&lt;code>print $1, $NF&lt;/code>打印姓名和成绩）。&lt;/li>
+&lt;li>&lt;strong>字符包含条件&lt;/strong>：使用&lt;code>~&lt;/code>表示“包含”，如&lt;code>$NF~8&lt;/code>表示最后一列包含数字8；若需匹配任意列包含指定内容，可直接写&lt;code>/指定内容/&lt;/code>（默认匹配整行，即&lt;code>$0~指定内容&lt;/code>）。&lt;/li>
+&lt;li>&lt;strong>正则结合条件&lt;/strong>：条件中可嵌入正则表达式，如&lt;code>$0~/[0-9]+/&lt;/code>表示匹配包含至少一个数字的行。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>实际应用案例&lt;/strong>：以监控根分区使用率为例，通过&lt;code>df -h | awk '$NF==&amp;quot;/&amp;quot;{print $(NF-1)}'&lt;/code>可提取根分区使用率；若需进一步处理（如判断使用率是否超过阈值），可将结果赋值给变量，结合条件判断：若&lt;code>$usage&lt;/code>为整数，可使用&lt;code>if [ $usage -gt 25 ]; then ...&lt;/code>；若&lt;code>$usage&lt;/code>为小数，&lt;code>[]&lt;/code>中的整数比较运算符不支持小数，需使用awk进行比较（如&lt;code>echo &amp;quot;$usage&amp;quot; | awk '$1&amp;gt;25 {print &amp;quot;使用率超过阈值&amp;quot;}'&lt;/code>），并通过转义控制输出颜色（如红色提示高使用率）。&lt;/li>
+&lt;li>&lt;strong>工作原理&lt;/strong>：按行读取数据，先判断是否有预定义条件（&lt;code>BEGIN&lt;/code>和&lt;code>END&lt;/code>），再根据自定义条件判断是否执行对应动作，处理完一行后继续读取下一行，直至所有数据处理完毕。
+&lt;ul>
+&lt;li>&lt;code>BEGIN&lt;/code>：在读取数据前执行，仅执行一次，可用于初始化变量、打印表头。&lt;/li>
+&lt;li>&lt;code>END&lt;/code>：在所有数据处理完成后执行，仅执行一次，可用于汇总计算结果（如求平均值、总和）。&lt;/li>
+&lt;li>自定义条件：每行数据都会进行判断，满足条件则执行对应动作，可多个自定义条件按顺序执行。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>进阶操作&lt;/strong>
+&lt;ul>
+&lt;li>&lt;strong>变量传递&lt;/strong>：外部变量传递给awk时，需注意单引号的“所见即所得”特性，可通过外层双引号或&lt;code>-v&lt;/code>选项实现，例如&lt;code>name=&amp;quot;小钱&amp;quot;; awk -v n=&amp;quot;$name&amp;quot; '$0~n{print $0}' 文件名&lt;/code>。&lt;/li>
+&lt;li>&lt;strong>运算功能&lt;/strong>：支持加减乘除运算，可用于计算列的总和、平均值等，例如计算学生成绩总和：&lt;code>awk 'NR&amp;gt;1{sum+=$3} END{print sum}' 成绩表&lt;/code>；计算平均值时可结合小数处理，但默认不四舍五入，需额外处理保留小数位。&lt;/li>
+&lt;li>&lt;strong>格式对齐&lt;/strong>：直接提取多列时可能因列长度不一致导致显示不对齐，需结合其他功能（如格式化输出命令）优化显示效果。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="三tr命令的功能与应用">（三）tr命令的功能与应用
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>大小写替换&lt;/strong>：tr命令可实现大小写转换，例如将输入中的小写字母全部转换为大写，或反之，在处理用户输入（如判断yes/no时忽略大小写）场景中非常实用。&lt;/li>
+&lt;li>&lt;strong>删除字符&lt;/strong>：能删除指定字符，如在截取网卡等信息时，若出现多余空格影响后续配置文件使用，可通过tr命令删除空格；也可删除其他指定字符（如字母s）。&lt;/li>
+&lt;/ol>
+&lt;h3 id="四sort命令的使用">（四）sort命令的使用
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>基本排序与选项&lt;/strong>：sort命令用于对文件内容排序，默认按第一列、ASCII表顺序排序。常用选项包括：
+&lt;ul>
+&lt;li>&lt;code>-f&lt;/code>：忽略大小写排序。&lt;/li>
+&lt;li>&lt;code>-b&lt;/code>：忽略前面的空白，按第一个非空字符排序。&lt;/li>
+&lt;li>&lt;code>-u&lt;/code>：删除所有重复项（无需重复项连续，命令会先排序再去重）。&lt;/li>
+&lt;li>&lt;code>-t&lt;/code>：指定分隔符，结合&lt;code>-k&lt;/code>可按指定列排序（如&lt;code>-t: -k3&lt;/code>表示以冒号为分隔符，按第三列排序）。&lt;/li>
+&lt;li>&lt;code>-n&lt;/code>：按数字大小排序（默认按字符比较，如39会比4小，用&lt;code>-n&lt;/code>可修正）。&lt;/li>
+&lt;li>&lt;code>-r&lt;/code>：反向排序（默认升序，&lt;code>-r&lt;/code>改为降序）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>排序规则&lt;/strong>：默认按ASCII表顺序，符号在字母前，数字在符号后；按列排序时，先比较指定列的第一位字符，若相同再比较第二位，以此类推。&lt;/li>
+&lt;/ol>
+&lt;h3 id="五uniq命令的功能与应用">（五）uniq命令的功能与应用
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>基本去重&lt;/strong>：uniq命令用于去除文件中的重复项，但仅对连续的重复项有效，若重复项不连续，需先使用sort命令排序后再用uniq去重。&lt;/li>
+&lt;li>&lt;strong>常用选项&lt;/strong>：
+&lt;ul>
+&lt;li>&lt;code>-i&lt;/code>：忽略大小写去重。&lt;/li>
+&lt;li>&lt;code>-c&lt;/code>：统计重复项的出现次数，并将相同项合并显示次数。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>与sort的结合&lt;/strong>：sort命令的&lt;code>-u&lt;/code>选项也能去重，且可直接处理非连续重复项，在某些场景下比uniq更便捷，但uniq的&lt;code>-c&lt;/code>选项在统计重复次数时更有优势。&lt;/li>
+&lt;/ol>
+&lt;h3 id="六sed命令相关应用">（六）sed命令相关应用
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>sed命令判断纯数字输入&lt;/strong>：通过sed命令将输入中的非数字字符替换为空，若替换后结果为空字符串，则说明输入为纯数字；若结果非空，则不是纯数字。可结合条件判断，根据是否为纯数字执行不同操作。&lt;/li>
+&lt;li>&lt;strong>文件内容非交互式增删改查&lt;/strong>
+&lt;ul>
+&lt;li>&lt;strong>基础语法&lt;/strong>：操作格式为&lt;code>sed [选项] '动作' 文件名&lt;/code>，动作需用单引号包裹，支持类似AWK的变量传递（需额外嵌套单引号），也可通过&lt;code>-f&lt;/code>选项指定脚本文件。核心选项包括&lt;code>-n&lt;/code>（只显示操作影响的行，不显示全文）、&lt;code>-i&lt;/code>（直接修改原文件内容，无此选项时仅显示效果，不修改原文件）。&lt;/li>
+&lt;li>&lt;strong>查询（查看）功能&lt;/strong>：按行号查看可通过&lt;code>np&lt;/code>（n为行号）查看指定行（如&lt;code>3p&lt;/code>查看第3行）、&lt;code>n,mp&lt;/code>查看行号范围（如&lt;code>1,3p&lt;/code>查看1-3行），多单行用分号分隔（如&lt;code>1p;3p&lt;/code>查看1行和3行）；按条件查看支持按内容匹配（如包含“x”或“5”的行），也可结合正则表达式（需注意转义，如匹配包含5或8的行需特殊处理，类似grep的正则逻辑）。&lt;/li>
+&lt;li>&lt;strong>添加功能&lt;/strong>：追加（a）格式为&lt;code>na 内容&lt;/code>（如&lt;code>3a new line&lt;/code>在第3行后追加“new line”），插入（i）格式为&lt;code>ni 内容&lt;/code>（如&lt;code>3i insert line&lt;/code>在第3行前插入“insert line”），均支持&lt;code>\t&lt;/code>（制表符）、&lt;code>\n&lt;/code>（换行符）设置格式。&lt;/li>
+&lt;li>&lt;strong>删除功能&lt;/strong>：通过&lt;code>nd&lt;/code>（n为行号）删除指定行（如&lt;code>3d&lt;/code>删除第3行），&lt;code>n,md&lt;/code>删除行号范围（如&lt;code>1,3d&lt;/code>删除1-3行），无&lt;code>-i&lt;/code>选项时仅显示删除效果，不修改原文件。&lt;/li>
+&lt;li>&lt;strong>修改功能&lt;/strong>：整行替换（c）格式为&lt;code>nc 新内容&lt;/code>（如&lt;code>4c replace line&lt;/code>将第4行替换为“replace line”），支持一行换多行；字符串替换（s）格式为&lt;code>[行范围]s/旧字符串/新字符串/[选项]&lt;/code>，行范围可指定单行、多行或&lt;code>%&lt;/code>（所有行），选项包括&lt;code>g&lt;/code>（替换行内所有匹配项，默认只替换第一个）；正则替换支持用正则匹配目标内容（如将所有数字替换为“w”，需用&lt;code>[0-9]\+&lt;/code>匹配连续数字，并注意转义），可结合&lt;code>g&lt;/code>选项实现全局替换。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>网卡配置脚本编写&lt;/strong>
+&lt;ul>
+&lt;li>&lt;strong>回顾与需求提出&lt;/strong>：先回顾sed命令用于修改文件内容的功能，随后提出脚本编写需求——找到当前正在使用且排除本地回环的第一张网卡，修改其IP地址获取方式（若为手动指定（Manual）则改为自动分配，反之亦然）。&lt;/li>
+&lt;li>&lt;strong>网卡与配置文件定位&lt;/strong>：探讨如何确定正在使用的网卡，提及可通过命令查看网卡状态（如有无IP地址判断是否启用），并指出网卡配置文件位于&lt;code>/etc/network&lt;/code>目录下，同时思考如何定位具体配置文件（如区分不同版本的配置文件）。&lt;/li>
+&lt;li>&lt;strong>脚本编写关键步骤&lt;/strong>：通过命令获取IP相关行，确定网卡信息，将结果赋值给变量，以便后续操作；找到对应网卡配置文件后，使用sed命令修改IP获取方式相关配置，如替换手动（Manual）为自动获取相关设置，还可通过注释不需要的配置项来调整；强调使用sed命令的&lt;code>-i&lt;/code>选项可直接修改原文件，修改后需重新加载配置才能使新设置生效。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="七printf命令awk辅助格式化输出工具">（七）printf命令（AWK辅助格式化输出工具）
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>基础功能&lt;/strong>：操作对象为字符串，核心作用是先取消字符串原有格式，再按指定类型和格式输出。支持三种数据类型：&lt;code>%s&lt;/code>（字符串类型）、&lt;code>%d&lt;/code>（整数类型）、&lt;code>%f&lt;/code>（浮点/小数类型），可通过这些符号定义列的类型，一个符号代表一列。&lt;/li>
+&lt;li>&lt;strong>格式控制&lt;/strong>
+&lt;ul>
+&lt;li>&lt;strong>分隔符与换行&lt;/strong>：列之间可用&lt;code>\t&lt;/code>（制表符）分隔，行之间可通过换行符实现每行单列或多列显示，多列时需对应多个格式符号。&lt;/li>
+&lt;li>&lt;strong>对齐与列宽&lt;/strong>：在格式符号（如&lt;code>%s&lt;/code>、&lt;code>%d&lt;/code>、&lt;code>%f&lt;/code>）前后添加数字可设置列宽，正数表示右对齐，负数表示左对齐（如&lt;code>%40s&lt;/code>表示列宽40且右对齐，&lt;code>%-40s&lt;/code>表示列宽40且左对齐）。&lt;/li>
+&lt;li>&lt;strong>小数位控制&lt;/strong>：对于浮点类型&lt;code>%f&lt;/code>，可通过&lt;code>%.n&lt;/code>（n为数字）指定保留小数位数，且会自动进行四舍五入（如&lt;code>%.2f&lt;/code>保留2位小数，&lt;code>%.0f&lt;/code>保留整数）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>实际应用场景&lt;/strong>
+&lt;ul>
+&lt;li>&lt;strong>数据截取与格式调整&lt;/strong>：可结合AWK截取文件中的指定列（如第一列和倒数第二列），通过printf设置格式（如列宽、对齐方式），使输出更规整。&lt;/li>
+&lt;li>&lt;strong>平均值计算与格式化&lt;/strong>：计算数据平均值（如学生成绩平均分）后，用printf指定小数保留位数，同时可通过&lt;code>NR&amp;gt;1&lt;/code>（AWK内置变量，&lt;code>NR&lt;/code>表示行号）过滤表头行。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="三系统资源监控与数据处理">三、系统资源监控与数据处理
+&lt;/h2>&lt;ol>
+&lt;li>&lt;strong>内存使用率计算&lt;/strong>
+&lt;ul>
+&lt;li>使用&lt;code>free -h&lt;/code>命令获取内存信息（更适合人类阅读，不可直接用于数值计算）；计算使用率时需使用&lt;code>free -m&lt;/code>（以MB为单位）或&lt;code>free -b&lt;/code>（以字节为单位）获取纯数字数据，结合AWK提取总内存、已用内存列，通过公式&lt;code>(已用内存/总内存)*100&lt;/code>计算使用率，并用printf格式化输出（如保留1位小数、添加百分号）。&lt;/li>
+&lt;li>可设置阈值条件，判断使用率是否超过预设值，后续可扩展为超阈值时输出红色提示。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>CPU使用率计算&lt;/strong>
+&lt;ul>
+&lt;li>通过&lt;code>top -n 1&lt;/code>（动态命令，&lt;code>-n 1&lt;/code>表示只刷新一次）获取CPU信息，提取用户使用、系统使用相关数据，计算总使用率（用户使用+系统使用），同样用printf格式化输出并处理小数问题，便于与阈值比较。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>数据类型转换与比较&lt;/strong>：系统命令输出的资源使用率常为小数，需通过printf将其转换为指定格式（如整数或固定小数位），解决AWK中整数比较无法处理小数的问题。&lt;/li>
+&lt;/ol>
+&lt;h2 id="四文件类型判断与条件脚本编写">四、文件类型判断与条件脚本编写
+&lt;/h2>&lt;ol>
+&lt;li>&lt;strong>文件类型判断选项&lt;/strong>
+&lt;ul>
+&lt;li>&lt;code>-f&lt;/code>：判断文件是否存在且为普通文件。&lt;/li>
+&lt;li>&lt;code>-b&lt;/code>：判断是否为块设备文件。&lt;/li>
+&lt;li>&lt;code>-c&lt;/code>：判断是否为字符设备文件。&lt;/li>
+&lt;li>&lt;code>-d&lt;/code>：判断是否为目录。&lt;/li>
+&lt;li>&lt;code>-s&lt;/code>：判断文件是否存在且内容非空。&lt;/li>
+&lt;li>&lt;code>-e&lt;/code>：判断文件是否存在（仅判断存在，不区分类型）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>条件脚本编写&lt;/strong>
+&lt;ul>
+&lt;li>编写脚本时，可结合上述选项判断文件类型或状态，如判断文件是否存在，若存在再判断是否为普通文件、内容是否非空等。&lt;/li>
+&lt;li>处理文件不存在的情况，需在脚本中添加相应的提示逻辑，例如当&lt;code>-e&lt;/code>条件不成立时，输出“文件不存在”。&lt;/li>
+&lt;li>以监控服务为例，可将服务状态结果输出到文件，通过&lt;code>-s&lt;/code>判断文件是否非空，进而确定服务是否开启（如文件非空表示服务开启），并可将文件名定义为变量，方便修改和维护。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="五其他相关内容">五、其他相关内容
+&lt;/h2>&lt;ol>
+&lt;li>&lt;strong>内存与CPU使用率监控思路补充&lt;/strong>：监控内存使用率可通过&lt;code>free&lt;/code>命令（推荐&lt;code>free -m&lt;/code>/&lt;code>free -b&lt;/code>）获取内存总容量、已使用容量等纯数字数据，结合awk提取关键数值并进行运算（如&lt;code>使用率=已使用/总容量*100&lt;/code>）；CPU使用率监控需进一步学习相关命令和数据处理方法。&lt;/li>
+&lt;li>&lt;strong>问题与解决方向&lt;/strong>：awk存在两个待解决问题，一是多行不规律数据的处理与显示对齐问题，二是小数运算后的保留小数位问题，后续将针对这两个问题展开讲解。&lt;/li>
+&lt;li>&lt;strong>工具对比与适用场景&lt;/strong>
+&lt;ul>
+&lt;li>AWK、grep、cat 侧重数据提取和截取，不修改原文件；sed 侧重文件内容的非交互式增删改，可修改原文件。&lt;/li>
+&lt;li>实际应用中，常结合AWK（数据计算与截取）和sed（内容修改），或用printf（格式化）优化输出，满足系统监控、数据处理、配置文件修改等需求。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>AWK核心要点总结&lt;/strong>
+&lt;ul>
+&lt;li>内置变量&lt;code>NR&lt;/code>（行号）用于过滤行（如&lt;code>NR&amp;gt;1&lt;/code>跳过表头），支持预定条件（如行号、内容匹配）和自定义条件（如计算结果判断）。&lt;/li>
+&lt;li>printf 依赖类型（&lt;code>%s&lt;/code>/&lt;code>%d&lt;/code>/&lt;code>%f&lt;/code>）和格式（列宽、对齐、小数位）实现规整输出，是AWK数据处理的重要辅助工具。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>sed核心要点总结&lt;/strong>
+&lt;ul>
+&lt;li>非交互式操作，适合写入脚本自动化处理文件；&lt;code>-i&lt;/code>选项需谨慎使用（直接修改原文件），建议先无&lt;code>-i&lt;/code>查看效果。&lt;/li>
+&lt;li>增删改查操作均围绕“行”或“内容匹配”展开，支持正则表达式，需注意特殊字符的转义规则。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol></description></item><item><title>Shell 分支判断、正则与循环脚本</title><link>https://luckycloveryh.github.io/fuyou/p/shell-05/</link><pubDate>Mon, 08 Dec 2025 09:00:00 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/shell-05/</guid><description>&lt;img src="https://picsum.photos/seed/fuyou-shell-05/1200/675" alt="Featured image of post Shell 分支判断、正则与循环脚本" />&lt;h1 id="视频主要内容整合无精简完整版">视频主要内容整合（无精简完整版）
+&lt;/h1>&lt;h2 id="一前期核心知识回顾">一、前期核心知识回顾
+&lt;/h2>&lt;h3 id="一基础命令与变量操作">（一）基础命令与变量操作
+&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>read命令：交互式接收用户输入&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>核心功能：脚本运行时弹出提示，获取用户输入并存储到变量中，支持多种实用选项。&lt;/li>
+&lt;li>常用选项（含大白话解释+实操例子）：
+&lt;ul>
+&lt;li>&lt;code>-t 秒数&lt;/code>：设置输入等待时间，超时脚本继续执行，可搭配&lt;code>-p&lt;/code>添加提示语。例子：&lt;code>read -t 10 -p &amp;quot;请输入一个数字（10秒内）：&amp;quot; n&lt;/code>（等待10秒，提示用户输数字，输入内容存入变量n）。&lt;/li>
+&lt;li>&lt;code>-s&lt;/code>：隐藏输入内容（适用于密码等敏感信息）。例子：&lt;code>read -s -p &amp;quot;请输入密码：&amp;quot; pwd&lt;/code>（输入密码时屏幕无字符显示）。&lt;/li>
+&lt;li>&lt;code>-p &amp;quot;提示语&amp;quot;&lt;/code>：直接在输入前显示提示信息，无需额外echo命令。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>declare命令：查看与定义变量类型&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>核心功能：Shell默认变量为字符串类型，通过该命令可定义特定类型变量，或查看变量的类型与值。&lt;/li>
+&lt;li>常用选项（含具体例子）：
+&lt;ul>
+&lt;li>&lt;code>-p 变量名&lt;/code>：查看指定变量的“类型+值”（最常用）。例子：&lt;code>declare -p n&lt;/code>（显示变量n的类型及具体值）。&lt;/li>
+&lt;li>&lt;code>-i 变量名&lt;/code>：定义整数类型变量（仅整数类型可进行加减乘除运算）。例子：&lt;code>declare -i sum=0&lt;/code>（将sum定义为整数，用于后续累加计算）。&lt;/li>
+&lt;li>&lt;code>-a 变量名&lt;/code>：定义数组变量（可存储多个值）。例子：&lt;code>declare -a arr=(1 2 3 4 5)&lt;/code>（定义数组arr，存储5个数字）。&lt;/li>
+&lt;li>&lt;code>-x 变量名&lt;/code>：将变量设为环境变量（其他脚本可调用，等效于&lt;code>export&lt;/code>命令）。例子：&lt;code>declare -x PATH=$PATH:/home/user/bin&lt;/code>（扩展环境变量PATH）。&lt;/li>
+&lt;li>&lt;code>-r 变量名&lt;/code>：将变量设为只读模式（定义后不可修改，修改会报错）。例子：&lt;code>declare -r PI=3.14&lt;/code>（PI值固定，无法更改）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>整数计算与变量操作&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>核心注意点：Shell默认变量为字符串，直接写&lt;code>sum=sum+1&lt;/code>会报错，需用特定格式实现整数运算。&lt;/li>
+&lt;li>常用计算方法（全版本覆盖）：
+&lt;ul>
+&lt;li>基础运算：&lt;code>$((表达式))&lt;/code>，例子：&lt;code>echo $((2+3))&lt;/code>（输出5）、&lt;code>sum=$((sum + i))&lt;/code>（sum与i累加后存回sum）。&lt;/li>
+&lt;li>简写累加：&lt;code>sum+=i&lt;/code>（与&lt;code>sum=$((sum + i))&lt;/code>功能一致，语法更简洁）。&lt;/li>
+&lt;li>自增自减：&lt;code>i=$((i+1))&lt;/code>或&lt;code>i++&lt;/code>（i加1）、&lt;code>i=$((i-1))&lt;/code>或&lt;code>i--&lt;/code>（i减1）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>赋值规则：给&lt;code>declare -i&lt;/code>定义的整数变量赋值时，直接写数值或运算表达式即可，无需额外格式转换。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>数组操作：变量存储多个值&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>数组定义：&lt;code>数组名=(值1 值2 值3 ...)&lt;/code>，例子：&lt;code>arr=(1 2 3 4 5)&lt;/code>（存储5个数字）。&lt;/li>
+&lt;li>核心操作（含所有细节用法）：
+&lt;ul>
+&lt;li>取所有值：&lt;code>${数组名[*]}&lt;/code>或&lt;code>${数组名[@]}&lt;/code>（前者将数组视为整体，后者可分开处理每个元素，大部分场景通用）。例子：&lt;code>echo ${arr[*]}&lt;/code>（输出1 2 3 4 5）。&lt;/li>
+&lt;li>取单个元素：数组下标从0开始（第一个元素下标为0）。例子：&lt;code>echo ${arr[3]}&lt;/code>（取第4个元素，输出4）。&lt;/li>
+&lt;li>取数组长度：&lt;code>${#数组名[@]}&lt;/code>或&lt;code>${#数组名[*]}&lt;/code>。例子：&lt;code>echo ${#arr[@]}&lt;/code>（输出5，即数组元素个数）。&lt;/li>
+&lt;li>取部分元素：&lt;code>${数组名[起始下标 长度]}&lt;/code>（从起始下标开始，提取指定个数的元素）。例子：&lt;code>echo ${arr[1 3]}&lt;/code>（从下标1（第二个元素）开始，取3个元素，输出2 3 4）；或&lt;code>${数组名[4]:3}&lt;/code>（取第四个元素后剩余部分，按实际场景调整）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="二判断相关脚本的选择逻辑">（二）判断相关：脚本的“选择逻辑”
+&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>三大类判断场景（含语法与例子）&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>（1）字符串判断（比较字符串或判断空值）：
+&lt;ul>
+&lt;li>相等：&lt;code>字符串1 == 字符串2&lt;/code>（必须用两个等号）。例子：&lt;code>if [ &amp;quot;abc&amp;quot; == &amp;quot;abc&amp;quot; ]; then echo &amp;quot;相等&amp;quot;; fi&lt;/code>（输出“相等”）。&lt;/li>
+&lt;li>不相等：&lt;code>字符串1 != 字符串2&lt;/code>。例子：&lt;code>if [ &amp;quot;abc&amp;quot; != &amp;quot;def&amp;quot; ]; then echo &amp;quot;不相等&amp;quot;; fi&lt;/code>（输出“不相等”）。&lt;/li>
+&lt;li>判断为空：&lt;code>[ -z 字符串 ]&lt;/code>（z=zero，长度为0则为空）。例子：&lt;code>if [ -z &amp;quot;$str&amp;quot; ]; then echo &amp;quot;字符串为空&amp;quot;; fi&lt;/code>。&lt;/li>
+&lt;li>判断非空：&lt;code>[ -n 字符串 ]&lt;/code>（n=not zero，长度不为0则非空）。例子：&lt;code>if [ -n &amp;quot;$str&amp;quot; ]; then echo &amp;quot;字符串非空&amp;quot;; fi&lt;/code>。&lt;/li>
+&lt;li>多条件“与”：&lt;code>条件1 -a 条件2&lt;/code>（两个条件均成立则为真）。例子：&lt;code>[ &amp;quot;a&amp;quot; == &amp;quot;a&amp;quot; -a 1 -eq 1 ]&lt;/code>（“a等于a”且“1等于1”，条件成立）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>（2）数值比较（比较数字大小，不可用==）：
+&lt;ul>
+&lt;li>相等：&lt;code>-eq&lt;/code>（equal），例子：&lt;code>[ 5 -eq 5 ]&lt;/code>（成立）。&lt;/li>
+&lt;li>不相等：&lt;code>-ne&lt;/code>（not equal），例子：&lt;code>[ 5 -ne 3 ]&lt;/code>（成立）。&lt;/li>
+&lt;li>大于：&lt;code>-gt&lt;/code>（greater than），例子：&lt;code>[ 5 -gt 3 ]&lt;/code>（成立）。&lt;/li>
+&lt;li>小于：&lt;code>-lt&lt;/code>（less than），例子：&lt;code>[ 3 -lt 5 ]&lt;/code>（成立）。&lt;/li>
+&lt;li>大于等于：&lt;code>-ge&lt;/code>（greater or equal），例子：&lt;code>[ 5 -ge 5 ]&lt;/code>（成立）。&lt;/li>
+&lt;li>小于等于：&lt;code>-le&lt;/code>（less or equal），例子：&lt;code>[ 3 -le 5 ]&lt;/code>（成立）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>（3）文件类型判断（判断文件属性）：
+&lt;ul>
+&lt;li>常用：&lt;code>-f 文件名&lt;/code>（判断是否为普通文件，非目录、设备文件等）。例子：&lt;code>if [ -f test.sh ]; then echo &amp;quot;是普通文件&amp;quot;; fi&lt;/code>（当前目录有test.sh则输出）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>分支语句（if语句的三种写法）&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>单分支：满足条件才执行命令 → &lt;code>if [ 条件 ]; then 命令; fi&lt;/code>。&lt;/li>
+&lt;li>双分支：满足执行A，不满足执行B → &lt;code>if [ 条件 ]; then 命令A; else 命令B; fi&lt;/code>。&lt;/li>
+&lt;li>多分支：多个条件依次判断 → &lt;code>if [ 条件1 ]; then 命令1; elif [ 条件2 ]; then 命令2; else 命令3; fi&lt;/code>。&lt;/li>
+&lt;li>嵌套规则：if内部可嵌套if，但建议最多嵌套2-3层，嵌套过多需优化代码可读性。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="三正则表达式前期回顾">（三）正则表达式前期回顾
+&lt;/h3>&lt;ul>
+&lt;li>核心说明：正则表达式是“按规则匹配字符串”的工具，配合grep等命令使用，IP地址和邮箱的精确匹配较复杂，需课后自行梳理巩固。&lt;/li>
+&lt;li>学习铺垫：通过基础正则练习，为后续grep、awk等命令的文本筛选功能奠定基础。&lt;/li>
+&lt;/ul>
+&lt;h2 id="二核心脚本实验计算1到用户输入数字的偶数和">二、核心脚本实验：计算1到用户输入数字的偶数和
+&lt;/h2>&lt;h3 id="一实验目标">（一）实验目标
+&lt;/h3>&lt;p>运行脚本后，用户输入一个正整数（如10），脚本自动计算1到该数字之间所有偶数的和（例：1到10的偶数和为2+4+6+8+10=30）。&lt;/p>
+&lt;h3 id="二完整实现步骤从基础到优化含踩坑提醒">（二）完整实现步骤（从基础到优化，含踩坑提醒）
+&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>思路梳理&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>接收用户输入的数字（用read命令）；&lt;/li>
+&lt;li>遍历1到该数字的所有整数；&lt;/li>
+&lt;li>判断每个数字是否为偶数；&lt;/li>
+&lt;li>累加所有偶数，最终输出总和。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>步骤1：基础框架（用户输入+数字遍历）&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>脚本代码：
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/bin/bash
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="c1"># 计算1到n的偶数和（基础版-仅遍历）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">sum&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">0&lt;/span> &lt;span class="c1"># 总和初始为0（必须在循环外初始化，避免每次循环清零）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">read&lt;/span> -p &lt;span class="s2">&amp;#34;请输入一个正整数：&amp;#34;&lt;/span> n &lt;span class="c1"># 接收用户输入，存入变量n&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 遍历1到n的数字（踩坑提醒：大括号{1..$n}不识别变量，需用seq命令）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> i in &lt;span class="k">$(&lt;/span>seq &lt;span class="nv">$n&lt;/span>&lt;span class="k">)&lt;/span> &lt;span class="c1"># seq $n生成1到n的数字序列，$(seq $n)获取序列给for循环&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;当前遍历的数字：&lt;/span>&lt;span class="nv">$i&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="c1"># 测试用，验证遍历是否正常&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>运行测试：保存为&lt;code>sum_even.sh&lt;/code>，执行&lt;code>bash sum_even.sh&lt;/code>，输入10，输出1到10的所有数字，说明遍历成功。&lt;/li>
+&lt;li>关键踩坑：大括号范围&lt;code>{1..$n}&lt;/code>无法识别变量n，只能写固定数字（如{1..10}），因此必须用&lt;code>seq&lt;/code>命令生成动态序列。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>步骤2：添加偶数判断+累加（核心功能）&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>脚本代码（完整版）：
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/bin/bash
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="c1"># 计算1到n的偶数和（完整版-含判断+累加）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">sum&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">read&lt;/span> -p &lt;span class="s2">&amp;#34;请输入一个正整数：&amp;#34;&lt;/span> n
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> i in &lt;span class="k">$(&lt;/span>seq &lt;span class="nv">$n&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 偶数判断：i除以2余数为0（两种写法均可）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="k">$((&lt;/span>i%2&lt;span class="o">==&lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="k">))&lt;/span> &lt;span class="o">]&lt;/span> &lt;span class="c1"># 写法1：直接在$(( ))内写等于判断&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># 或 if [ $((i%2)) -eq 0 ] # 写法2：用数值比较符号-eq&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">sum&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$((&lt;/span>sum &lt;span class="o">+&lt;/span> i&lt;span class="k">))&lt;/span> &lt;span class="c1"># 累加偶数（或简写sum+=i）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;当前偶数：&lt;/span>&lt;span class="nv">$i&lt;/span>&lt;span class="s2">，累计和：&lt;/span>&lt;span class="nv">$sum&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="c1"># 测试用，查看累加过程&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;------------------------&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;1到&lt;/span>&lt;span class="nv">$n的偶数和是&lt;/span>&lt;span class="s2">：&lt;/span>&lt;span class="nv">$sum&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="c1"># 输出最终结果&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>运行测试：输入10，输出“当前偶数：2，累计和：2”→“当前偶数：4，累计和：6”&amp;hellip;最终输出“1到10的偶数和是：30”，功能正常。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>步骤3：常见语法坑提醒（必避）&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>坑1：变量未加&lt;code>$&lt;/code> → 如写&lt;code>sum=(sum + i)&lt;/code>，Shell不识别sum和i为变量，报错；需写&lt;code>$sum&lt;/code>、&lt;code>$i&lt;/code>。&lt;/li>
+&lt;li>坑2：单引号与双引号混用 → 单引号内变量不解析（&lt;code>echo '$sum'&lt;/code>输出&lt;code>$sum&lt;/code>），双引号内解析（&lt;code>echo &amp;quot;$sum&amp;quot;&lt;/code>输出实际数值）。&lt;/li>
+&lt;li>坑3：for循环未用&lt;code>$(seq $n)&lt;/code> → 直接写&lt;code>for i in seq $n&lt;/code>，Shell会把“seq”和“$n”当字符串，不生成数字序列。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>步骤4：脚本优化（无需判断，直接生成偶数序列）&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>核心思路：用&lt;code>seq&lt;/code>命令直接生成1到n的偶数序列，跳过判断步骤，简化代码、提高效率。&lt;/li>
+&lt;li>&lt;code>seq&lt;/code>高级用法：&lt;code>seq 起始值 增量 终止值&lt;/code>，例子：&lt;code>seq 2 2 10&lt;/code>（从2开始，每次加2，到10结束，生成2、4、6、8、10）。&lt;/li>
+&lt;li>优化版脚本：
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/bin/bash
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="c1"># 计算1到n的偶数和（优化版-无判断）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">sum&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">read&lt;/span> -p &lt;span class="s2">&amp;#34;请输入一个正整数：&amp;#34;&lt;/span> n
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 直接生成偶数序列，遍历累加&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> i in &lt;span class="k">$(&lt;/span>seq &lt;span class="m">2&lt;/span> &lt;span class="m">2&lt;/span> &lt;span class="nv">$n&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">sum&lt;/span>&lt;span class="o">+=&lt;/span>i &lt;span class="c1"># 无需判断，直接累加偶数&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;1到&lt;/span>&lt;span class="nv">$n的偶数和是&lt;/span>&lt;span class="s2">：&lt;/span>&lt;span class="nv">$sum&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>运行测试：输入10输出30，输入7生成2、4、6，和为12，结果正确。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="三脚本运行完整流程照做必成功">（三）脚本运行完整流程（照做必成功）
+&lt;/h3>&lt;ol>
+&lt;li>创建文件：&lt;code>touch sum_even.sh&lt;/code>（终端执行，创建脚本文件）；&lt;/li>
+&lt;li>编辑文件：&lt;code>vim sum_even.sh&lt;/code>（用vim编辑，或用VS Code、记事本等）；&lt;/li>
+&lt;li>复制粘贴优化版脚本，保存退出（vim中按ESC，输入&lt;code>:wq&lt;/code>回车）；&lt;/li>
+&lt;li>添加执行权限：&lt;code>chmod +x sum_even.sh&lt;/code>（无权限无法直接运行）；&lt;/li>
+&lt;li>运行脚本：&lt;code>./sum_even.sh&lt;/code>（或&lt;code>bash sum_even.sh&lt;/code>）；&lt;/li>
+&lt;li>输入数字（如10），按回车，查看结果。&lt;/li>
+&lt;/ol>
+&lt;h2 id="三正则表达式详解基础规则实际应用">三、正则表达式详解（基础规则+实际应用）
+&lt;/h2>&lt;h3 id="一核心定义">（一）核心定义
+&lt;/h3>&lt;p>正则表达式是“按规则查找字符串”的神器，配合grep等命令可实现精准文本筛选，适用于文件检索、内容过滤等场景。&lt;/p>
+&lt;h3 id="二三大匹配规则">（二）三大匹配规则
+&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>字符匹配：找特定字符或一类字符&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>精确匹配：直接写目标字符，匹配包含该字符的内容。例子：&lt;code>a&lt;/code> → 匹配所有包含“a”的行。&lt;/li>
+&lt;li>范围匹配：&lt;code>[字符集合]&lt;/code>，匹配集合中任意一个字符。例子：
+&lt;ul>
+&lt;li>&lt;code>[abc]&lt;/code> → 匹配包含a、b、c中任意一个的行；&lt;/li>
+&lt;li>&lt;code>[a-z]&lt;/code> → 匹配包含小写字母的行；&lt;/li>
+&lt;li>&lt;code>[0-9]&lt;/code> → 匹配包含数字的行。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>排除匹配：&lt;code>[^字符集合]&lt;/code>，匹配“不包含”集合中任意字符的内容（^在括号内表“排除”）。例子：&lt;code>[^abc]&lt;/code> → 匹配不包含a、b、c的字符。&lt;/li>
+&lt;li>任意字符：&lt;code>.&lt;/code>（一个点），匹配除换行外的任意一个字符。例子：&lt;code>a.b&lt;/code> → 匹配acb、adb、a1b等（a和b之间任意字符）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>位置匹配：找特定位置的字符&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>行首匹配：&lt;code>^&lt;/code>（尖角号），匹配行的开头。例子：&lt;code>^a&lt;/code> → 匹配以“a”开头的行（如“abc”匹配，“xabc”不匹配）。&lt;/li>
+&lt;li>行尾匹配：&lt;code>$&lt;/code>（美元符号），匹配行的结尾。例子：&lt;code>a$&lt;/code> → 匹配以“a”结尾的行（如“cba”匹配，“cabx”不匹配）。&lt;/li>
+&lt;li>整行匹配：&lt;code>^目标字符串$&lt;/code>，一行中仅包含目标字符串才匹配。例子：
+&lt;ul>
+&lt;li>&lt;code>^ab$&lt;/code> → 仅匹配“ab”这一行（多一个字符都不匹配）；&lt;/li>
+&lt;li>&lt;code>^$&lt;/code> → 匹配空行（一行无任何内容）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>次数匹配：找出现特定次数的字符&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>核心注意：&lt;code>?&lt;/code>、&lt;code>+&lt;/code>、&lt;code>{n1,n2}&lt;/code>在grep中默认不识别，需加&lt;code>-E&lt;/code>选项（如&lt;code>grep -E&lt;/code>）或用&lt;code>\&lt;/code>转义（如&lt;code>\?&lt;/code>），也可使用&lt;code>egrep&lt;/code>命令。&lt;/li>
+&lt;li>具体规则（含例子）：
+&lt;ul>
+&lt;li>&lt;code>*&lt;/code>（星号）：匹配前面的字符0次或任意多次。例子：&lt;code>ab*&lt;/code> → 匹配a、ab、abb、abbb&amp;hellip;（b可出现0次到无数次）。&lt;/li>
+&lt;li>&lt;code>?&lt;/code>（问号）：匹配前面的字符0次或1次（最多1次）。例子：&lt;code>ab?&lt;/code> → 匹配a或ab；命令：&lt;code>grep -E 'ab?' 文件名&lt;/code>。&lt;/li>
+&lt;li>&lt;code>+&lt;/code>（加号）：匹配前面的字符1次或任意多次（至少1次）。例子：&lt;code>ab+&lt;/code> → 匹配ab、abb、abbb&amp;hellip;（不匹配a）；命令：&lt;code>grep -E 'ab+' 文件名&lt;/code>。&lt;/li>
+&lt;li>&lt;code>{n1,n2}&lt;/code>：匹配前面的字符n1到n2次。例子：
+&lt;ul>
+&lt;li>&lt;code>ab{1,3}&lt;/code> → 匹配ab、abb、abbb（b出现1-3次）；&lt;/li>
+&lt;li>&lt;code>ab{2}&lt;/code> → 匹配abb（b恰好出现2次）；&lt;/li>
+&lt;li>&lt;code>ab{2,}&lt;/code> → 匹配abb、abbb&amp;hellip;（b至少出现2次）；&lt;/li>
+&lt;li>命令：&lt;code>grep -E 'ab{1,3}' 文件名&lt;/code>（加-E识别{}）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="三实际应用案例直接可用">（三）实际应用案例（直接可用）
+&lt;/h3>&lt;ul>
+&lt;li>需求：在&lt;code>test.txt&lt;/code>文件中，查找“全是数字的行”。&lt;/li>
+&lt;li>正则表达式：&lt;code>^[0-9]+$&lt;/code>（拆解：^行首 → [0-9]+至少1个数字 → $行尾）。&lt;/li>
+&lt;li>执行命令：&lt;code>grep -E '^[0-9]+$' test.txt&lt;/code>。&lt;/li>
+&lt;li>结果：仅输出一行中全是数字的内容（如“123”“4567”，含字母/符号的行不显示）。&lt;/li>
+&lt;/ul>
+&lt;h2 id="四常用文本截取命令grepcutawk">四、常用文本截取命令（grep、cut、awk）
+&lt;/h2>&lt;h3 id="一grep命令行提取工具">（一）grep命令：行提取工具
+&lt;/h3>&lt;ul>
+&lt;li>功能定位：在文件中查找符合条件的“整行”，逐行检索文件内容，核心用于“行筛选”。&lt;/li>
+&lt;li>搭配正则：常与正则表达式结合使用，实现精准行匹配（如上述“查找全是数字的行”案例）。&lt;/li>
+&lt;/ul>
+&lt;h3 id="二cut命令列提取工具">（二）cut命令：列提取工具
+&lt;/h3>&lt;ol>
+&lt;li>功能定位：提取文件中的特定列，或通过管道接收字符串并转化为文件处理，适用于列结构规律的场景。&lt;/li>
+&lt;li>核心选项与用法（含例子）：
+&lt;ul>
+&lt;li>&lt;code>-f 列号&lt;/code>：指定提取的列（列号从1开始）。
+&lt;ul>
+&lt;li>例子：&lt;code>cut -f2&lt;/code>（提取第二列）、&lt;code>cut -f2,3&lt;/code>（提取第二、三列，列号用逗号分隔）、&lt;code>cut -f2 3&lt;/code>（列号间可带空格，效果同上）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>-d 分隔符&lt;/code>：自定义列分隔符（默认分隔符为制表符\t）。
+&lt;ul>
+&lt;li>例子：&lt;code>cut -d: -f1 /etc/passwd&lt;/code>（以冒号为分隔符，提取/etc/passwd文件第一列）；选项与参数间可无空格（&lt;code>cut -d: -f1&lt;/code>）、带引号（&lt;code>cut -d':' -f1&lt;/code>），灵活度高。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>-c 字符范围&lt;/code>：按字符个数提取，适用于列分隔不规律的场景（如多空格分隔）。
+&lt;ul>
+&lt;li>格式：&lt;code>-c5&lt;/code>（提取第5个字符）、&lt;code>-c1-5&lt;/code>（提取1-5个字符）、&lt;code>-c5-&lt;/code>（从第5个字符提取到末尾）、&lt;code>-c-5&lt;/code>（从开头提取到第5个字符）。&lt;/li>
+&lt;li>注意：英文/数字占1字节，汉字占2-3字节（编码差异），处理中文时需注意字符计数。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>应用场景示例：
+&lt;ul>
+&lt;li>提取文件路径第四层级：&lt;code>echo &amp;quot;/a/b/c/d/e&amp;quot; | cut -d/ -f4&lt;/code>（输出d，按实际路径层级调整列号）。&lt;/li>
+&lt;li>小数取整：&lt;code>echo &amp;quot;3.14&amp;quot; | cut -d. -f1&lt;/code>（输出3，提取整数部分；需四舍五入需额外写脚本）。&lt;/li>
+&lt;li>处理&lt;code>df -h&lt;/code>输出：&lt;code>df -h | cut -c1-20&lt;/code>（提取前20个字符，解决多空格分隔的列提取问题）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="三awk命令行列提取全能工具">（三）awk命令：行+列提取全能工具
+&lt;/h3>&lt;ol>
+&lt;li>功能定位：兼具行提取和列提取功能，支持复杂条件判断和格式输出，工作原理是“逐行匹配处理文件内容”。&lt;/li>
+&lt;li>语法格式：&lt;code>awk '条件{动作}' 文件名&lt;/code>
+&lt;ul>
+&lt;li>多条件动作：可写多个“条件{动作}”组合（如&lt;code>awk '条件1{动作1} 条件2{动作2}' 文件名&lt;/code>）。&lt;/li>
+&lt;li>省略规则：无条件则对所有行执行动作；无动作则默认打印符合条件的行。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>核心元素与用法（含例子）：
+&lt;ul>
+&lt;li>（1）内置变量：
+&lt;ul>
+&lt;li>&lt;code>$n&lt;/code>：第n列（n为数字），&lt;code>$0&lt;/code>表示整行。例子：&lt;code>$2&lt;/code>（第二列）、&lt;code>$2 &amp;quot;\t&amp;quot; $3&lt;/code>（第二列和第三列，制表符分隔）。&lt;/li>
+&lt;li>&lt;code>FS&lt;/code>：列分隔符，可在动作中指定（&lt;code>BEGIN{FS=&amp;quot;:&amp;quot;}&lt;/code>）或用&lt;code>-F&lt;/code>选项指定（&lt;code>awk -F: '{print $1}'&lt;/code>）。&lt;/li>
+&lt;li>&lt;code>NF&lt;/code>：当前行的总列数，&lt;code>$NF&lt;/code>提取最后一列，&lt;code>$(NF-1)&lt;/code>提取倒数第二列（无需手动算列数）。例子：&lt;code>awk -F/ '{print $NF}' /a/b/c/d&lt;/code>（输出d，提取路径最后一层）。&lt;/li>
+&lt;li>&lt;code>NR&lt;/code>：当前行号，用于按行号筛选。例子：&lt;code>NR&amp;gt;2&lt;/code>（行号大于2）、&lt;code>NR==3&lt;/code>（第三行）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>（2）动作与打印：
+&lt;ul>
+&lt;li>&lt;code>print&lt;/code>：默认打印后换行，列间默认空格分隔。例子：&lt;code>print $2, $3&lt;/code>（输出第二、三列，空格分隔）、&lt;code>print $2 &amp;quot;\t&amp;quot; $3&lt;/code>（制表符分隔）。&lt;/li>
+&lt;li>&lt;code>printf&lt;/code>：需手动指定格式和换行符，格式控制符&lt;code>%s&lt;/code>表字符串。例子：&lt;code>printf &amp;quot;%s\t%s\n&amp;quot;, $2, $3&lt;/code>（第二、三列制表符分隔，换行）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>（3）条件判断：
+&lt;ul>
+&lt;li>数值比较：支持&lt;code>==&lt;/code>、&lt;code>&amp;gt;&lt;/code>、&lt;code>&amp;lt;&lt;/code>、&lt;code>&amp;gt;=&lt;/code>、&lt;code>&amp;lt;=&lt;/code>、&lt;code>!=&lt;/code>。例子：&lt;code>$4&amp;gt;80&lt;/code>（第四列数值大于80）。&lt;/li>
+&lt;li>字符匹配：&lt;code>~&lt;/code>（包含）、&lt;code>!~&lt;/code>（不包含），匹配模式用&lt;code>//&lt;/code>包裹。例子：&lt;code>$2~/Linus/&lt;/code>（第二列含“Linus”）、&lt;code>$2!~/x/&lt;/code>（第二列不含“x”）；模式含特殊字符需转义。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>应用场景示例：
+&lt;ul>
+&lt;li>提取/etc/passwd第一列：&lt;code>awk -F: '{print $1}' /etc/passwd&lt;/code>或&lt;code>awk 'BEGIN{FS=&amp;quot;:&amp;quot;}{print $1}' /etc/passwd&lt;/code>。&lt;/li>
+&lt;li>提取df -h使用率列：&lt;code>df -h | awk '{print $5}'&lt;/code>（自动识别空白分隔符）。&lt;/li>
+&lt;li>筛选成绩大于80的学生：&lt;code>awk '$4&amp;gt;80{print $2 &amp;quot;\t&amp;quot; $4}' cut.txt&lt;/code>（第二列学生名，第四列成绩）。&lt;/li>
+&lt;li>多条件筛选：&lt;code>awk '$2~/Linus/ &amp;amp;&amp;amp; $3&amp;gt;=70{print $0}' cut.txt&lt;/code>（第二列含“Linus”且第三列≥70，打印整行）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="五命令对比与适用场景">五、命令对比与适用场景
+&lt;/h2>&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>命令&lt;/th>
+&lt;th>核心功能&lt;/th>
+&lt;th>适用场景&lt;/th>
+&lt;th>优势&lt;/th>
+&lt;th>局限性&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>grep&lt;/td>
+&lt;td>行提取&lt;/td>
+&lt;td>快速查找包含特定字符串/正则匹配的整行&lt;/td>
+&lt;td>速度快、语法简单，搭配正则灵活&lt;/td>
+&lt;td>仅能提取整行，无法单独提取列&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>cut&lt;/td>
+&lt;td>列提取&lt;/td>
+&lt;td>列分隔符固定或字符位置固定的场景（如冒号分隔、固定长度字符）&lt;/td>
+&lt;td>操作简单、执行高效&lt;/td>
+&lt;td>不支持复杂条件判断，对不规律分隔处理弱&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>awk&lt;/td>
+&lt;td>行+列提取&lt;/td>
+&lt;td>列分隔不规律、需多条件筛选、复杂格式输出的场景&lt;/td>
+&lt;td>功能全面、灵活度高，支持正则和逻辑判断&lt;/td>
+&lt;td>语法相对复杂，需记忆内置变量和格式&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h2 id="六学习建议与核心要点总结">六、学习建议与核心要点总结
+&lt;/h2>&lt;h3 id="一学习建议">（一）学习建议
+&lt;/h3>&lt;ol>
+&lt;li>正则表达式：重点练习IP地址、邮箱的精确匹配，自行梳理复杂正则的逻辑的；&lt;/li>
+&lt;li>命令练习：用实际文件（&lt;code>/etc/passwd&lt;/code>、自定义&lt;code>cut.txt&lt;/code>）练习cut和awk的所有选项，尝试不同条件组合；&lt;/li>
+&lt;li>脚本实践：亲手运行“偶数和脚本”，修改参数（如输入负数、小数）测试边界情况，加深对循环、判断的理解；&lt;/li>
+&lt;li>后续规划：学习awk与正则表达式的结合使用，提升复杂文本处理能力。&lt;/li>
+&lt;/ol>
+&lt;h3 id="二核心要点总结必须掌握">（二）核心要点总结（必须掌握）
+&lt;/h3>&lt;ol>
+&lt;li>read命令：&lt;code>-t&lt;/code>（超时）、&lt;code>-s&lt;/code>（隐藏）、&lt;code>-p&lt;/code>（提示）选项的使用；&lt;/li>
+&lt;li>变量操作：&lt;code>declare -i&lt;/code>（整数）、&lt;code>declare -a&lt;/code>（数组）、&lt;code>$((...))&lt;/code>（整数运算）、&lt;code>sum+=i&lt;/code>（累加）；&lt;/li>
+&lt;li>循环遍历：&lt;code>for+seq&lt;/code>生成动态数字序列，解决大括号不识别变量的问题；&lt;/li>
+&lt;li>判断语句：字符串/数值/文件的判断语法，if的单/双/多分支结构；&lt;/li>
+&lt;li>正则表达式：字符/位置/次数匹配规则，&lt;code>grep -E&lt;/code>识别扩展正则；&lt;/li>
+&lt;li>文本截取：grep（行提取）、cut（列提取）、awk（全能提取）的适用场景与核心用法；&lt;/li>
+&lt;li>核心实验：偶数和脚本的基础版、优化版，以及常见语法坑的规避。&lt;/li>
+&lt;/ol></description></item><item><title>Shell 变量、特殊符号与 grep</title><link>https://luckycloveryh.github.io/fuyou/p/shell-04/</link><pubDate>Fri, 05 Dec 2025 09:00:00 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/shell-04/</guid><description>&lt;img src="https://picsum.photos/seed/fuyou-shell-04/1200/675" alt="Featured image of post Shell 变量、特殊符号与 grep" />&lt;h2 id="一旧知识回顾">一、旧知识回顾
+&lt;/h2>&lt;h3 id="一特殊符号与grep命令">（一）特殊符号与&lt;code>grep&lt;/code>命令
+&lt;/h3>&lt;ol>
+&lt;li>通配符与正则符号的区别：通配符（如&lt;code>[]&lt;/code>代表范围内任意一个字符、&lt;code>*&lt;/code>代表任意个字符）用于匹配文件名等，&lt;code>grep&lt;/code>命令中使用的是正则符号。&lt;/li>
+&lt;li>&lt;code>grep&lt;/code>常用选项：&lt;code>-c&lt;/code>统计匹配行数，&lt;code>-n&lt;/code>显示匹配内容所在行号，&lt;code>-A&lt;/code>（数字）显示匹配行及后续指定行数，&lt;code>-i&lt;/code>忽略大小写，&lt;code>-v&lt;/code>反选匹配内容。&lt;/li>
+&lt;/ol>
+&lt;h3 id="二shell中的特殊符号">（二）Shell中的特殊符号
+&lt;/h3>&lt;ol>
+&lt;li>反引号（&lt;code>`&lt;/code>）与&lt;code>$()&lt;/code>：均用于获取命令执行结果。&lt;/li>
+&lt;li>单引号与双引号：单引号内所有字符均为普通字符（所见即所得），双引号内特殊符号（如&lt;code>$&lt;/code>、&lt;code>`&lt;/code>）仍保留特殊含义。&lt;/li>
+&lt;li>括号：小括号&lt;code>()&lt;/code>用于执行子shell命令，中括号&lt;code>[]&lt;/code>用于测试表达式（判断条件是否成立，常与&lt;code>if&lt;/code>、&lt;code>for&lt;/code>结合，表达式需用空格分隔），大括号&lt;code>{}&lt;/code>在Shell执行中具有特定含义。&lt;/li>
+&lt;li>&lt;code>$&lt;/code>符号相关：&lt;code>$?&lt;/code>表示上一命令执行结果（0为成功，非0为失败），&lt;code>$$&lt;/code>表示当前Shell进程号，&lt;code>$!&lt;/code>表示最后一个后台进程号。&lt;/li>
+&lt;/ol>
+&lt;h3 id="三变量基础">（三）变量基础
+&lt;/h3>&lt;ol>
+&lt;li>变量定义：变量名=值，变量名需满足“包含数字、字母、下划线，且不以数字开头”，若值含空格需用单/双引号包裹。&lt;/li>
+&lt;li>变量操作：修改变量直接重新赋值；删除变量用&lt;code>unset 变量名&lt;/code>；查看变量用&lt;code>set&lt;/code>，&lt;code>set -u&lt;/code>可显示未定义变量的提示，&lt;code>set -x&lt;/code>可显示脚本执行过程中的命令。&lt;/li>
+&lt;/ol>
+&lt;h2 id="二shell变量核心知识深化与拓展">二、Shell变量核心知识（深化与拓展）
+&lt;/h2>&lt;h3 id="一变量分类与操作">（一）变量分类与操作
+&lt;/h3>&lt;ol>
+&lt;li>自定义变量：用户自行定义，默认仅在当前Shell生效。&lt;/li>
+&lt;li>环境变量：系统或用户定义的全局变量（如&lt;code>PATH&lt;/code>指定命令搜索路径、&lt;code>PS1&lt;/code>定义命令提示符样式），用&lt;code>export 变量名=值&lt;/code>定义，&lt;code>env | grep 变量名&lt;/code>可查看，修改与删除操作同自定义变量。&lt;/li>
+&lt;li>位置参数变量：用于向脚本传递参数，&lt;code>$0&lt;/code>代表脚本名，&lt;code>$1-$n&lt;/code>代表第1到第n个参数，&lt;code>$#&lt;/code>统计参数个数，&lt;code>$*&lt;/code>和&lt;code>$@&lt;/code>均代表所有参数（双引号中表现不同），第11个及以后参数需用&lt;code>${n}&lt;/code>（如&lt;code>${11}&lt;/code>）。&lt;/li>
+&lt;/ol>
+&lt;h3 id="二变量类型与运算">（二）变量类型与运算
+&lt;/h3>&lt;ol>
+&lt;li>默认类型：所有变量默认为字符串类型，即使赋值为数字，仍按字符串处理。&lt;/li>
+&lt;li>类型声明与查看（&lt;code>declare&lt;/code>命令）：
+&lt;ul>
+&lt;li>&lt;code>-p 变量名&lt;/code>：显示变量类型和内容（如&lt;code>declare -p num&lt;/code>，输出&lt;code>declare -- num=&amp;quot;10&amp;quot;&lt;/code>为字符串类型，&lt;code>declare -i num=&amp;quot;10&amp;quot;&lt;/code>为整数类型）。&lt;/li>
+&lt;li>&lt;code>-i&lt;/code>：声明整数类型（如&lt;code>declare -i sum=5+3&lt;/code>，&lt;code>sum&lt;/code>结果为8；未声明则&lt;code>sum=5+3&lt;/code>为字符串“5+3”）。&lt;/li>
+&lt;li>&lt;code>-a&lt;/code>：声明数组类型（用于存储一组数据）。&lt;/li>
+&lt;li>&lt;code>-x&lt;/code>：声明环境变量（使变量可在子进程中生效，类似&lt;code>export&lt;/code>，取消用&lt;code>declare +x 变量名&lt;/code>）。&lt;/li>
+&lt;li>&lt;code>-r&lt;/code>：声明只读变量（无法修改或删除，终端/脚本内临时生效，无直接取消命令，需重启终端/脚本）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>数值运算规则与方法：
+&lt;ul>
+&lt;li>运算结果判定：字符串拼接仍为字符串；整数类型变量赋值运算时自动执行数值计算。&lt;/li>
+&lt;li>运算方法：
+&lt;ul>
+&lt;li>方法1：&lt;code>$((...))&lt;/code>，如&lt;code>$((N1 + N2))&lt;/code>。&lt;/li>
+&lt;li>方法2：&lt;code>declare -i&lt;/code>定义整数变量后直接赋值，如&lt;code>declare -i sum=0; sum=N1+N2&lt;/code>。&lt;/li>
+&lt;li>方法3：&lt;code>expr&lt;/code>命令（运算符左右加空格，特殊符号需转义），如&lt;code>expr 10 + 20&lt;/code>。&lt;/li>
+&lt;li>方法4：&lt;code>let&lt;/code>命令（支持简洁写法，适合自增自减），如&lt;code>let sum=N1+N2&lt;/code>。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>运算优先级：先正负号，再小括号，接着乘、除、取余，最后加、减，符合数学逻辑。&lt;/li>
+&lt;li>除法与取余特性：商的符号“同号为正，异号为负”；余数符号与被除数一致，范围为&lt;code>0&lt;/code>到“除数减1”。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>随机数生成：
+&lt;ul>
+&lt;li>系统变量&lt;code>$RANDOM&lt;/code>（范围0-32767，视频提及0-61535以实际系统为准）。&lt;/li>
+&lt;li>指定范围生成：如0-100随机数&lt;code>$((RANDOM % 101))&lt;/code>，10-120随机数&lt;code>$((RANDOM % 111 + 10))&lt;/code>。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>小数运算：需借助&lt;code>bc&lt;/code>命令（需安装），如&lt;code>echo &amp;quot;1.2 + 3&amp;quot; | bc&lt;/code>，&lt;code>scale=2&lt;/code>控制小数位数（如&lt;code>echo &amp;quot;scale=2; 1.2/3&amp;quot; | bc&lt;/code>）。&lt;/li>
+&lt;/ol>
+&lt;h2 id="三交互式参数传递read命令详解">三、交互式参数传递：&lt;code>read&lt;/code>命令详解
+&lt;/h2>&lt;h3 id="一基本用法">（一）基本用法
+&lt;/h3>&lt;p>&lt;code>read 变量名&lt;/code>：等待用户输入并存入变量，支持中文，解决位置参数变量需记顺序的问题。&lt;/p>
+&lt;h3 id="二常用选项">（二）常用选项
+&lt;/h3>&lt;ol>
+&lt;li>&lt;code>-p&lt;/code>：直接添加提示信息，如&lt;code>read -p &amp;quot;请输入用户名：&amp;quot; username&lt;/code>（无需额外&lt;code>echo&lt;/code>）。&lt;/li>
+&lt;li>&lt;code>-s&lt;/code>：隐藏输入内容（适用于密码），如&lt;code>read -s -p &amp;quot;请输入密码：&amp;quot; password&lt;/code>。&lt;/li>
+&lt;li>&lt;code>-n 数字&lt;/code>：限制输入字符数，如&lt;code>read -n 1 -p &amp;quot;请输入性别（m/f）：&amp;quot; gender&lt;/code>（输入后直接执行后续命令）。&lt;/li>
+&lt;li>&lt;code>-t 秒数&lt;/code>：设置输入超时时间，如&lt;code>read -t 10 -p &amp;quot;请输入手机号（10秒内）：&amp;quot; phone&lt;/code>（超时后变量值为空，脚本继续执行）。&lt;/li>
+&lt;/ol>
+&lt;h3 id="三多值输入">（三）多值输入
+&lt;/h3>&lt;ol>
+&lt;li>语法：&lt;code>read -p &amp;quot;请输入姓名 年龄 地址：&amp;quot; name age addr&lt;/code>（输入内容用空格分隔，依次存入变量）。&lt;/li>
+&lt;li>规则：输入值少于变量个数时，未匹配变量值为空；多于时，最后一个变量接收剩余所有值。&lt;/li>
+&lt;/ol>
+&lt;h2 id="四shell数组操作">四、Shell数组操作
+&lt;/h2>&lt;h3 id="一数组定义">（一）数组定义
+&lt;/h3>&lt;ol>
+&lt;li>方法1：&lt;code>A2=(张三 李四 王五)&lt;/code>（默认下标从0开始）。&lt;/li>
+&lt;li>方法2：&lt;code>declare -a A1&lt;/code>（声明后逐个赋值&lt;code>A1[0]=张三; A1[1]=李四&lt;/code>）。&lt;/li>
+&lt;li>方法3：单独指定下标赋值，如&lt;code>A3[0]=10; A3[1]=20&lt;/code>（系统自动识别为数组）。&lt;/li>
+&lt;/ol>
+&lt;h3 id="二数组查看">（二）数组查看
+&lt;/h3>&lt;ol>
+&lt;li>单个元素：&lt;code>echo ${数组名[下标]}&lt;/code>，如&lt;code>echo ${A2[1]}&lt;/code>（查看“李四”）。&lt;/li>
+&lt;li>所有元素：&lt;code>echo ${数组名[@]}&lt;/code>或&lt;code>echo ${数组名[*]}&lt;/code>（&lt;code>@&lt;/code>将元素视为独立个体，&lt;code>*&lt;/code>视为整体）。&lt;/li>
+&lt;li>数组长度：&lt;code>echo ${#数组名[@]}&lt;/code>或&lt;code>echo ${#数组名[*]}&lt;/code>，如&lt;code>echo ${#A2[@]}&lt;/code>（3个元素结果为3）。&lt;/li>
+&lt;li>单个元素长度：&lt;code>echo ${#数组名[下标]}&lt;/code>，如&lt;code>echo ${#A2[0]}&lt;/code>（“张三”字符数为2）。&lt;/li>
+&lt;/ol>
+&lt;h3 id="三数组修改与删除">（三）数组修改与删除
+&lt;/h3>&lt;ol>
+&lt;li>修改元素：&lt;code>A2[1]=赵六&lt;/code>（重新赋值指定下标）。&lt;/li>
+&lt;li>删除单个元素：&lt;code>unset A2[1]&lt;/code>（删除指定下标元素）。&lt;/li>
+&lt;li>删除整个数组：&lt;code>unset A2&lt;/code>（删除所有元素）。&lt;/li>
+&lt;/ol>
+&lt;h3 id="四数组扩展与应用">（四）数组扩展与应用
+&lt;/h3>&lt;ol>
+&lt;li>扩展：直接赋值新下标添加元素，如&lt;code>A2[3]=冰雹&lt;/code>（数组长度自动变为4）。&lt;/li>
+&lt;li>应用示例：随机抽取元素
+&lt;ul>
+&lt;li>步骤：获取数组长度&lt;code>len=${#A2[@]}&lt;/code>→生成0到&lt;code>len-1&lt;/code>的随机下标&lt;code>rand_idx=$((RANDOM % len))&lt;/code>→获取元素&lt;code>echo ${A2[$rand_idx]}&lt;/code>（适用于随机提问等场景）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="五shell条件判断">五、Shell条件判断
+&lt;/h2>&lt;h3 id="一字符串比较">（一）字符串比较
+&lt;/h3>&lt;ol>
+&lt;li>相等/不相等：&lt;code>==&lt;/code>判断相等，&lt;code>!=&lt;/code>判断不相等（如登录脚本中验证用户名）。&lt;/li>
+&lt;li>空字符串判断：
+&lt;ul>
+&lt;li>方式1：&lt;code>[ &amp;quot;$str&amp;quot; == &amp;quot;&amp;quot; ]&lt;/code>。&lt;/li>
+&lt;li>方式2：&lt;code>-z&lt;/code>（判断空）、&lt;code>-n&lt;/code>（判断非空），如&lt;code>[ -z &amp;quot;$str&amp;quot; ]&lt;/code>、&lt;code>[ -n &amp;quot;$str&amp;quot; ]&lt;/code>。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>实操注意：关注符号使用，可通过小括号整合多个判断条件。&lt;/li>
+&lt;/ol>
+&lt;h3 id="二数值比较">（二）数值比较
+&lt;/h3>&lt;ol>
+&lt;li>常用运算符：&lt;code>-eq&lt;/code>（等于）、&lt;code>-ne&lt;/code>（不等于）、&lt;code>-gt&lt;/code>（大于）、&lt;code>-ge&lt;/code>（大于等于）、&lt;code>-lt&lt;/code>（小于）、&lt;code>-le&lt;/code>（小于等于）。&lt;/li>
+&lt;li>实操示例：获取&lt;code>/etc/passwd&lt;/code>行数并判断，如&lt;code>[ $line -eq 20 ]&lt;/code>（等于20）、&lt;code>[ $line -gt 25 ]&lt;/code>（大于25），可扩展为用户输入文件名进行判断。&lt;/li>
+&lt;/ol>
+&lt;h3 id="三多种条件组合判断">（三）多种条件组合判断
+&lt;/h3>&lt;ol>
+&lt;li>逻辑运算符：
+&lt;ul>
+&lt;li>&lt;code>-a&lt;/code>（and）：多个条件同时满足，如&lt;code>[ $user == &amp;quot;root&amp;quot; -a $pass == &amp;quot;123&amp;quot; ]&lt;/code>。&lt;/li>
+&lt;li>&lt;code>-o&lt;/code>（or）：满足一个条件即可，如&lt;code>[ $user == &amp;quot;root&amp;quot; -o $pass == &amp;quot;123&amp;quot; ]&lt;/code>。&lt;/li>
+&lt;li>取反：&lt;code>!&lt;/code>，如&lt;code>[ ! -z &amp;quot;$str&amp;quot; ]&lt;/code>（判断非空）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>实操演示：通过登录脚本对比&lt;code>-a&lt;/code>和&lt;code>-o&lt;/code>的执行结果差异。&lt;/li>
+&lt;/ol>
+&lt;h3 id="四文件类型判断">（四）文件类型判断
+&lt;/h3>&lt;ol>
+&lt;li>常见文件类型与判断选项：&lt;/li>
+&lt;/ol>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>文件类型&lt;/th>
+&lt;th>判断选项&lt;/th>
+&lt;th>说明&lt;/th>
+&lt;th>示例&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>普通文件&lt;/td>
+&lt;td>&lt;code>-f&lt;/code>&lt;/td>
+&lt;td>存在且为普通文件&lt;/td>
+&lt;td>&lt;code>[ -f &amp;quot;/etc/passwd&amp;quot; ]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>目录&lt;/td>
+&lt;td>&lt;code>-d&lt;/code>&lt;/td>
+&lt;td>存在且为目录&lt;/td>
+&lt;td>&lt;code>[ -d &amp;quot;/home&amp;quot; ]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>字符设备&lt;/td>
+&lt;td>&lt;code>-c&lt;/code>&lt;/td>
+&lt;td>存在且为字符设备&lt;/td>
+&lt;td>&lt;code>[ -c &amp;quot;/dev/zero&amp;quot; ]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>块设备&lt;/td>
+&lt;td>&lt;code>-b&lt;/code>&lt;/td>
+&lt;td>存在且为块设备&lt;/td>
+&lt;td>&lt;code>[ -b &amp;quot;/dev/sda1&amp;quot; ]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>链接文件&lt;/td>
+&lt;td>&lt;code>-L&lt;/code>&lt;/td>
+&lt;td>存在且为链接文件&lt;/td>
+&lt;td>&lt;code>[ -L &amp;quot;/usr/bin/python&amp;quot; ]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>套接字文件&lt;/td>
+&lt;td>&lt;code>-S&lt;/code>&lt;/td>
+&lt;td>存在且为套接字文件&lt;/td>
+&lt;td>&lt;code>[ -S &amp;quot;/tmp/socket&amp;quot; ]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>管道文件&lt;/td>
+&lt;td>&lt;code>-p&lt;/code>&lt;/td>
+&lt;td>存在且为管道文件&lt;/td>
+&lt;td>&lt;code>[ -p &amp;quot;/tmp/pipe&amp;quot; ]&lt;/code>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>2. 逻辑优化：先通过&lt;code>if-else&lt;/code>嵌套演示，再引出&lt;code>if-elif-else&lt;/code>语句简化代码，减少嵌套层级。&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h2 id="六shell分支语句">六、Shell分支语句
+&lt;/h2>&lt;h3 id="一单分支if语句">（一）单分支&lt;code>if&lt;/code>语句
+&lt;/h3>&lt;ol>
+&lt;li>语法结构：&lt;code>if [ 条件判断 ]; then 执行逻辑; fi&lt;/code>（仅条件成立时执行逻辑）。&lt;/li>
+&lt;li>示例：&lt;code>if [ $line -gt 25 ]; then echo &amp;quot;大于25&amp;quot;; fi&lt;/code>。&lt;/li>
+&lt;li>简化写法：条件与逻辑较简单时可写在一行，如&lt;code>if [ $line -gt 25 ]; then echo &amp;quot;大于25&amp;quot;; fi&lt;/code>（分号分隔各部分）。&lt;/li>
+&lt;/ol>
+&lt;h3 id="二双分支if-else语句">（二）双分支&lt;code>if-else&lt;/code>语句
+&lt;/h3>&lt;ol>
+&lt;li>语法结构：&lt;code>if [ 条件判断 ]; then 条件成立执行逻辑; else 条件不成立执行逻辑; fi&lt;/code>。&lt;/li>
+&lt;li>示例：&lt;code>if [ -d &amp;quot;$file&amp;quot; ]; then echo &amp;quot;是目录&amp;quot;; else echo &amp;quot;不是目录&amp;quot;; fi&lt;/code>（判断是否为目录）。&lt;/li>
+&lt;/ol>
+&lt;h3 id="三多分支if-elif-else语句">（三）多分支&lt;code>if-elif-else&lt;/code>语句
+&lt;/h3>&lt;ol>
+&lt;li>语法结构：&lt;code>if [ 条件1 ]; then 执行逻辑1; elif [ 条件2 ]; then 执行逻辑2; ... else 所有条件不成立执行逻辑; fi&lt;/code>。&lt;/li>
+&lt;li>示例：判断文件类型，依次判断目录、块设备、字符设备等，均不满足则输出“啥也不是”，可灵活调整分支顺序与数量。&lt;/li>
+&lt;li>注意事项：每个&lt;code>if&lt;/code>/&lt;code>elif&lt;/code>后需有条件判断，&lt;code>then&lt;/code>后为执行逻辑，以&lt;code>fi&lt;/code>结束，可添加用户提示扩展功能。&lt;/li>
+&lt;/ol>
+&lt;h2 id="七实战练习案例">七、实战练习案例
+&lt;/h2>&lt;h3 id="一登录脚本两种实现方式">（一）登录脚本（两种实现方式）
+&lt;/h3>&lt;ol>
+&lt;li>位置参数变量实现：
+&lt;ul>
+&lt;li>需求：输入用户名（&lt;code>$1&lt;/code>）和密码（&lt;code>$2&lt;/code>），&lt;code>root&lt;/code>+&lt;code>123&lt;/code>提示登录成功（可加颜色&lt;code>\e[32m&lt;/code>绿色、&lt;code>\e[0m&lt;/code>默认），否则失败。&lt;/li>
+&lt;li>实现：&lt;code>test&lt;/code>或&lt;code>[]&lt;/code>判断条件，&lt;code>echo&lt;/code>输出结果，考虑参数为空的健壮性。&lt;/li>
+&lt;li>优缺点：优点是非交互式交互，缺点是需记参数顺序，参数过多易用性差。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>read&lt;/code>命令优化实现：
+&lt;ul>
+&lt;li>优势：无需记忆参数顺序，交互更友好。&lt;/li>
+&lt;li>实现：&lt;code>read -p&lt;/code>提示输入用户名，&lt;code>read -s -p&lt;/code>提示输入密码，逻辑判断与上述一致。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="二计算1-10的和">（二）计算1-10的和
+&lt;/h3>&lt;ol>
+&lt;li>需求：循环累加1到10的整数，预期结果55。&lt;/li>
+&lt;li>实现思路：
+&lt;ul>
+&lt;li>定义累加变量&lt;code>sum&lt;/code>（&lt;code>declare -i sum=0&lt;/code>或&lt;code>sum=0&lt;/code>）。&lt;/li>
+&lt;li>&lt;code>for&lt;/code>循环遍历1-10（&lt;code>for i in {1..10}&lt;/code>或&lt;code>for ((i=1; i&amp;lt;=10; i++))&lt;/code>）。&lt;/li>
+&lt;li>循环内累加：&lt;code>sum=$((sum + i))&lt;/code>或&lt;code>let sum+=i&lt;/code>。&lt;/li>
+&lt;li>输出结果：&lt;code>echo &amp;quot;1-10的和为：$sum&amp;quot;&lt;/code>。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>示例脚本：&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/bin/bash
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="nb">declare&lt;/span> -i &lt;span class="nv">sum&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> &lt;span class="o">((&lt;/span>&lt;span class="nv">i&lt;/span>&lt;span class="o">=&lt;/span>1&lt;span class="p">;&lt;/span> i&amp;lt;&lt;span class="o">=&lt;/span>10&lt;span class="p">;&lt;/span> i++&lt;span class="o">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">sum&lt;/span>&lt;span class="o">+=&lt;/span>i
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">done&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;1-10的和为：&lt;/span>&lt;span class="nv">$sum&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="三文件类型判断脚本">（三）文件类型判断脚本
+&lt;/h3>&lt;ol>
+&lt;li>需求：判断用户输入文件的类型，输出对应结果。&lt;/li>
+&lt;li>实现：使用&lt;code>if-elif-else&lt;/code>语句，依次判断目录、块设备、字符设备等类型，均不满足则输出“啥也不是”。&lt;/li>
+&lt;/ol>
+&lt;h2 id="八课程安排与作业说明">八、课程安排与作业说明
+&lt;/h2>&lt;h3 id="一前期基础回顾">（一）前期基础回顾
+&lt;/h3>&lt;p>上午已完成Shell编程基础内容讲解（对应第二次笔记），需完成相关练习题，练习题及分析视频已分发。&lt;/p>
+&lt;h3 id="二后续学习规划">（二）后续学习规划
+&lt;/h3>&lt;p>下午将讲解Shell编程高级部分，包括正则表达式、&lt;code>cat&lt;/code>、&lt;code>AWK&lt;/code>等命令及各类判断。&lt;/p>
+&lt;h3 id="三作业要求">（三）作业要求
+&lt;/h3>&lt;ol>
+&lt;li>按学号姓名整理作业并提交。&lt;/li>
+&lt;li>练习题难度较高，建议分批完成，学完对应知识点后攻克相关题目，部分内容需待高级知识讲解后完成。&lt;/li>
+&lt;li>完成后将脚本文件上传至指定位置。&lt;/li>
+&lt;/ol>
+&lt;h3 id="四重点提示">（四）重点提示
+&lt;/h3>&lt;p>重点掌握字符串比较、数值比较、文件类型判断三类条件判断，以及单分支、双分支、多分支&lt;code>if&lt;/code>语句的使用，后续将继续深入Shell编程相关内容。&lt;/p></description></item><item><title>Shell 历史记录、别名与重定向</title><link>https://luckycloveryh.github.io/fuyou/p/shell-03/</link><pubDate>Thu, 04 Dec 2025 09:00:00 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/shell-03/</guid><description>&lt;img src="https://picsum.photos/seed/fuyou-shell-03/1200/675" alt="Featured image of post Shell 历史记录、别名与重定向" />&lt;blockquote>
+&lt;h2 id="一基础知识回顾">一、基础知识回顾
+&lt;/h2>&lt;/blockquote>
+&lt;h3 id="一脚本相关">（一）脚本相关
+&lt;/h3>&lt;ol>
+&lt;li>回顾脚本的功能，包括历史记录、别名、快捷键、输入输出等要点&lt;/li>
+&lt;li>讲解创建脚本的注意事项：此前记录的“第一行固定为几行感叹号、第二行需为IQ加双引号”为笔误，正确核心要求是&lt;strong>第一行需指定脚本解释器&lt;/strong>（如&lt;code>#!/bin/bash&lt;/code>）；举例说明脚本中输入上网命令的写法，以及脚本的运行方式。&lt;/li>
+&lt;/ol>
+&lt;h3 id="二历史记录操作">（二）历史记录操作
+&lt;/h3>&lt;ol>
+&lt;li>说明查看历史记录时，s对应的变量存放位置（根部录像的佳木楼下带点半下划线黑色的位置）。&lt;/li>
+&lt;li>介绍history命令的两个选项：-c用于清空历史记录，另一个选项可将历史记录保存；若不使用该选项，需正常退出（如&lt;code>exit&lt;/code>，原文“ESIT”为拼写错误）以保存历史。&lt;/li>
+&lt;/ol>
+&lt;h3 id="三别名管理">（三）别名管理
+&lt;/h3>&lt;ol>
+&lt;li>提及查看别名（如通过&lt;code>alias&lt;/code>命令，原文“Avers”为拼写错误）、创建别名和删除别名的操作，且指出别名录制为临时的，正常退出无问题。&lt;/li>
+&lt;/ol>
+&lt;h3 id="四命令执行顺序">（四）命令执行顺序
+&lt;/h3>&lt;ol>
+&lt;li>明确命令执行优先级：绝对路径＞点名＞系统命令，系统命令包含内置命令（如&lt;code>cd&lt;/code>，原文“CD”规范小写）和外部命令（如&lt;code>ls&lt;/code>、&lt;code>bash&lt;/code>，原文“巴喀勒斯”为口误），并解释二者区别。&lt;/li>
+&lt;/ol>
+&lt;h3 id="五快捷键使用">（五）快捷键使用
+&lt;/h3>&lt;ol>
+&lt;li>说明将命令放在后台停止与运行的快捷键，以及查看后台命令的方式（原文“公众号”为笔误，应为“相关方法”）。&lt;/li>
+&lt;li>介绍Ctrl+s的作用（屏幕输出锁定，解锁可继续），快速移动到命令开头（Ctrl+a）和结尾（Ctrl+e）的快捷键，还有查看历史记录的Ctrl+r快捷键。&lt;/li>
+&lt;/ol>
+&lt;h3 id="六输入输出重定向">（六）输入输出重定向
+&lt;/h3>&lt;ol>
+&lt;li>指出命令默认输出位置为屏幕（或终端），讲解输出重定向符号（&lt;code>&amp;gt;&lt;/code>）的含义，正确结果会覆盖原有内容，错误结果默认在终端报错。&lt;/li>
+&lt;li>说明错误重定向的写法（使用&lt;code>2&amp;gt;&lt;/code>），以及无论正确与错误结果都追加式重定向的写法（&lt;code>&amp;amp;&amp;gt;&amp;gt;&lt;/code>），还提及将结果追加到回收站（对应设备&lt;code>/dev/null&lt;/code>，原文“no、Zero”为表述不规范，规范名称为&lt;code>/dev/null&lt;/code>）的操作。&lt;/li>
+&lt;li>介绍&lt;code>tee&lt;/code>命令的作用（原文“t命令”为缩写遗漏）：即将文件输入到指定位置，且需指定文件名，该命令可同时将内容整理到文件和输出到控制台，而此前操作仅能二选一；另外讲解管道符（&lt;code>|&lt;/code>）相关命令，如&lt;code>wc&lt;/code>命令加文件名可统计字符串或单词，加-l、-w、-c选项分别可查看行数、单词数、字符数。&lt;/li>
+&lt;/ol>
+&lt;h2 id="二核心语法通配符grep命令特殊符号">二、核心语法（通配符、Grep命令、特殊符号）
+&lt;/h2>&lt;h3 id="一通配符相关内容">（一）通配符相关内容
+&lt;/h3>&lt;ol>
+&lt;li>通配符类型与含义
+&lt;ul>
+&lt;li>星号（*）：代表任意多个字符（包含0个），可用于多个命令，如&lt;code>rm -f *.tst&lt;/code>（原文“RM -NS”为参数错误，&lt;code>rm&lt;/code>无&lt;code>-NS&lt;/code>选项，规范写法为&lt;code>rm -f&lt;/code>）可删除以.tst结尾的文件，&lt;code>chmod +x&lt;/code>结合星号也可使用。&lt;/li>
+&lt;li>问号（?）：代表任意一个字符。&lt;/li>
+&lt;li>中括号（[]）：代表指定范围的一个字符，范围可写为“a-c”这类连续范围，也可写为“a,b,c”这类用逗号隔开的单个字符；若中括号内有空格，也会包含空格进行匹配。&lt;/li>
+&lt;li>尖角号（^）：在中括号内使用，代表匹配不在指定范围或字符集合内的一个字符，如[^a-c]代表匹配除a、b、c外的任意一个字符。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>通配符适用范围
+&lt;ul>
+&lt;li>可用于&lt;code>rm&lt;/code>、&lt;code>chmod&lt;/code>等多个命令，但不能用于&lt;code>grep&lt;/code>命令（原文“Grep”规范小写），&lt;code>grep&lt;/code>命令中类似符号属于正则表达式，含义不同。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="二grep命令相关">（二）Grep命令相关
+&lt;/h3>&lt;ol>
+&lt;li>命令功能
+&lt;ul>
+&lt;li>在文件中搜索满足条件的字符串所在的行，如在&lt;code>/etc/passwd&lt;/code>文件中搜索相关内容。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>常用选项
+&lt;ul>
+&lt;li>-v：反向匹配，排除包含指定字符串的行，如&lt;code>grep -v grep&lt;/code>（规范小写）可去掉包含grep的进程行。&lt;/li>
+&lt;li>-i：忽略大小写进行匹配，如搜索ABC时，加上-i选项可匹配abc等。&lt;/li>
+&lt;li>-w：强制匹配整个单词，需与指定内容完全一致才会搜出，常用于网络相关搜索。&lt;/li>
+&lt;li>-n：显示匹配行的行号，与&lt;code>cat -n&lt;/code>功能类似。&lt;/li>
+&lt;li>-A（数字）：列出符合条件的行，并连续向后列出指定行数，如-A2表示向后列出2行。&lt;/li>
+&lt;li>-B（数字）：列出符合条件的行，并连续向前列出指定行数，如-B2表示向前列出2行。&lt;/li>
+&lt;li>-o：提取匹配到的关键词，便于后续处理和统计。&lt;/li>
+&lt;li>-c：统计匹配到的行数，与“grep命令结果 | wc -l”效果等价。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>选项使用注意事项
+&lt;ul>
+&lt;li>部分选项可合并使用，如&lt;code>grep -i -n&lt;/code>与&lt;code>grep -in&lt;/code>效果相同，但需注意选项与参数的位置，如-A后需紧跟数字，否则会影响结果。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>与通配符的区别
+&lt;ul>
+&lt;li>&lt;code>grep&lt;/code>命令中使用的星号（&lt;em>）等符号属于正则表达式，与通配符含义不同，如正则中&lt;/em>代表前面一个字符出现0次到任意多次，而非通配符中的任意多个字符。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="三脚本中特殊符号含义">（三）脚本中特殊符号含义
+&lt;/h3>&lt;ol>
+&lt;li>注释与转义
+&lt;ul>
+&lt;li>井号（#）：代表注释。&lt;/li>
+&lt;li>反斜线（\）：作为转义符，若后面加特殊符号，该特殊符号会失去原有特殊含义，如在双引号中加\可输出$等特殊符号。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>变量相关
+&lt;ul>
+&lt;li>美元符号（$）：用于调用变量的值，如定义变量&lt;code>name=李四&lt;/code>，使用&lt;code>echo $name&lt;/code>可输出李四；等号（=）用于变量赋值，两个等号（==）用于判断。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>引号区别
+&lt;ul>
+&lt;li>单引号（&amp;rsquo;&amp;rsquo;）：里面所有字符均为普通字符，所见即所得，无特殊含义。&lt;/li>
+&lt;li>双引号（&amp;quot;&amp;quot;）：大部分字符为普通字符，但$（取变量值）、\（转义符）等仍有特殊含义，若想在双引号中输出特殊符号，需加\转义。&lt;/li>
+&lt;li>反引号（``）：用于获取命令的结果，与$()作用相同，如&lt;code>ls&lt;/code>或$(ls)可获取&lt;code>ls&lt;/code>命令的执行结果，且命令结果可视为字符串进行后续处理。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>括号功能
+&lt;ul>
+&lt;li>中括号[]：与&lt;code>test&lt;/code>命令功能类似，用于表达式判断，如判断变量是否等于指定值，需注意中括号与表达式左右各有一个空格，表达式中值与符号之间也需有空格；可进行字符串比较，相等用==，不等用!=，但数字比较判断不准，暂不建议用于数字比较；若变量为空，建议加双引号避免报错。&lt;/li>
+&lt;li>小括号()：用于在子shell（子进程）中执行一串命令（原文“子办事”为口语化表述，规范为“子进程”），子shell可继承父shell的部分变量（如环境变量），但在子shell中对变量的修改不会影响父shell，适合在不影响当前环境的情况下测试操作。&lt;/li>
+&lt;li>大括号{}：用于在当前shell（父进程）中执行一串命令（原文“本办事/父办事”为口语化表述，规范为“当前shell/父进程”），与直接在终端执行命令效果相同，但有语法要求，命令最后需加分号，第一个命令与左括号之间需有空格；在大括号中对变量的修改会直接影响当前shell。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="三shell变量详解">三、Shell变量详解
+&lt;/h2>&lt;h3 id="一变量基础定义与规则">（一）变量基础定义与规则
+&lt;/h3>&lt;ol>
+&lt;li>定义格式：变量名=值，等号左右不可有空格，例如&lt;code>name=李四&lt;/code>，若值含空格需用单引号或双引号包裹（无特殊符号时单双引号效果一致，含变量等特殊元素需用双引号）。&lt;/li>
+&lt;li>变量名规范：仅可包含字母、数字和下划线，且数字不能作为开头，大小写均可（无强制区分，但通常建议环境变量用大写），不可包含&lt;code>+&lt;/code>、&lt;code>-&lt;/code>等特殊符号。&lt;/li>
+&lt;li>变量值类型：默认值为字符串类型，即使定义&lt;code>n1=10&lt;/code>，未明确声明时仍按字符串处理；支持将命令结果（如&lt;code>date&lt;/code>的输出）、其他变量值赋值给新变量，例如&lt;code>result=$(ls)&lt;/code>、&lt;code>new_name=$name&lt;/code>。&lt;/li>
+&lt;/ol>
+&lt;h3 id="二变量拼接与类型问题">（二）变量拼接与类型问题
+&lt;/h3>&lt;ol>
+&lt;li>拼接规则：当变量名后紧跟字母、数字或下划线时，需用大括号（&lt;code>{}&lt;/code>）包裹变量名以避免混淆，例如&lt;code>$name123&lt;/code>会被识别为变量&lt;code>name123&lt;/code>，而&lt;code>${name}123&lt;/code>则是变量&lt;code>name&lt;/code>的值与“123”拼接；若后续为&lt;code>+&lt;/code>、中文等非规范字符，可直接拼接无需大括号。&lt;/li>
+&lt;li>数值计算问题：指出直接使用&lt;code>$n1+$n2&lt;/code>（如&lt;code>n1=10&lt;/code>、&lt;code>n2=20&lt;/code>）会得到字符串“10+20”，而非数值30，需通过&lt;code>$((表达式))&lt;/code>（如&lt;code>$((n1+n2))&lt;/code>）或&lt;code>expr&lt;/code>命令实现数值计算，明确Shell中变量默认类型与数值计算的特殊处理方式。&lt;/li>
+&lt;/ol>
+&lt;h3 id="三变量分类与操作">（三）变量分类与操作
+&lt;/h3>&lt;ol>
+&lt;li>自定义变量
+&lt;ul>
+&lt;li>增删改查：通过“变量名=值”新增/修改，&lt;code>echo $变量名&lt;/code>查看值，&lt;code>set&lt;/code>命令查看所有变量（含自定义、环境变量及函数），&lt;code>unset 变量名&lt;/code>删除变量，且自定义变量默认仅在当前终端生效，退出后失效。&lt;/li>
+&lt;li>调试工具：&lt;code>set -u&lt;/code>开启未定义变量报错模式，避免因变量名拼写错误或未定义导致脚本隐性错误；&lt;code>set -x&lt;/code>开启命令回显模式，执行命令前先打印命令内容，便于排查脚本执行流程问题，关闭模式需用&lt;code>set +u&lt;/code>和&lt;code>set +x&lt;/code>。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>环境变量
+&lt;ul>
+&lt;li>特性：通常为大写，用于存储系统环境相关配置（如&lt;code>PATH&lt;/code>存储系统命令路径），可通过&lt;code>env&lt;/code>命令专门查看，&lt;code>set&lt;/code>命令也可显示（含其他变量）。&lt;/li>
+&lt;li>增删改查：自定义环境变量需先定义变量（如&lt;code>SIZE=1000&lt;/code>），再用&lt;code>export SIZE&lt;/code>声明为环境变量；修改时直接重新赋值（如&lt;code>SIZE=2000&lt;/code>，无需重复&lt;code>export&lt;/code>）；删除用&lt;code>unset 变量名&lt;/code>；永久生效需将配置写入&lt;code>/etc/profile&lt;/code>（所有用户）或&lt;code>~/.bash_profile&lt;/code>（当前用户）等配置文件，修改后需通过&lt;code>. /etc/profile&lt;/code>或&lt;code>source /etc/profile&lt;/code>重新加载。&lt;/li>
+&lt;li>典型案例：修改&lt;code>PATH&lt;/code>变量以添加自定义脚本路径，使脚本可像系统命令一样直接执行，例如&lt;code>PATH=$PATH:/root/scripts&lt;/code>，并说明临时修改与永久修改的区别。&lt;/li>
+&lt;li>特殊环境变量（LANG）：用于查看和设置系统当前语系，判断是否支持中文（如显示“zh_CN.UTF-8”则支持中文，原文“中文utf”表述不规范）；可通过&lt;code>locale&lt;/code>命令查看系统支持的语系；修改需编辑&lt;code>/etc/locale.conf&lt;/code>配置文件（如将LANG改为英文），且修改后需执行&lt;code>source&lt;/code>命令重新加载配置才能生效，类似主机名修改（修改主机名用&lt;code>hostnamectl&lt;/code>命令，同样需重新加载配置）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>预定义变量（预定变量）：已定义且功能固定，无需用户自定义
+&lt;ul>
+&lt;li>&lt;code>$?&lt;/code>：存储上一条命令执行后的返回状态，仅分0（命令执行成功）和非零（命令执行失败）两种结果；可用于脚本监控，例如监控Apache服务状态，通过判断&lt;code>$?&lt;/code>的值确定服务是否正常，进而执行重启等操作，也可将其结果赋值给变量后再进行判断。&lt;/li>
+&lt;li>&lt;code>$$&lt;/code>：表示当前进程的进程号（PID）；通过&lt;code>echo $$&lt;/code>可查看当前bash进程的PID，结合&lt;code>ps&lt;/code>命令能查找对应进程，还可配合&lt;code>kill&lt;/code>命令杀死指定进程（如&lt;code>kill 进程号&lt;/code>）。&lt;/li>
+&lt;li>&lt;code>$!&lt;/code>：代表后台运行的最后一个进程的进程号；需先通过&lt;code>&amp;amp;&lt;/code>将命令放入后台运行（如&lt;code>dd if=/dev/zero of=test bs=1G count=20 &amp;amp;&lt;/code>），再用&lt;code>echo $!&lt;/code>查看该后台进程的PID，便于对后台进程进行管理。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>位置参数变量：用于给脚本传递参数，实现非交互式操作，提升脚本灵活性
+&lt;ul>
+&lt;li>&lt;code>$n（n为数字）&lt;/code>：&lt;code>$0&lt;/code>表示脚本本身的名称，&lt;code>$1-$9&lt;/code>对应脚本后传递的第1到第9个参数，若参数个数超过10，需用大括号包裹（如&lt;code>${10}&lt;/code>），避免解析错误；实例演示：以考勤统计脚本为例，将总人数、实到人数、请假原因分别通过&lt;code>$1&lt;/code>、&lt;code>$2&lt;/code>、&lt;code>$3&lt;/code>传递给脚本，无需每次打开脚本修改内容，还可在脚本中通过逻辑（如&lt;code>请假人数=$(( $1 - $2 ))&lt;/code>，原文缺少数值计算语法，补充规范写法）自动计算相关数据。&lt;/li>
+&lt;li>&lt;code>$*与$@&lt;/code>：相同点是均能获取脚本后传递的所有参数；不同点是&lt;code>$*&lt;/code>会将所有参数视为一个整体（相当于用双引号包裹所有参数，原文“单引号”表述错误），而&lt;code>$@&lt;/code>会将每个参数独立看待，可通过循环验证（如&lt;code>for i in &amp;quot;$*&amp;quot;&lt;/code>仅循环1次，&lt;code>for i in &amp;quot;$@&amp;quot;&lt;/code>循环次数与参数个数一致）。&lt;/li>
+&lt;li>&lt;code>$#&lt;/code>：统计传递给脚本的参数个数；通过&lt;code>echo $#&lt;/code>可快速查看参数数量，便于了解参数传递情况，确保脚本获取到足够的输入数据。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="四特殊环境变量与配置">（四）特殊环境变量与配置
+&lt;/h3>&lt;ol>
+&lt;li>PS1（命令提示符变量）
+&lt;ul>
+&lt;li>功能：定义终端命令提示符的显示格式，包含用户、主机名、路径、时间等信息，例如默认格式中的&lt;code>\u&lt;/code>代表当前用户，&lt;code>\h&lt;/code>代表主机名简写，&lt;code>\w&lt;/code>代表当前工作目录（完整路径），&lt;code>\#&lt;/code>代表命令编号。&lt;/li>
+&lt;li>自定义：支持修改显示内容与格式，例如添加时间（&lt;code>\t&lt;/code>显示24小时制时分秒）、调整路径显示（&lt;code>\W&lt;/code>显示目录最后一级），甚至添加颜色代码；修改时需用单引号包裹格式字符串（如&lt;code>PS1='[\t \W]\$ '&lt;/code>），临时生效，永久生效需写入&lt;code>/etc/bashrc&lt;/code>等配置文件并重新加载。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>环境变量配置文件加载顺序：登录系统或连接SSH时，会按特定顺序加载配置文件，如先加载&lt;code>/etc/profile&lt;/code>，再加载用户目录下的&lt;code>.bash_profile&lt;/code>等，不同文件对应不同用户范围（全局或单个用户），需根据需求选择写入位置。&lt;/li>
+&lt;/ol>
+&lt;h2 id="四脚本实例与实践">四、脚本实例与实践
+&lt;/h2>&lt;h3 id="一服务监控脚本">（一）服务监控脚本
+&lt;/h3>&lt;ol>
+&lt;li>需求：监控特定服务（推测为Apache（阿帕奇）服务的口误表述，原文“阿花琴符”为口误）的运行状态，若服务开启则打印绿色“已开启”，未开启则打印红色提示。&lt;/li>
+&lt;li>实现思路：首先指定脚本解释器（如&lt;code>#!/bin/bash&lt;/code>），通过&lt;code>ss -tuln | grep :80&lt;/code>（补充具体查询命令，原文仅提及&lt;code>ss&lt;/code>命令）查询服务状态，将结果存入变量或文件，再通过判断命令执行结果（返回值0为成功，非0为失败）确定服务状态，最后结合终端颜色代码（32为绿色、31为红色）输出对应提示，同时说明如何将无关输出重定向到&lt;code>/dev/null&lt;/code>以简化显示。&lt;/li>
+&lt;/ol>
+&lt;h3 id="二考勤脚本优化">（二）考勤脚本优化
+&lt;/h3>&lt;ol>
+&lt;li>初始脚本：需手动修改内容统计考勤。&lt;/li>
+&lt;li>优化后：引入位置参数变量，可通过命令行传递参数（如&lt;code>./考勤.sh 66 29 &amp;quot;生病&amp;quot;&lt;/code>）实现非交互式统计，还能处理参数为空的情况（如默认请假原因为“发烧”）。&lt;/li>
+&lt;/ol>
+&lt;h2 id="五其他说明与常见问题">五、其他说明与常见问题
+&lt;/h2>&lt;h3 id="一其他说明">（一）其他说明
+&lt;/h3>&lt;ol>
+&lt;li>视频中多次通过举例、演示操作的方式帮助理解相关知识点，且在讲解完部分内容后，提及让学生整理知识、通过提问检验学习效果（如随机抽题，答对30分通过，答错需重新书写并再次提问），最后安排休息环节。&lt;/li>
+&lt;/ol>
+&lt;h3 id="二常见问题">（二）常见问题
+&lt;/h3>&lt;ol>
+&lt;li>若脚本运行时未传递必要参数，可能出现报错（如因缺少参数导致计算“请假人数”时出现“减不存在”的错误），因此使用位置参数变量时需注意参数的完整性和正确性，建议在脚本中添加参数校验（如&lt;code>if [ $# -lt 2 ]; then echo &amp;quot;请传递总人数和实到人数&amp;quot;; exit 1; fi&lt;/code>，补充规范校验逻辑）。&lt;/li>
+&lt;/ol></description></item><item><title>Shell 编程基础与 echo 输出</title><link>https://luckycloveryh.github.io/fuyou/p/shell-02/</link><pubDate>Wed, 03 Dec 2025 09:00:00 +0800</pubDate><guid>https://luckycloveryh.github.io/fuyou/p/shell-02/</guid><description>&lt;img src="https://picsum.photos/seed/fuyou-shell-02/1200/675" alt="Featured image of post Shell 编程基础与 echo 输出" />&lt;h1 id="视频主要内容综合总结">视频主要内容综合总结
+&lt;/h1>&lt;h2 id="一课程整体框架与学习要求">一、课程整体框架与学习要求
+&lt;/h2>&lt;h3 id="一课程阶段划分">（一）课程阶段划分
+&lt;/h3>&lt;p>当前课程分为两大核心阶段，总时长约5周，具体安排如下：&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>第一阶段：少儿编程与基础操作&lt;/strong>&lt;br>
+先进行6天Shell编程基础学习，包含脚本编写、命令使用等内容，阶段结束后进行小测；&lt;/li>
+&lt;li>&lt;strong>第二阶段：网络服务深入学习&lt;/strong>&lt;br>
+持续约3周4-5天，围绕各类网络服务的搭建、配置与优化展开；&lt;/li>
+&lt;li>&lt;strong>阶段考核形式&lt;/strong>&lt;br>
+每个阶段结束后均采用“笔试+机试”模式，机试时长为5小时，后续集群服务阶段考核形式一致，机试可能持续至下午3点半。&lt;/li>
+&lt;/ol>
+&lt;h3 id="二学习核心要求">（二）学习核心要求
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>目标与笔记管理&lt;/strong>
+&lt;ul>
+&lt;li>需制定短期目标（如每周掌握对应服务知识），确保学习节奏清晰；&lt;/li>
+&lt;li>强调电子笔记的重要性，要求包含“步骤+截图”，每个服务学习后需提交笔记，后续工作中可复用；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>练习与测试安排&lt;/strong>
+&lt;ul>
+&lt;li>每周有计时周练习，需练至满分以巩固知识点；&lt;/li>
+&lt;li>每两周安排一次周测，具体时间视学习进度调整。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="二shell编程与操作基础">二、Shell编程与操作基础
+&lt;/h2>&lt;h3 id="一编程语言分类与shell脚本基础">（一）编程语言分类与Shell脚本基础
+&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>编程语言分类&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>编译性语言：
+&lt;ul>
+&lt;li>特点：需先编译为中间语言，再转机器语言；&lt;/li>
+&lt;li>代表语言：C、C++、Java、Go；&lt;/li>
+&lt;li>执行依赖：编译器（如GCC）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>解释性语言：
+&lt;ul>
+&lt;li>特点：逐行读取并翻译为机器语言，源代码即脚本；&lt;/li>
+&lt;li>代表语言：Shell、PHP、Python；&lt;/li>
+&lt;li>执行依赖：解释器（如Bash）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Shell脚本编写与运行&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>核心概念&lt;/strong>：Shell是Linux终端交互工具，Shell脚本需依赖Bash解释器（路径通常在&lt;code>/etc/shells&lt;/code>）；&lt;/li>
+&lt;li>&lt;strong>编写步骤&lt;/strong>：
+&lt;ol>
+&lt;li>新建以&lt;code>.sh&lt;/code>为后缀的文件（后缀仅为标识，无强制要求）；&lt;/li>
+&lt;li>首行固定写&lt;code>#!/bin/bash&lt;/code>，指定Bash为解释器；&lt;/li>
+&lt;li>编写具体命令（如&lt;code>echo&lt;/code>输出命令、循环语句等）；&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;li>&lt;strong>运行方式&lt;/strong>：
+&lt;ol>
+&lt;li>直接运行：&lt;code>bash 脚本名&lt;/code>（无需执行权限）；&lt;/li>
+&lt;li>授权后运行：先通过&lt;code>chmod +x 脚本名&lt;/code>添加执行权限，再用&lt;code>./脚本名&lt;/code>（相对路径）或绝对路径运行。&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="二核心命令echo">（二）核心命令：echo
+&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>输出格式控制&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>换行控制&lt;/strong>：加&lt;code>-n&lt;/code>选项可实现不换行输出（如&lt;code>echo -n &amp;quot;请输入姓名：&amp;quot;&lt;/code>），默认情况下输出后自动换行；&lt;/li>
+&lt;li>&lt;strong>特殊字符识别&lt;/strong>：加&lt;code>-e&lt;/code>选项可识别反斜线（&lt;code>\&lt;/code>）开头的特殊字符，常用如下：
+&lt;ul>
+&lt;li>&lt;code>\a&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：输出系统警告音；&lt;/li>
+&lt;li>示例：&lt;code>echo -e &amp;quot;警告\a&amp;quot;&lt;/code>；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>\b&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：回退并删除一个字符（需后续有字符）；&lt;/li>
+&lt;li>示例：&lt;code>echo -e &amp;quot;hel\blo&amp;quot;&lt;/code>（输出“hlo”）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>\t&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：插入制表符（约4个空格）；&lt;/li>
+&lt;li>示例：&lt;code>echo -e &amp;quot;姓名\t年龄&amp;quot;&lt;/code>；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>\n&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：插入换行符，强制换行；&lt;/li>
+&lt;li>示例：&lt;code>echo -e &amp;quot;第一行\n第二行&amp;quot;&lt;/code>；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>\f&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：插入换页符，换行后保留前方缩进；&lt;/li>
+&lt;li>示例：&lt;code>echo -e &amp;quot;标题\f内容&amp;quot;&lt;/code>。c&lt;img src="https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/shell-02/01.png"
+loading="lazy"
+alt="img"
+>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>输出颜色与特殊效果设置&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>颜色代码规则&lt;/strong>：借助&lt;code>-e&lt;/code>选项，通过&lt;code>\e[颜色代码m&lt;/code>设置，结束颜色需加&lt;code>\e[0m&lt;/code>（取消所有设置）；&lt;/li>
+&lt;li>&lt;strong>常用颜色代码&lt;/strong>：
+&lt;ul>
+&lt;li>黑色：
+&lt;ul>
+&lt;li>字体颜色代码：30；&lt;/li>
+&lt;li>背景颜色代码：40；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>红色：
+&lt;ul>
+&lt;li>字体颜色代码：31；&lt;/li>
+&lt;li>背景颜色代码：41；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>绿色：
+&lt;ul>
+&lt;li>字体颜色代码：32；&lt;/li>
+&lt;li>背景颜色代码：42；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>黄色：
+&lt;ul>
+&lt;li>字体颜色代码：33；&lt;/li>
+&lt;li>背景颜色代码：43；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>蓝色：
+&lt;ul>
+&lt;li>字体颜色代码：34；&lt;/li>
+&lt;li>背景颜色代码：44；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>紫色：
+&lt;ul>
+&lt;li>字体颜色代码：35；&lt;/li>
+&lt;li>背景颜色代码：45；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>青色：
+&lt;ul>
+&lt;li>字体颜色代码：36；&lt;/li>
+&lt;li>背景颜色代码：46；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>白色：
+&lt;ul>
+&lt;li>字体颜色代码：37；&lt;/li>
+&lt;li>背景颜色代码：47；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>特殊效果代码&lt;/strong>：1（高亮）、4（下划线）、5（闪烁）、7（反显）、8（消隐），可与颜色组合（如&lt;code>echo -e &amp;quot;\e[1;32m高亮绿色\e[0m&amp;quot;&lt;/code>）。&lt;img src="https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/shell-02/02.png"
+loading="lazy"
+alt="img"
+>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>练习题与优化&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>基础需求&lt;/strong>：用脚本打印8种颜色的“hello”，初始可编写8条&lt;code>echo&lt;/code>命令实现；&lt;/li>
+&lt;li>&lt;strong>优化方案&lt;/strong>：利用&lt;code>for&lt;/code>循环遍历颜色代码，减少重复代码（如&lt;code>for color in 30 31 32; do echo -e &amp;quot;\e[${color}mhello\e[0m&amp;quot;; done&lt;/code>）.&lt;img src="https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/shell-02/03.png"
+loading="lazy"
+alt="img"
+>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="三shell循环for循环">（三）Shell循环：for循环
+&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>基本语法与执行逻辑&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>语法格式：&lt;code>for 变量名 in 取值列表; do 循环体; done&lt;/code>（变量名常用&lt;code>i&lt;/code>，可自定义）；&lt;/li>
+&lt;li>执行逻辑：取值列表中的值依次赋给变量，每次赋值后执行一次循环体，循环次数等于取值列表中值的个数；&lt;/li>
+&lt;li>&lt;strong>取值列表类型&lt;/strong>：
+&lt;ul>
+&lt;li>具体字符/字符串：
+&lt;ul>
+&lt;li>示例：&lt;code>for i in a b c; do echo $i; done&lt;/code>；&lt;/li>
+&lt;li>输出结果：a、b、c；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>数字序列：
+&lt;ul>
+&lt;li>示例：&lt;code>for i in 1 2 3; do echo $i; done&lt;/code>；&lt;/li>
+&lt;li>输出结果：1、2、3；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>数字序列（简写）：
+&lt;ul>
+&lt;li>示例：&lt;code>for i in {1..3}; do echo $i; done&lt;/code>；&lt;/li>
+&lt;li>输出结果：1、2、3；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>通配符匹配：
+&lt;ul>
+&lt;li>示例：&lt;code>for i in *.sh; do echo $i; done&lt;/code>；&lt;/li>
+&lt;li>输出结果：当前目录下所有&lt;code>.sh&lt;/code>文件。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>变量取值与输出&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>输出变量需用&lt;code>$变量名&lt;/code>（如&lt;code>echo $i&lt;/code>），若变量后紧跟其他字符，需用&lt;code>${变量名}&lt;/code>隔离（如&lt;code>echo ${i}file&lt;/code>，避免变量与字符混淆）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="四shell操作效率工具">（四）Shell操作效率工具
+&lt;/h3>&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>常用快捷键（提升终端操作速度）&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>Ctrl + l：等同于&lt;code>clear&lt;/code>，清空终端屏幕；&lt;/li>
+&lt;li>Ctrl + d：类似&lt;code>exit&lt;/code>，退出当前终端会话；&lt;/li>
+&lt;li>Ctrl + c：中断当前执行的命令（如中断持续连接、进程）；&lt;/li>
+&lt;li>Ctrl + z：将当前命令暂停并放入后台（状态为暂停）；&lt;/li>
+&lt;li>命令后加&lt;code>&amp;amp;&lt;/code>：将命令主动放入后台运行（非暂停，持续执行）；&lt;/li>
+&lt;li>Ctrl + a：光标快速移动到当前命令开头；&lt;/li>
+&lt;li>Ctrl + e：光标快速移动到当前命令结尾；&lt;/li>
+&lt;li>Ctrl + s：停止控制台输出（非Windows的“保存”，需注意）；&lt;/li>
+&lt;li>Ctrl + q：解锁Ctrl + s暂停的控制台输出，恢复显示；&lt;/li>
+&lt;li>Ctrl + r：搜索命令历史记录，输入关键词匹配过往命令；&lt;/li>
+&lt;li>Ctrl + u：剪切当前光标之前的命令内容；&lt;/li>
+&lt;li>Ctrl + k：剪切当前光标之后的命令内容；&lt;/li>
+&lt;li>Ctrl + y：粘贴被Ctrl + u/Ctrl + k剪切的内容；&lt;/li>
+&lt;li>注意：不建议修改默认快捷键，避免操作习惯混乱，通过练习可逐步熟悉。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>历史命令（history）&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>核心功能&lt;/strong>：查看当前终端执行过的命令，支持回顾操作、重复调用、调试错误；&lt;/li>
+&lt;li>&lt;strong>调用方式&lt;/strong>：
+&lt;ul>
+&lt;li>&lt;code>!命令编号&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：调用对应编号的历史命令；&lt;/li>
+&lt;li>示例：&lt;code>!100&lt;/code>（调用第100条命令）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>!!&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：调用最近一条历史命令；&lt;/li>
+&lt;li>示例：&lt;code>!!&lt;/code>（重复上一条命令）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>!命令开头字符&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：调用最近一条以该字符开头的命令；&lt;/li>
+&lt;li>示例：&lt;code>!ls&lt;/code>（调用最近一条&lt;code>ls&lt;/code>命令）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>存储与加载&lt;/strong>：
+&lt;ul>
+&lt;li>默认仅记录当前终端命令，不同终端独立；&lt;/li>
+&lt;li>终端正常退出（&lt;code>exit&lt;/code>、Ctrl + d、重启、&lt;code>logout&lt;/code>、&lt;code>reboot&lt;/code>）时，历史命令写入用户家目录&lt;code>.bash_history&lt;/code>隐藏文件；&lt;/li>
+&lt;li>重新登录时，系统从&lt;code>.bash_history&lt;/code>加载命令到&lt;code>history&lt;/code>变量；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>清理与手动写入&lt;/strong>：
+&lt;ul>
+&lt;li>&lt;code>history -c&lt;/code>：清空当前&lt;code>history&lt;/code>变量中的命令（不删除&lt;code>.bash_history&lt;/code>，重新登录后恢复）；&lt;/li>
+&lt;li>彻底清空需手动删除&lt;code>.bash_history&lt;/code>文件；&lt;/li>
+&lt;li>手动写入：无需退出，可通过操作将当前&lt;code>history&lt;/code>变量中的命令写入&lt;code>.bash_history&lt;/code>。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Tab补全功能&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>作用：补全文件名、目录名、命令名、命令选项，输入部分内容后按Tab键即可；&lt;/li>
+&lt;li>特殊场景：若有多个匹配项，按两次Tab键可显示所有匹配内容，供选择后继续补全；&lt;/li>
+&lt;li>优势：减少输入错误，提升效率（尤其适用于长文件名、复杂命令）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>别名（alias）&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>基本操作&lt;/strong>：
+&lt;ul>
+&lt;li>查看别名：
+&lt;ul>
+&lt;li>命令/语法：&lt;code>alias&lt;/code>（直接执行）；&lt;/li>
+&lt;li>示例：&lt;code>alias&lt;/code>（显示当前所有别名，如&lt;code>ls='ls --color=auto'&lt;/code>）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>创建别名：
+&lt;ul>
+&lt;li>命令/语法：&lt;code>alias 别名=&amp;quot;原命令及选项&amp;quot;&lt;/code>；&lt;/li>
+&lt;li>示例：&lt;code>alias cl=&amp;quot;clear&amp;quot;&lt;/code>（输入&lt;code>cl&lt;/code>等同于&lt;code>clear&lt;/code>）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>修改别名：
+&lt;ul>
+&lt;li>命令/语法：重新执行&lt;code>alias&lt;/code>命令覆盖原定义；&lt;/li>
+&lt;li>示例：&lt;code>alias cl=&amp;quot;clear; echo 已清空&amp;quot;&lt;/code>（修改&lt;code>cl&lt;/code>功能）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>删除别名：
+&lt;ul>
+&lt;li>命令/语法：&lt;code>unalias 别名&lt;/code>；&lt;/li>
+&lt;li>示例：&lt;code>unalias cl&lt;/code>（删除&lt;code>cl&lt;/code>别名）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>临时性与永久性&lt;/strong>：
+&lt;ul>
+&lt;li>临时别名：直接在终端创建，终端退出后失效；&lt;/li>
+&lt;li>永久别名：需写入配置文件，&lt;code>~/.bashrc&lt;/code>（仅当前用户）或&lt;code>/etc/bashrc&lt;/code>（所有用户）；&lt;/li>
+&lt;li>生效方式：写入配置文件后，需重新登录终端或执行&lt;code>source 配置文件路径&lt;/code>（如&lt;code>source ~/.bashrc&lt;/code>）加载。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>配置文件加载与source命令&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>source命令功能&lt;/strong>：重新加载配置文件，使修改在当前终端立即生效（无需重新登录），也可用&lt;code>.&lt;/code>代替（如&lt;code>. ~/.bashrc&lt;/code>等同于&lt;code>source ~/.bashrc&lt;/code>）；&lt;/li>
+&lt;li>&lt;strong>适用场景&lt;/strong>：仅用于加载包含Shell命令、环境变量的脚本类配置文件（如&lt;code>.bashrc&lt;/code>、&lt;code>/etc/bashrc&lt;/code>）；&lt;/li>
+&lt;li>&lt;strong>不适用场景&lt;/strong>：网卡配置文件、SSH服务配置文件等非脚本类文件，需重启对应服务或系统生效。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>命令优先级（执行顺序）&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>优先级1：
+&lt;ul>
+&lt;li>命令类型：绝对路径指定的命令；&lt;/li>
+&lt;li>示例：&lt;code>/bin/ls&lt;/code>；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>优先级2：
+&lt;ul>
+&lt;li>命令类型：别名（匹配已定义的别名）；&lt;/li>
+&lt;li>示例：&lt;code>cl&lt;/code>（对应&lt;code>clear&lt;/code>命令）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>优先级3：
+&lt;ul>
+&lt;li>命令类型：内部命令（Shell内置命令）；&lt;/li>
+&lt;li>示例：&lt;code>cd&lt;/code>、&lt;code>echo&lt;/code>；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>优先级4：
+&lt;ul>
+&lt;li>命令类型：外部命令（PATH环境变量指定目录中查找）；&lt;/li>
+&lt;li>示例：&lt;code>ls&lt;/code>（在&lt;code>/usr/bin&lt;/code>中查找）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>PATH环境变量&lt;/strong>：存储系统查找外部命令的目录列表，目录间用冒号分隔，可通过&lt;code>echo $PATH&lt;/code>查看（如&lt;code>/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin&lt;/code>）；&lt;/li>
+&lt;li>自定义命令：将自定义命令所在目录添加到&lt;code>PATH&lt;/code>，可实现直接执行（需确保命令有可执行权限）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="三输入输出重定向与自定义内容写入">三、输入输出重定向与自定义内容写入
+&lt;/h2>&lt;h3 id="一基础概念与文件描述符">（一）基础概念与文件描述符
+&lt;/h3>&lt;ul>
+&lt;li>&lt;strong>核心设备与描述符&lt;/strong>：
+&lt;ul>
+&lt;li>标准输入（STDIN）：
+&lt;ul>
+&lt;li>对应设备：键盘；&lt;/li>
+&lt;li>文件描述符：0；&lt;/li>
+&lt;li>功能描述：接收用户输入数据；&lt;/li>
+&lt;li>示例场景：修改密码时输入密码；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>标准输出（STDOUT）：
+&lt;ul>
+&lt;li>对应设备：终端/显示器；&lt;/li>
+&lt;li>文件描述符：1；&lt;/li>
+&lt;li>功能描述：输出命令执行的正确结果；&lt;/li>
+&lt;li>示例场景：&lt;code>ls&lt;/code>显示目录内容；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>标准错误输出（STDERR）：
+&lt;ul>
+&lt;li>对应设备：终端/显示器；&lt;/li>
+&lt;li>文件描述符：2；&lt;/li>
+&lt;li>功能描述：输出命令执行的错误信息；&lt;/li>
+&lt;li>示例场景：&lt;code>ls /wrongpath&lt;/code>报错；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>默认行为：标准输出、标准错误输出均显示在终端，可通过重定向导向文件或“回收站”。&lt;/li>
+&lt;/ul>
+&lt;h3 id="二重定向符号及功能">（二）重定向符号及功能
+&lt;/h3>&lt;ul>
+&lt;li>&lt;code>&amp;gt;&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：覆盖式重定向标准输出（默认描述符1），文件不存在则创建，存在则清空；&lt;/li>
+&lt;li>示例：&lt;code>echo 123 &amp;gt; 1.txt&lt;/code>（“123”写入1.txt，覆盖原有内容）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>&amp;gt;&amp;gt;&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：追加式重定向标准输出，在文件末尾添加内容；&lt;/li>
+&lt;li>示例：&lt;code>echo 456 &amp;gt;&amp;gt; 1.txt&lt;/code>（“456”追加到1.txt末尾）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>2&amp;gt;&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：覆盖式重定向标准错误输出，错误信息写入文件；&lt;/li>
+&lt;li>示例：&lt;code>ls /wrongpath 2&amp;gt; error.txt&lt;/code>（报错写入error.txt）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>2&amp;gt;&amp;gt;&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：追加式重定向标准错误输出；&lt;/li>
+&lt;li>示例：&lt;code>ls /anotherwrong 2&amp;gt;&amp;gt; error.txt&lt;/code>（报错追加到error.txt）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>&amp;amp;&amp;gt;&lt;/code> 或 &lt;code>1&amp;gt;&amp;amp;2&lt;/code>、&lt;code>2&amp;gt;&amp;amp;1&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：&lt;code>&amp;amp;&amp;gt;&lt;/code>：将标准输出和标准错误输出一起覆盖式重定向到指定文件；&lt;code>1&amp;gt;&amp;amp;2&lt;/code>：标准输出导向标准错误输出；&lt;code>2&amp;gt;&amp;amp;1&lt;/code>：标准错误输出导向标准输出；&lt;/li>
+&lt;li>示例：&lt;code>ls /test &amp;amp;&amp;gt; all.log&lt;/code>（正确/错误结果均写入all.log并覆盖原有内容）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>&amp;gt;/dev/null&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：输出导向“回收站”设备&lt;code>/dev/null&lt;/code>，丢弃内容不占空间；&lt;/li>
+&lt;li>示例：&lt;code>ss -tuln &amp;gt; /dev/null&lt;/code>（仅判断命令是否成功，不保留输出结果）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="三自定义结束符eof">（三）自定义结束符（EOF）
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>核心作用&lt;/strong>：向文件中写入多行复杂内容（如脚本、配置文件），无需逐行执行命令；&lt;/li>
+&lt;li>&lt;strong>语法格式&lt;/strong>（以写入&lt;code>2.sh&lt;/code>为例）：
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">cat &amp;gt; 2.sh &lt;span class="s">&amp;lt;&amp;lt; EOF
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">#!/bin/bash
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">echo &amp;#34;你好&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">echo &amp;#34;当前时间：\$(date)&amp;#34; # 支持变量（需转义特殊字符，如\$）
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s">EOF&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>&lt;strong>关键规则&lt;/strong>：
+&lt;ul>
+&lt;li>结束符&lt;code>EOF&lt;/code>可自定义（如&lt;code>CCC&lt;/code>、&lt;code>END&lt;/code>，需为3个字符左右）；&lt;/li>
+&lt;li>结束符需单独成行，前后不能有多余空格，否则无法识别结束位置；&lt;/li>
+&lt;li>支持变量和特殊字符，特殊字符需转义（如&lt;code>\$&lt;/code>、&lt;code>\&lt;/code>），避免被Shell提前解析。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="四shell关键命令详解">四、Shell关键命令详解
+&lt;/h2>&lt;h3 id="一tee命令双向输出终端文件">（一）tee命令（双向输出：终端+文件）
+&lt;/h3>&lt;ul>
+&lt;li>核心功能：从标准输入（键盘或管道）读取数据，同时输出到终端和指定文件，支持覆盖/追加；&lt;/li>
+&lt;li>常用选项：&lt;code>-a&lt;/code>：追加模式（默认覆盖模式）；&lt;/li>
+&lt;li>示例（键盘输入）：&lt;code>tee 4.txt&lt;/code>（输入内容后按Ctrl + c，内容同步显示在终端并写入4.txt）；&lt;/li>
+&lt;li>示例（管道输入）：&lt;code>df -h | tee -a disk.log&lt;/code>（&lt;code>df -h&lt;/code>结果同步显示在终端并追加到disk.log）.&lt;img src="https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/shell-02/04.png"
+loading="lazy"
+alt="img"
+>&lt;/li>
+&lt;/ul>
+&lt;h3 id="二wc命令内容统计行数单词数字符数">（二）wc命令（内容统计：行数/单词数/字符数）
+&lt;/h3>&lt;ul>
+&lt;li>核心功能：全称为“word count”，统计文件或输入内容的行数、单词数、字符数；&lt;/li>
+&lt;li>常用选项：&lt;code>-l&lt;/code>：仅统计行数；&lt;code>-w&lt;/code>：仅统计单词数（按空格分隔）；&lt;code>-c&lt;/code>：仅统计字符数（含换行符）；&lt;/li>
+&lt;li>选项示例（行数）：&lt;code>wc -l 1.txt&lt;/code>（输出1.txt的行数）；&lt;/li>
+&lt;li>选项示例（单词数）：&lt;code>echo &amp;quot;hello world&amp;quot; | wc -w&lt;/code>（输出2）；&lt;/li>
+&lt;li>选项示例（字符数）：&lt;code>wc -c 1.txt&lt;/code>（输出1.txt的字符总数）；&lt;/li>
+&lt;li>基础示例：&lt;code>wc 1.txt&lt;/code>（输出格式：行数 单词数 字符数 文件名，如“5 10 60 1.txt”）。&lt;/li>
+&lt;/ul>
+&lt;h2 id="五多命令执行与条件判断">五、多命令执行与条件判断
+&lt;/h2>&lt;h3 id="一多命令执行符号组合执行逻辑">（一）多命令执行符号（组合执行逻辑）
+&lt;/h3>&lt;ul>
+&lt;li>&lt;code>;&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：顺序执行，命令间无依赖，前一条失败不影响后一条；&lt;/li>
+&lt;li>示例：&lt;code>ls /; echo &amp;quot;执行完成&amp;quot;&lt;/code>（无论&lt;code>ls /&lt;/code>是否成功，均输出“执行完成”）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>&amp;amp;&amp;amp;&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：逻辑“与”，前一条成功（返回值0）才执行后一条；&lt;/li>
+&lt;li>示例：&lt;code>mkdir test &amp;amp;&amp;amp; cd test&lt;/code>（成功创建test后进入目录）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;code>||&lt;/code>：
+&lt;ul>
+&lt;li>功能描述：逻辑“或”，前一条失败（返回值非0）才执行后一条；&lt;/li>
+&lt;li>示例：&lt;code>mkdir test || echo &amp;quot;创建失败&amp;quot;&lt;/code>（test已存在则提示）。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="二test命令条件判断基础">（二）test命令（条件判断基础）
+&lt;/h3>&lt;ul>
+&lt;li>核心功能：测试表达式的真假，返回值0（真）或非0（假），常用于字符串、数值判断；&lt;/li>
+&lt;li>字符串判断示例（相等）：&lt;code>test &amp;quot;abc&amp;quot; == &amp;quot;abc&amp;quot; &amp;amp;&amp;amp; echo &amp;quot;相等&amp;quot;&lt;/code>（判断成立，输出“相等”）；&lt;/li>
+&lt;li>字符串判断示例（不相等）：&lt;code>test &amp;quot;abc&amp;quot; == &amp;quot;abcd&amp;quot; || echo &amp;quot;不相等&amp;quot;&lt;/code>（判断不成立，输出“不相等”）；&lt;/li>
+&lt;li>关键注意事项：判断时&lt;code>==&lt;/code>前后需加空格；单个&lt;code>=&lt;/code>用于变量赋值，两个&lt;code>==&lt;/code>用于判断。&lt;/li>
+&lt;/ul>
+&lt;h2 id="六网络服务核心知识">六、网络服务核心知识
+&lt;/h2>&lt;h3 id="一网络服务基础概念">（一）网络服务基础概念
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>定义&lt;/strong>：网络上运行的软件模块，提供特定功能供客户端远程访问，需通过IP定位服务器、端口定位服务、协议实现通信；&lt;/li>
+&lt;li>&lt;strong>关键服务与协议/端口&lt;/strong>：
+&lt;ul>
+&lt;li>SSH：
+&lt;ul>
+&lt;li>功能：远程登录；&lt;/li>
+&lt;li>默认端口：22；&lt;/li>
+&lt;li>备注：后台持续运行的进程；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>HTTP：
+&lt;ul>
+&lt;li>功能：网页服务；&lt;/li>
+&lt;li>默认端口：80；&lt;/li>
+&lt;li>备注：对应Apache、Nginx等软件；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>FTP：
+&lt;ul>
+&lt;li>功能：文件传输；&lt;/li>
+&lt;li>默认端口：20（数据）、21（控制）；&lt;/li>
+&lt;li>备注：需搭建vsftpd服务；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>SMTP：
+&lt;ul>
+&lt;li>功能：邮件发送；&lt;/li>
+&lt;li>默认端口：25；&lt;/li>
+&lt;li>备注：基于Postfix等软件；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>DNS：
+&lt;ul>
+&lt;li>功能：域名解析；&lt;/li>
+&lt;li>默认端口：53（UDP/TCP）；&lt;/li>
+&lt;li>备注：分正向解析（域名→IP）、反向解析（IP→域名）；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>域名与IP&lt;/strong>：访问网站输入域名（如百度），需DNS解析为IP；不指定端口时，默认使用协议对应端口（如HTTP默认80）。&lt;/li>
+&lt;/ol>
+&lt;h3 id="二网站服务架构lamp与lnmp">（二）网站服务架构：LAMP与LNMP
+&lt;/h3>&lt;ul>
+&lt;li>LAMP：
+&lt;ul>
+&lt;li>组成：Linux（系统）、Apache（Web服务器）、MySQL（数据库）、PHP（语言）；&lt;/li>
+&lt;li>核心优势：架构成熟、兼容性强，搭建简单；&lt;/li>
+&lt;li>适用场景：中小规模网站、访问量较低的场景；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>LNMP：
+&lt;ul>
+&lt;li>组成：Linux（系统）、Nginx（Web服务器）、MySQL（数据库）、PHP（语言）；&lt;/li>
+&lt;li>核心优势：Nginx支持更高并发量，避免单请求单对接拥堵；&lt;/li>
+&lt;li>适用场景：用户量较大、并发量高的场景。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="三其他核心服务与工具">（三）其他核心服务与工具
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>数据共享与传输&lt;/strong>：
+&lt;ul>
+&lt;li>FTP：文件传输（需vsftpd）；&lt;/li>
+&lt;li>NFS：网络文件系统（同一局域网内共享目录）；&lt;/li>
+&lt;li>FMC等工具：辅助远程访问与数据管理；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>数据备份策略&lt;/strong>：
+&lt;ul>
+&lt;li>完全备份：
+&lt;ul>
+&lt;li>特点：备份所有数据，占用空间大；&lt;/li>
+&lt;li>代表命令：&lt;code>cp&lt;/code>、&lt;code>scp&lt;/code>；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>增量备份：
+&lt;ul>
+&lt;li>特点：仅备份与上一次备份的差异数据，效率高；&lt;/li>
+&lt;li>代表命令：&lt;code>rsync&lt;/code>；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>差量备份：
+&lt;ul>
+&lt;li>特点：仅备份与第一次完全备份的差异数据；&lt;/li>
+&lt;li>代表命令：-；&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>&lt;strong>数据库服务&lt;/strong>：后续将讲解MySQL（关系型数据库，存储结构化数据）与Redis（缓存数据库，提升读取速度）的搭建与使用；&lt;/li>
+&lt;li>&lt;strong>DHCP服务&lt;/strong>：自动分配IP地址，设备接入网络时无需手动设置IP，简化网络配置。&lt;/li>
+&lt;/ol>
+&lt;h2 id="七学习实践与注意事项">七、学习实践与注意事项
+&lt;/h2>&lt;h3 id="一实践案例apache服务状态判断">（一）实践案例：Apache服务状态判断
+&lt;/h3>&lt;ol>
+&lt;li>&lt;strong>思路1：基于文件内容判断&lt;/strong>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 查看80端口（HTTP默认端口），结果写入apache.log&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ss -tuln &lt;span class="p">|&lt;/span> grep :80 &amp;gt; apache.log
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 判断文件是否非空（非空则服务已启动）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> -s apache.log &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;Apache已启动&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">else&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;Apache未启动&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>&lt;strong>思路2：基于命令返回值判断&lt;/strong>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 查看80端口，输出导向回收站（仅保留返回值）&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ss -tuln &lt;span class="p">|&lt;/span> grep :80 &amp;gt; /dev/null
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 返回值$?为0则成功（服务已启动），非0则失败&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="nv">$?&lt;/span> -eq &lt;span class="m">0&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">then&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;Apache已启动&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">else&lt;/span> &lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;Apache未启动&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol></description></item></channel></rss>

@@ -1,0 +1,385 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="介绍《集群基础概念与架构分类》，涵盖节点类型、实现层级和实现方式等实践要点。"><title>集群基础概念与架构分类</title>
+<link rel=canonical href=https://luckycloveryh.github.io/fuyou/p/cluster-05/><link rel=stylesheet href=/fuyou/scss/style.min.4f12ea1fa4ca7ef3f419897549c88b4c242f129d29316c950cdb3b0754157538.css><meta property='og:title' content="集群基础概念与架构分类"><meta property='og:description' content="介绍《集群基础概念与架构分类》，涵盖节点类型、实现层级和实现方式等实践要点。"><meta property='og:url' content='https://luckycloveryh.github.io/fuyou/p/cluster-05/'><meta property='og:site_name' content='小杨的博客'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='集群'><meta property='article:tag' content='Obsidian'><meta property='article:published_time' content='2026-06-22T09:00:00+08:00'><meta property='article:modified_time' content='2026-07-11T16:45:03+08:00'><meta property='og:image' content='https://picsum.photos/seed/fuyou-cluster-05/1200/675'><meta name=twitter:title content="集群基础概念与架构分类"><meta name=twitter:description content="介绍《集群基础概念与架构分类》，涵盖节点类型、实现层级和实现方式等实践要点。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://picsum.photos/seed/fuyou-cluster-05/1200/675'><link rel=alternate type=application/json href=https://luckycloveryh.github.io/fuyou/p/cluster-05/index.json><link rel="shortcut icon" href=/fuyou/favicon.png><div class=loading-container><div class=card><div class=loader><p>loading</p><div class=words><span class=word>buttons</span>
+<span class=word>forms</span>
+<span class=word>switches</span>
+<span class=word>cards</span>
+<span class=word>buttons</span></div></div></div></div><style>.loading-container{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(17,17,17,.98);display:flex;align-items:center;justify-content:center;z-index:999999;transition:opacity 1.2s ease;pointer-events:none}.card{--bg-color:#111;background-color:var(--bg-color);padding:1.2rem 2.5rem;border-radius:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.7)}.loader{color:#7c7c7c;font-family:poppins,system-ui,sans-serif;font-weight:500;font-size:25px;height:42px;padding:8px 12px;display:flex;align-items:center;gap:12px;border-radius:8px;white-space:nowrap}.words{overflow:hidden;position:relative;height:100%;min-width:110px}.words::after{content:"";position:absolute;inset:0;background:linear-gradient( var(--bg-color) 10%,transparent 30%,transparent 70%,var(--bg-color) 90% );z-index:20}.word{display:block;height:100%;padding-left:4px;color:#956afa;animation:spin_4991 4s infinite linear}@keyframes spin_4991{10%{transform:translateY(-102%)}25%{transform:translateY(-100%)}35%{transform:translateY(-202%)}50%{transform:translateY(-200%)}60%{transform:translateY(-302%)}75%{transform:translateY(-300%)}85%{transform:translateY(-402%)}100%{transform:translateY(-400%)}}.loading-container.fade-out{opacity:0;pointer-events:none}</style><script>(function(){const e=()=>{const e=document.querySelector(".loading-container");if(!e)return;e.classList.add("fade-out"),e.style.display="none",e.style.pointerEvents="none"},n=sessionStorage.getItem("visited");if(n){e();return}const t=()=>{const t=document.querySelector(".loading-container");if(!t)return;t.classList.add("fade-out"),setTimeout(()=>{e(),sessionStorage.setItem("visited","true")},400)};setTimeout(t,1200),window.addEventListener("load",t,{once:!0})})()</script></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/fuyou/><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/muzimi.gif width=300 height=300 class=site-logo loading=lazy alt=Avatar>
+</a><span class=emoji>🌸</span></figure><div class=site-meta><h1 class=site-name><a href=/fuyou>小杨的博客</a></h1><h2 class=site-description>技术分享，日常分享</h2></div></header><ol class=menu-social><li><a href=https://space.bilibili.com/81116666 title=Bilibili rel=me><svg class="icon icon-bilibili-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 6.1 5.8 3.3"/><path d="M15.8 6.1l2.4-2.8"/><path d="M7.2 7h9.6a4 4 0 014 4v4a4 4 0 01-4 4H7.2a4 4 0 01-4-4v-4a4 4 0 014-4z"/><path d="M9 12.1l1.3 1.4"/><path d="M15 12.1l-1.3 1.4"/></svg></a></li><li><a href=https://github.com/luckycloveryh/fuyou title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/fuyou/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>主页 | Home</span></a></li><li><a href=/fuyou/categories/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>分类&标签 | Cats&amp;Tags</span></a></li><li><a href=/fuyou/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>归档 | Archives</span></a></li><li><a href=/fuyou/%E6%90%9C%E7%B4%A2/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>搜索 | Search</span></a></li><li><a href=/fuyou/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97-logs/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>更新日志 | Logs</span></a></li><li><a href=/fuyou/%E6%8A%80%E6%9C%AF%E9%93%BE%E6%8E%A5-links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>技术链接 | Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><ol><li><a href=#集群概述>集群概述</a><ol><li><a href=#一-集群技术的定义>一. 集群技术的定义</a></li><li><a href=#二-集群基础概念>二. 集群基础概念</a></li><li><a href=#三-集群分类与架构>三. 集群分类与架构</a></li><li><a href=#四-名词解释-扩展>四. 名词解释-扩展</a></li></ol></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/fuyou/p/cluster-05/><img src=https://picsum.photos/seed/fuyou-cluster-05/1200/675 loading=lazy alt="Featured image of post 集群基础概念与架构分类"></a></div><div class=article-details><header class=article-category><a href=/fuyou/categories/5.-%E9%9B%86%E7%BE%A4%E9%98%B6%E6%AE%B5/>5. 集群阶段</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/fuyou/p/cluster-05/>集群基础概念与架构分类</a></h2><h3 class=article-subtitle>介绍《集群基础概念与架构分类》，涵盖节点类型、实现层级和实现方式等实践要点。</h3></div><footer class="article-time article-time--template"><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>2026-06-22</time></div><div><svg class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7H6A2 2 0 004 9v9a2 2 0 002 2h9a2 2 0 002-2v-1"/><path d="M20.385 6.585a2.1 2.1.0 00-2.97-2.97L9 12v3h3l8.385-8.415z"/><path d="M16 5l3 3"/></svg>
+<time class=article-time--modified>2026-07-11</time></div><div><svg class="icon icon-tabler icon-tabler-file-text" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 001 1h4"/><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path d="M9 9h1"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+<span class=article-time--word-count>5744字</span></div></footer></div></header><section class=article-content><h3 id=集群概述>集群概述</h3><hr><h4 id=一-集群技术的定义>一. 集群技术的定义</h4><p>集群是由多台互联的独立服务器（节点）构成的系统级架构，通过分布式协同机制实现单一系统映像（SSI），其技术本质包含：</p><ul><li>资源聚合：将离散的硬件资源（CPU/内存/存储）抽象为统一服务池。</li><li>服务虚拟化：对外呈现单一入口（如虚拟IP或域名），屏蔽内部节点细节。</li><li>容错与自治：支持节点故障时服务自愈与任务重调度。</li></ul><p>简单一句话描述：一组协同工作但对外表现为一个整体的服务器组叫做集群</p><h5 id=11-核心价值>1.1 核心价值</h5><div class=table-wrapper><table><thead><tr><th>特性</th><th>技术内涵</th></tr></thead><tbody><tr><td>高性能</td><td>通过并行计算突破单机性能瓶颈（如100+节点并行渲染）。</td></tr><tr><td>高可用</td><td>实现99.999% SLA（全年停机&lt;5分钟），依赖故障检测-隔离-恢复三阶段机制。</td></tr><tr><td>弹性扩展</td><td>支持线性扩展比（如吞吐量随节点数线性增长），适应突发流量或计算需求。</td></tr></tbody></table></div><h5 id=12-应用场景>1.2 应用场景</h5><div class=table-wrapper><table><thead><tr><th>场景</th><th>技术需求</th><th>典型工具/协议</th></tr></thead><tbody><tr><td>Web服务集群</td><td>高并发请求分发、会话保持、动态扩缩容</td><td>Nginx、LVS、Keepalived、HAProxy</td></tr><tr><td>数据库集群</td><td>数据强一致性、读写分离、主从同步</td><td>Redis Sentinel、Redis Cluster、keepalived</td></tr><tr><td>科学计算(了解)</td><td>大规模矩阵运算、跨节点通信优化、任务分片、如：分布式渲染（特效、建模）</td><td>MPI（OpenMPI）、Slurm</td></tr></tbody></table></div><hr><h4 id=二-集群基础概念>二. 集群基础概念</h4><h5 id=21-核心组件>2.1 核心组件</h5><div class=table-wrapper><table><thead><tr><th>组件</th><th>功能描述</th><th>技术细节</th></tr></thead><tbody><tr><td>计算节点</td><td>执行实际业务逻辑的物理/虚拟机</td><td>- 节点间时钟同步（NTP）<br>- 资源隔离（cgroups/namespace）</td></tr><tr><td>调度器</td><td>全局资源分配与任务路由</td><td>- 集中式调度（如LVS Director）<br>- 分布式调度（如Consul服务发现）</td></tr><tr><td>共享存储</td><td>提供全局一致的数据访问视图</td><td>- 块存储（iSCSI SAN）<br>- 文件存储（NFS）</td></tr></tbody></table></div><h5 id=22-性能扩展方式>2.2 性能扩展方式</h5><div class=table-wrapper><table><thead><tr><th>扩展方式</th><th>操作方式</th><th>适用场景</th><th>局限性</th></tr></thead><tbody><tr><td>垂直扩展</td><td>升级单节点硬件（CPU/内存）</td><td>单任务资源需求高（如内存数据库）</td><td>硬件成本指数增长，存在物理上限（如CPU核数，内存插槽数）</td></tr><tr><td>水平扩展</td><td>增加节点数量（更经济高效）</td><td>高并发、无状态服务（如Web服务器）</td><td>需要解决数据分片与一致性难题</td></tr></tbody></table></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>垂直扩展：增加服务器的硬件性能<span class=o>(</span>增加和更换硬件<span class=o>)</span>
+</span></span><span class=line><span class=cl>    缺点：
+</span></span><span class=line><span class=cl>        1、需要停止业务运行
+</span></span><span class=line><span class=cl>        2、性价比低
+</span></span><span class=line><span class=cl>        3、依然有瓶颈<span class=o>(</span>无法无限扩展<span class=o>)</span>
+</span></span><span class=line><span class=cl>    优点：
+</span></span><span class=line><span class=cl>        1、不需要重新部署
+</span></span><span class=line><span class=cl>        2、不需要重新更新网站结构
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>水平扩展：增加服务器的数量来进行并行处理
+</span></span><span class=line><span class=cl>    缺点：
+</span></span><span class=line><span class=cl>        1、需要重新部署多台服务器
+</span></span><span class=line><span class=cl>        2、重新规划网站结构（可扩展）
+</span></span><span class=line><span class=cl>    优点：
+</span></span><span class=line><span class=cl>        1、性价比较高
+</span></span><span class=line><span class=cl>        2、扩展瓶颈较低
+</span></span></code></pre></td></tr></table></div></div><hr><h4 id=三-集群分类与架构>三. 集群分类与架构</h4><h5 id=31-负载均衡集群lbc>3.1 负载均衡集群（LBC）</h5><p><strong>技术定义</strong></p><p>负载均衡（Load Balancing Cluster） 是一种网络技术，旨在通过将用户请求或工作任务动态分摊到多个服务器或操作单元上，实现资源的优化利用、提高系统性能及可靠性。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>1. 基本定义
+</span></span><span class=line><span class=cl>   - 扩展带宽与吞吐量：通过多节点并行处理，突破单点性能瓶颈。
+</span></span><span class=line><span class=cl>   - 提升可用性：避免单节点过载或故障导致服务中断，保障业务连续性。
+</span></span><span class=line><span class=cl>   - 增强灵活性：支持动态扩容或缩容，适应流量波动。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2. 核心原理
+</span></span><span class=line><span class=cl>   负载均衡基于流量调度器（如硬件设备或软件模块）实现请求分发，具体流程如下：
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>   请求接收：客户端访问统一入口（如虚拟IP或域名）。
+</span></span><span class=line><span class=cl>   策略匹配：根据预设算法（如轮询）选择目标服务器。
+</span></span><span class=line><span class=cl>   流量转发：将请求分发至选中的服务器，并可能修改网络层或应用层信息（如IP地址、HTTP头）。
+</span></span><span class=line><span class=cl>   健康检查：实时监测后端服务器状态，自动剔除故障节点，确保服务可用性。 
+</span></span></code></pre></td></tr></table></div></div><p><strong>节点类型和层级划分</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 节点类型</span>
+</span></span><span class=line><span class=cl>   - 调度器节点：请求接受和任务调度分配
+</span></span><span class=line><span class=cl>   - 应用服务节点：处理调度器分配的具体任务
+</span></span><span class=line><span class=cl>   - 一致性存储节点：保证各个应用节点数据的一致性
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 实现层级  </span>
+</span></span><span class=line><span class=cl>1. 二层（数据链路层）：
+</span></span><span class=line><span class=cl>   - 协议：LACP（动态链路聚合控制协议）
+</span></span><span class=line><span class=cl>   - 工具：支持此协议的网络设备或服务器设备
+</span></span><span class=line><span class=cl>   - 特点：需要双端设备都支持LACP协议，适用于高带宽需求场景，如数据中心内部网络互联。
+</span></span><span class=line><span class=cl>   
+</span></span><span class=line><span class=cl>2. 四层（传输层）+ 三层（网络层）：  
+</span></span><span class=line><span class=cl>   - 协议：IP、TCP/UDP  
+</span></span><span class=line><span class=cl>   - 工具：LVS（IPVS内核模块）、HAProxy（tcp模式）  
+</span></span><span class=line><span class=cl>   - 特点：高性能（仅解析IP包头）数据库负载均衡  
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>3. 七层（应用层）：  
+</span></span><span class=line><span class=cl>   - 协议：HTTP/HTTPS、gRPC  
+</span></span><span class=line><span class=cl>   - 工具：Nginx（upstream模块、proxy_pass模块）
+</span></span><span class=line><span class=cl>   - 特点：支持内容路由（如URL路径）
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 实现方式</span>
+</span></span><span class=line><span class=cl>1. 硬件：
+</span></span><span class=line><span class=cl>   - 网络设备：路由器、交换机等
+</span></span><span class=line><span class=cl>   - 专业硬件：
+</span></span><span class=line><span class=cl>     F5公司：	Big ip 系列产品
+</span></span><span class=line><span class=cl>     A10公司： Thunder系列产品
+</span></span><span class=line><span class=cl>     
+</span></span><span class=line><span class=cl>2. 软件：
+</span></span><span class=line><span class=cl>   - 四层：LVS
+</span></span><span class=line><span class=cl>   - 七层：Nginx
+</span></span></code></pre></td></tr></table></div></div><p><strong>算法类型</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 调度算法  </span>
+</span></span><span class=line><span class=cl>1. RR（轮询算法）
+</span></span><span class=line><span class=cl>   - 原理：像轮流值日一样，按顺序把请求依次分配给每台服务器，不管服务器当前是否忙碌。例如：A、B、C三台服务器，请求会按A→B→C→A→B→C循环分配。
+</span></span><span class=line><span class=cl>   - 特点：简单公平，但可能导致性能差的服务器堆积请求。比如B处理慢，但RR依然会继续给它分配新请求，导致B越来越忙。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2. WRR（加权轮询算法）
+</span></span><span class=line><span class=cl>   - 原理：在RR基础上给服务器“加权重”，权重高的服务器分到更多请求。例如：A权重1，B权重2，则分配顺序可能是B→B→A→B→B→A（具体顺序由算法决定）。
+</span></span><span class=line><span class=cl>   - 特点：适合服务器性能不均衡的场景。比如用高性能服务器（权重高）处理更多请求，低性能的少处理。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>3. SH（源地址哈希算法）
+</span></span><span class=line><span class=cl>   - 原理：根据用户的IP地址分配服务器，同一个IP的请求永远发给同一台服务器。比如用户甲的IP经过哈希计算后固定由服务器B处理。
+</span></span><span class=line><span class=cl>   - 特点：解决会话保持问题（如登录状态），但可能导致同一IP的大量请求压垮一台服务器（比如学校共用IP的场景）。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>4. LC（最少连接算法）
+</span></span><span class=line><span class=cl>   - 原理：动态选择当前连接数最少的服务器，像超市排队时选人最少的收银台。例如：A有10个活跃连接，B有5个，新请求会优先给B。
+</span></span><span class=line><span class=cl>   - 特点：实时调整，但未考虑服务器性能差异（可能把请求分给性能差但连接少的服务器）。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>5. WLC（加权最少连接算法）
+</span></span><span class=line><span class=cl>   - 原理：结合服务器权重和连接数，优先选“（连接数+1）/权重”最小的服务器。
+</span></span><span class=line><span class=cl>     例如：A权重3，连接数2；B权重1，连接数1。计算后A的值是<span class=o>(</span>2+1<span class=o>)</span>/3<span class=o>=</span>1，B是<span class=o>(</span>1+1<span class=o>)</span>/1<span class=o>=</span>2，选A。
+</span></span><span class=line><span class=cl>   - 特点：既考虑性能差异，又兼顾实时负载，是LVS默认算法。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 总结：  </span>
+</span></span><span class=line><span class=cl>   - 静态算法：（RR、WRR、SH）适用于服务器性能已知且稳定的场景。  
+</span></span><span class=line><span class=cl>   - 动态算法：（LC、WLC）更适合实时负载波动大的环境。  
+</span></span><span class=line><span class=cl>   - 实际选择需结合业务需求，例如需要会话保持用SH，需高性能均衡用WLC。
+</span></span></code></pre></td></tr></table></div></div><h5 id=32-高可用集群hac>3.2 高可用集群（HAC）</h5><p>**定义：**高可用性（High Availability, HA）指系统通过设计减少服务中断时间，确保在预定期限内持续提供服务的能力。其核心目标是保障业务连续性，即在故障或维护期间，用户感知的服务中断时间最小化甚至为零，如：通过冗余节点+故障转移机制，实现服务连续性保障。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>心跳检测（Heartbeat Detection）是一种通过周期性发送信号（心跳包）来验证网络连接或设备状态的机制，广泛应用于维持长连接、监控系统健康以及保障服务可用性。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>- 实现方式：
+</span></span><span class=line><span class=cl>  多播（如Corosync）、单播（如Keepalived UDP单播）  
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>- 检测频率：
+</span></span><span class=line><span class=cl>  毫秒级（如10ms超时+3次重试）  
+</span></span></code></pre></td></tr></table></div></div><p>**脑裂：**在高可用性（HA）系统中，脑裂现象（Split-Brain）是指由于节点间通信中断，导致原本统一的集群分裂为多个独立子集群，各子集群认为自身是唯一有效的主节点，进而引发资源争抢、数据不一致甚至服务中断的严重问题。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 解决方案：</span>
+</span></span><span class=line><span class=cl>   - 冗余线路：配置多种心跳路径（如以太网+串行线）
+</span></span><span class=line><span class=cl>   - 仲裁策略：
+</span></span><span class=line><span class=cl>     - 多数派投票（如3节点集群需2票确认）
+</span></span><span class=line><span class=cl>     - 参照对象：设置参考IP地址，争抢之前先判断参考IP的连通性，通则争抢，不通则不抢。
+</span></span><span class=line><span class=cl>   - STONITH：物理级断电（如IPMI硬重启故障节点）  <span class=c1># Shoot The Other Node In The Head</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>相关指标</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>1. MTTF（Mean Time To Failure，平均无故障时间）
+</span></span><span class=line><span class=cl>   - 定义：系统无故障运行的平均时间，通常用于衡量系统的可靠性。例如，若某设备 MTTF 为 10,000 小时，表示平均每运行 10,000 小时后可能发生一次故障。
+</span></span><span class=line><span class=cl>   - 适用场景：适用于不可修复的系统（如一次性设备），或用于预测可修复系统的故障频率。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2. MTTR（Mean Time To Recovery，平均恢复时间）
+</span></span><span class=line><span class=cl>   - 定义：从故障发生到系统完全恢复所需的平均时间，包括故障发现、定位和修复的全过程。
+</span></span><span class=line><span class=cl>   - 作用：衡量系统的可维护性。MTTR 越短，系统可用性越高。  
+</span></span><span class=line><span class=cl>   - 公式关联：可用性（Availability）<span class=o>=</span> MTTF / <span class=o>(</span>MTTF + MTTR<span class=o>)</span>。例如，若 MTTF 为 <span class=m>1000</span> 小时，MTTR 为 <span class=m>1</span> 小时，则可用性为 99.9%。
+</span></span><span class=line><span class=cl>    99% 		87.6h
+</span></span><span class=line><span class=cl>    99.9%		8.8h
+</span></span><span class=line><span class=cl>    99.99%		53m
+</span></span><span class=line><span class=cl>    99.999%		5m
+</span></span><span class=line><span class=cl>    <span class=c1># 还有一种算法MTBF / (MTBF + MTTR),基本没有区别</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>3. RTO（Recovery Time Objective，恢复时间目标）
+</span></span><span class=line><span class=cl>   - 定义：灾难发生后，业务系统从中断到恢复服务可接受的最长时间。例如，若 RTO 为 <span class=m>1</span> 小时，则必须在 <span class=m>1</span> 小时内恢复服务。
+</span></span><span class=line><span class=cl>   - 应用：指导灾难恢复策略设计（如主备切换、集群部署）。RTO 越短，成本越高（需实时热备、自动化切换）。
+</span></span><span class=line><span class=cl>   - 与 MTTR 的区别：MTTR 是多次故障的平均恢复时间，而 RTO 是单次故障允许的最大恢复时间目标。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>4. RPO（Recovery Point Objective，恢复点目标）
+</span></span><span class=line><span class=cl>   - 定义：灾难发生时允许丢失的最大数据量，通常以时间衡量。例如，若 RPO 为 <span class=m>1</span> 小时，则最多允许丢失 <span class=m>1</span> 小时内的数据。
+</span></span><span class=line><span class=cl>   - 应用：决定数据备份频率（如每 <span class=m>5</span> 分钟备份一次）。RPO 越短，需实时同步数据（如数据库双写、日志复制）。
+</span></span><span class=line><span class=cl>   - 核心挑战：高 RPO 要求（如金融交易系统需 <span class=nv>RPO</span><span class=o>=</span>0）需牺牲存储成本和性能。
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>5. 实际案例
+</span></span><span class=line><span class=cl>   - 数据库备份：若每 <span class=m>24</span> 小时备份一次，故障后需 <span class=m>5</span> 分钟重启恢复，则 <span class=nv>RTO</span><span class=o>=</span><span class=m>5</span> 分钟，RPO<span class=o>=</span><span class=m>24</span> 小时。  
+</span></span><span class=line><span class=cl>   - 多活架构：通过异地多活集群实现 RTO≈0、RPO≈0，但需高昂成本。
+</span></span><span class=line><span class=cl>通过平衡这些指标，企业可在可靠性、成本和业务连续性间找到最优解。
+</span></span></code></pre></td></tr></table></div></div><div class=table-wrapper><table><thead><tr><th>指标</th><th>关注点</th><th>应用领域</th><th>典型值示例</th></tr></thead><tbody><tr><td>MTTF</td><td>系统可靠性</td><td>硬件寿命预测</td><td>10,000 小时</td></tr><tr><td>MTTR</td><td>系统可维护性</td><td>运维优化</td><td>1 小时（需快速修复）</td></tr><tr><td>RTO</td><td>业务中断容忍度</td><td>灾难恢复设计</td><td>金融系统 RTO ≤ 5 分钟</td></tr><tr><td>RPO</td><td>数据丢失容忍度</td><td>数据备份策略</td><td>支付系统 RPO=0（零丢失）</td></tr></tbody></table></div><h5 id=33-高性能计算集群hpc>3.3 高性能计算集群（HPC）</h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 技术定义  </span>
+</span></span><span class=line><span class=cl>面向计算密集型任务，通过消息传递或共享内存模型实现大规模并行计算，典型架构包括：  
+</span></span><span class=line><span class=cl>- MPP（大规模并行处理）：每个节点独立处理数据分片（如Teradata）  
+</span></span><span class=line><span class=cl>- NUMA（非统一内存访问）：跨节点内存直接寻址（如Cray超级计算机） 
+</span></span></code></pre></td></tr></table></div></div><hr><h4 id=四-名词解释-扩展>四. 名词解释-扩展</h4><h5 id=1-session>1. Session</h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>Session（会话）是服务器端用于跟踪用户状态的机制。当用户首次访问服务器时，服务器会创建一个唯一的 Session ID，并在内存或数据库中存储与该用户相关的数据（如登录信息、购物车内容等）。Session 解决了 HTTP 协议无状态的问题，确保用户在多次请求中保持连续性。  
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>核心特点： 
+</span></span><span class=line><span class=cl>- 存储位置：数据存储在服务器端，客户端仅保存 Session ID（通常通过 Cookie 传递）。  
+</span></span><span class=line><span class=cl>- 安全性：敏感信息（如用户身份）存储在服务器，客户端无法直接篡改。  
+</span></span><span class=line><span class=cl>- 生命周期： 
+</span></span><span class=line><span class=cl>  - 会话级：用户关闭浏览器或超时（默认约 20-30 分钟）后失效。  
+</span></span><span class=line><span class=cl>  - 持久化：可通过配置延长有效期（如 <span class=m>24</span> 小时）。  
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>工作原理： 
+</span></span><span class=line><span class=cl>1. 创建：用户首次访问时，服务器生成 Session ID 并存储相关数据。  
+</span></span><span class=line><span class=cl>2. 传递：Session ID 通过 Cookie 或 URL 参数（如 <span class=sb>`</span>?PHPSESSID<span class=o>=</span>xxx<span class=sb>`</span>）传递到客户端。  
+</span></span><span class=line><span class=cl>3. 验证：后续请求中，服务器通过 Session ID 检索用户数据，维持会话状态。  
+</span></span></code></pre></td></tr></table></div></div><h5 id=2-cookie>2. Cookie</h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>Cookie 是服务器发送到客户端（浏览器）的小型文本文件（通常小于 4KB），用于记录用户身份、偏好等非敏感信息。客户端在后续请求中自动携带 Cookie，帮助服务器识别用户。 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>核心特点： 
+</span></span><span class=line><span class=cl>- 存储位置：数据存储在客户端（浏览器内存或硬盘）。 
+</span></span><span class=line><span class=cl>- 限制： 
+</span></span><span class=line><span class=cl>  - 单个域名下最多存储约 <span class=m>20</span> 个 Cookie，总大小不超过 4KB。 
+</span></span><span class=line><span class=cl>  - 客户端可禁用或清除 Cookie，导致功能受限。 
+</span></span><span class=line><span class=cl>- 生命周期： 
+</span></span><span class=line><span class=cl>  - 会话级：关闭浏览器后失效（未设置 <span class=sb>`</span>Expires<span class=sb>`</span> 参数）。 
+</span></span><span class=line><span class=cl>  - 持久级：设置 <span class=sb>`</span>Expires<span class=sb>`</span> 或 <span class=sb>`</span>Max-Age<span class=sb>`</span> 后长期有效（如 <span class=m>30</span> 天）。 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>工作原理： 
+</span></span><span class=line><span class=cl>1. 设置：服务器通过 HTTP 响应头 <span class=sb>`</span>Set-Cookie<span class=sb>`</span> 发送键值对（如 <span class=sb>`</span><span class=nv>username</span><span class=o>=</span>Alice<span class=sb>`</span>）。 
+</span></span><span class=line><span class=cl>2. 携带：浏览器在后续请求的 <span class=sb>`</span>Cookie<span class=sb>`</span> 头中自动附加相关数据。 
+</span></span><span class=line><span class=cl>3. 管理：客户端可通过 JavaScript 或浏览器设置管理 Cookie。 
+</span></span></code></pre></td></tr></table></div></div><h5 id=3-session-与-cookie-的区别>3. Session 与 Cookie 的区别</h5><div class=table-wrapper><table><thead><tr><th>维度</th><th>Session</th><th>Cookie</th></tr></thead><tbody><tr><td>存储位置</td><td>服务器端（内存/数据库）</td><td>客户端（浏览器）</td></tr><tr><td>数据类型</td><td>任意对象（用户信息、状态等）</td><td>仅字符串（键值对）</td></tr><tr><td>安全性</td><td>高（数据不暴露给客户端）</td><td>低（可能被窃取或篡改）</td></tr><tr><td>生命周期控制</td><td>由服务器配置超时时间</td><td>由客户端或服务器设置过期时间</td></tr><tr><td>性能影响</td><td>占用服务器资源，大规模用户时需优化</td><td>无服务器负担，但传输增加带宽消耗</td></tr></tbody></table></div><h5 id=4-pvpage-view>4. PV（Page View）</h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>定义：页面浏览量
+</span></span><span class=line><span class=cl>   用户每次打开或刷新页面即计为一次 PV，用于衡量网站页面的总访问次数。例如，同一用户连续刷新页面 <span class=m>5</span> 次，PV 将累计为 <span class=m>5</span> 次。
+</span></span><span class=line><span class=cl>特点：
+</span></span><span class=line><span class=cl>   与用户数量无关：仅反映页面被访问的总次数，可能与实际用户数差异较大（如单个用户反复刷新）。
+</span></span><span class=line><span class=cl>应用场景：
+</span></span><span class=line><span class=cl>   评估页面内容吸引力或活动效果，如电商促销页面的点击热度。
+</span></span></code></pre></td></tr></table></div></div><h5 id=5-uvunique-visitor>5. UV（Unique Visitor）</h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>定义：独立访客
+</span></span><span class=line><span class=cl>   统计周期内（通常为 <span class=m>24</span> 小时）访问网站的独立用户数。基于 Cookie 或设备标识区分用户，同一用户多次访问仅计为 <span class=m>1</span> 次。
+</span></span><span class=line><span class=cl>特点：
+</span></span><span class=line><span class=cl>   依赖 Cookie 或设备标识：若用户清除 Cookie 或更换设备，会被计为新 UV。
+</span></span><span class=line><span class=cl>   与 IP 的关系：同一 IP 可能对应多个 UV（如家庭网络多设备访问），而同一用户更换 IP 仍可能被计为同一 UV。
+</span></span><span class=line><span class=cl>应用场景：
+</span></span><span class=line><span class=cl>    衡量网站的真实用户规模，如新用户增长分析。
+</span></span></code></pre></td></tr></table></div></div><h5 id=6-ipinternet-protocol>6. IP（Internet Protocol）</h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>定义：独立 IP
+</span></span><span class=line><span class=cl>   统计周期内访问网站的独立 IP 地址数量。同一 IP 多次访问仅计为 <span class=m>1</span> 个。
+</span></span><span class=line><span class=cl>特点：
+</span></span><span class=line><span class=cl>   局限性：局域网用户（如公司、学校）共享公网 IP 时，多个用户访问仅计为 <span class=m>1</span> 个 IP。
+</span></span><span class=line><span class=cl>   真实性较高：常用于粗略估算用户地理分布。
+</span></span><span class=line><span class=cl>对比 UV：
+</span></span><span class=line><span class=cl>   IP 无法区分同一网络下的不同用户，因此 UV 通常更准确反映真实用户数。
+</span></span></code></pre></td></tr></table></div></div><h5 id=7-pvuvip-指标间的关系与对比>7. PV/UV/IP 指标间的关系与对比</h5><div class=table-wrapper><table><thead><tr><th>指标</th><th>核心差异</th><th>典型场景</th></tr></thead><tbody><tr><td>PV vs UV</td><td>PV 统计页面访问量，UV 统计用户数量</td><td>活动页 PV 高但 UV 低，说明用户反复刷新但未吸引新用户。</td></tr><tr><td>UV vs IP</td><td>UV 基于用户标识，IP 基于网络地址</td><td>公司网络（同一 IP）多人访问，UV 大于 IP。</td></tr><tr><td>VV vs PV</td><td>VV 统计会话次数，PV 统计页面刷新次数</td><td>用户一次会话浏览 5 页，计为 1 次 VV 和 5 次 PV。</td></tr></tbody></table></div><hr></section><footer class=article-footer><section class=article-tags><a href=/fuyou/tags/%E9%9B%86%E7%BE%A4/>集群</a>
+<a href=/fuyou/tags/obsidian/>Obsidian</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>本作品采用 CC BY-NC-SA 4.0 许可协议</span></section><section class=article-lastmod><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<span>最后更新于 2026-07-11 16:45 +0800</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/fuyou/p/cluster-06/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-06/1200/675 loading=lazy data-key=cluster-06 data-hash=https://picsum.photos/seed/fuyou-cluster-06/1200/675></div><div class=article-details><h2 class=article-title>LVS 负载均衡集群部署</h2></div></a></article><article class=has-image><a href=/fuyou/p/cluster-09/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-09/1200/675 loading=lazy data-key=cluster-09 data-hash=https://picsum.photos/seed/fuyou-cluster-09/1200/675></div><div class=article-details><h2 class=article-title>MooseFS 分布式存储系统部署</h2></div></a></article><article class=has-image><a href=/fuyou/p/cluster-07/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-07/1200/675 loading=lazy data-key=cluster-07 data-hash=https://picsum.photos/seed/fuyou-cluster-07/1200/675></div><div class=article-details><h2 class=article-title>Squid 代理服务器部署与缓存策略</h2></div></a></article><article class=has-image><a href=/fuyou/p/cluster-08/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-08/1200/675 loading=lazy data-key=cluster-08 data-hash=https://picsum.photos/seed/fuyou-cluster-08/1200/675></div><div class=article-details><h2 class=article-title>iSCSI 块存储部署与配置</h2></div></a></article><article class=has-image><a href=/fuyou/p/cluster-04/><div class=article-image><img src=https://picsum.photos/seed/fuyou-cluster-04/1200/675 loading=lazy data-key=cluster-04 data-hash=https://picsum.photos/seed/fuyou-cluster-04/1200/675></div><div class=article-details><h2 class=article-title>DevOps 构建：基于 GitLab 和 Jenkins 的 CI/CD 实践</h2></div></a></article></div></div></aside>...<div class=comment></div><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 小杨</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.26.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/fuyou/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script><style>body{background:url(https://luckycloveryh.github.io/fuyou/background/jinlin.png)no-repeat 50% 0;background-size:cover;background-attachment:fixed}@media(max-width:767px){body{background-attachment:scroll;background-position:50% 0}}.article-details{position:relative;z-index:1}.article-title,.article-title a{color:var(--card-text-color-main)!important}.search-form input{background-color:var(--card-background)!important;color:var(--card-text-color-main)!important;border-color:var(--card-separator-color)!important}.search-form button{background-color:transparent!important;color:var(--card-text-color-secondary)!important}.left-sidebar .site-name,.left-sidebar .site-name a,.left-sidebar .site-description,.left-sidebar #main-menu li a,.left-sidebar #main-menu li.current a,.left-sidebar #dark-mode-toggle,.left-sidebar #i18n-switch,.left-sidebar .menu-social svg,.right-sidebar .widget-icon svg,.right-sidebar .widget-title,.site-footer{color:#fff!important;stroke:#fff!important;text-shadow:0 1px 4px rgba(0,0,0,.65)}.left-sidebar #main-menu li a:hover,.left-sidebar .site-name a:hover{color:#fff!important;opacity:.9}</style><script src=https://luckycloveryh.github.io/fuyou/background/sakura.js></script><div id=particles-js></div><script src=https://luckycloveryh.github.io/fuyou/background/particles.min.js></script><script>window.matchMedia("(min-width: 768px)").matches&&particlesJS.load("particles-js","https://luckycloveryh.github.io/fuyou/background/particlesjs-config.json",function(){console.log("particles.js loaded - callback")})</script><style>#particles-js{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}#particles-js canvas{pointer-events:none!important}@media(max-width:767px){#particles-js,#canvas_sakura{display:none!important}}</style><style>:root{--base-font-family:"Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Segoe UI", Arial, sans-serif;--article-font-family:var(--base-font-family);--code-font-family:"Cascadia Mono", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei UI", monospace}</style><style>#TableOfContents>ul,ol{ul, ol { display: none; } .open { display: block; }}</style><script>function initTocHide(){let e=document.querySelector(".widget--toc");if(!e)return;window.fuyouTocScrollHandler&&window.removeEventListener("scroll",window.fuyouTocScrollHandler),window.fuyouTocScrollHandler=function(){let n=document.querySelectorAll(".open");n.length>0&&n.forEach(e=>{e.classList.remove("open")});let t=document.querySelector(".active-class");if(!t)return;t.children.length>1&&t.children[1].classList.add("open");let e=t.parentElement;do e.classList.add("open"),e=e.parentElement.parentElement;while(e!==void 0&&(e.localName==="ul"||e.localName==="ol"))},window.addEventListener("scroll",window.fuyouTocScrollHandler,{passive:!0})}initTocHide()</script><style>#backTopBtn{display:none;position:fixed;right:30px;bottom:30px;z-index:99;cursor:pointer;width:30px;height:30px;background-image:url(https://luckycloveryh.github.io/fuyou/icons/backTop.svg);background-repeat:no-repeat;background-position:50%;background-size:contain}@media(max-width:767px){#backTopBtn{right:14px;bottom:calc(82px + env(safe-area-inset-bottom));width:42px;height:42px;border:0;border-radius:50%;background-color:rgba(35,35,35,.74);background-size:22px 22px;box-shadow:0 8px 20px rgba(0,0,0,.28)}}</style><script>function initScrollTop(){let e=document.getElementById("backTopBtn");e||(e=document.createElement("button"),e.id="backTopBtn",e.type="button",e.setAttribute("aria-label","Back to top"),e.onclick=backToTop,document.body.appendChild(e)),window.fuyouBackTopHandler&&window.removeEventListener("scroll",window.fuyouBackTopHandler),window.fuyouBackTopHandler=function(){document.body.scrollTop>20||document.documentElement.scrollTop>20?e.style.display="block":e.style.display="none"},window.addEventListener("scroll",window.fuyouBackTopHandler,{passive:!0}),window.fuyouBackTopHandler()}function backToTop(){window.scrollTo({top:0,behavior:"smooth"})}initScrollTop()</script><style>.highlight{max-height:400px;overflow:hidden}.code-show{max-height:none!important}.code-more-box{width:100%;padding-top:78px;background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0)),to(#fff));position:absolute;left:0;right:0;bottom:0;z-index:1}.code-more-btn{display:block;margin:auto;width:44px;height:22px;background:#f0f0f5;border-top-left-radius:8px;border-top-right-radius:8px;padding-top:6px;cursor:pointer}.code-more-img{cursor:pointer!important;display:block;margin:auto;width:22px;height:16px}</style><script>function initCodeMoreBox(){let e=document.querySelectorAll(".highlight");if(!e)return;e.forEach(e=>{if(e.scrollHeight<=e.clientHeight)return;let t=document.createElement("div");t.classList.add("code-more-box");let n=document.createElement("span");n.classList.add("code-more-btn"),n.addEventListener("click",()=>{e.classList.add("code-show"),t.style.display="none",window.dispatchEvent(new Event("resize"))});let s=document.createElement("img");s.classList.add("code-more-img"),s.src="https://luckycloveryh.github.io/fuyou/icons/codeMore.png",n.appendChild(s),t.appendChild(n),e.appendChild(t)})}initCodeMoreBox()</script><script>const cdnPath="https://cdn.jsdelivr.net/gh/letere-gzj/live2d-widget-v3@main",config={path:{homePath:"/",modelPath:cdnPath+"/Resources/",cssPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu.css",tipsJsonPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu-tips.json",tipsJsPath:cdnPath+"/waifu-tips.js",live2dCorePath:cdnPath+"/Core/live2dcubismcore.js",live2dSdkPath:cdnPath+"/live2d-sdk.js"},tools:["hitokoto","asteroids","express","switch-model","switch-texture","photo","info","quit"],drag:{enable:!0,direction:["x","y"]},switchType:"order"};function loadExternalResource(e,t){return new Promise((n,s)=>{let o;t==="css"?(o=document.createElement("link"),o.rel="stylesheet",o.href=e):t==="js"&&(o=document.createElement("script"),o.src=e),o&&(o.onload=()=>n(e),o.onerror=()=>s(e),document.head.appendChild(o))})}let live2dInitialized=!1;function initLive2d(){if(live2dInitialized)return;window.matchMedia("(min-width: 768px)").matches&&Promise.all([loadExternalResource(config.path.cssPath,"css"),loadExternalResource(config.path.live2dCorePath,"js"),loadExternalResource(config.path.live2dSdkPath,"js"),loadExternalResource(config.path.tipsJsPath,"js")]).then(()=>{initWidget({waifuPath:config.path.tipsJsonPath,cdnPath:config.path.modelPath,tools:config.tools,dragEnable:config.drag.enable,dragDirection:config.drag.direction,switchType:config.switchType}),live2dInitialized=!0}).catch(e=>{console.error("Failed to load live2d:",e)})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",initLive2d):initLive2d()</script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css><style>@media(max-width:767px){.aplayer.aplayer-fixed,.aplayer.aplayer-fixed .aplayer-body{max-width:100vw}.aplayer.aplayer-fixed .aplayer-body{padding-right:18px;padding-bottom:env(safe-area-inset-bottom)}.aplayer.aplayer-fixed .aplayer-info{width:calc(100vw - 66px)}.aplayer.aplayer-fixed .aplayer-lrc{display:none!important}}</style><div id=aplayer></div><script src=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js></script><script>(function(){const e="https://luckycloveryh.github.io/fuyou/",t=document.getElementById("aplayer");if(!t||window.ap)return;window.ap=new APlayer({container:t,fixed:!0,lrcType:3,audio:[{name:"归期",artist:"钱润玉",url:e+"music/归期-钱润玉/song.mp3",cover:e+"music/归期-钱润玉/cover.jpg"}]})})()</script><script>window.addEventListener("beforeunload",()=>{if(!window.ap)return;const e={index:window.ap.list.index,currentTime:window.ap.audio.currentTime,paused:window.ap.paused};sessionStorage.setItem("playInfo",JSON.stringify(e))}),window.addEventListener("load",()=>{if(!window.ap)return;if(window._pjaxNavigating)return;const e=JSON.parse(sessionStorage.getItem("playInfo"));if(!e)return;window.ap.list.switch(e.index),setTimeout(()=>{if(window.ap.seek(e.currentTime),!e.paused){const e=window.ap.play();e&&typeof e.catch=="function"&&e.catch(()=>{})}},500)}),document.addEventListener("pjax:send",()=>{window._pjaxNavigating=!0}),document.addEventListener("pjax:complete",()=>{window._pjaxNavigating=!1})</script><script>window.fuyouPjaxInitialized=window.fuyouPjaxInitialized||!1;function reinitFuyouPageScripts(){try{window.Stack&&window.Stack.init&&window.Stack.init()}catch(e){console.warn("Stack初始化失败:",e)}try{typeof initTocHide=="function"&&initTocHide(),typeof initScrollTop=="function"&&initScrollTop(),typeof initCodeMoreBox=="function"&&initCodeMoreBox(),typeof showHideView=="function"&&showHideView(),typeof renderKaTeX=="function"&&renderKaTeX()}catch(e){console.warn("页面脚本重新初始化失败:",e)}try{typeof RENDERER!="undefined"&&RENDERER.setup()}catch(e){console.warn("底部小鱼初始化失败:",e)}}function shouldFuyouHandleLink(e,t){if(!t||e.defaultPrevented)return!1;if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return!1;if(t.target&&t.target!=="_self")return!1;if(t.hasAttribute("download"))return!1;const n=new URL(t.href,window.location.href);return n.origin===window.location.origin&&!!n.pathname.startsWith("/fuyou/")&&(n.pathname!==window.location.pathname||n.search!==window.location.search)&&!(n.hash&&n.pathname===window.location.pathname&&n.search===window.location.search)}async function fuyouLoadPage(e,t){document.dispatchEvent(new CustomEvent("pjax:send")),window._pjaxNavigating=!0;try{const s=await fetch(e,{headers:{"X-Requested-With":"fuyou-pjax"},credentials:"same-origin"});if(!s.ok)throw new Error("HTTP "+s.status);const r=await s.text(),n=(new DOMParser).parseFromString(r,"text/html"),o=n.querySelector(".main-container"),i=document.querySelector(".main-container");if(!o||!i){window.location.href=e;return}document.title=n.title,document.body.className=n.body.className,i.replaceWith(o);const c=document.querySelectorAll(".js-Pjax"),a=n.querySelectorAll(".js-Pjax");c.forEach((e,t)=>{a[t]&&e.replaceWith(a[t])}),t&&history.pushState({fuyouPjax:!0},"",e),window.scrollTo({top:0,behavior:"auto"}),reinitFuyouPageScripts(),document.dispatchEvent(new CustomEvent("pjax:complete"))}catch(t){console.warn("无刷新切换失败，回退到普通跳转:",t),window.location.href=e}finally{window._pjaxNavigating=!1}}window.addEventListener("load",()=>{if(window.fuyouPjaxInitialized)return;window.fuyouPjaxInitialized=!0,history.replaceState({fuyouPjax:!0},"",window.location.href),document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("a[href]");if(!shouldFuyouHandleLink(e,t))return;e.preventDefault(),fuyouLoadPage(t.href,!0)}),window.addEventListener("popstate",()=>{fuyouLoadPage(window.location.href,!1)}),window.pjax={refresh:function(){},loadUrl:function(e){fuyouLoadPage(e,!0)}}})</script><div class=js-Pjax><script>(function(){let t=document.querySelector(".comment");if(!t)return;let e=document.createElement("script");e.setAttribute("src","https://giscus.app/client.js"),e.setAttribute("data-repo",""),e.setAttribute("data-repo-id",""),e.setAttribute("data-category",""),e.setAttribute("data-category-id",""),e.setAttribute("data-mapping",""),e.setAttribute("data-strict",""),e.setAttribute("data-reactions-enabled","1"),e.setAttribute("data-emit-metadata","0"),e.setAttribute("data-input-position",""),e.setAttribute("data-theme",""),e.setAttribute("data-lang",""),e.async=!0,e.crossOrigin="anonymous",t.appendChild(e)})(document)</script></div><script>async function renderKaTeX(){let e=document.querySelector(".math-katex");if(!e)return;for(;typeof renderMathInElement!="function";)await delay(500);renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],ignoredClasses:["gist"]})}function delay(e){return new Promise(t=>{setTimeout(t,e)})}document.addEventListener("pjax:complete",()=>{renderKaTeX()})</script><script src=https://luckycloveryh.github.io/fuyou/js/topbar.min.js></script><script>topbar.config({barColors:{0:"rgba(255, 255, 255, 1)",1.0:"rgba(0, 149, 234, 1)"}}),document.addEventListener("pjax:send",()=>{topbar.show()}),document.addEventListener("pjax:complete",()=>{topbar.hide()})</script><script defer src=https://cn.vercount.one/js></script><script>function showHideView(){let e=document.querySelectorAll("#viewCount");if(e){let t=document.querySelector(".article-page");t||e.forEach(e=>{e.style.display="none"})}}showHideView()</script><div id=jsi-flying-fish-container class=flying-fish-container></div><style>.flying-fish-container{width:100%;height:200px;position:fixed;z-index:0;pointer-events:none;bottom:0;left:0;opacity:.6}.flying-fish-container canvas{display:block;pointer-events:none}@media(max-width:767px){.flying-fish-container{height:96px;opacity:.38}}</style><script src=https://luckycloveryh.github.io/fuyou/js/flying-fish.js></script><script>window.addEventListener("load",function(){typeof RENDERER!="undefined"&&document.getElementById("jsi-flying-fish-container")&&RENDERER.init()}),document.addEventListener("pjax:complete",function(){typeof RENDERER!="undefined"&&RENDERER.setup()})</script></body></html>

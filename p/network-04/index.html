@@ -1,0 +1,337 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="介绍《DHCP 服务配置与地址池验证》，涵盖DHCP 相关操作（Bash 命令+解释）、验证IP是否在地址池且网络连通（示例IP：192.168.66.100）和安。"><title>DHCP 服务配置与地址池验证</title>
+<link rel=canonical href=https://luckycloveryh.github.io/fuyou/p/network-04/><link rel=stylesheet href=/fuyou/scss/style.min.4f12ea1fa4ca7ef3f419897549c88b4c242f129d29316c950cdb3b0754157538.css><meta property='og:title' content="DHCP 服务配置与地址池验证"><meta property='og:description' content="介绍《DHCP 服务配置与地址池验证》，涵盖DHCP 相关操作（Bash 命令+解释）、验证IP是否在地址池且网络连通（示例IP：192.168.66.100）和安。"><meta property='og:url' content='https://luckycloveryh.github.io/fuyou/p/network-04/'><meta property='og:site_name' content='小杨的博客'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='网络基础'><meta property='article:tag' content='Obsidian'><meta property='article:published_time' content='2025-12-16T09:00:00+08:00'><meta property='article:modified_time' content='2026-07-11T16:45:03+08:00'><meta property='og:image' content='https://picsum.photos/seed/fuyou-network-04/1200/675'><meta name=twitter:title content="DHCP 服务配置与地址池验证"><meta name=twitter:description content="介绍《DHCP 服务配置与地址池验证》，涵盖DHCP 相关操作（Bash 命令+解释）、验证IP是否在地址池且网络连通（示例IP：192.168.66.100）和安。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://picsum.photos/seed/fuyou-network-04/1200/675'><link rel=alternate type=application/json href=https://luckycloveryh.github.io/fuyou/p/network-04/index.json><link rel="shortcut icon" href=/fuyou/favicon.png><div class=loading-container><div class=card><div class=loader><p>loading</p><div class=words><span class=word>buttons</span>
+<span class=word>forms</span>
+<span class=word>switches</span>
+<span class=word>cards</span>
+<span class=word>buttons</span></div></div></div></div><style>.loading-container{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(17,17,17,.98);display:flex;align-items:center;justify-content:center;z-index:999999;transition:opacity 1.2s ease;pointer-events:none}.card{--bg-color:#111;background-color:var(--bg-color);padding:1.2rem 2.5rem;border-radius:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.7)}.loader{color:#7c7c7c;font-family:poppins,system-ui,sans-serif;font-weight:500;font-size:25px;height:42px;padding:8px 12px;display:flex;align-items:center;gap:12px;border-radius:8px;white-space:nowrap}.words{overflow:hidden;position:relative;height:100%;min-width:110px}.words::after{content:"";position:absolute;inset:0;background:linear-gradient( var(--bg-color) 10%,transparent 30%,transparent 70%,var(--bg-color) 90% );z-index:20}.word{display:block;height:100%;padding-left:4px;color:#956afa;animation:spin_4991 4s infinite linear}@keyframes spin_4991{10%{transform:translateY(-102%)}25%{transform:translateY(-100%)}35%{transform:translateY(-202%)}50%{transform:translateY(-200%)}60%{transform:translateY(-302%)}75%{transform:translateY(-300%)}85%{transform:translateY(-402%)}100%{transform:translateY(-400%)}}.loading-container.fade-out{opacity:0;pointer-events:none}</style><script>(function(){const e=()=>{const e=document.querySelector(".loading-container");if(!e)return;e.classList.add("fade-out"),e.style.display="none",e.style.pointerEvents="none"},n=sessionStorage.getItem("visited");if(n){e();return}const t=()=>{const t=document.querySelector(".loading-container");if(!t)return;t.classList.add("fade-out"),setTimeout(()=>{e(),sessionStorage.setItem("visited","true")},400)};setTimeout(t,1200),window.addEventListener("load",t,{once:!0})})()</script></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/fuyou/><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/muzimi.gif width=300 height=300 class=site-logo loading=lazy alt=Avatar>
+</a><span class=emoji>🌸</span></figure><div class=site-meta><h1 class=site-name><a href=/fuyou>小杨的博客</a></h1><h2 class=site-description>技术分享，日常分享</h2></div></header><ol class=menu-social><li><a href=https://space.bilibili.com/81116666 title=Bilibili rel=me><svg class="icon icon-bilibili-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 6.1 5.8 3.3"/><path d="M15.8 6.1l2.4-2.8"/><path d="M7.2 7h9.6a4 4 0 014 4v4a4 4 0 01-4 4H7.2a4 4 0 01-4-4v-4a4 4 0 014-4z"/><path d="M9 12.1l1.3 1.4"/><path d="M15 12.1l-1.3 1.4"/></svg></a></li><li><a href=https://github.com/luckycloveryh/fuyou title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/fuyou/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>主页 | Home</span></a></li><li><a href=/fuyou/categories/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>分类&标签 | Cats&amp;Tags</span></a></li><li><a href=/fuyou/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>归档 | Archives</span></a></li><li><a href=/fuyou/%E6%90%9C%E7%B4%A2/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>搜索 | Search</span></a></li><li><a href=/fuyou/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97-logs/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>更新日志 | Logs</span></a></li><li><a href=/fuyou/%E6%8A%80%E6%9C%AF%E9%93%BE%E6%8E%A5-links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>技术链接 | Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><ol><li><a href=#一dhcp-相关操作bash-命令解释>一、DHCP 相关操作（Bash 命令+解释）</a><ol><li><a href=#1-验证-dhcp-配置>1. 验证 DHCP 配置</a></li><li><a href=#2-dhcp-服务基础操作>2. DHCP 服务基础操作</a></li><li><a href=#3-dhcp-保留地址配置编辑配置文件>3. DHCP 保留地址配置（编辑配置文件）</a></li></ol></li><li><a href=#二dns-相关操作bash-命令解释>二、DNS 相关操作（Bash 命令+解释）</a><ol><li><a href=#1-dns-服务基础操作>1. DNS 服务基础操作</a></li><li><a href=#2-dns-解析测试>2. DNS 解析测试</a></li><li><a href=#3-dns-主从同步配置与测试>3. DNS 主从同步配置与测试</a></li><li><a href=#4-dns-缓存服务器dnsmasq配置>4. DNS 缓存服务器（dnsmasq）配置</a></li></ol></li><li><a href=#三ftpvsftpd相关操作bash-命令解释>三、FTP（vsftpd）相关操作（Bash 命令+解释）</a><ol><li><a href=#1-vsftpd-服务基础操作>1. vsftpd 服务基础操作</a></li><li><a href=#2-linux-客户端连接-ftp>2. Linux 客户端连接 FTP</a></li><li><a href=#3-匿名用户权限配置>3. 匿名用户权限配置</a></li><li><a href=#4-ftp-常见问题排查>4. FTP 常见问题排查</a></li></ol></li><li><a href=#通用说明>通用说明</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/fuyou/p/network-04/><img src=https://picsum.photos/seed/fuyou-network-04/1200/675 loading=lazy alt="Featured image of post DHCP 服务配置与地址池验证"></a></div><div class=article-details><header class=article-category><a href=/fuyou/categories/4.-%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E9%98%B6%E6%AE%B5/>4. 网络基础阶段</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/fuyou/p/network-04/>DHCP 服务配置与地址池验证</a></h2><h3 class=article-subtitle>介绍《DHCP 服务配置与地址池验证》，涵盖DHCP 相关操作（Bash 命令+解释）、验证IP是否在地址池且网络连通（示例IP：192.168.66.100）和安。</h3></div><footer class="article-time article-time--template"><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>2025-12-16</time></div><div><svg class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7H6A2 2 0 004 9v9a2 2 0 002 2h9a2 2 0 002-2v-1"/><path d="M20.385 6.585a2.1 2.1.0 00-2.97-2.97L9 12v3h3l8.385-8.415z"/><path d="M16 5l3 3"/></svg>
+<time class=article-time--modified>2026-07-11</time></div><div><svg class="icon icon-tabler icon-tabler-file-text" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 001 1h4"/><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path d="M9 9h1"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+<span class=article-time--word-count>3664字</span></div></footer></div></header><section class=article-content><h3 id=一dhcp-相关操作bash-命令解释>一、DHCP 相关操作（Bash 命令+解释）</h3><h4 id=1-验证-dhcp-配置>1. 验证 DHCP 配置</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 验证IP是否在地址池且网络连通（示例IP：192.168.66.100）</span>
+</span></span><span class=line><span class=cl>ip addr show  <span class=c1># 查看本机IP，确认是否在DHCP服务器地址池范围内</span>
+</span></span><span class=line><span class=cl>ping 192.168.66.1  <span class=c1># 测试网关连通性，验证网络可达性</span>
+</span></span><span class=line><span class=cl>ssh root@192.168.66.100  <span class=c1># 测试远程登录，验证IP可用性</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证网关配置</span>
+</span></span><span class=line><span class=cl>route -n  <span class=c1># 列出内核路由表，查询默认网关（G列）是否与DHCP分配的一致</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证DNS配置</span>
+</span></span><span class=line><span class=cl>cat /etc/resolv.conf  <span class=c1># 查看DNS配置文件，核对nameserver（原表述next Server）是否正确</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><code>ip addr show</code>：显示所有网卡的IP配置，确认DHCP分配的IP是否符合地址池范围；</li><li><code>ping</code>：测试网络连通性，验证IP能否正常通信；</li><li><code>ssh</code>：验证IP是否可远程登录，进一步确认IP有效性；</li><li><code>route -n</code>：<code>-n</code> 表示以数字形式显示IP（不解析域名），快速查看网关配置；</li><li><code>cat /etc/resolv.conf</code>：读取DNS配置文件，核对DHCP分配的DNS服务器地址。</li></ul><h4 id=2-dhcp-服务基础操作>2. DHCP 服务基础操作</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 安装DHCP软件包（CentOS/RHEL）</span>
+</span></span><span class=line><span class=cl>yum install -y dhcp  <span class=c1># 安装dhcp软件包（服务名dhcpd）</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看DHCP端口监听状态</span>
+</span></span><span class=line><span class=cl>netstat -an <span class=p>|</span> grep <span class=m>67</span>  <span class=c1># 过滤UDP 67端口，确认dhcpd服务是否正常监听</span>
+</span></span><span class=line><span class=cl>ss -tuln <span class=p>|</span> grep <span class=m>67</span>     <span class=c1># 替代netstat，更高效查看端口监听（t:TCP, u:UDP, l:监听, n:数字IP）</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启动/重启/查看DHCP服务状态</span>
+</span></span><span class=line><span class=cl>systemctl start dhcpd    <span class=c1># 启动dhcpd服务</span>
+</span></span><span class=line><span class=cl>systemctl restart dhcpd  <span class=c1># 重启服务（配置修改后生效）</span>
+</span></span><span class=line><span class=cl>systemctl status dhcpd   <span class=c1># 查看服务运行状态，排查启动失败问题</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><code>yum install -y dhcp</code>：通过yum包管理器安装DHCP服务；</li><li><code>netstat -an</code>/<code>ss -tuln</code>：查看端口监听，DHCP服务器默认监听UDP 67端口；</li><li><code>systemctl</code> 系列命令：管理系统服务，<code>start</code>启动、<code>restart</code>重启、<code>status</code>查看状态。</li></ul><h4 id=3-dhcp-保留地址配置编辑配置文件>3. DHCP 保留地址配置（编辑配置文件）</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 编辑DHCP主配置文件（示例）</span>
+</span></span><span class=line><span class=cl>vim /etc/dhcp/dhcpd.conf
+</span></span><span class=line><span class=cl><span class=c1># 配置示例（在配置文件中添加）：</span>
+</span></span><span class=line><span class=cl><span class=c1># subnet 192.168.66.0 netmask 255.255.255.0 {  # 地址池（必须配置）</span>
+</span></span><span class=line><span class=cl><span class=c1>#   range 192.168.66.100 192.168.66.200;       # 动态分配范围</span>
+</span></span><span class=line><span class=cl><span class=c1>#   option gateway 192.168.66.1;               # 网关</span>
+</span></span><span class=line><span class=cl><span class=c1>#   option dns-servers 8.8.8.8,114.114.114.114; # DNS</span>
+</span></span><span class=line><span class=cl><span class=c1># }</span>
+</span></span><span class=line><span class=cl><span class=c1># host client1 {  # 保留地址配置段（名称区分不同客户机）</span>
+</span></span><span class=line><span class=cl><span class=c1>#   hardware ethernet 00:0C:29:3A:B8:76;       # 客户机MAC地址</span>
+</span></span><span class=line><span class=cl><span class=c1>#   fixed-address 192.168.66.88;               # 分配的固定IP</span>
+</span></span><span class=line><span class=cl><span class=c1># }</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 配置修改后重启服务</span>
+</span></span><span class=line><span class=cl>systemctl restart dhcpd
+</span></span></code></pre></td></tr></table></div></div><ul><li><code>vim /etc/dhcp/dhcpd.conf</code>：编辑DHCP核心配置文件；</li><li>配置文件中<code>subnet</code>段为地址池（必须存在，否则服务无法启动），<code>host</code>段为保留地址，绑定MAC和固定IP。</li></ul><h3 id=二dns-相关操作bash-命令解释>二、DNS 相关操作（Bash 命令+解释）</h3><h4 id=1-dns-服务基础操作>1. DNS 服务基础操作</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 安装DNS服务（bind）</span>
+</span></span><span class=line><span class=cl>yum install -y <span class=nb>bind</span> bind-utils  <span class=c1># bind是DNS核心包，bind-utils包含nslookup/dig等测试工具</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看DNS端口监听</span>
+</span></span><span class=line><span class=cl>netstat -an <span class=p>|</span> grep <span class=m>53</span>  <span class=c1># DNS默认监听53端口（TCP/UDP）</span>
+</span></span><span class=line><span class=cl>ss -tuln <span class=p>|</span> grep <span class=m>53</span>     <span class=c1># 高效查看53端口监听状态</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启动/重启/查看DNS服务（named）</span>
+</span></span><span class=line><span class=cl>systemctl start named    <span class=c1># 启动named服务</span>
+</span></span><span class=line><span class=cl>systemctl restart named  <span class=c1># 配置修改后重启</span>
+</span></span><span class=line><span class=cl>systemctl status named   <span class=c1># 查看服务状态</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><code>yum install -y bind bind-utils</code>：安装DNS服务（named）及测试工具；</li><li><code>53端口</code>：DNS服务默认端口，TCP用于区域传输，UDP用于解析请求。</li></ul><h4 id=2-dns-解析测试>2. DNS 解析测试</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 正向解析测试（域名→IP）</span>
+</span></span><span class=line><span class=cl>nslookup www.yanghong.com  <span class=c1># 测试域名解析，返回对应IP</span>
+</span></span><span class=line><span class=cl>dig www.yanghong.com       <span class=c1># 更详细的解析信息，包括权威服务器、TTL等</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 反向解析测试（IP→域名，示例IP：192.168.66.123）</span>
+</span></span><span class=line><span class=cl>nslookup 192.168.66.123
+</span></span><span class=line><span class=cl>dig -x 192.168.66.123  <span class=c1># -x 选项专用于反向解析</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看客户端生效的DNS配置</span>
+</span></span><span class=line><span class=cl>cat /etc/resolv.conf  <span class=c1># 查看当前DNS服务器地址</span>
+</span></span><span class=line><span class=cl>nmcli connection show eth0 <span class=p>|</span> grep dns  <span class=c1># 查看网卡eth0的DNS配置（CentOS7+）</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><code>nslookup</code>：简易解析测试工具，直接返回域名/IP对应关系；</li><li><code>dig</code>：更专业的解析工具，<code>-x</code> 用于反向解析，可查看解析过程和权威信息；</li><li><code>nmcli connection show</code>：查看网卡的DNS配置，确认实际生效的DNS服务器。</li></ul><h4 id=3-dns-主从同步配置与测试>3. DNS 主从同步配置与测试</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 主服务器配置（编辑区域文件，升级序列号）</span>
+</span></span><span class=line><span class=cl>vim /var/named/yanghong.com.zone  <span class=c1># 正向解析区域文件</span>
+</span></span><span class=line><span class=cl><span class=c1># 修改Serial（序列号），示例：从2024100100改为2024100101</span>
+</span></span><span class=line><span class=cl><span class=c1># 添加notify参数：notify yes;  # 主服务器主动通知从服务器更新</span>
+</span></span><span class=line><span class=cl><span class=c1># 添加允许从服务器同步的IP：allow-transfer { 192.168.66.192; };</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 重启主服务器DNS服务</span>
+</span></span><span class=line><span class=cl>systemctl restart named
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 从服务器同步测试</span>
+</span></span><span class=line><span class=cl>rndc reload  <span class=c1># 重新加载named配置（无需重启）</span>
+</span></span><span class=line><span class=cl>cat /var/named/slaves/yanghong.com.zone  <span class=c1># 查看同步的区域文件</span>
+</span></span><span class=line><span class=cl>dig @192.168.66.192 www.yanghong.com    <span class=c1># 测试从服务器解析是否同步</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><code>Serial</code>：区域文件的版本号，主服务器修改后需递增，否则从服务器不同步；</li><li><code>notify yes</code>：主服务器数据变更后主动通知从服务器；</li><li><code>allow-transfer</code>：限制仅指定从服务器可同步数据，提升安全性；</li><li><code>rndc reload</code>：从服务器重新加载配置，无需重启服务即可同步数据。</li></ul><h4 id=4-dns-缓存服务器dnsmasq配置>4. DNS 缓存服务器（dnsmasq）配置</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 安装dnsmasq</span>
+</span></span><span class=line><span class=cl>yum install -y dnsmasq
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 编辑dnsmasq配置文件</span>
+</span></span><span class=line><span class=cl>vim /etc/dnsmasq.conf
+</span></span><span class=line><span class=cl>核心配置：
+</span></span><span class=line><span class=cl><span class=nv>interface</span><span class=o>=</span>ens160  <span class=c1># 监听指定网卡（避免仅监听127.0.0.1）</span>
+</span></span><span class=line><span class=cl><span class=nv>server</span><span class=o>=</span>192.168.66.191  <span class=c1># 上游主DNS服务器IP</span>
+</span></span><span class=line><span class=cl>cache-size<span class=o>=</span><span class=m>15000</span>       <span class=c1># 缓存容量（最大15000条记录）</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启动/重启dnsmasq</span>
+</span></span><span class=line><span class=cl>systemctl start dnsmasq
+</span></span><span class=line><span class=cl>systemctl restart dnsmasq
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 测试缓存效果</span>
+</span></span><span class=line><span class=cl>dig @192.168.66.193 www.yanghong.com  <span class=c1># 首次解析（权威答案）</span>
+</span></span><span class=line><span class=cl>dig @192.168.66.193 www.yanghong.com  <span class=c1># 再次解析（非权威答案，缓存生效）</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><code>interface</code>：指定监听的网卡，确保客户端可访问缓存服务器；</li><li><code>server</code>：指定上游DNS服务器，缓存服务器无记录时向其请求；</li><li><code>cache-size</code>：设置缓存最大条数，超出时淘汰最早记录；</li><li>两次<code>dig</code>测试：首次返回“权威答案”，第二次返回“非权威答案”，证明缓存生效。</li></ul><h3 id=三ftpvsftpd相关操作bash-命令解释>三、FTP（vsftpd）相关操作（Bash 命令+解释）</h3><h4 id=1-vsftpd-服务基础操作>1. vsftpd 服务基础操作</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 安装vsftpd</span>
+</span></span><span class=line><span class=cl>yum install -y vsftpd
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看FTP端口监听</span>
+</span></span><span class=line><span class=cl>netstat -an <span class=p>|</span> grep <span class=m>21</span>  <span class=c1># 21端口为FTP控制连接</span>
+</span></span><span class=line><span class=cl>ss -tuln <span class=p>|</span> grep <span class=m>21</span>     <span class=c1># 高效查看21端口监听状态</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 启动/重启/查看vsftpd状态</span>
+</span></span><span class=line><span class=cl>systemctl start vsftpd    <span class=c1># 启动服务</span>
+</span></span><span class=line><span class=cl>systemctl restart vsftpd  <span class=c1># 配置修改后重启</span>
+</span></span><span class=line><span class=cl>systemctl status vsftpd   <span class=c1># 查看服务运行状态</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看FTP日志（排查问题）</span>
+</span></span><span class=line><span class=cl>tail -f /var/log/vsftpd.log  <span class=c1># 实时查看FTP日志，-f 跟踪日志更新</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><code>21端口</code>：FTP控制连接端口，用于传输命令/响应；20端口为数据连接（主动模式）；</li><li><code>tail -f</code>：实时跟踪日志，方便排查登录失败、权限拒绝等问题。</li></ul><h4 id=2-linux-客户端连接-ftp>2. Linux 客户端连接 FTP</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 安装FTP客户端</span>
+</span></span><span class=line><span class=cl>yum install -y ftp lftp
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 基础ftp命令连接（示例服务器IP：192.168.66.191）</span>
+</span></span><span class=line><span class=cl>ftp 192.168.66.191
+</span></span><span class=line><span class=cl><span class=c1># 登录后常用命令：</span>
+</span></span><span class=line><span class=cl><span class=c1># get 1.txt          # 下载文件1.txt到客户端当前目录</span>
+</span></span><span class=line><span class=cl><span class=c1># put 2.txt          # 上传客户端当前目录的2.txt到服务器</span>
+</span></span><span class=line><span class=cl><span class=c1># mkdir test         # 创建test目录</span>
+</span></span><span class=line><span class=cl><span class=c1># delete 1.txt       # 删除服务器上的1.txt</span>
+</span></span><span class=line><span class=cl><span class=c1># rename 1.txt 3.txt # 重命名文件</span>
+</span></span><span class=line><span class=cl><span class=c1># !ls                # 不退出FTP，查看客户端当前目录文件</span>
+</span></span><span class=line><span class=cl><span class=c1># quit               # 退出FTP连接</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># lftp工具连接（更灵活）</span>
+</span></span><span class=line><span class=cl>lftp lisi@192.168.66.191  <span class=c1># 直接指定用户名登录</span>
+</span></span><span class=line><span class=cl><span class=c1># lftp常用命令：</span>
+</span></span><span class=line><span class=cl><span class=c1># rm 1.txt           # 删除文件（与bash一致）</span>
+</span></span><span class=line><span class=cl><span class=c1># mv 1.txt 3.txt     # 重命名（与bash一致）</span>
+</span></span><span class=line><span class=cl><span class=c1># mirror /home/lisi  # 下载整个目录到客户端</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><code>ftp</code>：基础FTP客户端，命令偏传统；</li><li><code>lftp</code>：增强版FTP客户端，命令更贴近bash，支持目录批量操作；</li><li><code>!ls</code>：<code>!</code> 表示执行客户端本地命令，无需退出FTP连接。</li></ul><h4 id=3-匿名用户权限配置>3. 匿名用户权限配置</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 编辑vsftpd配置文件</span>
+</span></span><span class=line><span class=cl>vim /etc/vsftpd/vsftpd.conf
+</span></span><span class=line><span class=cl>开启匿名用户及写入权限：
+</span></span><span class=line><span class=cl><span class=nv>anonymous_enable</span><span class=o>=</span>YES               
+</span></span><span class=line><span class=cl><span class=c1># 开启匿名登录</span>
+</span></span><span class=line><span class=cl><span class=nv>anon_upload_enable</span><span class=o>=</span>YES             
+</span></span><span class=line><span class=cl><span class=c1># 允许上传</span>
+</span></span><span class=line><span class=cl><span class=nv>anon_mkdir_write_enable</span><span class=o>=</span>YES        
+</span></span><span class=line><span class=cl><span class=c1># 允许创建目录</span>
+</span></span><span class=line><span class=cl><span class=nv>anon_other_write_enable</span><span class=o>=</span>YES        
+</span></span><span class=line><span class=cl><span class=c1># 允许删除/重命名</span>
+</span></span><span class=line><span class=cl><span class=nv>anon_umask</span><span class=o>=</span><span class=m>022</span>                     
+</span></span><span class=line><span class=cl><span class=c1># 上传文件权限（默认077→600，改为022→644）</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 重启vsftpd服务使配置生效</span>
+</span></span><span class=line><span class=cl>systemctl restart vsftpd
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 调整文件系统权限（匿名用户为ftp用户）</span>
+</span></span><span class=line><span class=cl>setfacl -m u:ftp:rwx /var/ftp  <span class=c1># 给ftp用户赋予/var/ftp目录读写执行权限</span>
+</span></span><span class=line><span class=cl>ls -ld /var/ftp                <span class=c1># 查看目录权限（确认acl生效）</span>
+</span></span><span class=line><span class=cl>getfacl /var/ftp               <span class=c1># 查看详细的acl权限配置</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><code>anon_*</code> 系列配置：针对匿名用户的权限，需取消注释或手动添加；</li><li><code>anon_umask</code>：掩码值，决定上传文件的默认权限（022对应644，所有人可读）；</li><li><code>setfacl</code>：精细化设置权限，避免直接给<code>/var/ftp</code>设置777权限（安全风险）；</li><li><code>getfacl</code>：查看ACL权限，确认配置生效。</li></ul><h4 id=4-ftp-常见问题排查>4. FTP 常见问题排查</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 检查配置文件格式（等号前后无空格）</span>
+</span></span><span class=line><span class=cl>grep -E <span class=s2>&#34;^\s*anonymous_enable\s*=&#34;</span> /etc/vsftpd/vsftpd.conf  <span class=c1># 检查格式错误</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 测试匿名用户上传（模拟）</span>
+</span></span><span class=line><span class=cl>lftp ftp@192.168.66.191
+</span></span><span class=line><span class=cl>put test.txt  <span class=c1># 上传文件，若提示550则检查权限</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看SELinux状态（可能限制FTP）</span>
+</span></span><span class=line><span class=cl>getenforce  <span class=c1># 若为Enforcing，临时关闭：setenforce 0</span>
+</span></span><span class=line><span class=cl><span class=c1># 永久关闭SELinux（需重启）：</span>
+</span></span><span class=line><span class=cl><span class=c1># sed -i &#39;s/^SELINUX=.*/SELINUX=disabled/&#39; /etc/selinux/config</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><code>grep -E</code>：过滤配置项，检查等号前后是否有空格（格式错误会导致500 OOPS错误）；</li><li><code>getenforce/setenforce</code>：SELinux可能限制FTP写入，临时关闭用于排查；</li><li><code>550错误</code>：最常见，优先检查配置文件权限项和文件系统ACL权限。</li></ul><h3 id=通用说明>通用说明</h3><ol><li>所有命令基于CentOS/RHEL 7/8系统，Debian/Ubuntu需替换<code>yum</code>为<code>apt</code>；</li><li>配置文件修改后均需重启对应服务（<code>systemctl restart</code>）生效；</li><li>权限配置需同时修改服务配置文件和文件系统权限（ACL/属主/掩码），缺一不可；</li><li>日志文件（<code>/var/log/vsftpd.log</code>/<code>/var/log/messages</code>）是排查问题的核心依据。</li></ol></section><footer class=article-footer><section class=article-tags><a href=/fuyou/tags/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80/>网络基础</a>
+<a href=/fuyou/tags/obsidian/>Obsidian</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>本作品采用 CC BY-NC-SA 4.0 许可协议</span></section><section class=article-lastmod><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<span>最后更新于 2026-07-11 16:45 +0800</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/fuyou/p/network-17/><div class=article-image><img src=https://picsum.photos/seed/fuyou-network-17/1200/675 loading=lazy data-key=network-17 data-hash=https://picsum.photos/seed/fuyou-network-17/1200/675></div><div class=article-details><h2 class=article-title>网络服务阶段索引</h2></div></a></article><article class=has-image><a href=/fuyou/p/network-18/><div class=article-image><img src=https://picsum.photos/seed/fuyou-network-18/1200/675 loading=lazy data-key=network-18 data-hash=https://picsum.photos/seed/fuyou-network-18/1200/675></div><div class=article-details><h2 class=article-title>MySQL SQL 语言分类</h2></div></a></article><article class=has-image><a href=/fuyou/p/network-16/><div class=article-image><img src=https://picsum.photos/seed/fuyou-network-16/1200/675 loading=lazy data-key=network-16 data-hash=https://picsum.photos/seed/fuyou-network-16/1200/675></div><div class=article-details><h2 class=article-title>Redis 全面知识体系详解</h2></div></a></article><article class=has-image><a href=/fuyou/p/network-15/><div class=article-image><img src=https://picsum.photos/seed/fuyou-network-15/1200/675 loading=lazy data-key=network-15 data-hash=https://picsum.photos/seed/fuyou-network-15/1200/675></div><div class=article-details><h2 class=article-title>MySQL 备份恢复与日志管理</h2></div></a></article><article class=has-image><a href=/fuyou/p/network-14/><div class=article-image><img src=https://picsum.photos/seed/fuyou-network-14/1200/675 loading=lazy data-key=network-14 data-hash=https://picsum.photos/seed/fuyou-network-14/1200/675></div><div class=article-details><h2 class=article-title>MySQL 视图、外键、存储过程与主从复制</h2></div></a></article></div></div></aside>...<div class=comment></div><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 小杨</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.26.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/fuyou/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script><style>body{background:url(https://luckycloveryh.github.io/fuyou/background/jinlin.png)no-repeat 50% 0;background-size:cover;background-attachment:fixed}@media(max-width:767px){body{background-attachment:scroll;background-position:50% 0}}.article-details{position:relative;z-index:1}.article-title,.article-title a{color:var(--card-text-color-main)!important}.search-form input{background-color:var(--card-background)!important;color:var(--card-text-color-main)!important;border-color:var(--card-separator-color)!important}.search-form button{background-color:transparent!important;color:var(--card-text-color-secondary)!important}.left-sidebar .site-name,.left-sidebar .site-name a,.left-sidebar .site-description,.left-sidebar #main-menu li a,.left-sidebar #main-menu li.current a,.left-sidebar #dark-mode-toggle,.left-sidebar #i18n-switch,.left-sidebar .menu-social svg,.right-sidebar .widget-icon svg,.right-sidebar .widget-title,.site-footer{color:#fff!important;stroke:#fff!important;text-shadow:0 1px 4px rgba(0,0,0,.65)}.left-sidebar #main-menu li a:hover,.left-sidebar .site-name a:hover{color:#fff!important;opacity:.9}</style><script src=https://luckycloveryh.github.io/fuyou/background/sakura.js></script><div id=particles-js></div><script src=https://luckycloveryh.github.io/fuyou/background/particles.min.js></script><script>window.matchMedia("(min-width: 768px)").matches&&particlesJS.load("particles-js","https://luckycloveryh.github.io/fuyou/background/particlesjs-config.json",function(){console.log("particles.js loaded - callback")})</script><style>#particles-js{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}#particles-js canvas{pointer-events:none!important}@media(max-width:767px){#particles-js,#canvas_sakura{display:none!important}}</style><style>:root{--base-font-family:"Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Segoe UI", Arial, sans-serif;--article-font-family:var(--base-font-family);--code-font-family:"Cascadia Mono", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei UI", monospace}</style><style>#TableOfContents>ul,ol{ul, ol { display: none; } .open { display: block; }}</style><script>function initTocHide(){let e=document.querySelector(".widget--toc");if(!e)return;window.fuyouTocScrollHandler&&window.removeEventListener("scroll",window.fuyouTocScrollHandler),window.fuyouTocScrollHandler=function(){let n=document.querySelectorAll(".open");n.length>0&&n.forEach(e=>{e.classList.remove("open")});let t=document.querySelector(".active-class");if(!t)return;t.children.length>1&&t.children[1].classList.add("open");let e=t.parentElement;do e.classList.add("open"),e=e.parentElement.parentElement;while(e!==void 0&&(e.localName==="ul"||e.localName==="ol"))},window.addEventListener("scroll",window.fuyouTocScrollHandler,{passive:!0})}initTocHide()</script><style>#backTopBtn{display:none;position:fixed;right:30px;bottom:30px;z-index:99;cursor:pointer;width:30px;height:30px;background-image:url(https://luckycloveryh.github.io/fuyou/icons/backTop.svg);background-repeat:no-repeat;background-position:50%;background-size:contain}@media(max-width:767px){#backTopBtn{right:14px;bottom:calc(82px + env(safe-area-inset-bottom));width:42px;height:42px;border:0;border-radius:50%;background-color:rgba(35,35,35,.74);background-size:22px 22px;box-shadow:0 8px 20px rgba(0,0,0,.28)}}</style><script>function initScrollTop(){let e=document.getElementById("backTopBtn");e||(e=document.createElement("button"),e.id="backTopBtn",e.type="button",e.setAttribute("aria-label","Back to top"),e.onclick=backToTop,document.body.appendChild(e)),window.fuyouBackTopHandler&&window.removeEventListener("scroll",window.fuyouBackTopHandler),window.fuyouBackTopHandler=function(){document.body.scrollTop>20||document.documentElement.scrollTop>20?e.style.display="block":e.style.display="none"},window.addEventListener("scroll",window.fuyouBackTopHandler,{passive:!0}),window.fuyouBackTopHandler()}function backToTop(){window.scrollTo({top:0,behavior:"smooth"})}initScrollTop()</script><style>.highlight{max-height:400px;overflow:hidden}.code-show{max-height:none!important}.code-more-box{width:100%;padding-top:78px;background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0)),to(#fff));position:absolute;left:0;right:0;bottom:0;z-index:1}.code-more-btn{display:block;margin:auto;width:44px;height:22px;background:#f0f0f5;border-top-left-radius:8px;border-top-right-radius:8px;padding-top:6px;cursor:pointer}.code-more-img{cursor:pointer!important;display:block;margin:auto;width:22px;height:16px}</style><script>function initCodeMoreBox(){let e=document.querySelectorAll(".highlight");if(!e)return;e.forEach(e=>{if(e.scrollHeight<=e.clientHeight)return;let t=document.createElement("div");t.classList.add("code-more-box");let n=document.createElement("span");n.classList.add("code-more-btn"),n.addEventListener("click",()=>{e.classList.add("code-show"),t.style.display="none",window.dispatchEvent(new Event("resize"))});let s=document.createElement("img");s.classList.add("code-more-img"),s.src="https://luckycloveryh.github.io/fuyou/icons/codeMore.png",n.appendChild(s),t.appendChild(n),e.appendChild(t)})}initCodeMoreBox()</script><script>const cdnPath="https://cdn.jsdelivr.net/gh/letere-gzj/live2d-widget-v3@main",config={path:{homePath:"/",modelPath:cdnPath+"/Resources/",cssPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu.css",tipsJsonPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu-tips.json",tipsJsPath:cdnPath+"/waifu-tips.js",live2dCorePath:cdnPath+"/Core/live2dcubismcore.js",live2dSdkPath:cdnPath+"/live2d-sdk.js"},tools:["hitokoto","asteroids","express","switch-model","switch-texture","photo","info","quit"],drag:{enable:!0,direction:["x","y"]},switchType:"order"};function loadExternalResource(e,t){return new Promise((n,s)=>{let o;t==="css"?(o=document.createElement("link"),o.rel="stylesheet",o.href=e):t==="js"&&(o=document.createElement("script"),o.src=e),o&&(o.onload=()=>n(e),o.onerror=()=>s(e),document.head.appendChild(o))})}let live2dInitialized=!1;function initLive2d(){if(live2dInitialized)return;window.matchMedia("(min-width: 768px)").matches&&Promise.all([loadExternalResource(config.path.cssPath,"css"),loadExternalResource(config.path.live2dCorePath,"js"),loadExternalResource(config.path.live2dSdkPath,"js"),loadExternalResource(config.path.tipsJsPath,"js")]).then(()=>{initWidget({waifuPath:config.path.tipsJsonPath,cdnPath:config.path.modelPath,tools:config.tools,dragEnable:config.drag.enable,dragDirection:config.drag.direction,switchType:config.switchType}),live2dInitialized=!0}).catch(e=>{console.error("Failed to load live2d:",e)})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",initLive2d):initLive2d()</script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css><style>@media(max-width:767px){.aplayer.aplayer-fixed,.aplayer.aplayer-fixed .aplayer-body{max-width:100vw}.aplayer.aplayer-fixed .aplayer-body{padding-right:18px;padding-bottom:env(safe-area-inset-bottom)}.aplayer.aplayer-fixed .aplayer-info{width:calc(100vw - 66px)}.aplayer.aplayer-fixed .aplayer-lrc{display:none!important}}</style><div id=aplayer></div><script src=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js></script><script>(function(){const e="https://luckycloveryh.github.io/fuyou/",t=document.getElementById("aplayer");if(!t||window.ap)return;window.ap=new APlayer({container:t,fixed:!0,lrcType:3,audio:[{name:"归期",artist:"钱润玉",url:e+"music/归期-钱润玉/song.mp3",cover:e+"music/归期-钱润玉/cover.jpg"}]})})()</script><script>window.addEventListener("beforeunload",()=>{if(!window.ap)return;const e={index:window.ap.list.index,currentTime:window.ap.audio.currentTime,paused:window.ap.paused};sessionStorage.setItem("playInfo",JSON.stringify(e))}),window.addEventListener("load",()=>{if(!window.ap)return;if(window._pjaxNavigating)return;const e=JSON.parse(sessionStorage.getItem("playInfo"));if(!e)return;window.ap.list.switch(e.index),setTimeout(()=>{if(window.ap.seek(e.currentTime),!e.paused){const e=window.ap.play();e&&typeof e.catch=="function"&&e.catch(()=>{})}},500)}),document.addEventListener("pjax:send",()=>{window._pjaxNavigating=!0}),document.addEventListener("pjax:complete",()=>{window._pjaxNavigating=!1})</script><script>window.fuyouPjaxInitialized=window.fuyouPjaxInitialized||!1;function reinitFuyouPageScripts(){try{window.Stack&&window.Stack.init&&window.Stack.init()}catch(e){console.warn("Stack初始化失败:",e)}try{typeof initTocHide=="function"&&initTocHide(),typeof initScrollTop=="function"&&initScrollTop(),typeof initCodeMoreBox=="function"&&initCodeMoreBox(),typeof showHideView=="function"&&showHideView(),typeof renderKaTeX=="function"&&renderKaTeX()}catch(e){console.warn("页面脚本重新初始化失败:",e)}try{typeof RENDERER!="undefined"&&RENDERER.setup()}catch(e){console.warn("底部小鱼初始化失败:",e)}}function shouldFuyouHandleLink(e,t){if(!t||e.defaultPrevented)return!1;if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return!1;if(t.target&&t.target!=="_self")return!1;if(t.hasAttribute("download"))return!1;const n=new URL(t.href,window.location.href);return n.origin===window.location.origin&&!!n.pathname.startsWith("/fuyou/")&&(n.pathname!==window.location.pathname||n.search!==window.location.search)&&!(n.hash&&n.pathname===window.location.pathname&&n.search===window.location.search)}async function fuyouLoadPage(e,t){document.dispatchEvent(new CustomEvent("pjax:send")),window._pjaxNavigating=!0;try{const s=await fetch(e,{headers:{"X-Requested-With":"fuyou-pjax"},credentials:"same-origin"});if(!s.ok)throw new Error("HTTP "+s.status);const r=await s.text(),n=(new DOMParser).parseFromString(r,"text/html"),o=n.querySelector(".main-container"),i=document.querySelector(".main-container");if(!o||!i){window.location.href=e;return}document.title=n.title,document.body.className=n.body.className,i.replaceWith(o);const c=document.querySelectorAll(".js-Pjax"),a=n.querySelectorAll(".js-Pjax");c.forEach((e,t)=>{a[t]&&e.replaceWith(a[t])}),t&&history.pushState({fuyouPjax:!0},"",e),window.scrollTo({top:0,behavior:"auto"}),reinitFuyouPageScripts(),document.dispatchEvent(new CustomEvent("pjax:complete"))}catch(t){console.warn("无刷新切换失败，回退到普通跳转:",t),window.location.href=e}finally{window._pjaxNavigating=!1}}window.addEventListener("load",()=>{if(window.fuyouPjaxInitialized)return;window.fuyouPjaxInitialized=!0,history.replaceState({fuyouPjax:!0},"",window.location.href),document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("a[href]");if(!shouldFuyouHandleLink(e,t))return;e.preventDefault(),fuyouLoadPage(t.href,!0)}),window.addEventListener("popstate",()=>{fuyouLoadPage(window.location.href,!1)}),window.pjax={refresh:function(){},loadUrl:function(e){fuyouLoadPage(e,!0)}}})</script><div class=js-Pjax><script>(function(){let t=document.querySelector(".comment");if(!t)return;let e=document.createElement("script");e.setAttribute("src","https://giscus.app/client.js"),e.setAttribute("data-repo",""),e.setAttribute("data-repo-id",""),e.setAttribute("data-category",""),e.setAttribute("data-category-id",""),e.setAttribute("data-mapping",""),e.setAttribute("data-strict",""),e.setAttribute("data-reactions-enabled","1"),e.setAttribute("data-emit-metadata","0"),e.setAttribute("data-input-position",""),e.setAttribute("data-theme",""),e.setAttribute("data-lang",""),e.async=!0,e.crossOrigin="anonymous",t.appendChild(e)})(document)</script></div><script>async function renderKaTeX(){let e=document.querySelector(".math-katex");if(!e)return;for(;typeof renderMathInElement!="function";)await delay(500);renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],ignoredClasses:["gist"]})}function delay(e){return new Promise(t=>{setTimeout(t,e)})}document.addEventListener("pjax:complete",()=>{renderKaTeX()})</script><script src=https://luckycloveryh.github.io/fuyou/js/topbar.min.js></script><script>topbar.config({barColors:{0:"rgba(255, 255, 255, 1)",1.0:"rgba(0, 149, 234, 1)"}}),document.addEventListener("pjax:send",()=>{topbar.show()}),document.addEventListener("pjax:complete",()=>{topbar.hide()})</script><script defer src=https://cn.vercount.one/js></script><script>function showHideView(){let e=document.querySelectorAll("#viewCount");if(e){let t=document.querySelector(".article-page");t||e.forEach(e=>{e.style.display="none"})}}showHideView()</script><div id=jsi-flying-fish-container class=flying-fish-container></div><style>.flying-fish-container{width:100%;height:200px;position:fixed;z-index:0;pointer-events:none;bottom:0;left:0;opacity:.6}.flying-fish-container canvas{display:block;pointer-events:none}@media(max-width:767px){.flying-fish-container{height:96px;opacity:.38}}</style><script src=https://luckycloveryh.github.io/fuyou/js/flying-fish.js></script><script>window.addEventListener("load",function(){typeof RENDERER!="undefined"&&document.getElementById("jsi-flying-fish-container")&&RENDERER.init()}),document.addEventListener("pjax:complete",function(){typeof RENDERER!="undefined"&&RENDERER.setup()})</script></body></html>

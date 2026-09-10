@@ -1,0 +1,527 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="介绍《Docker 容器管理常用命令》，涵盖容器的管理、Docker 命令行参数和Docker 命令使用案例等实践要点。"><title>Docker 容器管理常用命令</title>
+<link rel=canonical href=https://luckycloveryh.github.io/fuyou/p/docker-09/><link rel=stylesheet href=/fuyou/scss/style.min.4f12ea1fa4ca7ef3f419897549c88b4c242f129d29316c950cdb3b0754157538.css><meta property='og:title' content="Docker 容器管理常用命令"><meta property='og:description' content="介绍《Docker 容器管理常用命令》，涵盖容器的管理、Docker 命令行参数和Docker 命令使用案例等实践要点。"><meta property='og:url' content='https://luckycloveryh.github.io/fuyou/p/docker-09/'><meta property='og:site_name' content='小杨的博客'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='Docker'><meta property='article:tag' content='Obsidian'><meta property='article:published_time' content='2026-06-22T09:00:00+08:00'><meta property='article:modified_time' content='2026-07-11T16:45:03+08:00'><meta property='og:image' content='https://picsum.photos/seed/fuyou-docker-09/1200/675'><meta name=twitter:title content="Docker 容器管理常用命令"><meta name=twitter:description content="介绍《Docker 容器管理常用命令》，涵盖容器的管理、Docker 命令行参数和Docker 命令使用案例等实践要点。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://picsum.photos/seed/fuyou-docker-09/1200/675'><link rel=alternate type=application/json href=https://luckycloveryh.github.io/fuyou/p/docker-09/index.json><link rel="shortcut icon" href=/fuyou/favicon.png><div class=loading-container><div class=card><div class=loader><p>loading</p><div class=words><span class=word>buttons</span>
+<span class=word>forms</span>
+<span class=word>switches</span>
+<span class=word>cards</span>
+<span class=word>buttons</span></div></div></div></div><style>.loading-container{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(17,17,17,.98);display:flex;align-items:center;justify-content:center;z-index:999999;transition:opacity 1.2s ease;pointer-events:none}.card{--bg-color:#111;background-color:var(--bg-color);padding:1.2rem 2.5rem;border-radius:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.7)}.loader{color:#7c7c7c;font-family:poppins,system-ui,sans-serif;font-weight:500;font-size:25px;height:42px;padding:8px 12px;display:flex;align-items:center;gap:12px;border-radius:8px;white-space:nowrap}.words{overflow:hidden;position:relative;height:100%;min-width:110px}.words::after{content:"";position:absolute;inset:0;background:linear-gradient( var(--bg-color) 10%,transparent 30%,transparent 70%,var(--bg-color) 90% );z-index:20}.word{display:block;height:100%;padding-left:4px;color:#956afa;animation:spin_4991 4s infinite linear}@keyframes spin_4991{10%{transform:translateY(-102%)}25%{transform:translateY(-100%)}35%{transform:translateY(-202%)}50%{transform:translateY(-200%)}60%{transform:translateY(-302%)}75%{transform:translateY(-300%)}85%{transform:translateY(-402%)}100%{transform:translateY(-400%)}}.loading-container.fade-out{opacity:0;pointer-events:none}</style><script>(function(){const e=()=>{const e=document.querySelector(".loading-container");if(!e)return;e.classList.add("fade-out"),e.style.display="none",e.style.pointerEvents="none"},n=sessionStorage.getItem("visited");if(n){e();return}const t=()=>{const t=document.querySelector(".loading-container");if(!t)return;t.classList.add("fade-out"),setTimeout(()=>{e(),sessionStorage.setItem("visited","true")},400)};setTimeout(t,1200),window.addEventListener("load",t,{once:!0})})()</script></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/fuyou/><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/muzimi.gif width=300 height=300 class=site-logo loading=lazy alt=Avatar>
+</a><span class=emoji>🌸</span></figure><div class=site-meta><h1 class=site-name><a href=/fuyou>小杨的博客</a></h1><h2 class=site-description>技术分享，日常分享</h2></div></header><ol class=menu-social><li><a href=https://space.bilibili.com/81116666 title=Bilibili rel=me><svg class="icon icon-bilibili-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 6.1 5.8 3.3"/><path d="M15.8 6.1l2.4-2.8"/><path d="M7.2 7h9.6a4 4 0 014 4v4a4 4 0 01-4 4H7.2a4 4 0 01-4-4v-4a4 4 0 014-4z"/><path d="M9 12.1l1.3 1.4"/><path d="M15 12.1l-1.3 1.4"/></svg></a></li><li><a href=https://github.com/luckycloveryh/fuyou title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/fuyou/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>主页 | Home</span></a></li><li><a href=/fuyou/categories/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>分类&标签 | Cats&amp;Tags</span></a></li><li><a href=/fuyou/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>归档 | Archives</span></a></li><li><a href=/fuyou/%E6%90%9C%E7%B4%A2/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>搜索 | Search</span></a></li><li><a href=/fuyou/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97-logs/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>更新日志 | Logs</span></a></li><li><a href=/fuyou/%E6%8A%80%E6%9C%AF%E9%93%BE%E6%8E%A5-links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>技术链接 | Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#docker-命令行参数>Docker 命令行参数</a></li><li><a href=#docker-命令使用案例>Docker 命令使用案例</a><ol><li><a href=#21-获取容器启动镜像>2.1 获取容器启动镜像</a></li><li><a href=#22-容器镜像传输>2.2 容器镜像传输</a></li><li><a href=#22-启动容器>2.2 启动容器</a><ol><li><a href=#启动一个-rockylinux-容器>启动一个 Rockylinux 容器</a></li><li><a href=#启动一个-nginx-容器>启动一个 nginx 容器</a></li></ol></li><li><a href=#23-查看容器ip>2.3 查看容器IP</a><ol><li><a href=#方法一-在容器内部查看>方法一： 在容器内部查看</a></li><li><a href=#方法二-使用-docker-inspect-查看>方法二： 使用 docker inspect 查看</a></li><li><a href=#方法三-使用-nsenter-后面课程介绍>方法三： 使用 nsenter ，后面课程介绍</a></li></ol></li><li><a href=#24-容器生命周期管理>2.4 容器生命周期管理</a><ol><li><a href=#启动容器>启动容器</a></li><li><a href=#查看正在运行的容器>查看正在运行的容器</a></li><li><a href=#停止容器>停止容器</a></li><li><a href=#查看已停止的容器>查看已停止的容器</a></li><li><a href=#启动已停止的容器>启动已停止的容器</a></li><li><a href=#删除容器>删除容器</a></li></ol></li></ol></li><li><a href=#docker-镜像管理命令>Docker 镜像管理命令</a></li><li><a href=#附录>附录</a><ol><li><a href=#docker-cs-模式-了解>Docker C/S 模式 （了解）</a></li><li><a href=#容器重启策略>容器重启策略</a></li><li><a href=#镜像地址>镜像地址</a></li></ol></li><li><a href=#来源>来源</a></li></ol></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/fuyou/p/docker-09/><img src=https://picsum.photos/seed/fuyou-docker-09/1200/675 loading=lazy alt="Featured image of post Docker 容器管理常用命令"></a></div><div class=article-details><header class=article-category><a href=/fuyou/categories/7.-docker/>7. Docker</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/fuyou/p/docker-09/>Docker 容器管理常用命令</a></h2><h3 class=article-subtitle>介绍《Docker 容器管理常用命令》，涵盖容器的管理、Docker 命令行参数和Docker 命令使用案例等实践要点。</h3></div><footer class="article-time article-time--template"><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>2026-06-22</time></div><div><svg class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7H6A2 2 0 004 9v9a2 2 0 002 2h9a2 2 0 002-2v-1"/><path d="M20.385 6.585a2.1 2.1.0 00-2.97-2.97L9 12v3h3l8.385-8.415z"/><path d="M16 5l3 3"/></svg>
+<time class=article-time--modified>2026-07-11</time></div><div><svg class="icon icon-tabler icon-tabler-file-text" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 001 1h4"/><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path d="M9 9h1"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+<span class=article-time--word-count>2252字</span></div></footer></div></header><section class=article-content><h1 id=三-容器的管理>三. 容器的管理</h1><h2 id=docker-命令行参数>Docker 命令行参数</h2><p>Docker 操作命令分为: 管理命令与普通命令</p><ol><li>管理命令：为区分每个项目的命令, 比如说镜像操作, 就是以docker image 开头</li><li>普通命令：是在docker 命令之后直接的命令, 比如说删除镜像 docker rmi</li><li>管理命令相对于普通命令更清晰、严谨。</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker help </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Usage:  docker <span class=o>[</span>OPTIONS<span class=o>]</span> COMMAND
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>A self-sufficient runtime <span class=k>for</span> containers
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Common Commands:
+</span></span><span class=line><span class=cl>  run         Create and run a new container from an image
+</span></span><span class=line><span class=cl>  <span class=nb>exec</span>        Execute a <span class=nb>command</span> in a running container
+</span></span><span class=line><span class=cl>  ps          List containers
+</span></span><span class=line><span class=cl>  build       Build an image from a Dockerfile
+</span></span><span class=line><span class=cl>  pull        Download an image from a registry
+</span></span><span class=line><span class=cl>  push        Upload an image to a registry
+</span></span><span class=line><span class=cl>  images      List images
+</span></span><span class=line><span class=cl>  login       Authenticate to a registry
+</span></span><span class=line><span class=cl>  <span class=nb>logout</span>      Log out from a registry
+</span></span><span class=line><span class=cl>  search      Search Docker Hub <span class=k>for</span> images
+</span></span><span class=line><span class=cl>  version     Show the Docker version information
+</span></span><span class=line><span class=cl>  info        Display system-wide information
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Management Commands:
+</span></span><span class=line><span class=cl>  builder     Manage builds
+</span></span><span class=line><span class=cl>  buildx*     Docker Buildx
+</span></span><span class=line><span class=cl>  compose*    Docker Compose
+</span></span><span class=line><span class=cl>  container   Manage containers
+</span></span><span class=line><span class=cl>  context     Manage contexts
+</span></span><span class=line><span class=cl>  image       Manage images
+</span></span><span class=line><span class=cl>  manifest    Manage Docker image manifests and manifest lists
+</span></span><span class=line><span class=cl>  network     Manage networks
+</span></span><span class=line><span class=cl>  plugin      Manage plugins
+</span></span><span class=line><span class=cl>  system      Manage Docker
+</span></span><span class=line><span class=cl>  trust       Manage trust on Docker images
+</span></span><span class=line><span class=cl>  volume      Manage volumes
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Swarm Commands:
+</span></span><span class=line><span class=cl>  swarm       Manage Swarm
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Commands:
+</span></span><span class=line><span class=cl>  attach      Attach <span class=nb>local</span> standard input, output, and error streams to a running container
+</span></span><span class=line><span class=cl>  commit      Create a new image from a container<span class=s1>&#39;s changes
+</span></span></span><span class=line><span class=cl><span class=s1>  cp          Copy files/folders between a container and the local filesystem
+</span></span></span><span class=line><span class=cl><span class=s1>  create      Create a new container
+</span></span></span><span class=line><span class=cl><span class=s1>  diff        Inspect changes to files or directories on a container&#39;</span>s filesystem
+</span></span><span class=line><span class=cl>  events      Get real <span class=nb>time</span> events from the server
+</span></span><span class=line><span class=cl>  <span class=nb>export</span>      Export a container<span class=err>&#39;</span>s filesystem as a tar archive
+</span></span><span class=line><span class=cl>  <span class=nb>history</span>     Show the <span class=nb>history</span> of an image
+</span></span><span class=line><span class=cl>  import      Import the contents from a tarball to create a filesystem image
+</span></span><span class=line><span class=cl>  inspect     Return low-level information on Docker objects
+</span></span><span class=line><span class=cl>  <span class=nb>kill</span>        Kill one or more running containers
+</span></span><span class=line><span class=cl>  load        Load an image from a tar archive or STDIN
+</span></span><span class=line><span class=cl>  logs        Fetch the logs of a container
+</span></span><span class=line><span class=cl>  pause       Pause all processes within one or more containers
+</span></span><span class=line><span class=cl>  port        List port mappings or a specific mapping <span class=k>for</span> the container
+</span></span><span class=line><span class=cl>  rename      Rename a container
+</span></span><span class=line><span class=cl>  restart     Restart one or more containers
+</span></span><span class=line><span class=cl>  rm          Remove one or more containers
+</span></span><span class=line><span class=cl>  rmi         Remove one or more images
+</span></span><span class=line><span class=cl>  save        Save one or more images to a tar archive <span class=o>(</span>streamed to STDOUT by default<span class=o>)</span>
+</span></span><span class=line><span class=cl>  start       Start one or more stopped containers
+</span></span><span class=line><span class=cl>  stats       Display a live stream of container<span class=o>(</span>s<span class=o>)</span> resource usage statistics
+</span></span><span class=line><span class=cl>  stop        Stop one or more running containers
+</span></span><span class=line><span class=cl>  tag         Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+</span></span><span class=line><span class=cl>  top         Display the running processes of a container
+</span></span><span class=line><span class=cl>  unpause     Unpause all processes within one or more containers
+</span></span><span class=line><span class=cl>  update      Update configuration of one or more containers
+</span></span><span class=line><span class=cl>  <span class=nb>wait</span>        Block <span class=k>until</span> one or more containers stop, <span class=k>then</span> print their <span class=nb>exit</span> codes
+</span></span></code></pre></td></tr></table></div></div><h2 id=docker-命令使用案例>Docker 命令使用案例</h2><h3 id=21-获取容器启动镜像>2.1 获取容器启动镜像</h3><ul><li>查看本地镜像列表</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker images </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker image ls </span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>从 <a class=link href=https://hub.docker.com/ target=_blank rel=noopener>Docker Hub</a> 搜索镜像</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker search nginx </span>
+</span></span><span class=line><span class=cl>NAME                                              DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+</span></span><span class=line><span class=cl>nginx                                             Official build of Nginx.                        <span class=m>19099</span>     <span class=o>[</span>OK<span class=o>]</span>       
+</span></span><span class=line><span class=cl>bitnami/nginx                                     Bitnami nginx Docker Image                      <span class=m>176</span>                  <span class=o>[</span>OK<span class=o>]</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>拉取镜像</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker pull nginx</span>
+</span></span><span class=line><span class=cl>Using default tag: latest
+</span></span><span class=line><span class=cl>latest: Pulling from library/nginx
+</span></span><span class=line><span class=cl>a2abf6c4d29d: Already exists 
+</span></span><span class=line><span class=cl>a9edb18cadd1: Pull <span class=nb>complete</span> 
+</span></span><span class=line><span class=cl>589b7251471a: Pull <span class=nb>complete</span> 
+</span></span><span class=line><span class=cl>186b1aaa4aa6: Pull <span class=nb>complete</span> 
+</span></span><span class=line><span class=cl>b4df32aa5a72: Pull <span class=nb>complete</span> 
+</span></span><span class=line><span class=cl>a0bcbecc962e: Pull <span class=nb>complete</span> 
+</span></span><span class=line><span class=cl>Digest: sha256:0d17b565c37bcbd895e9d92315a05c1c3c9a29f762b011a10c54a66cd53c9b31
+</span></span><span class=line><span class=cl>Status: Downloaded newer image <span class=k>for</span> nginx:latest
+</span></span><span class=line><span class=cl>docker.io/library/nginx:latest
+</span></span></code></pre></td></tr></table></div></div><h3 id=22-容器镜像传输>2.2 容器镜像传输</h3><ul><li>镜像保存</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>docker save 
+</span></span></code></pre></td></tr></table></div></div><ul><li>镜像导入</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>docker load 
+</span></span></code></pre></td></tr></table></div></div><h3 id=22-启动容器>2.2 启动容器</h3><h4 id=启动一个-rockylinux-容器>启动一个 Rockylinux 容器</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run --help </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Usage:  docker run <span class=o>[</span>OPTIONS<span class=o>]</span> IMAGE <span class=o>[</span>COMMAND<span class=o>]</span> <span class=o>[</span>ARG...<span class=o>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Run a <span class=nb>command</span> in a new container
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Options:
+</span></span><span class=line><span class=cl>      --add-host list                  Add a custom host-to-IP mapping <span class=o>(</span>host:ip<span class=o>)</span>
+</span></span><span class=line><span class=cl>  -a, --attach list                    Attach to STDIN, STDOUT or STDERR
+</span></span><span class=line><span class=cl>      --blkio-weight uint16            Block IO <span class=o>(</span>relative weight<span class=o>)</span>, between <span class=m>10</span> and 1000, or <span class=m>0</span> to disable <span class=o>(</span>default 0<span class=o>)</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run centos</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run -it centos /bin/bash</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run -it --name centos-01 centos /bin/bash</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=启动一个-nginx-容器>启动一个 nginx 容器</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># nginx 容器在后台运行</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run -d --name nginx-01 nginx:1.22.1 </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看正在运行的容器</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker ps </span>
+</span></span><span class=line><span class=cl>CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS     NAMES
+</span></span><span class=line><span class=cl>dbab65de3dd2   nginx:1.22.1   <span class=s2>&#34;/docker-entrypoint.…&#34;</span>   <span class=m>2</span> minutes ago   Up <span class=m>2</span> minutes   80/tcp    nginx-01
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 接入容器内部 bash</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker exec -it nginx-01 /bin/bash</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 测试 Nginx 是否正常运行</span>
+</span></span><span class=line><span class=cl>root@dbab65de3dd2:/# curl 127.0.0.1
+</span></span><span class=line><span class=cl>&lt;!DOCTYPE html&gt;
+</span></span><span class=line><span class=cl>&lt;html&gt;
+</span></span><span class=line><span class=cl>&lt;head&gt;
+</span></span><span class=line><span class=cl>&lt;title&gt;Welcome to nginx!&lt;/title&gt;
+</span></span><span class=line><span class=cl>&lt;style&gt;
+</span></span></code></pre></td></tr></table></div></div><p><code>docker run</code> 参数</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl> -i, --interactive                Keep STDIN open even <span class=k>if</span> not attached
+</span></span><span class=line><span class=cl>-t, --tty                        Allocate a pseudo-TTY
+</span></span><span class=line><span class=cl>--name string                    Assign a name to the container
+</span></span><span class=line><span class=cl> -d, --detach                    Run container in background and print container ID
+</span></span></code></pre></td></tr></table></div></div><h3 id=23-查看容器ip>2.3 查看容器IP</h3><h4 id=方法一-在容器内部查看>方法一： 在容器内部查看</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl> <span class=o>[</span>root@1f672b950d1a /<span class=o>]</span><span class=c1># ip a </span>
+</span></span><span class=line><span class=cl>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class=m>65536</span> qdisc noqueue state UNKNOWN group default qlen <span class=m>1000</span>
+</span></span><span class=line><span class=cl>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+</span></span><span class=line><span class=cl>    inet 127.0.0.1/8 scope host lo
+</span></span><span class=line><span class=cl>       valid_lft forever preferred_lft forever
+</span></span><span class=line><span class=cl>25: eth0@if26: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span class=m>1500</span> qdisc noqueue state UP group default 
+</span></span><span class=line><span class=cl>    link/ether 02:42:ac:12:00:03 brd ff:ff:ff:ff:ff:ff link-netnsid <span class=m>0</span>
+</span></span><span class=line><span class=cl>    inet 172.18.0.3/16 brd 172.18.255.255 scope global eth0
+</span></span><span class=line><span class=cl>       valid_lft forever preferred_lft forever
+</span></span></code></pre></td></tr></table></div></div><h4 id=方法二-使用-docker-inspect-查看>方法二： 使用 docker inspect 查看</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker inspect --help </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Usage:  docker inspect <span class=o>[</span>OPTIONS<span class=o>]</span> NAME<span class=p>|</span>ID <span class=o>[</span>NAME<span class=p>|</span>ID...<span class=o>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Return low-level information on Docker objects
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 在外部查看容器 IP</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker inspect nginx-01 | grep -i ipaddr</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;SecondaryIPAddresses&#34;</span>: null,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;IPAddress&#34;</span>: <span class=s2>&#34;172.18.0.2&#34;</span>,
+</span></span><span class=line><span class=cl>                    <span class=s2>&#34;IPAddress&#34;</span>: <span class=s2>&#34;172.18.0.2&#34;</span>,
+</span></span></code></pre></td></tr></table></div></div><h4 id=方法三-使用-nsenter-后面课程介绍>方法三： 使用 nsenter ，后面课程介绍</h4><h3 id=24-容器生命周期管理>2.4 容器生命周期管理</h3><p>容器生命周期管理涉及容器启动、停止等功能，下面选取最常用的docker run命令和负责启动停止的docker start/stop/restart命令举例。</p><h4 id=启动容器>启动容器</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>docker run <span class=o>[</span>OPTIONS<span class=o>]</span> IMAGE <span class=o>[</span>COMMAND<span class=o>]</span> <span class=o>[</span>ARG...<span class=o>]</span>
+</span></span></code></pre></td></tr></table></div></div><p>docker run 命令是Docker的核心命令之一，所有选项的说明可以通过<code>docker run --help</code> 命令查看。</p><h4 id=查看正在运行的容器>查看正在运行的容器</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 查看正在运行的容器</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker ps </span>
+</span></span><span class=line><span class=cl>CONTAINER ID   IMAGE          COMMAND                  CREATED             STATUS             PORTS     NAMES
+</span></span><span class=line><span class=cl>dbab65de3dd2   nginx:1.22.1   <span class=s2>&#34;/docker-entrypoint.…&#34;</span>   About an hour ago   Up About an hour   80/tcp    nginx-01
+</span></span></code></pre></td></tr></table></div></div><h4 id=停止容器>停止容器</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker stop  --help </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Usage:  docker stop <span class=o>[</span>OPTIONS<span class=o>]</span> CONTAINER <span class=o>[</span>CONTAINER...<span class=o>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Stop one or more running containers
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Options:
+</span></span><span class=line><span class=cl>  -t, --time int   Seconds to <span class=nb>wait</span> <span class=k>for</span> stop before killing it <span class=o>(</span>default 10<span class=o>)</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 停止 nginx-01 容器</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker stop nginx-01   # 使用容器名</span>
+</span></span><span class=line><span class=cl>nginx-01
+</span></span><span class=line><span class=cl>或
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker stop dbab65de3dd2   # 使用容器 ID</span>
+</span></span><span class=line><span class=cl>dbab65de3dd2
+</span></span></code></pre></td></tr></table></div></div><h4 id=查看已停止的容器>查看已停止的容器</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker ps -a</span>
+</span></span><span class=line><span class=cl>CONTAINER ID   IMAGE          COMMAND                  CREATED             STATUS                         PORTS     NAMES
+</span></span><span class=line><span class=cl>1f672b950d1a   centos         <span class=s2>&#34;/bin/bash&#34;</span>              <span class=m>11</span> minutes ago      Exited <span class=o>(</span>0<span class=o>)</span> <span class=m>10</span> minutes ago                happy_borg
+</span></span><span class=line><span class=cl>dbab65de3dd2   nginx:1.22.1   <span class=s2>&#34;/docker-entrypoint.…&#34;</span>   About an hour ago   Up About an hour               80/tcp    nginx-01
+</span></span></code></pre></td></tr></table></div></div><h4 id=启动已停止的容器>启动已停止的容器</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker start --help </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Usage:  docker start <span class=o>[</span>OPTIONS<span class=o>]</span> CONTAINER <span class=o>[</span>CONTAINER...<span class=o>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Start one or more stopped containers
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Options:
+</span></span><span class=line><span class=cl>  -a, --attach               Attach STDOUT/STDERR and forward signals
+</span></span><span class=line><span class=cl>      --detach-keys string   Override the key sequence <span class=k>for</span> detaching a container
+</span></span><span class=line><span class=cl>  -i, --interactive          Attach container<span class=err>&#39;</span>s STDIN
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 启动容器 nginx-01</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker start nginx-01</span>
+</span></span><span class=line><span class=cl>nginx-01
+</span></span></code></pre></td></tr></table></div></div><h4 id=删除容器>删除容器</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker rm --help </span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Usage:  docker rm <span class=o>[</span>OPTIONS<span class=o>]</span> CONTAINER <span class=o>[</span>CONTAINER...<span class=o>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Remove one or more containers   <span class=c1>#（删除已经停止的容器）</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Options:
+</span></span><span class=line><span class=cl>  -f, --force     Force the removal of a running container <span class=o>(</span>uses SIGKILL<span class=o>)</span>
+</span></span><span class=line><span class=cl>  -l, --link      Remove the specified link
+</span></span><span class=line><span class=cl>  -v, --volumes   Remove anonymous volumes associated with the container
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 删除容器 centos-01</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker rm centos-01</span>
+</span></span><span class=line><span class=cl>centos-01
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 批量删除</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker rm $(docker ps -a -q )</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=docker-镜像管理命令>Docker 镜像管理命令</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>docker pull 
+</span></span><span class=line><span class=cl>docker push 
+</span></span><span class=line><span class=cl>docker images 
+</span></span></code></pre></td></tr></table></div></div><h2 id=附录>附录</h2><h3 id=docker-cs-模式-了解>Docker C/S 模式 （了解）</h3><p>Docker 客户端和服务端是使用 Socket 方式连接，主要有以下几种方式:</p><p>1） 本地的 socket 文件 unix:///var/run/docker.sock （默认）</p><p>2） tcp://host:prot （演示）</p><p>3） fd://socketfd</p><ul><li>Docker 默认连接方式</li></ul><p>未启动的状态, 说明 Docker 在默认情况下使用本地的 /var/run/docker.sock 连接</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker info </span>
+</span></span><span class=line><span class=cl>Client:
+</span></span><span class=line><span class=cl> Context:    default
+</span></span><span class=line><span class=cl> Debug Mode: <span class=nb>false</span>
+</span></span><span class=line><span class=cl> Plugins:
+</span></span><span class=line><span class=cl>  app: Docker App <span class=o>(</span>Docker Inc., v0.9.1-beta3<span class=o>)</span>
+</span></span><span class=line><span class=cl>  buildx: Docker Buildx <span class=o>(</span>Docker Inc., v0.10.4-docker<span class=o>)</span>
+</span></span><span class=line><span class=cl>  compose: Docker Compose <span class=o>(</span>Docker Inc., v2.21.0<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Server:
+</span></span><span class=line><span class=cl>ERROR: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?
+</span></span><span class=line><span class=cl>errors pretty printing info
+</span></span></code></pre></td></tr></table></div></div><ul><li>设置 Docker 远程使用 TCP 的连接方式</li></ul><p>打开 sock 与 tcp 连接方式</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=nv>ExecStart</span><span class=o>=</span>/usr/bin/dockerd -H fd:// --containerd<span class=o>=</span>/run/containerd/containerd.sock
+</span></span><span class=line><span class=cl><span class=c1>#修改为：</span>
+</span></span><span class=line><span class=cl><span class=nv>ExecStart</span><span class=o>=</span>/usr/bin/dockerd -H fd:// -H tcp://127.0.0.1:2375 --containerd<span class=o>=</span>/run/containerd/containerd.sock
+</span></span></code></pre></td></tr></table></div></div><p>重启Docker服务</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>systemctl daemon-reload
+</span></span><span class=line><span class=cl>systemctl restart docker 
+</span></span></code></pre></td></tr></table></div></div><p>查看Docker运行状态</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># systemctl status docker </span>
+</span></span><span class=line><span class=cl>● docker.service - Docker Application Container Engine
+</span></span><span class=line><span class=cl>   Loaded: loaded <span class=o>(</span>/usr/lib/systemd/system/docker.service<span class=p>;</span> disabled<span class=p>;</span> vendor preset: disabled<span class=o>)</span>
+</span></span><span class=line><span class=cl>   Active: active <span class=o>(</span>running<span class=o>)</span> since Mon 2023-10-09 10:32:17 CST<span class=p>;</span> 26s ago
+</span></span><span class=line><span class=cl>     Docs: https://docs.docker.com
+</span></span><span class=line><span class=cl> Main PID: <span class=m>10641</span> <span class=o>(</span>dockerd<span class=o>)</span>
+</span></span><span class=line><span class=cl>    Tasks: <span class=m>11</span>
+</span></span><span class=line><span class=cl>   Memory: 21.7M
+</span></span><span class=line><span class=cl>   CGroup: /system.slice/docker.service
+</span></span><span class=line><span class=cl>           └─10641 /usr/bin/dockerd -H fd:// -H tcp://127.0.0.1:2375 --containerd<span class=o>=</span>/run/containerd/containerd.sock
+</span></span></code></pre></td></tr></table></div></div><ul><li>查看监听端口</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># netstat -nltp | grep 2375</span>
+</span></span><span class=line><span class=cl>tcp        <span class=m>0</span>      <span class=m>0</span> 127.0.0.1:2375          0.0.0.0:*               LISTEN      10641/dockerd       
+</span></span></code></pre></td></tr></table></div></div><ul><li>远程连接</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># curl 127.0.0.1:2375/version  | python -mjson.tool</span>
+</span></span><span class=line><span class=cl>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+</span></span><span class=line><span class=cl>                                 Dload  Upload   Total   Spent    Left  Speed
+</span></span><span class=line><span class=cl><span class=m>100</span>   <span class=m>846</span>  <span class=m>100</span>   <span class=m>846</span>    <span class=m>0</span>     <span class=m>0</span>  <span class=m>98624</span>      <span class=m>0</span> --:--:-- --:--:-- --:--:--  103k
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;ApiVersion&#34;</span>: <span class=s2>&#34;1.41&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;Arch&#34;</span>: <span class=s2>&#34;amd64&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;BuildTime&#34;</span>: <span class=s2>&#34;2024-04-04T18:21:02.000000000+00:00&#34;</span>,
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;Components&#34;</span>: <span class=o>[</span>
+</span></span><span class=line><span class=cl>        <span class=o>{</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;Details&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>                <span class=s2>&#34;ApiVersion&#34;</span>: <span class=s2>&#34;1.41&#34;</span>,
+</span></span><span class=line><span class=cl>                <span class=s2>&#34;Arch&#34;</span>: <span class=s2>&#34;amd64&#34;</span>,
+</span></span><span class=line><span class=cl>                <span class=s2>&#34;BuildTime&#34;</span>: <span class=s2>&#34;2024-04-04T18:21:02.000000000+00:00&#34;</span>,
+</span></span><span class=line><span class=cl>                <span class=s2>&#34;Experimental&#34;</span>: <span class=s2>&#34;false&#34;</span>,
+</span></span><span class=line><span class=cl>                <span class=s2>&#34;GitCommit&#34;</span>: <span class=s2>&#34;5d6db84&#34;</span>,
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 启动/停止/重启 一个containers容器：</span>
+</span></span><span class=line><span class=cl>curl -X POST http://127.0.0.1:2375/containers/<span class=o>{</span>id<span class=o>}</span>/start   <span class=o>(</span>注意这里是POST方法）
+</span></span><span class=line><span class=cl>curl -X POST http://127.0.0.1:2375/containers/<span class=o>{</span>id<span class=o>}</span>/stop   <span class=o>(</span>注意这里是POST方法）
+</span></span><span class=line><span class=cl>curl -X POST http://127.0.0.1:2375/containers/<span class=o>{</span>id<span class=o>}</span>/restart   <span class=o>(</span>注意这里是POST方法）
+</span></span></code></pre></td></tr></table></div></div><h3 id=容器重启策略>容器重启策略</h3><p>To configure the restart policy for a container, use the <code>--restart</code> flag when using the <code>docker run</code> command. The value of the <code>--restart</code> flag can be any of the following:</p><p><sheet sheet-id=PfVRG2 token=PLSesf0FphF7tGt6GN7cDsSTnHc></sheet></p><p><a class=link href=https://docs.docker.com/config/containers/start-containers-automatically/ target=_blank rel=noopener>https://docs.docker.com/config/containers/start-containers-automatically/</a></p><h3 id=镜像地址>镜像地址</h3><p>Busybox:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>registry.cn-beijing.aliyuncs.com/xxhf/busybox:latest
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>ccr.ccs.tencentyun.com/chijinjing/busybox:latest
+</span></span></code></pre></td></tr></table></div></div><p>Rockylinux9:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>ccr.ccs.tencentyun.com/chijinjing/rockylinux:9
+</span></span></code></pre></td></tr></table></div></div><h2 id=来源>来源</h2><ul><li><a class=link href=https://rcnmegz4pby5.feishu.cn/wiki/Ix2uwEsKJie5JNkLPJeckTQknWg target=_blank rel=noopener>飞书原文</a></li><li>导入日期：2026-06-22</li></ul></section><footer class=article-footer><section class=article-tags><a href=/fuyou/tags/docker/>Docker</a>
+<a href=/fuyou/tags/obsidian/>Obsidian</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>本作品采用 CC BY-NC-SA 4.0 许可协议</span></section><section class=article-lastmod><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<span>最后更新于 2026-07-11 16:45 +0800</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/fuyou/p/docker-01/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-01/1200/675 loading=lazy data-key=docker-01 data-hash=https://picsum.photos/seed/fuyou-docker-01/1200/675></div><div class=article-details><h2 class=article-title>Docker Compose 使用指南</h2></div></a></article><article class=has-image><a href=/fuyou/p/docker-14/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-14/1200/675 loading=lazy data-key=docker-14 data-hash=https://picsum.photos/seed/fuyou-docker-14/1200/675></div><div class=article-details><h2 class=article-title>Docker 基础概念入门</h2></div></a></article><article class=has-image><a href=/fuyou/p/docker-07/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-07/1200/675 loading=lazy data-key=docker-07 data-hash=https://picsum.photos/seed/fuyou-docker-07/1200/675></div><div class=article-details><h2 class=article-title>Docker 存储与 Volume 管理</h2></div></a></article><article class=has-image><a href=/fuyou/p/docker-15/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-15/1200/675 loading=lazy data-key=docker-15 data-hash=https://picsum.photos/seed/fuyou-docker-15/1200/675></div><div class=article-details><h2 class=article-title>Docker 学习索引</h2></div></a></article><article class=has-image><a href=/fuyou/p/docker-04/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-04/1200/675 loading=lazy data-key=docker-04 data-hash=https://picsum.photos/seed/fuyou-docker-04/1200/675></div><div class=article-details><h2 class=article-title>Docker 安装与初始化配置</h2></div></a></article></div></div></aside>...<div class=comment></div><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 小杨</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.26.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/fuyou/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script><style>body{background:url(https://luckycloveryh.github.io/fuyou/background/jinlin.png)no-repeat 50% 0;background-size:cover;background-attachment:fixed}@media(max-width:767px){body{background-attachment:scroll;background-position:50% 0}}.article-details{position:relative;z-index:1}.article-title,.article-title a{color:var(--card-text-color-main)!important}.search-form input{background-color:var(--card-background)!important;color:var(--card-text-color-main)!important;border-color:var(--card-separator-color)!important}.search-form button{background-color:transparent!important;color:var(--card-text-color-secondary)!important}.left-sidebar .site-name,.left-sidebar .site-name a,.left-sidebar .site-description,.left-sidebar #main-menu li a,.left-sidebar #main-menu li.current a,.left-sidebar #dark-mode-toggle,.left-sidebar #i18n-switch,.left-sidebar .menu-social svg,.right-sidebar .widget-icon svg,.right-sidebar .widget-title,.site-footer{color:#fff!important;stroke:#fff!important;text-shadow:0 1px 4px rgba(0,0,0,.65)}.left-sidebar #main-menu li a:hover,.left-sidebar .site-name a:hover{color:#fff!important;opacity:.9}</style><script src=https://luckycloveryh.github.io/fuyou/background/sakura.js></script><div id=particles-js></div><script src=https://luckycloveryh.github.io/fuyou/background/particles.min.js></script><script>window.matchMedia("(min-width: 768px)").matches&&particlesJS.load("particles-js","https://luckycloveryh.github.io/fuyou/background/particlesjs-config.json",function(){console.log("particles.js loaded - callback")})</script><style>#particles-js{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}#particles-js canvas{pointer-events:none!important}@media(max-width:767px){#particles-js,#canvas_sakura{display:none!important}}</style><style>:root{--base-font-family:"Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Segoe UI", Arial, sans-serif;--article-font-family:var(--base-font-family);--code-font-family:"Cascadia Mono", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei UI", monospace}</style><style>#TableOfContents>ul,ol{ul, ol { display: none; } .open { display: block; }}</style><script>function initTocHide(){let e=document.querySelector(".widget--toc");if(!e)return;window.fuyouTocScrollHandler&&window.removeEventListener("scroll",window.fuyouTocScrollHandler),window.fuyouTocScrollHandler=function(){let n=document.querySelectorAll(".open");n.length>0&&n.forEach(e=>{e.classList.remove("open")});let t=document.querySelector(".active-class");if(!t)return;t.children.length>1&&t.children[1].classList.add("open");let e=t.parentElement;do e.classList.add("open"),e=e.parentElement.parentElement;while(e!==void 0&&(e.localName==="ul"||e.localName==="ol"))},window.addEventListener("scroll",window.fuyouTocScrollHandler,{passive:!0})}initTocHide()</script><style>#backTopBtn{display:none;position:fixed;right:30px;bottom:30px;z-index:99;cursor:pointer;width:30px;height:30px;background-image:url(https://luckycloveryh.github.io/fuyou/icons/backTop.svg);background-repeat:no-repeat;background-position:50%;background-size:contain}@media(max-width:767px){#backTopBtn{right:14px;bottom:calc(82px + env(safe-area-inset-bottom));width:42px;height:42px;border:0;border-radius:50%;background-color:rgba(35,35,35,.74);background-size:22px 22px;box-shadow:0 8px 20px rgba(0,0,0,.28)}}</style><script>function initScrollTop(){let e=document.getElementById("backTopBtn");e||(e=document.createElement("button"),e.id="backTopBtn",e.type="button",e.setAttribute("aria-label","Back to top"),e.onclick=backToTop,document.body.appendChild(e)),window.fuyouBackTopHandler&&window.removeEventListener("scroll",window.fuyouBackTopHandler),window.fuyouBackTopHandler=function(){document.body.scrollTop>20||document.documentElement.scrollTop>20?e.style.display="block":e.style.display="none"},window.addEventListener("scroll",window.fuyouBackTopHandler,{passive:!0}),window.fuyouBackTopHandler()}function backToTop(){window.scrollTo({top:0,behavior:"smooth"})}initScrollTop()</script><style>.highlight{max-height:400px;overflow:hidden}.code-show{max-height:none!important}.code-more-box{width:100%;padding-top:78px;background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0)),to(#fff));position:absolute;left:0;right:0;bottom:0;z-index:1}.code-more-btn{display:block;margin:auto;width:44px;height:22px;background:#f0f0f5;border-top-left-radius:8px;border-top-right-radius:8px;padding-top:6px;cursor:pointer}.code-more-img{cursor:pointer!important;display:block;margin:auto;width:22px;height:16px}</style><script>function initCodeMoreBox(){let e=document.querySelectorAll(".highlight");if(!e)return;e.forEach(e=>{if(e.scrollHeight<=e.clientHeight)return;let t=document.createElement("div");t.classList.add("code-more-box");let n=document.createElement("span");n.classList.add("code-more-btn"),n.addEventListener("click",()=>{e.classList.add("code-show"),t.style.display="none",window.dispatchEvent(new Event("resize"))});let s=document.createElement("img");s.classList.add("code-more-img"),s.src="https://luckycloveryh.github.io/fuyou/icons/codeMore.png",n.appendChild(s),t.appendChild(n),e.appendChild(t)})}initCodeMoreBox()</script><script>const cdnPath="https://cdn.jsdelivr.net/gh/letere-gzj/live2d-widget-v3@main",config={path:{homePath:"/",modelPath:cdnPath+"/Resources/",cssPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu.css",tipsJsonPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu-tips.json",tipsJsPath:cdnPath+"/waifu-tips.js",live2dCorePath:cdnPath+"/Core/live2dcubismcore.js",live2dSdkPath:cdnPath+"/live2d-sdk.js"},tools:["hitokoto","asteroids","express","switch-model","switch-texture","photo","info","quit"],drag:{enable:!0,direction:["x","y"]},switchType:"order"};function loadExternalResource(e,t){return new Promise((n,s)=>{let o;t==="css"?(o=document.createElement("link"),o.rel="stylesheet",o.href=e):t==="js"&&(o=document.createElement("script"),o.src=e),o&&(o.onload=()=>n(e),o.onerror=()=>s(e),document.head.appendChild(o))})}let live2dInitialized=!1;function initLive2d(){if(live2dInitialized)return;window.matchMedia("(min-width: 768px)").matches&&Promise.all([loadExternalResource(config.path.cssPath,"css"),loadExternalResource(config.path.live2dCorePath,"js"),loadExternalResource(config.path.live2dSdkPath,"js"),loadExternalResource(config.path.tipsJsPath,"js")]).then(()=>{initWidget({waifuPath:config.path.tipsJsonPath,cdnPath:config.path.modelPath,tools:config.tools,dragEnable:config.drag.enable,dragDirection:config.drag.direction,switchType:config.switchType}),live2dInitialized=!0}).catch(e=>{console.error("Failed to load live2d:",e)})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",initLive2d):initLive2d()</script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css><style>@media(max-width:767px){.aplayer.aplayer-fixed,.aplayer.aplayer-fixed .aplayer-body{max-width:100vw}.aplayer.aplayer-fixed .aplayer-body{padding-right:18px;padding-bottom:env(safe-area-inset-bottom)}.aplayer.aplayer-fixed .aplayer-info{width:calc(100vw - 66px)}.aplayer.aplayer-fixed .aplayer-lrc{display:none!important}}</style><div id=aplayer></div><script src=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js></script><script>(function(){const e="https://luckycloveryh.github.io/fuyou/",t=document.getElementById("aplayer");if(!t||window.ap)return;window.ap=new APlayer({container:t,fixed:!0,lrcType:3,audio:[{name:"归期",artist:"钱润玉",url:e+"music/归期-钱润玉/song.mp3",cover:e+"music/归期-钱润玉/cover.jpg"}]})})()</script><script>window.addEventListener("beforeunload",()=>{if(!window.ap)return;const e={index:window.ap.list.index,currentTime:window.ap.audio.currentTime,paused:window.ap.paused};sessionStorage.setItem("playInfo",JSON.stringify(e))}),window.addEventListener("load",()=>{if(!window.ap)return;if(window._pjaxNavigating)return;const e=JSON.parse(sessionStorage.getItem("playInfo"));if(!e)return;window.ap.list.switch(e.index),setTimeout(()=>{if(window.ap.seek(e.currentTime),!e.paused){const e=window.ap.play();e&&typeof e.catch=="function"&&e.catch(()=>{})}},500)}),document.addEventListener("pjax:send",()=>{window._pjaxNavigating=!0}),document.addEventListener("pjax:complete",()=>{window._pjaxNavigating=!1})</script><script>window.fuyouPjaxInitialized=window.fuyouPjaxInitialized||!1;function reinitFuyouPageScripts(){try{window.Stack&&window.Stack.init&&window.Stack.init()}catch(e){console.warn("Stack初始化失败:",e)}try{typeof initTocHide=="function"&&initTocHide(),typeof initScrollTop=="function"&&initScrollTop(),typeof initCodeMoreBox=="function"&&initCodeMoreBox(),typeof showHideView=="function"&&showHideView(),typeof renderKaTeX=="function"&&renderKaTeX()}catch(e){console.warn("页面脚本重新初始化失败:",e)}try{typeof RENDERER!="undefined"&&RENDERER.setup()}catch(e){console.warn("底部小鱼初始化失败:",e)}}function shouldFuyouHandleLink(e,t){if(!t||e.defaultPrevented)return!1;if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return!1;if(t.target&&t.target!=="_self")return!1;if(t.hasAttribute("download"))return!1;const n=new URL(t.href,window.location.href);return n.origin===window.location.origin&&!!n.pathname.startsWith("/fuyou/")&&(n.pathname!==window.location.pathname||n.search!==window.location.search)&&!(n.hash&&n.pathname===window.location.pathname&&n.search===window.location.search)}async function fuyouLoadPage(e,t){document.dispatchEvent(new CustomEvent("pjax:send")),window._pjaxNavigating=!0;try{const s=await fetch(e,{headers:{"X-Requested-With":"fuyou-pjax"},credentials:"same-origin"});if(!s.ok)throw new Error("HTTP "+s.status);const r=await s.text(),n=(new DOMParser).parseFromString(r,"text/html"),o=n.querySelector(".main-container"),i=document.querySelector(".main-container");if(!o||!i){window.location.href=e;return}document.title=n.title,document.body.className=n.body.className,i.replaceWith(o);const c=document.querySelectorAll(".js-Pjax"),a=n.querySelectorAll(".js-Pjax");c.forEach((e,t)=>{a[t]&&e.replaceWith(a[t])}),t&&history.pushState({fuyouPjax:!0},"",e),window.scrollTo({top:0,behavior:"auto"}),reinitFuyouPageScripts(),document.dispatchEvent(new CustomEvent("pjax:complete"))}catch(t){console.warn("无刷新切换失败，回退到普通跳转:",t),window.location.href=e}finally{window._pjaxNavigating=!1}}window.addEventListener("load",()=>{if(window.fuyouPjaxInitialized)return;window.fuyouPjaxInitialized=!0,history.replaceState({fuyouPjax:!0},"",window.location.href),document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("a[href]");if(!shouldFuyouHandleLink(e,t))return;e.preventDefault(),fuyouLoadPage(t.href,!0)}),window.addEventListener("popstate",()=>{fuyouLoadPage(window.location.href,!1)}),window.pjax={refresh:function(){},loadUrl:function(e){fuyouLoadPage(e,!0)}}})</script><div class=js-Pjax><script>(function(){let t=document.querySelector(".comment");if(!t)return;let e=document.createElement("script");e.setAttribute("src","https://giscus.app/client.js"),e.setAttribute("data-repo",""),e.setAttribute("data-repo-id",""),e.setAttribute("data-category",""),e.setAttribute("data-category-id",""),e.setAttribute("data-mapping",""),e.setAttribute("data-strict",""),e.setAttribute("data-reactions-enabled","1"),e.setAttribute("data-emit-metadata","0"),e.setAttribute("data-input-position",""),e.setAttribute("data-theme",""),e.setAttribute("data-lang",""),e.async=!0,e.crossOrigin="anonymous",t.appendChild(e)})(document)</script></div><script>async function renderKaTeX(){let e=document.querySelector(".math-katex");if(!e)return;for(;typeof renderMathInElement!="function";)await delay(500);renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],ignoredClasses:["gist"]})}function delay(e){return new Promise(t=>{setTimeout(t,e)})}document.addEventListener("pjax:complete",()=>{renderKaTeX()})</script><script src=https://luckycloveryh.github.io/fuyou/js/topbar.min.js></script><script>topbar.config({barColors:{0:"rgba(255, 255, 255, 1)",1.0:"rgba(0, 149, 234, 1)"}}),document.addEventListener("pjax:send",()=>{topbar.show()}),document.addEventListener("pjax:complete",()=>{topbar.hide()})</script><script defer src=https://cn.vercount.one/js></script><script>function showHideView(){let e=document.querySelectorAll("#viewCount");if(e){let t=document.querySelector(".article-page");t||e.forEach(e=>{e.style.display="none"})}}showHideView()</script><div id=jsi-flying-fish-container class=flying-fish-container></div><style>.flying-fish-container{width:100%;height:200px;position:fixed;z-index:0;pointer-events:none;bottom:0;left:0;opacity:.6}.flying-fish-container canvas{display:block;pointer-events:none}@media(max-width:767px){.flying-fish-container{height:96px;opacity:.38}}</style><script src=https://luckycloveryh.github.io/fuyou/js/flying-fish.js></script><script>window.addEventListener("load",function(){typeof RENDERER!="undefined"&&document.getElementById("jsi-flying-fish-container")&&RENDERER.init()}),document.addEventListener("pjax:complete",function(){typeof RENDERER!="undefined"&&RENDERER.setup()})</script></body></html>

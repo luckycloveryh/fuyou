@@ -1,0 +1,632 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="介绍《SSH、DHCP 与 DNS 服务实战》，涵盖SSH+DHCP+DNS服务（原理+全实操）、SSH服务：安全实现远程登录和核心功能等实践要点。"><title>SSH、DHCP 与 DNS 服务实战</title>
+<link rel=canonical href=https://luckycloveryh.github.io/fuyou/p/network-03/><link rel=stylesheet href=/fuyou/scss/style.min.4f12ea1fa4ca7ef3f419897549c88b4c242f129d29316c950cdb3b0754157538.css><meta property='og:title' content="SSH、DHCP 与 DNS 服务实战"><meta property='og:description' content="介绍《SSH、DHCP 与 DNS 服务实战》，涵盖SSH+DHCP+DNS服务（原理+全实操）、SSH服务：安全实现远程登录和核心功能等实践要点。"><meta property='og:url' content='https://luckycloveryh.github.io/fuyou/p/network-03/'><meta property='og:site_name' content='小杨的博客'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='网络基础'><meta property='article:tag' content='Obsidian'><meta property='article:published_time' content='2025-12-15T09:00:00+08:00'><meta property='article:modified_time' content='2026-07-11T16:45:03+08:00'><meta property='og:image' content='https://picsum.photos/seed/fuyou-network-03/1200/675'><meta name=twitter:title content="SSH、DHCP 与 DNS 服务实战"><meta name=twitter:description content="介绍《SSH、DHCP 与 DNS 服务实战》，涵盖SSH+DHCP+DNS服务（原理+全实操）、SSH服务：安全实现远程登录和核心功能等实践要点。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://picsum.photos/seed/fuyou-network-03/1200/675'><link rel=alternate type=application/json href=https://luckycloveryh.github.io/fuyou/p/network-03/index.json><link rel="shortcut icon" href=/fuyou/favicon.png><div class=loading-container><div class=card><div class=loader><p>loading</p><div class=words><span class=word>buttons</span>
+<span class=word>forms</span>
+<span class=word>switches</span>
+<span class=word>cards</span>
+<span class=word>buttons</span></div></div></div></div><style>.loading-container{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(17,17,17,.98);display:flex;align-items:center;justify-content:center;z-index:999999;transition:opacity 1.2s ease;pointer-events:none}.card{--bg-color:#111;background-color:var(--bg-color);padding:1.2rem 2.5rem;border-radius:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.7)}.loader{color:#7c7c7c;font-family:poppins,system-ui,sans-serif;font-weight:500;font-size:25px;height:42px;padding:8px 12px;display:flex;align-items:center;gap:12px;border-radius:8px;white-space:nowrap}.words{overflow:hidden;position:relative;height:100%;min-width:110px}.words::after{content:"";position:absolute;inset:0;background:linear-gradient( var(--bg-color) 10%,transparent 30%,transparent 70%,var(--bg-color) 90% );z-index:20}.word{display:block;height:100%;padding-left:4px;color:#956afa;animation:spin_4991 4s infinite linear}@keyframes spin_4991{10%{transform:translateY(-102%)}25%{transform:translateY(-100%)}35%{transform:translateY(-202%)}50%{transform:translateY(-200%)}60%{transform:translateY(-302%)}75%{transform:translateY(-300%)}85%{transform:translateY(-402%)}100%{transform:translateY(-400%)}}.loading-container.fade-out{opacity:0;pointer-events:none}</style><script>(function(){const e=()=>{const e=document.querySelector(".loading-container");if(!e)return;e.classList.add("fade-out"),e.style.display="none",e.style.pointerEvents="none"},n=sessionStorage.getItem("visited");if(n){e();return}const t=()=>{const t=document.querySelector(".loading-container");if(!t)return;t.classList.add("fade-out"),setTimeout(()=>{e(),sessionStorage.setItem("visited","true")},400)};setTimeout(t,1200),window.addEventListener("load",t,{once:!0})})()</script></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/fuyou/><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/muzimi.gif width=300 height=300 class=site-logo loading=lazy alt=Avatar>
+</a><span class=emoji>🌸</span></figure><div class=site-meta><h1 class=site-name><a href=/fuyou>小杨的博客</a></h1><h2 class=site-description>技术分享，日常分享</h2></div></header><ol class=menu-social><li><a href=https://space.bilibili.com/81116666 title=Bilibili rel=me><svg class="icon icon-bilibili-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 6.1 5.8 3.3"/><path d="M15.8 6.1l2.4-2.8"/><path d="M7.2 7h9.6a4 4 0 014 4v4a4 4 0 01-4 4H7.2a4 4 0 01-4-4v-4a4 4 0 014-4z"/><path d="M9 12.1l1.3 1.4"/><path d="M15 12.1l-1.3 1.4"/></svg></a></li><li><a href=https://github.com/luckycloveryh/fuyou title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/fuyou/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>主页 | Home</span></a></li><li><a href=/fuyou/categories/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>分类&标签 | Cats&amp;Tags</span></a></li><li><a href=/fuyou/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>归档 | Archives</span></a></li><li><a href=/fuyou/%E6%90%9C%E7%B4%A2/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>搜索 | Search</span></a></li><li><a href=/fuyou/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97-logs/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>更新日志 | Logs</span></a></li><li><a href=/fuyou/%E6%8A%80%E6%9C%AF%E9%93%BE%E6%8E%A5-links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>技术链接 | Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#一ssh服务安全实现远程登录>一、SSH服务：安全实现远程登录</a><ol><li><a href=#一核心功能>（一）核心功能</a></li><li><a href=#二两种登录方式的交互过程>（二）两种登录方式的交互过程</a></li><li><a href=#三密钥相关核心命令>（三）密钥相关核心命令</a></li><li><a href=#四ssh服务保护措施>（四）SSH服务保护措施</a></li><li><a href=#五多台机器ssh互访配置>（五）多台机器SSH互访配置</a></li></ol></li><li><a href=#二dhcp服务局域网自动分配网络配置>二、DHCP服务：局域网自动分配网络配置</a><ol><li><a href=#一核心概念大白话版>（一）核心概念（大白话版）</a></li><li><a href=#二ip分配四步流程discoverofferrequestack>（二）IP分配四步流程（Discover→Offer→Request→Ack）</a></li><li><a href=#三ip租约与续约机制>（三）IP租约与续约机制</a></li><li><a href=#四linux环境搭建dhcp服务器全实操步骤>（四）Linux环境搭建DHCP服务器（全实操步骤）</a><ol><li><a href=#1-搭建前准备关键信息>1. 搭建前准备（关键信息）</a></li><li><a href=#2-实操步骤>2. 实操步骤</a></li><li><a href=#3-常见问题与解决>3. 常见问题与解决</a></li></ol></li><li><a href=#五dhcp保留地址固定ip配置>（五）DHCP保留地址（固定IP）配置</a></li></ol></li><li><a href=#三dns服务实现域名与ip的翻译>三、DNS服务：实现域名与IP的“翻译”</a><ol><li><a href=#一核心原理与解析流程>（一）核心原理与解析流程</a></li><li><a href=#二基础概念>（二）基础概念</a></li><li><a href=#三dns服务搭建与基础配置>（三）DNS服务搭建与基础配置</a><ol><li><a href=#1-核心软件与参数>1. 核心软件与参数</a></li><li><a href=#2-基础配置步骤>2. 基础配置步骤</a></li></ol></li><li><a href=#四核心解析记录类型与配置>（四）核心解析记录类型与配置</a><ol><li><a href=#1-核心记录类型>1. 核心记录类型</a></li><li><a href=#2-正向解析配置以xxxcom为例>2. 正向解析配置（以<code>xxx.com</code>为例）</a></li><li><a href=#3-反向解析配置以19216866024为例>3. 反向解析配置（以<code>192.168.66.0/24</code>为例）</a></li></ol></li><li><a href=#五dns常见问题与排查>（五）DNS常见问题与排查</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/fuyou/p/network-03/><img src=https://picsum.photos/seed/fuyou-network-03/1200/675 loading=lazy alt="Featured image of post SSH、DHCP 与 DNS 服务实战"></a></div><div class=article-details><header class=article-category><a href=/fuyou/categories/4.-%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E9%98%B6%E6%AE%B5/>4. 网络基础阶段</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/fuyou/p/network-03/>SSH、DHCP 与 DNS 服务实战</a></h2><h3 class=article-subtitle>介绍《SSH、DHCP 与 DNS 服务实战》，涵盖SSH+DHCP+DNS服务（原理+全实操）、SSH服务：安全实现远程登录和核心功能等实践要点。</h3></div><footer class="article-time article-time--template"><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>2025-12-15</time></div><div><svg class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7H6A2 2 0 004 9v9a2 2 0 002 2h9a2 2 0 002-2v-1"/><path d="M20.385 6.585a2.1 2.1.0 00-2.97-2.97L9 12v3h3l8.385-8.415z"/><path d="M16 5l3 3"/></svg>
+<time class=article-time--modified>2026-07-11</time></div><div><svg class="icon icon-tabler icon-tabler-file-text" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 001 1h4"/><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path d="M9 9h1"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+<span class=article-time--word-count>6684字</span></div></footer></div></header><section class=article-content><h1 id=sshdhcpdns服务原理全实操>SSH+DHCP+DNS服务（原理+全实操）</h1><h2 id=一ssh服务安全实现远程登录>一、SSH服务：安全实现远程登录</h2><h3 id=一核心功能>（一）核心功能</h3><p>SSH（安全外壳协议）的核心作用是实现安全的远程登录，包含<strong>密码登录</strong>和<strong>密钥登录（免密登录）</strong> 两种方式，重点保障远程访问的加密安全性。</p><h3 id=二两种登录方式的交互过程>（二）两种登录方式的交互过程</h3><ol><li><strong>密码登录</strong>：
+客户端将用户名和密码通过服务器的非对称加密（公钥+私钥）处理后发送至服务器；服务器用私钥解密，将解密结果与自身存储的用户密码匹配，匹配成功则允许登录；服务器公钥会存储在客户端SSH相关子目录，首次接受后无需重复确认。</li><li><strong>密钥登录</strong>：<ul><li>客户端生成非对称密钥对，将公钥发送至服务器；</li><li>客户端向服务器发送含自身公钥的登录请求，服务器返回自身公钥；</li><li>双方通过会话密钥结合客户端公钥加密传输随机字符串，服务器用私钥解密后验证字符串一致性，验证通过则允许登录。</li></ul></li></ol><h3 id=三密钥相关核心命令>（三）密钥相关核心命令</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 生成非对称密钥对，-t指定加密算法（RSA/ED25519等），-b指定密钥长度（RSA推荐2048/4096）</span>
+</span></span><span class=line><span class=cl>ssh-keygen -t rsa -b <span class=m>2048</span>
+</span></span><span class=line><span class=cl><span class=c1># 解释：执行后按回车默认将私钥保存至~/.ssh/id_rsa、公钥保存至~/.ssh/id_rsa.pub；</span>
+</span></span><span class=line><span class=cl><span class=c1># 可自定义路径（如ssh-keygen -t rsa -b 2048 -f ~/.ssh/my_ssh_key），也可设置密钥密码（提高私钥安全性）</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 将客户端公钥发送至目标服务器，实现免密登录前置</span>
+</span></span><span class=line><span class=cl>ssh-copy-id 用户名@服务器IP
+</span></span><span class=line><span class=cl><span class=c1># 解释：例如ssh-copy-id root@192.168.66.100；</span>
+</span></span><span class=line><span class=cl><span class=c1># 该命令会自动将客户端~/.ssh/id_rsa.pub的内容追加到服务器目标用户家目录的~/.ssh/authorized_keys文件；</span>
+</span></span><span class=line><span class=cl><span class=c1># 若公钥文件非默认名称，需用-i指定：ssh-copy-id -i ~/.ssh/my_ssh_key.pub root@192.168.66.100</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 远程登录SSH服务器</span>
+</span></span><span class=line><span class=cl>ssh 用户名@服务器IP
+</span></span><span class=line><span class=cl><span class=c1># 解释：缺省用户名时默认使用客户端当前登录用户（如当前是user1，执行ssh 192.168.66.100等价于ssh user1@192.168.66.100）；</span>
+</span></span><span class=line><span class=cl><span class=c1># 若服务器修改了SSH监听端口（如2509），需用-p指定端口：ssh -p 2509 root@192.168.66.100</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=四ssh服务保护措施>（四）SSH服务保护措施</h3><ol><li>借助防火墙限制访问；</li><li>修改配置文件：限制登录方式（如禁止密码登录）、限制特定用户名（如禁止root登录）、修改监听IP/端口（如改为2509）；修改端口后登录需用<code>ssh -p 端口号 用户名@服务器IP</code>。</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 编辑SSH主配置文件（CentOS/RHEL）</span>
+</span></span><span class=line><span class=cl>vim /etc/ssh/sshd_config
+</span></span><span class=line><span class=cl><span class=c1># 解释：核心配置项修改建议：</span>
+</span></span><span class=line><span class=cl><span class=c1># 1. 禁止root用户登录：PermitRootLogin no</span>
+</span></span><span class=line><span class=cl>/etc/ssh/sshd_config.d/01-permitrootlogin.conf
+</span></span><span class=line><span class=cl><span class=c1># 2. 禁止密码登录（仅保留密钥登录）：PasswordAuthentication no</span>
+</span></span><span class=line><span class=cl><span class=c1># 3. 修改监听端口：Port 2509（需大于1024，避免与系统端口冲突）</span>
+</span></span><span class=line><span class=cl><span class=c1># 4. 限制监听IP：ListenAddress 192.168.66.100（仅监听服务器内网IP，而非所有IP）</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 重启SSH服务使配置生效</span>
+</span></span><span class=line><span class=cl>systemctl restart sshd
+</span></span><span class=line><span class=cl><span class=c1># 解释：重启后需验证登录（如ssh -p 2509 用户名@服务器IP），避免配置错误导致无法登录</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 防火墙限制SSH访问（以firewalld为例）</span>
+</span></span><span class=line><span class=cl><span class=c1># 1. 允许指定IP访问SSH（修改后的端口2509）</span>
+</span></span><span class=line><span class=cl>firewall-cmd --permanent --add-rich-rule<span class=o>=</span><span class=s1>&#39;rule family=&#34;ipv4&#34; source address=&#34;192.168.66.0/24&#34; port protocol=&#34;tcp&#34; port=&#34;2509&#34; accept&#39;</span>
+</span></span><span class=line><span class=cl><span class=c1># 2. 重载防火墙规则</span>
+</span></span><span class=line><span class=cl>firewall-cmd --reload
+</span></span><span class=line><span class=cl><span class=c1># 解释：仅允许192.168.66.0/24网段访问SSH，其他IP拒绝，提升安全性</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=五多台机器ssh互访配置>（五）多台机器SSH互访配置</h3><ol><li>常规方法：4台机器两两互发公钥，需16次操作；</li><li>优化方法：在一台机器集齐所有4台机器的<code>authorized_keys</code>（公钥）和<code>known_hosts</code>（私钥相关）文件，通过<code>scp</code>分发至其他机器；也可借助工具/脚本批量生成、分发密钥，减少重复操作。</li><li>或者使用xshell工具控制多台机器</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 步骤1：在主控机集齐所有机器的公钥（假设4台机器IP：100/101/102/103）</span>
+</span></span><span class=line><span class=cl><span class=c1># 先在主控机生成自身密钥，再依次获取其他机器公钥</span>
+</span></span><span class=line><span class=cl>ssh-copy-id root@192.168.66.101
+</span></span><span class=line><span class=cl>ssh-copy-id root@192.168.66.102
+</span></span><span class=line><span class=cl>ssh-copy-id root@192.168.66.103
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤2：收集所有机器的known_hosts（可选，避免首次登录确认）</span>
+</span></span><span class=line><span class=cl><span class=c1># 先在主控机登录所有机器一次，生成known_hosts，再分发</span>
+</span></span><span class=line><span class=cl>ssh root@192.168.66.101
+</span></span><span class=line><span class=cl>ssh root@192.168.66.102
+</span></span><span class=line><span class=cl>ssh root@192.168.66.103
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤3：分发authorized_keys和known_hosts到其他机器</span>
+</span></span><span class=line><span class=cl>scp ~/.ssh/authorized_keys root@192.168.66.101:~/.ssh/
+</span></span><span class=line><span class=cl>scp ~/.ssh/authorized_keys root@192.168.66.102:~/.ssh/
+</span></span><span class=line><span class=cl>scp ~/.ssh/authorized_keys root@192.168.66.103:~/.ssh/
+</span></span><span class=line><span class=cl>scp ~/.ssh/known_hosts root@192.168.66.101:~/.ssh/
+</span></span><span class=line><span class=cl>scp ~/.ssh/known_hosts root@192.168.66.102:~/.ssh/
+</span></span><span class=line><span class=cl>scp ~/.ssh/known_hosts root@192.168.66.103:~/.ssh/
+</span></span><span class=line><span class=cl><span class=c1># 解释：分发后所有机器的authorized_keys包含所有节点公钥，实现两两免密互访，仅需6次操作（而非16次）</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=二dhcp服务局域网自动分配网络配置>二、DHCP服务：局域网自动分配网络配置</h2><h3 id=一核心概念大白话版>（一）核心概念（大白话版）</h3><ol><li>核心作用：作为局域网的“网络配置管理员”，自动为客户端（电脑、手机、平板等）分配IP地址、网关、子网掩码、DNS服务器地址等配置，无需手动输入，避免出错。</li><li>关键角色：<ul><li>DHCP服务器：手握“IP地址池”，负责分配网络资源（路由器、专用服务器均可充当）；</li><li>DHCP客户端：向服务器请求网络配置的设备。</li></ul></li><li>底层协议：应用层协议，基于UDP传输，服务器专用端口为UDP 67（普通命令无法查看，需查UDP端口专用命令）。</li></ol><h3 id=二ip分配四步流程discoverofferrequestack>（二）IP分配四步流程（Discover→Offer→Request→Ack）</h3><ol><li><strong>Discover阶段</strong>：无IP的客户端在局域网内广播：“有没有DHCP服务器？求分配IP！”；</li><li><strong>Offer阶段</strong>：DHCP服务器从IP池选未占用的IP，广播回应：“给你预留了XX IP，含网关/DNS，是否接受？”（多服务器时客户端会收到多个Offer）；</li><li><strong>Request阶段</strong>：客户端按“先到先得”选第一个Offer，测试IP可用性后广播：“我选XX服务器的XX IP，其他服务器无需预留！”；</li><li><strong>Ack阶段</strong>：被选中的服务器广播确认：“XX IP正式分配给你，租期XX天！”，客户端绑定IP后可正常上网。</li></ol><h3 id=三ip租约与续约机制>（三）IP租约与续约机制</h3><p>服务器分配的IP为“租约制”，到期需续约，否则会被收回：</p><ol><li>50%租期时：客户端单播向原服务器请求续约，成功则租期重新计时；</li><li>87.5%租期时：若首次续约失败，客户端广播请求续约；</li><li>租约到期：两次续约均失败则客户端释放IP，重新走四步分配流程；若无可用DHCP服务器，客户端会获取169.254.x.x临时IP（仅同网段通信，无法正常上网）。</li></ol><h3 id=四linux环境搭建dhcp服务器全实操步骤>（四）Linux环境搭建DHCP服务器（全实操步骤）</h3><h4 id=1-搭建前准备关键信息>1. 搭建前准备（关键信息）</h4><div class=table-wrapper><table><thead><tr><th>项目</th><th>具体内容</th><th>说明</th></tr></thead><tbody><tr><td>软件包</td><td><code>dhcp-server</code></td><td>核心软件，CentOS/RHEL用<code>dnf/yum install</code>，Ubuntu用<code>apt install isc-dhcp-server</code></td></tr><tr><td>服务名</td><td><code>dhcpd</code></td><td>启动/重启命令：<code>systemctl start/restart dhcpd</code></td></tr><tr><td>端口</td><td>UDP 67</td><td>服务器监听端口，装软件自动启用</td></tr><tr><td>配置文件</td><td><code>/etc/dhcp/dhcpd.conf</code></td><td>核心规则文件，默认空，需从模板<code>/usr/share/doc/dhcp-server/dhcpd.conf.example</code>复制修改</td></tr><tr><td>日志文件</td><td><code>/var/log/messages</code></td><td>排查服务启动/运行错误</td></tr></tbody></table></div><h4 id=2-实操步骤>2. 实操步骤</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 步骤1：配置服务器静态IP（以CentOS/RHEL的ens33网卡为例）</span>
+</span></span><span class=line><span class=cl><span class=c1># 编辑网卡配置文件</span>
+</span></span><span class=line><span class=cl>vim /etc/sysconfig/network-scripts/ifcfg-ens33
+</span></span><span class=line><span class=cl><span class=c1># 核心配置项修改：</span>
+</span></span><span class=line><span class=cl><span class=c1># BOOTPROTO=static  # 改为静态IP，默认dhcp</span>
+</span></span><span class=line><span class=cl><span class=c1># IPADDR=192.168.66.100  # 服务器静态IP</span>
+</span></span><span class=line><span class=cl><span class=c1># NETMASK=255.255.255.0  # 子网掩码</span>
+</span></span><span class=line><span class=cl><span class=c1># GATEWAY=192.168.66.1  # 网关（根据实际环境调整）</span>
+</span></span><span class=line><span class=cl><span class=c1># DNS1=114.114.114.114  # 临时DNS，后续可指向自建DNS</span>
+</span></span><span class=line><span class=cl><span class=c1># ONBOOT=yes  # 开机启动网卡</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 重启网卡生效</span>
+</span></span><span class=line><span class=cl>nmcli connection reload ens33
+</span></span><span class=line><span class=cl>nmcli connection up ens33
+</span></span><span class=line><span class=cl><span class=c1># 验证静态IP配置</span>
+</span></span><span class=line><span class=cl>ip addr show ens33
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤2：关闭冲突DHCP服务（以VMware为例）</span>
+</span></span><span class=line><span class=cl><span class=c1># 关闭VMware虚拟网络DHCP（可选，根据实际环境）</span>
+</span></span><span class=line><span class=cl><span class=c1># 图形化：编辑→虚拟网络编辑器→选择对应网卡→取消“使用本地DHCP服务”</span>
+</span></span><span class=line><span class=cl><span class=c1># 命令行（Linux主机）：</span>
+</span></span><span class=line><span class=cl>systemctl stop vmware-netdhcp.service
+</span></span><span class=line><span class=cl>systemctl disable vmware-netdhcp.service
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 关闭系统自带可能冲突的服务（如NetworkManager的dhcp）</span>
+</span></span><span class=line><span class=cl>systemctl stop NetworkManager-dispatcher.service
+</span></span><span class=line><span class=cl>systemctl disable NetworkManager-dispatcher.service
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤3：安装dhcp-server软件（CentOS/RHEL 8+）</span>
+</span></span><span class=line><span class=cl>dnf install -y dhcp-server
+</span></span><span class=line><span class=cl><span class=c1># Ubuntu/Debian</span>
+</span></span><span class=line><span class=cl><span class=c1># apt install -y isc-dhcp-server</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证安装结果</span>
+</span></span><span class=line><span class=cl>rpm -qa <span class=p>|</span> grep dhcp-server  <span class=c1># CentOS/RHEL</span>
+</span></span><span class=line><span class=cl><span class=c1># dpkg -l | grep isc-dhcp-server  # Ubuntu</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤4：复制配置模板并修改核心配置</span>
+</span></span><span class=line><span class=cl><span class=c1># 复制模板文件（CentOS/RHEL）</span>
+</span></span><span class=line><span class=cl>cp /usr/share/doc/dhcp-server/dhcpd.conf.example /etc/dhcp/dhcpd.conf
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 编辑DHCP核心配置文件</span>
+</span></span><span class=line><span class=cl>vim /etc/dhcp/dhcpd.conf
+</span></span><span class=line><span class=cl><span class=c1># 核心配置示例（192.168.66.0/24网段）：</span>
+</span></span><span class=line><span class=cl><span class=c1># subnet 192.168.66.0 netmask 255.255.255.0 {</span>
+</span></span><span class=line><span class=cl><span class=c1>#   range 192.168.66.110 192.168.66.200;  # IP地址池范围</span>
+</span></span><span class=line><span class=cl><span class=c1>#   option subnet-mask 255.255.255.0;     # 子网掩码</span>
+</span></span><span class=line><span class=cl><span class=c1>#   option routers 192.168.66.1;          # 网关</span>
+</span></span><span class=line><span class=cl><span class=c1>#   option domain-name-servers 114.114.114.114;  # DNS服务器</span>
+</span></span><span class=line><span class=cl><span class=c1>#   default-lease-time 3600;              # 默认租约时间（秒）</span>
+</span></span><span class=line><span class=cl><span class=c1>#   max-lease-time 86400;                 # 最大租约时间（秒）</span>
+</span></span><span class=line><span class=cl><span class=c1># }</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤5：启动并设置开机自启dhcpd服务</span>
+</span></span><span class=line><span class=cl>systemctl start dhcpd
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> dhcpd
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 检查服务状态</span>
+</span></span><span class=line><span class=cl>systemctl status dhcpd
+</span></span><span class=line><span class=cl><span class=c1># 解释：状态显示active (running)表示启动成功；若失败，查看日志：cat /var/log/messages | grep dhcpd</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤6：客户端测试（Linux客户端）</span>
+</span></span><span class=line><span class=cl><span class=c1># 释放原有IP</span>
+</span></span><span class=line><span class=cl>dhclient -r ens33
+</span></span><span class=line><span class=cl><span class=c1># 重新获取IP</span>
+</span></span><span class=line><span class=cl>dhclient ens33
+</span></span><span class=line><span class=cl><span class=c1># 验证IP是否在地址池范围内</span>
+</span></span><span class=line><span class=cl>ip addr show ens33
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Windows客户端测试（CMD命令）</span>
+</span></span><span class=line><span class=cl><span class=c1># ipconfig /release  # 释放IP</span>
+</span></span><span class=line><span class=cl><span class=c1># ipconfig /renew    # 重新获取IP</span>
+</span></span><span class=line><span class=cl><span class=c1># ipconfig /all      # 查看获取的IP、DNS、网关等信息</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=3-常见问题与解决>3. 常见问题与解决</h4><div class=table-wrapper><table><thead><tr><th>问题</th><th>原因</th><th>解决方法</th></tr></thead><tbody><tr><td>客户端拿不到IP，显示169.254.x.x</td><td>无DHCP服务器/服务未启动/网段不一致</td><td>检查服务状态、网段一致性，关闭冲突DHCP服务</td></tr><tr><td>服务启动失败，日志提示“no subnet declaration”</td><td>配置文件<code>subnet</code>网段与服务器静态IP不一致</td><td>修正<code>subnet</code>网段，重启服务</td></tr><tr><td>客户端IP非服务器分配</td><td>局域网有其他DHCP服务器</td><td>关闭其他DHCP服务，或让IP池不重叠</td></tr><tr><td>找不到配置模板文件</td><td><code>dhcp-server</code>无自带模板</td><td>直接创建<code>/etc/dhcp/dhcpd.conf</code>，写入核心配置</td></tr></tbody></table></div><h3 id=五dhcp保留地址固定ip配置>（五）DHCP保留地址（固定IP）配置</h3><ol><li>核心需求：基于客户端MAC地址绑定固定IP（如192.168.66.139）；</li><li>配置步骤：在<code>dhcpd.conf</code>的<code>subnet</code>段内/外添加<code>host</code>段（指定MAC地址和固定IP），重启服务后客户端重启网卡生效；</li><li>规则：<code>host</code>段优先级高于<code>subnet</code>段；保留IP可在地址池外；一个服务可配置多个保留地址，<code>host</code>名称需唯一。</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 编辑DHCP配置文件，添加host段（绑定MAC和固定IP）</span>
+</span></span><span class=line><span class=cl>vim /etc/dhcp/dhcpd.conf
+</span></span><span class=line><span class=cl><span class=c1># 示例配置（在subnet段内/外添加）：</span>
+</span></span><span class=line><span class=cl>host client-pc <span class=o>{</span>
+</span></span><span class=line><span class=cl>   hardware ethernet 00:0C:29:3A:B5:78<span class=p>;</span>  <span class=c1># 客户端MAC地址（需替换为实际值）</span>
+</span></span><span class=line><span class=cl>   fixed-address 192.168.66.139<span class=p>;</span>         <span class=c1># 绑定的固定IP</span>
+</span></span><span class=line><span class=cl> <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 重启DHCP服务使配置生效</span>
+</span></span><span class=line><span class=cl>systemctl restart dhcpd
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 客户端验证（重启网卡后查看IP是否为绑定的192.168.66.139）</span>
+</span></span><span class=line><span class=cl>dhclient -r ens33 <span class=o>&amp;&amp;</span> dhclient ens33
+</span></span><span class=line><span class=cl>ip addr show ens33
+</span></span></code></pre></td></tr></table></div></div><h2 id=三dns服务实现域名与ip的翻译>三、DNS服务：实现域名与IP的“翻译”</h2><h3 id=一核心原理与解析流程>（一）核心原理与解析流程</h3><ol><li>核心功能：实现域名↔IP地址的转换（域名解析），让用户通过易记的域名（如<code>www.baidu.com</code>）访问服务器，而非难记的IP。</li><li>解析优先级（从高到低）：<ul><li>第一步：查询<code>hosts</code>文件（Linux：<code>/etc/hosts</code>，Windows：<code>C:\Windows\System32\drivers\etc\hosts</code>），配置格式<code>IP 域名</code>，保存立即生效；</li><li>第二步：查询首选DNS服务器（Linux查看配置：<code>cat /etc/resolv.conf</code>）；</li><li>第三步：迭代解析：首选DNS无记录时，逐层查询根域→一级域→二级域服务器，直至获取IP。</li></ul></li><li><code>hosts</code>与DNS服务器的区别：<code>hosts</code>优先级更高，但<code>nslookup</code>/<code>dig</code>等工具仅识别DNS服务器记录，无法识别<code>hosts</code>文件。</li></ol><h3 id=二基础概念>（二）基础概念</h3><ol><li>域名格式与层级：三级域名.二级域名.一级域名.根域（如<code>www.jd.com.</code>，根域<code>.</code>可省略，完整格式为FQDN）；<ul><li>一级域名：机构规定（.com=公司、.cn=中国），全球唯一；</li><li>二级域名：一级域名注册者自定义（如<code>jd</code>）；</li><li>三级域名：自由定义（如<code>www</code>/<code>ftp</code>）。</li></ul></li><li>解析方向：<ul><li>正向解析：域名→IP（日常访问常用）；</li><li>反向解析：IP→域名（多用于验证IP归属，如邮件反垃圾邮件）。</li></ul></li></ol><h3 id=三dns服务搭建与基础配置>（三）DNS服务搭建与基础配置</h3><h4 id=1-核心软件与参数>1. 核心软件与参数</h4><div class=table-wrapper><table><thead><tr><th>项目</th><th>具体内容</th><th>说明</th></tr></thead><tbody><tr><td>软件包</td><td><code>bind</code>（发音“band”）</td><td>DNS核心软件，<code>yum -y install bind</code>安装</td></tr><tr><td>服务名</td><td><code>named</code></td><td>启动/重启命令：<code>systemctl start/restart named</code></td></tr><tr><td>端口</td><td>53（TCP/UDP）</td><td>需开放，服务通信端口</td></tr><tr><td>主配置文件</td><td><code>/etc/named.conf</code></td><td>配置监听IP、客户端访问权限、日志级别</td></tr><tr><td>区域配置文件</td><td><code>/etc/named.rfc1912.zones</code></td><td>定义正向/反向解析区域及数据文件路径</td></tr><tr><td>数据文件</td><td><code>named.localhost</code>（正向）、<code>named.loopback</code>（反向）</td><td>存储域名-IP映射，默认路径<code>/var/named/</code></td></tr></tbody></table></div><h4 id=2-基础配置步骤>2. 基础配置步骤</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 步骤1：安装bind软件包（CentOS/RHEL）</span>
+</span></span><span class=line><span class=cl>dnf install -y <span class=nb>bind</span> bind-utils
+</span></span><span class=line><span class=cl><span class=c1># Ubuntu/Debian</span>
+</span></span><span class=line><span class=cl><span class=c1># apt install -y bind9 bind9-utils</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证安装</span>
+</span></span><span class=line><span class=cl>rpm -qa <span class=p>|</span> grep <span class=nb>bind</span>  <span class=c1># CentOS/RHEL</span>
+</span></span><span class=line><span class=cl><span class=c1># dpkg -l | grep bind9  # Ubuntu</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤2：修改主配置文件/etc/named.conf</span>
+</span></span><span class=line><span class=cl>vim /etc/named.conf
+</span></span><span class=line><span class=cl> 核心修改项：
+</span></span><span class=line><span class=cl> listen-on port <span class=m>53</span> <span class=o>{</span> any<span class=p>;</span> <span class=o>}</span><span class=p>;</span>  <span class=c1># 监听所有IP（默认仅127.0.0.1）</span>
+</span></span><span class=line><span class=cl> allow-query     <span class=o>{</span> any<span class=p>;</span> <span class=o>}</span><span class=p>;</span>    <span class=c1># 允许所有客户端查询（默认仅localhost）</span>
+</span></span><span class=line><span class=cl><span class=c1># dnssec-validation no;        # 关闭DNSSEC验证（测试环境简化）</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证主配置文件语法</span>
+</span></span><span class=line><span class=cl>named-checkconf /etc/named.conf
+</span></span><span class=line><span class=cl><span class=c1># 解释：无输出表示语法无错误；有输出则根据提示修正</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤3：启动named服务并设置开机自启</span>
+</span></span><span class=line><span class=cl>systemctl start named
+</span></span><span class=line><span class=cl>systemctl <span class=nb>enable</span> named
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 检查服务状态</span>
+</span></span><span class=line><span class=cl>systemctl status named
+</span></span><span class=line><span class=cl><span class=c1># 验证端口监听（53端口需正常监听）</span>
+</span></span><span class=line><span class=cl>ss -tulnp <span class=p>|</span> grep <span class=m>53</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=四核心解析记录类型与配置>（四）核心解析记录类型与配置</h3><h4 id=1-核心记录类型>1. 核心记录类型</h4><div class=table-wrapper><table><thead><tr><th>记录类型</th><th>作用</th><th>示例</th></tr></thead><tbody><tr><td>A记录</td><td>正向解析，域名→IPv4</td><td><code>www IN A 192.168.66.191</code></td></tr><tr><td>AAAA记录</td><td>正向解析，域名→IPv6</td><td>-</td></tr><tr><td>PTR记录</td><td>反向解析，IP→域名</td><td><code>191 IN PTR www.xxx.com.</code></td></tr><tr><td>NS记录</td><td>指定域名的解析服务器</td><td><code>IN NS dns.xxx.com.</code></td></tr><tr><td>SOA记录</td><td>定义域名解析权威信息</td><td>包含主DNS、刷新时间、重试时间等</td></tr><tr><td>CNAME记录</td><td>别名记录，域名→另一个域名</td><td><code>baidu IN CNAME www.baidu.com.</code></td></tr><tr><td>MX记录</td><td>指定邮件接收服务器</td><td>-</td></tr></tbody></table></div><h4 id=2-正向解析配置以xxxcom为例>2. 正向解析配置（以<code>xxx.com</code>为例）</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 步骤1：编辑区域配置文件，添加正向解析区域</span>
+</span></span><span class=line><span class=cl>vim /etc/named.rfc1912.zones
+</span></span><span class=line><span class=cl><span class=c1># 添加以下内容：</span>
+</span></span><span class=line><span class=cl><span class=c1># zone &#34;xxx.com&#34; IN {</span>
+</span></span><span class=line><span class=cl><span class=c1>#   type master;          # 主DNS服务器</span>
+</span></span><span class=line><span class=cl><span class=c1>#   file &#34;xxx.com.zone&#34;;  # 正向解析数据文件路径（相对/var/named/）</span>
+</span></span><span class=line><span class=cl><span class=c1>#   allow-update { none; }; # 禁止动态更新</span>
+</span></span><span class=line><span class=cl><span class=c1># };</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤2：创建正向解析数据文件</span>
+</span></span><span class=line><span class=cl>cp /var/named/named.localhost /var/named/xxx.com.zone
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 编辑数据文件</span>
+</span></span><span class=line><span class=cl>vim /var/named/xxx.com.zone
+</span></span><span class=line><span class=cl><span class=c1># 核心配置示例：</span>
+</span></span><span class=line><span class=cl><span class=c1># $TTL 1D</span>
+</span></span><span class=line><span class=cl><span class=c1># @       IN SOA  dns.xxx.com. admin.xxx.com. (</span>
+</span></span><span class=line><span class=cl><span class=c1>#                                       0       ; serial</span>
+</span></span><span class=line><span class=cl><span class=c1>#                                       1D      ; refresh</span>
+</span></span><span class=line><span class=cl><span class=c1>#                                       1H      ; retry</span>
+</span></span><span class=line><span class=cl><span class=c1>#                                       1W      ; expire</span>
+</span></span><span class=line><span class=cl><span class=c1>#                                       3H )    ; minimum</span>
+</span></span><span class=line><span class=cl><span class=c1>#         IN NS   dns.xxx.com.</span>
+</span></span><span class=line><span class=cl><span class=c1># dns     IN A    192.168.66.100  # DNS服务器自身A记录</span>
+</span></span><span class=line><span class=cl><span class=c1># www     IN A    192.168.66.191  # www.xxx.com对应IP</span>
+</span></span><span class=line><span class=cl><span class=c1># baidu   IN CNAME www.baidu.com. # 别名记录（需加.结尾）</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>步骤3：调整数据文件权限（必须，否则named服务无法读取）
+</span></span><span class=line><span class=cl>chown named:named /var/named/xxx.com.zone
+</span></span><span class=line><span class=cl>chmod <span class=m>640</span> /var/named/xxx.com.zone
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证数据文件语法</span>
+</span></span><span class=line><span class=cl>named-checkzone xxx.com /var/named/xxx.com.zone
+</span></span><span class=line><span class=cl><span class=c1># 解释：输出“zone xxx.com/IN: loaded serial 0”表示语法正确</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤4：重启named服务</span>
+</span></span><span class=line><span class=cl>systemctl restart named
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤5：测试正向解析</span>
+</span></span><span class=line><span class=cl>nslookup www.xxx.com 192.168.66.100  <span class=c1># 指定自建DNS服务器查询</span>
+</span></span><span class=line><span class=cl>dig www.xxx.com @192.168.66.100
+</span></span><span class=line><span class=cl><span class=c1># 解释：返回结果中ANSWER SECTION需显示对应IP（192.168.66.191）</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=3-反向解析配置以19216866024为例>3. 反向解析配置（以<code>192.168.66.0/24</code>为例）</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 步骤1：编辑区域配置文件，添加反向解析区域</span>
+</span></span><span class=line><span class=cl>vim /etc/named.rfc1912.zones
+</span></span><span class=line><span class=cl><span class=c1># 添加以下内容：</span>
+</span></span><span class=line><span class=cl><span class=c1># zone &#34;66.168.192.in-addr.arpa&#34; IN {</span>
+</span></span><span class=line><span class=cl><span class=c1>#   type master;</span>
+</span></span><span class=line><span class=cl><span class=c1>#   file &#34;66.168.192.zone&#34;;  # 反向解析数据文件</span>
+</span></span><span class=line><span class=cl><span class=c1>#   allow-update { none; };</span>
+</span></span><span class=line><span class=cl><span class=c1># };</span>
+</span></span><span class=line><span class=cl><span class=c1># 解释：反向区域名格式为“子网段倒序.in-addr.arpa”，192.168.66.0/24对应66.168.192.in-addr.arpa</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤2：创建反向解析数据文件</span>
+</span></span><span class=line><span class=cl>cp /var/named/named.loopback /var/named/66.168.192.zone
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 编辑数据文件</span>
+</span></span><span class=line><span class=cl>vim /var/named/66.168.192.zone
+</span></span><span class=line><span class=cl><span class=c1># 核心配置示例：</span>
+</span></span><span class=line><span class=cl><span class=c1># $TTL 1D</span>
+</span></span><span class=line><span class=cl><span class=c1># @       IN SOA  dns.xxx.com. admin.xxx.com. (</span>
+</span></span><span class=line><span class=cl><span class=c1>#                                       0       ; serial</span>
+</span></span><span class=line><span class=cl><span class=c1>#                                       1D      ; refresh</span>
+</span></span><span class=line><span class=cl><span class=c1>#                                       1H      ; retry</span>
+</span></span><span class=line><span class=cl><span class=c1>#                                       1W      ; expire</span>
+</span></span><span class=line><span class=cl><span class=c1>#                                       3H )    ; minimum</span>
+</span></span><span class=line><span class=cl><span class=c1>#         IN NS   dns.xxx.com.</span>
+</span></span><span class=line><span class=cl><span class=c1># 191     IN PTR  www.xxx.com.  # 192.168.66.191反向解析为www.xxx.com</span>
+</span></span><span class=line><span class=cl><span class=c1># 解释：PTR记录的“191”是IP的最后一段，需对应完整域名（加.结尾）</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤3：调整权限</span>
+</span></span><span class=line><span class=cl>chown named:named /var/named/66.168.192.zone
+</span></span><span class=line><span class=cl>chmod <span class=m>640</span> /var/named/66.168.192.zone
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 验证数据文件语法</span>
+</span></span><span class=line><span class=cl>named-checkzone 66.168.192.in-addr.arpa /var/named/66.168.192.zone
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤4：重启服务并测试</span>
+</span></span><span class=line><span class=cl>systemctl restart named
+</span></span><span class=line><span class=cl>nslookup 192.168.66.191 192.168.66.100  <span class=c1># 指定自建DNS查询反向解析</span>
+</span></span><span class=line><span class=cl><span class=c1># 解释：返回结果中name字段需显示www.xxx.com.</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=五dns常见问题与排查>（五）DNS常见问题与排查</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># 1. 服务启动失败排查</span>
+</span></span><span class=line><span class=cl><span class=c1># 检查主配置文件语法</span>
+</span></span><span class=line><span class=cl>named-checkconf /etc/named.conf
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 检查正向解析数据文件语法</span>
+</span></span><span class=line><span class=cl>named-checkzone xxx.com /var/named/xxx.com.zone
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 检查反向解析数据文件语法</span>
+</span></span><span class=line><span class=cl>named-checkzone 66.168.192.in-addr.arpa /var/named/66.168.192.zone
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 查看named服务日志（定位具体错误）</span>
+</span></span><span class=line><span class=cl>journalctl -u named -f
+</span></span><span class=line><span class=cl><span class=c1># 或</span>
+</span></span><span class=line><span class=cl>cat /var/log/messages <span class=p>|</span> grep named
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 2. 解析记录不生效排查</span>
+</span></span><span class=line><span class=cl><span class=c1># 检查客户端DNS配置（Linux）</span>
+</span></span><span class=line><span class=cl>cat /etc/resolv.conf
+</span></span><span class=line><span class=cl><span class=c1># 解释：需确保nameserver指向自建DNS服务器（192.168.66.100）</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 清除Linux客户端DNS缓存</span>
+</span></span><span class=line><span class=cl>systemctl restart NetworkManager
+</span></span><span class=line><span class=cl><span class=c1># 或（CentOS 7+）</span>
+</span></span><span class=line><span class=cl>resolvectl flush-caches
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Windows客户端清除缓存（CMD）</span>
+</span></span><span class=line><span class=cl><span class=c1># ipconfig /flushdns</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 3. 多域名解析配置（新增yyy.com域名）</span>
+</span></span><span class=line><span class=cl><span class=c1># 步骤1：添加新区域</span>
+</span></span><span class=line><span class=cl>vim /etc/named.rfc1912.zones
+</span></span><span class=line><span class=cl><span class=c1># zone &#34;yyy.com&#34; IN {</span>
+</span></span><span class=line><span class=cl><span class=c1>#   type master;</span>
+</span></span><span class=line><span class=cl><span class=c1>#   file &#34;yyy.com.zone&#34;;</span>
+</span></span><span class=line><span class=cl><span class=c1>#   allow-update { none; };</span>
+</span></span><span class=line><span class=cl><span class=c1># };</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤2：创建新数据文件</span>
+</span></span><span class=line><span class=cl>cp /var/named/xxx.com.zone /var/named/yyy.com.zone
+</span></span><span class=line><span class=cl>vim /var/named/yyy.com.zone  <span class=c1># 修改为yyy.com的解析记录</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 步骤3：调整权限并验证</span>
+</span></span><span class=line><span class=cl>chown named:named /var/named/yyy.com.zone
+</span></span><span class=line><span class=cl>chmod <span class=m>640</span> /var/named/yyy.com.zone
+</span></span><span class=line><span class=cl>named-checkzone yyy.com /var/named/yyy.com.zone
+</span></span><span class=line><span class=cl>systemctl restart named
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 新增子域名（如blog.xxx.com）</span>
+</span></span><span class=line><span class=cl>vim /var/named/xxx.com.zone
+</span></span><span class=line><span class=cl><span class=c1># 添加：blog IN A 192.168.66.192</span>
+</span></span><span class=line><span class=cl>systemctl restart named
+</span></span><span class=line><span class=cl>nslookup blog.xxx.com 192.168.66.100  <span class=c1># 测试子域名解析</span>
+</span></span></code></pre></td></tr></table></div></div></section><footer class=article-footer><section class=article-tags><a href=/fuyou/tags/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80/>网络基础</a>
+<a href=/fuyou/tags/obsidian/>Obsidian</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>本作品采用 CC BY-NC-SA 4.0 许可协议</span></section><section class=article-lastmod><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<span>最后更新于 2026-07-11 16:45 +0800</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/fuyou/p/network-17/><div class=article-image><img src=https://picsum.photos/seed/fuyou-network-17/1200/675 loading=lazy data-key=network-17 data-hash=https://picsum.photos/seed/fuyou-network-17/1200/675></div><div class=article-details><h2 class=article-title>网络服务阶段索引</h2></div></a></article><article class=has-image><a href=/fuyou/p/network-18/><div class=article-image><img src=https://picsum.photos/seed/fuyou-network-18/1200/675 loading=lazy data-key=network-18 data-hash=https://picsum.photos/seed/fuyou-network-18/1200/675></div><div class=article-details><h2 class=article-title>MySQL SQL 语言分类</h2></div></a></article><article class=has-image><a href=/fuyou/p/network-16/><div class=article-image><img src=https://picsum.photos/seed/fuyou-network-16/1200/675 loading=lazy data-key=network-16 data-hash=https://picsum.photos/seed/fuyou-network-16/1200/675></div><div class=article-details><h2 class=article-title>Redis 全面知识体系详解</h2></div></a></article><article class=has-image><a href=/fuyou/p/network-15/><div class=article-image><img src=https://picsum.photos/seed/fuyou-network-15/1200/675 loading=lazy data-key=network-15 data-hash=https://picsum.photos/seed/fuyou-network-15/1200/675></div><div class=article-details><h2 class=article-title>MySQL 备份恢复与日志管理</h2></div></a></article><article class=has-image><a href=/fuyou/p/network-14/><div class=article-image><img src=https://picsum.photos/seed/fuyou-network-14/1200/675 loading=lazy data-key=network-14 data-hash=https://picsum.photos/seed/fuyou-network-14/1200/675></div><div class=article-details><h2 class=article-title>MySQL 视图、外键、存储过程与主从复制</h2></div></a></article></div></div></aside>...<div class=comment></div><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 小杨</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.26.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/fuyou/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script><style>body{background:url(https://luckycloveryh.github.io/fuyou/background/jinlin.png)no-repeat 50% 0;background-size:cover;background-attachment:fixed}@media(max-width:767px){body{background-attachment:scroll;background-position:50% 0}}.article-details{position:relative;z-index:1}.article-title,.article-title a{color:var(--card-text-color-main)!important}.search-form input{background-color:var(--card-background)!important;color:var(--card-text-color-main)!important;border-color:var(--card-separator-color)!important}.search-form button{background-color:transparent!important;color:var(--card-text-color-secondary)!important}.left-sidebar .site-name,.left-sidebar .site-name a,.left-sidebar .site-description,.left-sidebar #main-menu li a,.left-sidebar #main-menu li.current a,.left-sidebar #dark-mode-toggle,.left-sidebar #i18n-switch,.left-sidebar .menu-social svg,.right-sidebar .widget-icon svg,.right-sidebar .widget-title,.site-footer{color:#fff!important;stroke:#fff!important;text-shadow:0 1px 4px rgba(0,0,0,.65)}.left-sidebar #main-menu li a:hover,.left-sidebar .site-name a:hover{color:#fff!important;opacity:.9}</style><script src=https://luckycloveryh.github.io/fuyou/background/sakura.js></script><div id=particles-js></div><script src=https://luckycloveryh.github.io/fuyou/background/particles.min.js></script><script>window.matchMedia("(min-width: 768px)").matches&&particlesJS.load("particles-js","https://luckycloveryh.github.io/fuyou/background/particlesjs-config.json",function(){console.log("particles.js loaded - callback")})</script><style>#particles-js{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}#particles-js canvas{pointer-events:none!important}@media(max-width:767px){#particles-js,#canvas_sakura{display:none!important}}</style><style>:root{--base-font-family:"Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Segoe UI", Arial, sans-serif;--article-font-family:var(--base-font-family);--code-font-family:"Cascadia Mono", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei UI", monospace}</style><style>#TableOfContents>ul,ol{ul, ol { display: none; } .open { display: block; }}</style><script>function initTocHide(){let e=document.querySelector(".widget--toc");if(!e)return;window.fuyouTocScrollHandler&&window.removeEventListener("scroll",window.fuyouTocScrollHandler),window.fuyouTocScrollHandler=function(){let n=document.querySelectorAll(".open");n.length>0&&n.forEach(e=>{e.classList.remove("open")});let t=document.querySelector(".active-class");if(!t)return;t.children.length>1&&t.children[1].classList.add("open");let e=t.parentElement;do e.classList.add("open"),e=e.parentElement.parentElement;while(e!==void 0&&(e.localName==="ul"||e.localName==="ol"))},window.addEventListener("scroll",window.fuyouTocScrollHandler,{passive:!0})}initTocHide()</script><style>#backTopBtn{display:none;position:fixed;right:30px;bottom:30px;z-index:99;cursor:pointer;width:30px;height:30px;background-image:url(https://luckycloveryh.github.io/fuyou/icons/backTop.svg);background-repeat:no-repeat;background-position:50%;background-size:contain}@media(max-width:767px){#backTopBtn{right:14px;bottom:calc(82px + env(safe-area-inset-bottom));width:42px;height:42px;border:0;border-radius:50%;background-color:rgba(35,35,35,.74);background-size:22px 22px;box-shadow:0 8px 20px rgba(0,0,0,.28)}}</style><script>function initScrollTop(){let e=document.getElementById("backTopBtn");e||(e=document.createElement("button"),e.id="backTopBtn",e.type="button",e.setAttribute("aria-label","Back to top"),e.onclick=backToTop,document.body.appendChild(e)),window.fuyouBackTopHandler&&window.removeEventListener("scroll",window.fuyouBackTopHandler),window.fuyouBackTopHandler=function(){document.body.scrollTop>20||document.documentElement.scrollTop>20?e.style.display="block":e.style.display="none"},window.addEventListener("scroll",window.fuyouBackTopHandler,{passive:!0}),window.fuyouBackTopHandler()}function backToTop(){window.scrollTo({top:0,behavior:"smooth"})}initScrollTop()</script><style>.highlight{max-height:400px;overflow:hidden}.code-show{max-height:none!important}.code-more-box{width:100%;padding-top:78px;background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0)),to(#fff));position:absolute;left:0;right:0;bottom:0;z-index:1}.code-more-btn{display:block;margin:auto;width:44px;height:22px;background:#f0f0f5;border-top-left-radius:8px;border-top-right-radius:8px;padding-top:6px;cursor:pointer}.code-more-img{cursor:pointer!important;display:block;margin:auto;width:22px;height:16px}</style><script>function initCodeMoreBox(){let e=document.querySelectorAll(".highlight");if(!e)return;e.forEach(e=>{if(e.scrollHeight<=e.clientHeight)return;let t=document.createElement("div");t.classList.add("code-more-box");let n=document.createElement("span");n.classList.add("code-more-btn"),n.addEventListener("click",()=>{e.classList.add("code-show"),t.style.display="none",window.dispatchEvent(new Event("resize"))});let s=document.createElement("img");s.classList.add("code-more-img"),s.src="https://luckycloveryh.github.io/fuyou/icons/codeMore.png",n.appendChild(s),t.appendChild(n),e.appendChild(t)})}initCodeMoreBox()</script><script>const cdnPath="https://cdn.jsdelivr.net/gh/letere-gzj/live2d-widget-v3@main",config={path:{homePath:"/",modelPath:cdnPath+"/Resources/",cssPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu.css",tipsJsonPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu-tips.json",tipsJsPath:cdnPath+"/waifu-tips.js",live2dCorePath:cdnPath+"/Core/live2dcubismcore.js",live2dSdkPath:cdnPath+"/live2d-sdk.js"},tools:["hitokoto","asteroids","express","switch-model","switch-texture","photo","info","quit"],drag:{enable:!0,direction:["x","y"]},switchType:"order"};function loadExternalResource(e,t){return new Promise((n,s)=>{let o;t==="css"?(o=document.createElement("link"),o.rel="stylesheet",o.href=e):t==="js"&&(o=document.createElement("script"),o.src=e),o&&(o.onload=()=>n(e),o.onerror=()=>s(e),document.head.appendChild(o))})}let live2dInitialized=!1;function initLive2d(){if(live2dInitialized)return;window.matchMedia("(min-width: 768px)").matches&&Promise.all([loadExternalResource(config.path.cssPath,"css"),loadExternalResource(config.path.live2dCorePath,"js"),loadExternalResource(config.path.live2dSdkPath,"js"),loadExternalResource(config.path.tipsJsPath,"js")]).then(()=>{initWidget({waifuPath:config.path.tipsJsonPath,cdnPath:config.path.modelPath,tools:config.tools,dragEnable:config.drag.enable,dragDirection:config.drag.direction,switchType:config.switchType}),live2dInitialized=!0}).catch(e=>{console.error("Failed to load live2d:",e)})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",initLive2d):initLive2d()</script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css><style>@media(max-width:767px){.aplayer.aplayer-fixed,.aplayer.aplayer-fixed .aplayer-body{max-width:100vw}.aplayer.aplayer-fixed .aplayer-body{padding-right:18px;padding-bottom:env(safe-area-inset-bottom)}.aplayer.aplayer-fixed .aplayer-info{width:calc(100vw - 66px)}.aplayer.aplayer-fixed .aplayer-lrc{display:none!important}}</style><div id=aplayer></div><script src=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js></script><script>(function(){const e="https://luckycloveryh.github.io/fuyou/",t=document.getElementById("aplayer");if(!t||window.ap)return;window.ap=new APlayer({container:t,fixed:!0,lrcType:3,audio:[{name:"归期",artist:"钱润玉",url:e+"music/归期-钱润玉/song.mp3",cover:e+"music/归期-钱润玉/cover.jpg"}]})})()</script><script>window.addEventListener("beforeunload",()=>{if(!window.ap)return;const e={index:window.ap.list.index,currentTime:window.ap.audio.currentTime,paused:window.ap.paused};sessionStorage.setItem("playInfo",JSON.stringify(e))}),window.addEventListener("load",()=>{if(!window.ap)return;if(window._pjaxNavigating)return;const e=JSON.parse(sessionStorage.getItem("playInfo"));if(!e)return;window.ap.list.switch(e.index),setTimeout(()=>{if(window.ap.seek(e.currentTime),!e.paused){const e=window.ap.play();e&&typeof e.catch=="function"&&e.catch(()=>{})}},500)}),document.addEventListener("pjax:send",()=>{window._pjaxNavigating=!0}),document.addEventListener("pjax:complete",()=>{window._pjaxNavigating=!1})</script><script>window.fuyouPjaxInitialized=window.fuyouPjaxInitialized||!1;function reinitFuyouPageScripts(){try{window.Stack&&window.Stack.init&&window.Stack.init()}catch(e){console.warn("Stack初始化失败:",e)}try{typeof initTocHide=="function"&&initTocHide(),typeof initScrollTop=="function"&&initScrollTop(),typeof initCodeMoreBox=="function"&&initCodeMoreBox(),typeof showHideView=="function"&&showHideView(),typeof renderKaTeX=="function"&&renderKaTeX()}catch(e){console.warn("页面脚本重新初始化失败:",e)}try{typeof RENDERER!="undefined"&&RENDERER.setup()}catch(e){console.warn("底部小鱼初始化失败:",e)}}function shouldFuyouHandleLink(e,t){if(!t||e.defaultPrevented)return!1;if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return!1;if(t.target&&t.target!=="_self")return!1;if(t.hasAttribute("download"))return!1;const n=new URL(t.href,window.location.href);return n.origin===window.location.origin&&!!n.pathname.startsWith("/fuyou/")&&(n.pathname!==window.location.pathname||n.search!==window.location.search)&&!(n.hash&&n.pathname===window.location.pathname&&n.search===window.location.search)}async function fuyouLoadPage(e,t){document.dispatchEvent(new CustomEvent("pjax:send")),window._pjaxNavigating=!0;try{const s=await fetch(e,{headers:{"X-Requested-With":"fuyou-pjax"},credentials:"same-origin"});if(!s.ok)throw new Error("HTTP "+s.status);const r=await s.text(),n=(new DOMParser).parseFromString(r,"text/html"),o=n.querySelector(".main-container"),i=document.querySelector(".main-container");if(!o||!i){window.location.href=e;return}document.title=n.title,document.body.className=n.body.className,i.replaceWith(o);const c=document.querySelectorAll(".js-Pjax"),a=n.querySelectorAll(".js-Pjax");c.forEach((e,t)=>{a[t]&&e.replaceWith(a[t])}),t&&history.pushState({fuyouPjax:!0},"",e),window.scrollTo({top:0,behavior:"auto"}),reinitFuyouPageScripts(),document.dispatchEvent(new CustomEvent("pjax:complete"))}catch(t){console.warn("无刷新切换失败，回退到普通跳转:",t),window.location.href=e}finally{window._pjaxNavigating=!1}}window.addEventListener("load",()=>{if(window.fuyouPjaxInitialized)return;window.fuyouPjaxInitialized=!0,history.replaceState({fuyouPjax:!0},"",window.location.href),document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("a[href]");if(!shouldFuyouHandleLink(e,t))return;e.preventDefault(),fuyouLoadPage(t.href,!0)}),window.addEventListener("popstate",()=>{fuyouLoadPage(window.location.href,!1)}),window.pjax={refresh:function(){},loadUrl:function(e){fuyouLoadPage(e,!0)}}})</script><div class=js-Pjax><script>(function(){let t=document.querySelector(".comment");if(!t)return;let e=document.createElement("script");e.setAttribute("src","https://giscus.app/client.js"),e.setAttribute("data-repo",""),e.setAttribute("data-repo-id",""),e.setAttribute("data-category",""),e.setAttribute("data-category-id",""),e.setAttribute("data-mapping",""),e.setAttribute("data-strict",""),e.setAttribute("data-reactions-enabled","1"),e.setAttribute("data-emit-metadata","0"),e.setAttribute("data-input-position",""),e.setAttribute("data-theme",""),e.setAttribute("data-lang",""),e.async=!0,e.crossOrigin="anonymous",t.appendChild(e)})(document)</script></div><script>async function renderKaTeX(){let e=document.querySelector(".math-katex");if(!e)return;for(;typeof renderMathInElement!="function";)await delay(500);renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],ignoredClasses:["gist"]})}function delay(e){return new Promise(t=>{setTimeout(t,e)})}document.addEventListener("pjax:complete",()=>{renderKaTeX()})</script><script src=https://luckycloveryh.github.io/fuyou/js/topbar.min.js></script><script>topbar.config({barColors:{0:"rgba(255, 255, 255, 1)",1.0:"rgba(0, 149, 234, 1)"}}),document.addEventListener("pjax:send",()=>{topbar.show()}),document.addEventListener("pjax:complete",()=>{topbar.hide()})</script><script defer src=https://cn.vercount.one/js></script><script>function showHideView(){let e=document.querySelectorAll("#viewCount");if(e){let t=document.querySelector(".article-page");t||e.forEach(e=>{e.style.display="none"})}}showHideView()</script><div id=jsi-flying-fish-container class=flying-fish-container></div><style>.flying-fish-container{width:100%;height:200px;position:fixed;z-index:0;pointer-events:none;bottom:0;left:0;opacity:.6}.flying-fish-container canvas{display:block;pointer-events:none}@media(max-width:767px){.flying-fish-container{height:96px;opacity:.38}}</style><script src=https://luckycloveryh.github.io/fuyou/js/flying-fish.js></script><script>window.addEventListener("load",function(){typeof RENDERER!="undefined"&&document.getElementById("jsi-flying-fish-container")&&RENDERER.init()}),document.addEventListener("pjax:complete",function(){typeof RENDERER!="undefined"&&RENDERER.setup()})</script></body></html>

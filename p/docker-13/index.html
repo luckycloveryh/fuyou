@@ -1,0 +1,1063 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="介绍《Docker 网络基础》，涵盖Docker 网络启动过程、查看网桥和brctl 命令默认没有安装，安装命令： yum -y install bridge-ut。"><title>Docker 网络基础</title>
+<link rel=canonical href=https://luckycloveryh.github.io/fuyou/p/docker-13/><link rel=stylesheet href=/fuyou/scss/style.min.4f12ea1fa4ca7ef3f419897549c88b4c242f129d29316c950cdb3b0754157538.css><meta property='og:title' content="Docker 网络基础"><meta property='og:description' content="介绍《Docker 网络基础》，涵盖Docker 网络启动过程、查看网桥和brctl 命令默认没有安装，安装命令： yum -y install bridge-ut。"><meta property='og:url' content='https://luckycloveryh.github.io/fuyou/p/docker-13/'><meta property='og:site_name' content='小杨的博客'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:tag' content='Docker'><meta property='article:tag' content='Obsidian'><meta property='article:published_time' content='2026-06-22T09:00:00+08:00'><meta property='article:modified_time' content='2026-07-11T16:45:03+08:00'><meta property='og:image' content='https://picsum.photos/seed/fuyou-docker-13/1200/675'><meta name=twitter:title content="Docker 网络基础"><meta name=twitter:description content="介绍《Docker 网络基础》，涵盖Docker 网络启动过程、查看网桥和brctl 命令默认没有安装，安装命令： yum -y install bridge-ut。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://picsum.photos/seed/fuyou-docker-13/1200/675'><link rel=alternate type=application/json href=https://luckycloveryh.github.io/fuyou/p/docker-13/index.json><link rel="shortcut icon" href=/fuyou/favicon.png><div class=loading-container><div class=card><div class=loader><p>loading</p><div class=words><span class=word>buttons</span>
+<span class=word>forms</span>
+<span class=word>switches</span>
+<span class=word>cards</span>
+<span class=word>buttons</span></div></div></div></div><style>.loading-container{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(17,17,17,.98);display:flex;align-items:center;justify-content:center;z-index:999999;transition:opacity 1.2s ease;pointer-events:none}.card{--bg-color:#111;background-color:var(--bg-color);padding:1.2rem 2.5rem;border-radius:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.7)}.loader{color:#7c7c7c;font-family:poppins,system-ui,sans-serif;font-weight:500;font-size:25px;height:42px;padding:8px 12px;display:flex;align-items:center;gap:12px;border-radius:8px;white-space:nowrap}.words{overflow:hidden;position:relative;height:100%;min-width:110px}.words::after{content:"";position:absolute;inset:0;background:linear-gradient( var(--bg-color) 10%,transparent 30%,transparent 70%,var(--bg-color) 90% );z-index:20}.word{display:block;height:100%;padding-left:4px;color:#956afa;animation:spin_4991 4s infinite linear}@keyframes spin_4991{10%{transform:translateY(-102%)}25%{transform:translateY(-100%)}35%{transform:translateY(-202%)}50%{transform:translateY(-200%)}60%{transform:translateY(-302%)}75%{transform:translateY(-300%)}85%{transform:translateY(-402%)}100%{transform:translateY(-400%)}}.loading-container.fade-out{opacity:0;pointer-events:none}</style><script>(function(){const e=()=>{const e=document.querySelector(".loading-container");if(!e)return;e.classList.add("fade-out"),e.style.display="none",e.style.pointerEvents="none"},n=sessionStorage.getItem("visited");if(n){e();return}const t=()=>{const t=document.querySelector(".loading-container");if(!t)return;t.classList.add("fade-out"),setTimeout(()=>{e(),sessionStorage.setItem("visited","true")},400)};setTimeout(t,1200),window.addEventListener("load",t,{once:!0})})()</script></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/fuyou/><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/muzimi.gif width=300 height=300 class=site-logo loading=lazy alt=Avatar>
+</a><span class=emoji>🌸</span></figure><div class=site-meta><h1 class=site-name><a href=/fuyou>小杨的博客</a></h1><h2 class=site-description>技术分享，日常分享</h2></div></header><ol class=menu-social><li><a href=https://space.bilibili.com/81116666 title=Bilibili rel=me><svg class="icon icon-bilibili-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 6.1 5.8 3.3"/><path d="M15.8 6.1l2.4-2.8"/><path d="M7.2 7h9.6a4 4 0 014 4v4a4 4 0 01-4 4H7.2a4 4 0 01-4-4v-4a4 4 0 014-4z"/><path d="M9 12.1l1.3 1.4"/><path d="M15 12.1l-1.3 1.4"/></svg></a></li><li><a href=https://github.com/luckycloveryh/fuyou title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/fuyou/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>主页 | Home</span></a></li><li><a href=/fuyou/categories/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>分类&标签 | Cats&amp;Tags</span></a></li><li><a href=/fuyou/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>归档 | Archives</span></a></li><li><a href=/fuyou/%E6%90%9C%E7%B4%A2/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>搜索 | Search</span></a></li><li><a href=/fuyou/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97-logs/><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg>
+<span>更新日志 | Logs</span></a></li><li><a href=/fuyou/%E6%8A%80%E6%9C%AF%E9%93%BE%E6%8E%A5-links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>技术链接 | Links</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#docker-网络启动过程>Docker 网络启动过程</a></li><li><a href=#docker-网络的连通性>Docker 网络的连通性</a><ol><li><a href=#容器访问外部>容器访问外部</a></li><li><a href=#外部访问容器>外部访问容器</a></li><li><a href=#容器间互相访问>容器间互相访问</a></li></ol></li><li><a href=#docker-网络模式httpsdocsdockercomenginenetworkdriversbridge><a href=https://docs.docker.com/engine/network/drivers/bridge/>Docker 网络模式</a></a><ol><li><a href=#host-模式>host 模式</a></li><li><a href=#bridge--模式>bridge 模式</a></li><li><a href=#none-模式>none 模式</a></li></ol></li><li><a href=#namespace>Namespace</a><ol><li><a href=#namespace-常用操作>Namespace 常用操作</a></li><li><a href=#网络-namespace>网络 Namespace</a><ol><li><a href=#使用-ip-netns-命令操作-network-namespace>使用 ip netns 命令操作 network namespace</a></li></ol></li><li><a href=#docker-网络-底层实现-了解>Docker 网络 底层实现 (了解)</a></li></ol></li><li><a href=#附录>附录：</a><ol><li><a href=#镜像地址>镜像地址</a></li></ol></li><li><a href=#来源>来源</a></li></ol></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/fuyou/p/docker-13/><img src=https://picsum.photos/seed/fuyou-docker-13/1200/675 loading=lazy alt="Featured image of post Docker 网络基础"></a></div><div class=article-details><header class=article-category><a href=/fuyou/categories/7.-docker/>7. Docker</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/fuyou/p/docker-13/>Docker 网络基础</a></h2><h3 class=article-subtitle>介绍《Docker 网络基础》，涵盖Docker 网络启动过程、查看网桥和brctl 命令默认没有安装，安装命令： yum -y install bridge-ut。</h3></div><footer class="article-time article-time--template"><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>2026-06-22</time></div><div><svg class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7H6A2 2 0 004 9v9a2 2 0 002 2h9a2 2 0 002-2v-1"/><path d="M20.385 6.585a2.1 2.1.0 00-2.97-2.97L9 12v3h3l8.385-8.415z"/><path d="M16 5l3 3"/></svg>
+<time class=article-time--modified>2026-07-11</time></div><div><svg class="icon icon-tabler icon-tabler-file-text" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 001 1h4"/><path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/><path d="M9 9h1"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+<span class=article-time--word-count>6175字</span></div></footer></div></header><section class=article-content><h1 id=五docker-网络>五、Docker 网络</h1><h2 id=docker-网络启动过程>Docker 网络启动过程</h2><p>Docker 服务启动时会首先在主机上自动创建一个 docker0 的虚拟网桥，网桥可以理解为一个软件交换机，负责挂载其上的接口之间进行包转发。</p><p>Docker 随机分配一个本地未占用的私有网段中的一个地址给 docker0 接口，默认是 172.17.0.0/16 网段。此后启动的容器会自动分配一个该网段的地址。</p><p>当创建一个 Docker 容器的时候，同时会创建了一对 <code>veth pair</code> 互联接口。当向任一个接口发送包时，另外一个接口自动收到相同的包。互联接口的一端位于容器内，即 eth0；另一端在本地并被挂载到 docker0 网桥，名称以veth 开头（例如 vethae12ch）。通过这种方式，主机可以与容器通信，容器之间也可以相互通信。如此一来，Docker 就创建了在主机和所有容器之间一个虚拟共享网络。</p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/docker-13/01.png loading=lazy alt=img></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 查看网桥</span>
+</span></span><span class=line><span class=cl><span class=c1># brctl 命令默认没有安装，安装命令： yum -y install bridge-utils </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># brctl show</span>
+</span></span><span class=line><span class=cl>bridge name        bridge id                STP enabled        interfaces
+</span></span><span class=line><span class=cl>docker0                8000.02425d66988c        no                vethab7e230
+</span></span><span class=line><span class=cl>                                                        vethae685cc
+</span></span><span class=line><span class=cl><span class=c1># 查看 docker0 接口</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># ifconfig docker0</span>
+</span></span><span class=line><span class=cl>docker0: <span class=nv>flags</span><span class=o>=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span class=m>1500</span>
+</span></span><span class=line><span class=cl>        inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255
+</span></span><span class=line><span class=cl>        inet6 fe80::42:5dff:fe66:988c  prefixlen <span class=m>64</span>  scopeid 0x20&lt;link&gt;
+</span></span><span class=line><span class=cl>        ether 02:42:5d:66:98:8c  txqueuelen <span class=m>0</span>  <span class=o>(</span>Ethernet<span class=o>)</span>
+</span></span><span class=line><span class=cl>        RX packets <span class=m>2478196</span>  bytes <span class=m>478260325</span> <span class=o>(</span>456.1 MiB<span class=o>)</span>
+</span></span><span class=line><span class=cl>        RX errors <span class=m>0</span>  dropped <span class=m>0</span>  overruns <span class=m>0</span>  frame <span class=m>0</span>
+</span></span><span class=line><span class=cl>        TX packets <span class=m>2530684</span>  bytes <span class=m>573536572</span> <span class=o>(</span>546.9 MiB<span class=o>)</span>
+</span></span><span class=line><span class=cl>        TX errors <span class=m>0</span>  dropped <span class=m>0</span> overruns <span class=m>0</span>  carrier <span class=m>0</span>  collisions <span class=m>0</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 容器内接口 eth0@if211，宿主机上对应 ID 为 211 的接口。</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@c961d4e7a9ca app<span class=o>]</span><span class=c1># ip a </span>
+</span></span><span class=line><span class=cl>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class=m>65536</span> qdisc noqueue state UNKNOWN group default qlen <span class=m>1000</span>
+</span></span><span class=line><span class=cl>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+</span></span><span class=line><span class=cl>    inet 127.0.0.1/8 scope host lo
+</span></span><span class=line><span class=cl>       valid_lft forever preferred_lft forever
+</span></span><span class=line><span class=cl>210: eth0@if211: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span class=m>1500</span> qdisc noqueue state UP group default 
+</span></span><span class=line><span class=cl>    link/ether 02:42:ac:11:00:03 brd ff:ff:ff:ff:ff:ff link-netnsid <span class=m>0</span>
+</span></span><span class=line><span class=cl>    inet 172.17.0.3/16 brd 172.17.255.255 scope global eth0
+</span></span><span class=line><span class=cl>       valid_lft forever preferred_lft forever
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># ip a </span>
+</span></span><span class=line><span class=cl>211: vethae685cc@if210: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span class=m>1500</span> qdisc noqueue master docker0 state UP group default 
+</span></span><span class=line><span class=cl>    link/ether 3e:e7:73:e9:d9:13 brd ff:ff:ff:ff:ff:ff link-netnsid <span class=m>1</span>
+</span></span><span class=line><span class=cl>    inet6 fe80::3ce7:73ff:fee9:d913/64 scope link 
+</span></span><span class=line><span class=cl>       valid_lft forever preferred_lft forever
+</span></span></code></pre></td></tr></table></div></div><h2 id=docker-网络的连通性>Docker 网络的连通性</h2><h3 id=容器访问外部>容器访问外部</h3><p>容器默认指定了网关为docker0网桥上的docker0内部接口。docker0内部接口同时也是宿主机的一个本地接口。因此，容器默认情况下可以访问到宿主机本地网络。如果容器要想通过宿主机访问到外部网络，则需要宿主机进行辅助转发。</p><ul><li>开启内核包转发功能</li></ul><p>在宿主机Linux系统中，检查转发是否打开，代码如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># sysctl net.ipv4.ip_forward</span>
+</span></span><span class=line><span class=cl>net.ipv4.ip_forward <span class=o>=</span> <span class=m>1</span>
+</span></span></code></pre></td></tr></table></div></div><p>如果为0，说明没有开启转发，则需要手动打开：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># sysctl  -w net.ipv4.ip_forward=1</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>配置 SNAT 规则</li></ul><p>假设容器内部的网络地址为172.17.0.2，本地网络地址为10.0.2.2。容器要能访问外部网络，源地址不能为172.17.0.2，需要进行源地址映射（Source NAT,SNAT），修改为本地系统的IP地址10.0.2.2。</p><p>映射是通过iptables的源地址伪装操作实现的。查看主机nat表上 POSTROUTING 链的规则。该链负责数据包要离开主机前，改写其源地址：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># iptables -tnat  -nvL POSTROUTING</span>
+</span></span><span class=line><span class=cl>Chain POSTROUTING <span class=o>(</span>policy ACCEPT <span class=m>7920</span> packets, 499K bytes<span class=o>)</span>
+</span></span><span class=line><span class=cl> pkts bytes target     prot opt in     out     <span class=nb>source</span>               destination         
+</span></span><span class=line><span class=cl>    <span class=m>0</span>     <span class=m>0</span> MASQUERADE  all  --  *      !docker0  172.17.0.0/16        0.0.0.0/0   
+</span></span></code></pre></td></tr></table></div></div><p>其中，上述规则将所有源地址在172.17.0.0/16网段，且不是从docker0接口发出的流量（即从容器中出来的流量），动态伪装为从系统网卡发出。</p><h3 id=外部访问容器>外部访问容器</h3><p>容器允许外部访问，可以在docker [container] run 时候通过 -p 或 -P 参数来启用。</p><p>不管用哪种办法，其实也是在本地的 iptable 的 nat 表中添加相应的规则，将访问外部IP地址的包进行目标地址DNAT，将目标地址修改为容器的 IP 地址。</p><p>以一个开放 80 端口的 Nginx 容器为例，使用 -P 时，会自动映射本地 32768～65535 范围内的随机端口到容器的 80 端口：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 指定 -P 参数运行一个 nginx 容器</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run --rm -P nginx:1.22.1</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># iptables -t nat -nvL</span>
+</span></span><span class=line><span class=cl>Chain PREROUTING <span class=o>(</span>policy ACCEPT <span class=m>18</span> packets, <span class=m>528</span> bytes<span class=o>)</span>
+</span></span><span class=line><span class=cl> pkts bytes target     prot opt in     out     <span class=nb>source</span>               destination         
+</span></span><span class=line><span class=cl> <span class=m>8253</span>  232K DOCKER     all  --  *      *       0.0.0.0/0            0.0.0.0/0            ADDRTYPE match dst-type LOCAL
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Chain INPUT <span class=o>(</span>policy ACCEPT <span class=m>18</span> packets, <span class=m>528</span> bytes<span class=o>)</span>
+</span></span><span class=line><span class=cl> pkts bytes target     prot opt in     out     <span class=nb>source</span>               destination         
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Chain OUTPUT <span class=o>(</span>policy ACCEPT <span class=m>10</span> packets, <span class=m>600</span> bytes<span class=o>)</span>
+</span></span><span class=line><span class=cl> pkts bytes target     prot opt in     out     <span class=nb>source</span>               destination         
+</span></span><span class=line><span class=cl>    <span class=m>0</span>     <span class=m>0</span> DOCKER     all  --  *      *       0.0.0.0/0           !127.0.0.0/8          ADDRTYPE match dst-type LOCAL
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Chain POSTROUTING <span class=o>(</span>policy ACCEPT <span class=m>10</span> packets, <span class=m>600</span> bytes<span class=o>)</span>
+</span></span><span class=line><span class=cl> pkts bytes target     prot opt in     out     <span class=nb>source</span>               destination         
+</span></span><span class=line><span class=cl>    <span class=m>0</span>     <span class=m>0</span> MASQUERADE  all  --  *      !docker0  172.17.0.0/16        0.0.0.0/0           
+</span></span><span class=line><span class=cl>    <span class=m>0</span>     <span class=m>0</span> MASQUERADE  tcp  --  *      *       172.17.0.4           172.17.0.4           tcp dpt:80
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Chain DOCKER <span class=o>(</span><span class=m>2</span> references<span class=o>)</span>
+</span></span><span class=line><span class=cl> pkts bytes target     prot opt in     out     <span class=nb>source</span>               destination         
+</span></span><span class=line><span class=cl>    <span class=m>0</span>     <span class=m>0</span> RETURN     all  --  docker0 *       0.0.0.0/0            0.0.0.0/0           
+</span></span><span class=line><span class=cl>    <span class=m>0</span>     <span class=m>0</span> DNAT       tcp  --  !docker0 *       0.0.0.0/0            0.0.0.0/0            tcp dpt:32768 to:172.17.0.4:80
+</span></span></code></pre></td></tr></table></div></div><p>使用-p 80:80 时，与上面类似，只是本地端口也为 80：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run --rm -p 80:80 nginx:1.22.1</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># netstat -nltp </span>
+</span></span><span class=line><span class=cl>Active Internet connections <span class=o>(</span>only servers<span class=o>)</span>
+</span></span><span class=line><span class=cl>Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+</span></span><span class=line><span class=cl>tcp        <span class=m>0</span>      <span class=m>0</span> 0.0.0.0:22122           0.0.0.0:*               LISTEN      1201/sshd           
+</span></span><span class=line><span class=cl>tcp        <span class=m>0</span>      <span class=m>0</span> 0.0.0.0:80              0.0.0.0:*               LISTEN      28775/docker-proxy  
+</span></span><span class=line><span class=cl>tcp6       <span class=m>0</span>      <span class=m>0</span> :::80                   :::*                    LISTEN      28781/docker-proxy  
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># iptables -t nat -nvL</span>
+</span></span><span class=line><span class=cl>......
+</span></span><span class=line><span class=cl>Chain DOCKER <span class=o>(</span><span class=m>2</span> references<span class=o>)</span>
+</span></span><span class=line><span class=cl> pkts bytes target     prot opt in     out     <span class=nb>source</span>               destination         
+</span></span><span class=line><span class=cl>    <span class=m>0</span>     <span class=m>0</span> RETURN     all  --  docker0 *       0.0.0.0/0            0.0.0.0/0           
+</span></span><span class=line><span class=cl>    <span class=m>0</span>     <span class=m>0</span> DNAT       tcp  --  !docker0 *       0.0.0.0/0            0.0.0.0/0            tcp dpt:80 to:172.17.0.4:80
+</span></span></code></pre></td></tr></table></div></div><h3 id=容器间互相访问>容器间互相访问</h3><p>容器默认都连接在 Docker0 网桥上，都可以互相访问，相当连于在一台二层交换机上。</p><p>但是容器的 IP 地址是动态变化的，如果两个应用之间要互相访问就无法通过 IP 地址互相通信，Docker 提供两种方案来解决。</p><ul><li><code>--link </code>传统方式，目前 Docker 官网已不建议使用</li></ul><p>我们部署一个 Wordpress 应用</p><p>下载镜像</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>docker pull registry.cn-beijing.aliyuncs.com/xxhf/wordpress:php7.4
+</span></span><span class=line><span class=cl>docker tag registry.cn-beijing.aliyuncs.com/xxhf/wordpress:php7.4 wordpress:php7.4
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>docker pull registry.cn-beijing.aliyuncs.com/xxhf/mysql:8.0
+</span></span><span class=line><span class=cl>docker tag  registry.cn-beijing.aliyuncs.com/xxhf/mysql:8.0 mysql:8.0
+</span></span></code></pre></td></tr></table></div></div><p>运行 mysql 容器</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run -d --name db_wordpress --restart always \</span>
+</span></span><span class=line><span class=cl>-e <span class=nv>MYSQL_ROOT_PASSWORD</span><span class=o>=</span>wordpress <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>MYSQL_DATABASE</span><span class=o>=</span>db_wordpress <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>MYSQL_USER</span><span class=o>=</span>wordpress_rw  <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>MYSQL_PASSWORD</span><span class=o>=</span><span class=m>123456</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-p 3306:3306 mysql:8.0
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker ps </span>
+</span></span><span class=line><span class=cl>CONTAINER ID   IMAGE       COMMAND                  CREATED              STATUS              PORTS                                                  NAMES
+</span></span><span class=line><span class=cl>ded235356e6f   mysql:5.7   <span class=s2>&#34;docker-entrypoint.s…&#34;</span>   About a minute ago   Up About a minute   0.0.0.0:3306-&gt;3306/tcp, :::3306-&gt;3306/tcp, 33060/tcp   db_wordpress
+</span></span></code></pre></td></tr></table></div></div><p>验证数据库正常运行</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run -d --link db_wordpress -it mysql-client -uroot -pwordpress -hdb_wordpress</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker attach 3c5e8d2f9198</span>
+</span></span><span class=line><span class=cl>MySQL <span class=o>[(</span>none<span class=o>)]</span>&gt; 
+</span></span><span class=line><span class=cl>MySQL <span class=o>[(</span>none<span class=o>)]</span>&gt; show databases<span class=p>;</span>
+</span></span><span class=line><span class=cl>+--------------------+
+</span></span><span class=line><span class=cl><span class=p>|</span> Database           <span class=p>|</span>
+</span></span><span class=line><span class=cl>+--------------------+
+</span></span><span class=line><span class=cl><span class=p>|</span> information_schema <span class=p>|</span>
+</span></span><span class=line><span class=cl><span class=p>|</span> db_wordpress       <span class=p>|</span>
+</span></span><span class=line><span class=cl><span class=p>|</span> mysql              <span class=p>|</span>
+</span></span><span class=line><span class=cl><span class=p>|</span> performance_schema <span class=p>|</span>
+</span></span><span class=line><span class=cl><span class=p>|</span> sys                <span class=p>|</span>
+</span></span><span class=line><span class=cl>+--------------------+
+</span></span><span class=line><span class=cl><span class=m>5</span> rows in <span class=nb>set</span> <span class=o>(</span>0.001 sec<span class=o>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>MySQL <span class=o>[(</span>none<span class=o>)]</span>&gt; use db_wordpress
+</span></span><span class=line><span class=cl>Database changed
+</span></span><span class=line><span class=cl>MySQL <span class=o>[</span>db_wordpress<span class=o>]</span>&gt; show tables<span class=p>;</span> 
+</span></span><span class=line><span class=cl>Empty <span class=nb>set</span> <span class=o>(</span>0.000 sec<span class=o>)</span>
+</span></span></code></pre></td></tr></table></div></div><p>运行 WordPress 容器</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run -d --name wordpress --restart always --link db_wordpress \</span>
+</span></span><span class=line><span class=cl>-e <span class=nv>WORDPRESS_DB_HOST</span><span class=o>=</span>db_wordpress:3306 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>WORDPRESS_DB_USER</span><span class=o>=</span>wordpress_rw <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>WORDPRESS_DB_PASSWORD</span><span class=o>=</span><span class=m>123456</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>WORDPRESS_DB_NAME</span><span class=o>=</span>db_wordpress <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-p  80:80  wordpress:php7.4
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/docker-13/02.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/docker-13/03.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/docker-13/04.png loading=lazy alt=img></p><p><img src=https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/obsidian/docker-13/05.png loading=lazy alt=img></p><p>如果安装过程有问题可以查看 wordpress 日志</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker logs -f wordpress</span>
+</span></span><span class=line><span class=cl>WordPress not found in /var/www/html - copying now...
+</span></span><span class=line><span class=cl>Complete! WordPress has been successfully copied to /var/www/html
+</span></span><span class=line><span class=cl>No <span class=s1>&#39;wp-config.php&#39;</span> found in /var/www/html, but <span class=s1>&#39;WORDPRESS_...&#39;</span> variables supplied<span class=p>;</span> copying <span class=s1>&#39;wp-config-docker.php&#39;</span> <span class=o>(</span>WORDPRESS_DB_HOST WORDPRESS_DB_NAME WORDPRESS_DB_PASSWORD WORDPRESS_DB_USER<span class=o>)</span>
+</span></span><span class=line><span class=cl>AH00558: apache2: Could not reliably determine the server<span class=s1>&#39;s fully qualified domain name, using 172.17.0.3. Set the &#39;</span>ServerName<span class=s1>&#39; directive globally to suppress this message
+</span></span></span><span class=line><span class=cl><span class=s1>AH00558: apache2: Could not reliably determine the server&#39;</span>s fully qualified domain name, using 172.17.0.3. Set the <span class=s1>&#39;ServerName&#39;</span> directive globally to suppress this message
+</span></span><span class=line><span class=cl><span class=o>[</span>Sun Oct <span class=m>22</span> 07:32:35.093635 2023<span class=o>]</span> <span class=o>[</span>mpm_prefork:notice<span class=o>]</span> <span class=o>[</span>pid 1<span class=o>]</span> AH00163: Apache/2.4.54 <span class=o>(</span>Debian<span class=o>)</span> PHP/7.4.33 configured -- resuming normal operations
+</span></span><span class=line><span class=cl><span class=o>[</span>Sun Oct <span class=m>22</span> 07:32:35.093713 2023<span class=o>]</span> <span class=o>[</span>core:notice<span class=o>]</span> <span class=o>[</span>pid 1<span class=o>]</span> AH00094: Command line: <span class=s1>&#39;apache2 -D FOREGROUND&#39;</span>
+</span></span><span class=line><span class=cl>120.245.113.53 - - <span class=o>[</span>22/Oct/2023:07:36:00 +0000<span class=o>]</span> <span class=s2>&#34;GET / HTTP/1.1&#34;</span> <span class=m>302</span> <span class=m>404</span> <span class=s2>&#34;-&#34;</span> <span class=s2>&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36&#34;</span>
+</span></span><span class=line><span class=cl>120.245.113.53 - - <span class=o>[</span>22/Oct/2023:07:36:00 +0000<span class=o>]</span> <span class=s2>&#34;GET / HTTP/1.1&#34;</span> <span class=m>302</span> <span class=m>404</span> <span class=s2>&#34;-&#34;</span> <span class=s2>&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36&#34;</span>
+</span></span><span class=line><span class=cl>120.245.113.53 - - <span class=o>[</span>22/Oct/2023:07:36:00 +0000<span class=o>]</span> <span class=s2>&#34;GET /wp-admin/install.php HTTP/1.1&#34;</span> <span class=m>200</span> <span class=m>4667</span> <span class=s2>&#34;-&#34;</span> <span class=s2>&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><p>&ndash;link 是通过在本地解析文件 <code>/etc/hosts</code> 添加主机记录来实现DNS域名解析的。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker exec -it wordpress cat /etc/hosts</span>
+</span></span><span class=line><span class=cl>127.0.0.1        localhost
+</span></span><span class=line><span class=cl>::1        localhost ip6-localhost ip6-loopback
+</span></span><span class=line><span class=cl>fe00::0        ip6-localnet
+</span></span><span class=line><span class=cl>ff00::0        ip6-mcastprefix
+</span></span><span class=line><span class=cl>ff02::1        ip6-allnodes
+</span></span><span class=line><span class=cl>ff02::2        ip6-allrouters
+</span></span><span class=line><span class=cl>172.17.0.2        db_wordpress 18722c02cb87
+</span></span><span class=line><span class=cl>172.17.0.3        9aeb4e1dfe63
+</span></span></code></pre></td></tr></table></div></div><p><a class=link href=https://docs.docker.com/network/links/ target=_blank rel=noopener>Legacy container links</a></p><ul><li>自定义网络 <a class=link href=https://docs.docker.com/engine/network/#user-defined-networks target=_blank rel=noopener>User-defined networks</a></li></ul><p>You can create custom, user-defined networks, and connect multiple containers to the same network. Once connected to a user-defined network, containers can communicate with each other using container IP addresses or container names.</p><p>创建一个用户定义网络 user-defined network</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker network create wp-net </span>
+</span></span><span class=line><span class=cl>e4e3d1ee70620fec8e4a5a22f9b0db737faaf5f6e8d67a2958f98f0fc86af975
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker network  ls </span>
+</span></span><span class=line><span class=cl>NETWORK ID     NAME      DRIVER    SCOPE
+</span></span><span class=line><span class=cl>0cc88dcd390d   bridge    bridge    <span class=nb>local</span>
+</span></span><span class=line><span class=cl>385ab96da9ee   host      host      <span class=nb>local</span>
+</span></span><span class=line><span class=cl>43634758fc70   none      null      <span class=nb>local</span>
+</span></span><span class=line><span class=cl>e4e3d1ee7062   wp-net    bridge    <span class=nb>local</span>
+</span></span></code></pre></td></tr></table></div></div><p>重新运行 MySQL 和 WordPress 容器</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>docker run -d --name db_wordpress --restart always <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--network wp-net <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>MYSQL_ROOT_PASSWORD</span><span class=o>=</span>wordpress <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>MYSQL_DATABASE</span><span class=o>=</span>db_wordpress <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>MYSQL_USER</span><span class=o>=</span>wordpress_rw  <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>MYSQL_PASSWORD</span><span class=o>=</span><span class=m>123456</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-p 3306:3306 mysql:8.0
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>docker run -d --name wordpress --restart always --network wp-net  <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>WORDPRESS_DB_HOST</span><span class=o>=</span>db_wordpress:3306 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>WORDPRESS_DB_USER</span><span class=o>=</span>root <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>WORDPRESS_DB_PASSWORD</span><span class=o>=</span>wordpress <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-e <span class=nv>WORDPRESS_DB_NAME</span><span class=o>=</span>db_wordpress <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-p  80:80  wordpress:php7.4
+</span></span></code></pre></td></tr></table></div></div><p>自定义网桥可以自动实现容器间的DNS解析，没有修改 <code>/etc/hosts</code> 文件</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker exec  wordpress cat /etc/hosts</span>
+</span></span><span class=line><span class=cl>127.0.0.1        localhost
+</span></span><span class=line><span class=cl>::1        localhost ip6-localhost ip6-loopback
+</span></span><span class=line><span class=cl>fe00::0        ip6-localnet
+</span></span><span class=line><span class=cl>ff00::0        ip6-mcastprefix
+</span></span><span class=line><span class=cl>ff02::1        ip6-allnodes
+</span></span><span class=line><span class=cl>ff02::2        ip6-allrouters
+</span></span><span class=line><span class=cl>172.18.0.3        24e49d0f2225
+</span></span></code></pre></td></tr></table></div></div><h2 id=docker-网络模式httpsdocsdockercomenginenetworkdriversbridge><a class=link href=https://docs.docker.com/engine/network/drivers/bridge/ target=_blank rel=noopener>Docker 网络模式</a></h2><h3 id=host-模式>host 模式</h3><p>Docker使用了Linux的Namespaces技术来进行资源隔离，如PID Namespace隔离进程，Mount Namespace隔离文件系统，Network Namespace隔离网络等。一个Network Namespace提供了一份独立的网络环境，包括网卡、路由、Iptable 规则等都与其他的 Network Namespace 隔离。一个 Docker 容器一般会分配一个独立的 Network Namespace。但<strong>如果启动容器的时候使用host模式，那么这个容器将不会获得一个独立的Network Namespace，而是和宿主机共用一个Network Namespace</strong>。容器将不会虚拟出自己的网卡，配置自己的IP等，而是使用宿主机的IP和端口。</p><p>例如，我们在10.10.101.105/24 的机器上用 host 模式启动一个含有web应用的Docker容器，监听 tcp80 端口。</p><p>当我们在容器中执行任何类似ifconfig命令查看网络环境时，看到的都是宿主机上的信息。而外界访问容器中的应用，则直接使用10.10.101.105:80即可，不用任何NAT转换，就如直接跑在宿主机中一样。但是，容器的其他方面，如文件系统、进程列表等还是和宿主机隔离的。</p><p>示例：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># 运行一个使用 host 网络模式的容器</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run -d --net=host nginx:1.22.1 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># 容器详情中没有 IP 地址 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker inspect 2fa38ed2c2f3 | grep -i ipaddr</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>            <span class=s2>&#34;SecondaryIPAddresses&#34;</span>: null,<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>            <span class=s2>&#34;IPAddress&#34;</span>: <span class=s2>&#34;&#34;</span>,<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>                    <span class=s2>&#34;IPAddress&#34;</span>: <span class=s2>&#34;&#34;</span>,<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># 宿主机可以看到 80 端口的监听 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># netstat -nltp | grep nginx </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>tcp        <span class=m>0</span>      <span class=m>0</span> 0.0.0.0:80              0.0.0.0:*               LISTEN      4561/nginx: master  <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>tcp6       <span class=m>0</span>      <span class=m>0</span> :::80                   :::*                    LISTEN      4561/nginx: master  <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># 宿主机可以访问 nginx 服务 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># curl 127.0.0.1</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>&lt;!DOCTYPE html&gt;<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>&lt;html&gt;<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>&lt;head&gt;<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>&lt;title&gt;Welcome to nginx!&lt;/title&gt;<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>&lt;style&gt;<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>html <span class=o>{</span> color-scheme: light dark<span class=p>;</span> <span class=o>}</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>body <span class=o>{</span> width: 35em<span class=p>;</span> margin: <span class=m>0</span> auto<span class=p>;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>font-family: Tahoma, Verdana, Arial, sans-serif<span class=p>;</span> <span class=o>}</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>&lt;/style&gt;<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>&lt;/head&gt;<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>&lt;body&gt;<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=bridge--模式>bridge 模式</h3><p>Docker 服务默认会创建一个 <code>docker0</code> 网桥（其上有一个 <code>docker0</code> 内部接口）。</p><p>Docker 默认指定了 <code>docker0</code> 接口 的 IP 地址和子网掩码，让主机和容器之间可以通过网桥相互通信。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># docker0 网桥 </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># brctl show </span>
+</span></span><span class=line><span class=cl>bridge name        bridge id                STP enabled        interfaces
+</span></span><span class=line><span class=cl>docker0                8000.024276df2867        no                veth15882fe
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># docker0 接口</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># ifconfig </span>
+</span></span><span class=line><span class=cl>docker0: <span class=nv>flags</span><span class=o>=</span>4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span class=m>1500</span>
+</span></span><span class=line><span class=cl>        inet 172.18.0.1  netmask 255.255.0.0  broadcast 172.18.255.255
+</span></span><span class=line><span class=cl>        inet6 fe80::42:76ff:fedf:2867  prefixlen <span class=m>64</span>  scopeid 0x20&lt;link&gt;
+</span></span><span class=line><span class=cl>        ether 02:42:76:df:28:67  txqueuelen <span class=m>0</span>  <span class=o>(</span>Ethernet<span class=o>)</span>
+</span></span><span class=line><span class=cl>        RX packets <span class=m>11460</span>  bytes <span class=m>752403</span> <span class=o>(</span>734.7 KiB<span class=o>)</span>
+</span></span><span class=line><span class=cl>        RX errors <span class=m>0</span>  dropped <span class=m>0</span>  overruns <span class=m>0</span>  frame <span class=m>0</span>
+</span></span><span class=line><span class=cl>        TX packets <span class=m>11923</span>  bytes <span class=m>90364552</span> <span class=o>(</span>86.1 MiB<span class=o>)</span>
+</span></span><span class=line><span class=cl>        TX errors <span class=m>0</span>  dropped <span class=m>0</span> overruns <span class=m>0</span>  carrier <span class=m>0</span>  collisions <span class=m>0</span>
+</span></span></code></pre></td></tr></table></div></div><p><code>--network bridge</code>：设置容器工作在bridge模式下，即将容器接口添加至 docker0 网桥。</p><p>配置 docker0 网络配置：</p><p>编辑 <code>/etc/docker/daemon.json </code>，添加以下内容：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>{</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=s2>&#34;bip&#34;</span>: <span class=s2>&#34;192.168.1.1/24&#34;</span>,<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>  <span class=s2>&#34;fixed-cidr&#34;</span>: <span class=s2>&#34;192.168.1.0/24&#34;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>}</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>重启 docker</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl>systemctl restart docker <span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><p>观察 docker0 ip 地址</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl>ot@docker ~<span class=o>]</span><span class=c1># ifconfig docker0</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>docker0: <span class=nv>flags</span><span class=o>=</span>4099&lt;UP,BROADCAST,MULTICAST&gt;  mtu <span class=m>1500</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>        inet 192.168.1.1  netmask 255.255.255.0  broadcast 192.168.1.255<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>        inet6 fe80::42:76ff:fedf:2867  prefixlen <span class=m>64</span>  scopeid 0x20&lt;link&gt;<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>        ether 02:42:76:df:28:67  txqueuelen <span class=m>0</span>  <span class=o>(</span>Ethernet<span class=o>)</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>        RX packets <span class=m>11460</span>  bytes <span class=m>752403</span> <span class=o>(</span>734.7 KiB<span class=o>)</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>        RX errors <span class=m>0</span>  dropped <span class=m>0</span>  overruns <span class=m>0</span>  frame <span class=m>0</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>        TX packets <span class=m>11923</span>  bytes <span class=m>90364552</span> <span class=o>(</span>86.1 MiB<span class=o>)</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>        TX errors <span class=m>0</span>  dropped <span class=m>0</span> overruns <span class=m>0</span>  carrier <span class=m>0</span>  collisions <span class=m>0</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=none-模式>none 模式</h3><p>此模式下容器不参与网络通信，运行于此类容器中的进程仅能访问本地环回接口，仅适用于进程无须网络通信的场景中，例如备份，进程诊断及各种离线任务等。</p><p><code>--network=none</code>:设置模式容器工作在none模式下。</p><p>示例：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># 使用 none 网络模式，容器内只有 loopback 接口</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run  -it --rm --network=none busybox </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>/ <span class=c1># ip a </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class=m>65536</span> qdisc noqueue qlen <span class=m>1000</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    inet 127.0.0.1/8 scope host lo<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>       valid_lft forever preferred_lft forever<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>/ <span class=c1># </span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><h2 id=namespace>Namespace</h2><p>Docker 是借助 Linux 内核技术 Namespace 来实现隔离的， Linux Namespaces 机制提供一种资源隔离方案。 PID,IPC,Network 等系统资源不再是全局性的， 而是属于某个特定的 Namespace。 每个 namespace 下的资源对于其他 namespace 下的资源都是透明， 不可见的。 因此在操作系统层面上看， 就会出现多个相同 pid 的进程。 系统中可以同时存在多个进程号为 0,1,2 的进程， 由于属于不同的 namespace， 所以它们之间并不冲突。 而在用户层面上只能看到属于用户自己 namespace 下的资源， 例如使用 ps 命令只能列出自己 namespace 下的进程。这样每个 namespace 看上去就像一个单独的 Linux 系统。</p><p>目前内核支持的 Namespace 类型：</p><p><sheet sheet-id=THNqli token=V8pKsxipxhKs1gtLXHAcoAtonIb></sheet></p><h3 id=namespace-常用操作>Namespace 常用操作</h3><ul><li>查看当前系统下的 namespace</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-example<span class=o>]</span><span class=c1># lsns </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>        NS TYPE   NPROCS   PID USER   COMMAND<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026531834</span> <span class=nb>time</span>      <span class=m>111</span>     <span class=m>1</span> root   /usr/lib/systemd/systemd showopts --switched-root --system --deserialize <span class=m>31</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026531835</span> cgroup    <span class=m>111</span>     <span class=m>1</span> root   /usr/lib/systemd/systemd showopts --switched-root --system --deserialize <span class=m>31</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026531836</span> pid       <span class=m>111</span>     <span class=m>1</span> root   /usr/lib/systemd/systemd showopts --switched-root --system --deserialize <span class=m>31</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026531837</span> user      <span class=m>111</span>     <span class=m>1</span> root   /usr/lib/systemd/systemd showopts --switched-root --system --deserialize <span class=m>31</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026531838</span> uts       <span class=m>108</span>     <span class=m>1</span> root   /usr/lib/systemd/systemd showopts --switched-root --system --deserialize <span class=m>31</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026531839</span> ipc       <span class=m>111</span>     <span class=m>1</span> root   /usr/lib/systemd/systemd showopts --switched-root --system --deserialize <span class=m>31</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026531840</span> net       <span class=m>111</span>     <span class=m>1</span> root   /usr/lib/systemd/systemd showopts --switched-root --system --deserialize <span class=m>31</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026531841</span> mnt       <span class=m>101</span>     <span class=m>1</span> root   /usr/lib/systemd/systemd showopts --switched-root --system --deserialize <span class=m>31</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026531862</span> mnt         <span class=m>1</span>    <span class=m>30</span> root   kdevtmpfs<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026532122</span> mnt         <span class=m>1</span>   <span class=m>477</span> root   /usr/lib/systemd/systemd-udevd<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026532123</span> uts         <span class=m>1</span>   <span class=m>477</span> root   /usr/lib/systemd/systemd-udevd<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026532210</span> mnt         <span class=m>2</span>   <span class=m>512</span> root   /sbin/auditd<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026532212</span> mnt         <span class=m>2</span>   <span class=m>707</span> dbus   /usr/bin/dbus-broker-launch --scope system --audit<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026532213</span> mnt         <span class=m>1</span>   <span class=m>716</span> chrony /usr/sbin/chronyd -F <span class=m>2</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026532214</span> mnt         <span class=m>1</span>   <span class=m>714</span> root   /usr/lib/systemd/systemd-logind<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026532215</span> uts         <span class=m>1</span>   <span class=m>714</span> root   /usr/lib/systemd/systemd-logind<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026532216</span> uts         <span class=m>1</span>   <span class=m>716</span> chrony /usr/sbin/chronyd -F <span class=m>2</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026532217</span> mnt         <span class=m>1</span>   <span class=m>785</span> root   /usr/sbin/NetworkManager --no-daemon<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=m>4026532271</span> mnt         <span class=m>1</span>   <span class=m>890</span> root   /usr/sbin/rsyslogd -n<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><ul><li>查看某个进程的 namespace</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=o>[</span>root@docker dockerfile-example<span class=o>]</span><span class=c1># ls -la  /proc/1/ns</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>total <span class=m>0</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>dr-x--x--x <span class=m>2</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 13:53 .<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>dr-xr-xr-x <span class=m>9</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 13:53 ..<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 13:53 cgroup -&gt; <span class=s1>&#39;cgroup:[4026531835]&#39;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:08 ipc -&gt; <span class=s1>&#39;ipc:[4026531839]&#39;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:08 mnt -&gt; <span class=s1>&#39;mnt:[4026531841]&#39;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 13:57 net -&gt; <span class=s1>&#39;net:[4026531840]&#39;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 13:57 pid -&gt; <span class=s1>&#39;pid:[4026531836]&#39;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:13 pid_for_children -&gt; <span class=s1>&#39;pid:[4026531836]&#39;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:08 <span class=nb>time</span> -&gt; <span class=s1>&#39;time:[4026531834]&#39;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:13 time_for_children -&gt; <span class=s1>&#39;time:[4026531834]&#39;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:08 user -&gt; <span class=s1>&#39;user:[4026531837]&#39;</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:08 uts -&gt; <span class=s1>&#39;uts:[4026531838]&#39;</span><span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><ul><li>进入某个 namespace 执行命令</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># 进入系统主进程下执行 ip addr 命令，查看到的结果跟在系统 bash下 执行 ip addr 结果一样</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># nsenter -t 1 -n ip addr</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class=m>65536</span> qdisc noqueue state UNKNOWN group default qlen <span class=m>1000</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    inet 127.0.0.1/8 scope host lo<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>       valid_lft forever preferred_lft forever<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    inet6 ::1/128 scope host <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>       valid_lft forever preferred_lft forever<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span class=m>1500</span> qdisc mq state UP group default qlen <span class=m>1000</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    link/ether 00:16:3e:23:03:2f brd ff:ff:ff:ff:ff:ff<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    inet 172.17.0.93/24 brd 172.17.0.255 scope global dynamic eth0<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>       valid_lft 312935054sec preferred_lft 312935054sec<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    inet6 fe80::216:3eff:fe23:32f/64 scope link <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>       valid_lft forever preferred_lft forever<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>6: docker0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu <span class=m>1500</span> qdisc noqueue state DOWN group default <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    link/ether 02:42:76:df:28:67 brd ff:ff:ff:ff:ff:ff<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    inet 192.168.1.1/24 brd 192.168.1.255 scope global docker0<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>       valid_lft forever preferred_lft forever<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    inet6 fe80::42:76ff:fedf:2867/64 scope link <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>       valid_lft forever preferred_lft forever<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><ul><li>运行一个容器，在容器的 namespace 下执行命令</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Dockerfile data-lang=Dockerfile><span class=line><span class=cl><span class=c># 运行一个容器</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run -d nginx:1.22.1 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>fba13bee996471204348f9545bc3b8f7ea790fcfe3a1d4cbecf9e37c2d69e0e3<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker ps </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS     NAMES<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>fba13bee9964   nginx:1.22.1   <span class=s2>&#34;/docker-entrypoint.…&#34;</span>   <span class=m>5</span> seconds ago   Up <span class=m>4</span> seconds   80/tcp    hardcore_pare<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># 查看容器的进程号</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker inspect  fba13bee9964 | grep -i pid </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>            <span class=s2>&#34;Pid&#34;</span>: 18810,<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>            <span class=s2>&#34;PidMode&#34;</span>: <span class=s2>&#34;&#34;</span>,<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>            <span class=s2>&#34;PidsLimit&#34;</span>: null,<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># 在容器的 namespace 中执行 命令</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># nsenter  -t 18810 -n ip a </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class=m>65536</span> qdisc noqueue state UNKNOWN group default qlen <span class=m>1000</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    inet 127.0.0.1/8 scope host lo<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>       valid_lft forever preferred_lft forever<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>157: eth0@if158: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span class=m>1500</span> qdisc noqueue state UP group default <span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    link/ether 02:42:c0:a8:01:02 brd ff:ff:ff:ff:ff:ff link-netnsid <span class=m>0</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>    inet 192.168.1.2/24 brd 192.168.1.255 scope global eth0<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>       valid_lft forever preferred_lft forever<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=c># 查询容器的 ip 地址 </span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker inspect  fba13bee9964 | grep -i ipaddr</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>            <span class=s2>&#34;SecondaryIPAddresses&#34;</span>: null,<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>            <span class=s2>&#34;IPAddress&#34;</span>: <span class=s2>&#34;192.168.1.2&#34;</span>,<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span>                    <span class=s2>&#34;IPAddress&#34;</span>: <span class=s2>&#34;192.168.1.2&#34;</span>,<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><ul><li>每个容器都在单独的 Namespace 里</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run --name c1 -d nginx:1.22.1 </span>
+</span></span><span class=line><span class=cl>cc9a70d5e234095f117723e8e4ff2017b4933cf23155dbef0ae6f60c93f55b51
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run --name c2 -d nginx:1.22.1 </span>
+</span></span><span class=line><span class=cl>42cad1a6f4872e507ff0062d5c922eb0e49eec09be6ef2782ca38249a265dd46
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker inspect c1 | grep -i pid </span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;Pid&#34;</span>: 10157,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;PidMode&#34;</span>: <span class=s2>&#34;&#34;</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;PidsLimit&#34;</span>: null,
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker inspect  c2 | grep -i pid </span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;Pid&#34;</span>: 10253,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;PidMode&#34;</span>: <span class=s2>&#34;&#34;</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;PidsLimit&#34;</span>: null,
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># ll /proc/10157/ns </span>
+</span></span><span class=line><span class=cl>total <span class=m>0</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 cgroup -&gt; <span class=s1>&#39;cgroup:[4026532225]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 ipc -&gt; <span class=s1>&#39;ipc:[4026532223]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:14 mnt -&gt; <span class=s1>&#39;mnt:[4026532221]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:14 net -&gt; <span class=s1>&#39;net:[4026532226]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 pid -&gt; <span class=s1>&#39;pid:[4026532224]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 pid_for_children -&gt; <span class=s1>&#39;pid:[4026532224]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 <span class=nb>time</span> -&gt; <span class=s1>&#39;time:[4026531834]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 time_for_children -&gt; <span class=s1>&#39;time:[4026531834]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 user -&gt; <span class=s1>&#39;user:[4026531837]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 uts -&gt; <span class=s1>&#39;uts:[4026532222]&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># ll /proc/10253/ns</span>
+</span></span><span class=line><span class=cl>total <span class=m>0</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 cgroup -&gt; <span class=s1>&#39;cgroup:[4026532293]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 ipc -&gt; <span class=s1>&#39;ipc:[4026532291]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 mnt -&gt; <span class=s1>&#39;mnt:[4026532289]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 net -&gt; <span class=s1>&#39;net:[4026532294]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 pid -&gt; <span class=s1>&#39;pid:[4026532292]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 pid_for_children -&gt; <span class=s1>&#39;pid:[4026532292]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 <span class=nb>time</span> -&gt; <span class=s1>&#39;time:[4026531834]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 time_for_children -&gt; <span class=s1>&#39;time:[4026531834]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 user -&gt; <span class=s1>&#39;user:[4026531837]&#39;</span>
+</span></span><span class=line><span class=cl>lrwxrwxrwx <span class=m>1</span> root root <span class=m>0</span> Mar  <span class=m>9</span> 16:15 uts -&gt; <span class=s1>&#39;uts:[4026532290]&#39;</span>
+</span></span></code></pre></td></tr></table></div></div><p>Docker 默认没有启用 user namespace .</p><h3 id=网络-namespace>网络 Namespace</h3><h4 id=使用-ip-netns-命令操作-network-namespace>使用 ip netns 命令操作 network namespace</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-YAML data-lang=YAML><span class=line><span class=cl><span class=c># 创建一个名为 nstest 的 network namespace</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>[</span><span class=l>root@docker ~]# ip netns add nstest</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># 列出系统已存在的 network namespace </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>[</span><span class=l>root@docker ~]# ip netns list </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>nstest</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>[</span><span class=l>root@docker ~]# ls -al /var/run/netns/</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>total 0</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>drwxr-xr-x  2 root root   60 Dec  8 08:35 .</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=l>drwxr-xr-x 31 root root 1140 Dec  8 08:35 ..</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span>-<span class=l>r--r--r--  1 root root    0 Dec  8 08:35 nstest</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>[</span><span class=l>root@docker ~]# </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># 在 network namespace 中执行命令</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>[</span><span class=l>root@docker ~]# ip netns  exec nstest ip addr</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>1: lo</span><span class=p>:</span><span class=w> </span><span class=l>&lt;LOOPBACK&gt; mtu 65536 qdisc noop state DOWN group default qlen 1000</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=l>link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=c># 删除 network namespace: nstest </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=p>[</span><span class=l>root@docker ~]# ip netns delete nstest</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=docker-网络-底层实现-了解>Docker 网络 底层实现 (了解)</h3><p>启动一个运行在 none 模式的容器</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run --network=none -it busybox</span>
+</span></span><span class=line><span class=cl>2350cedb32389a9dc45c6282d63f4107e29e5f51b0eb728ab1bcbcdbc9338dac
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker ps </span>
+</span></span><span class=line><span class=cl>CONTAINER ID   IMAGE     COMMAND   CREATED         STATUS         PORTS     NAMES
+</span></span><span class=line><span class=cl>8c36253bb43b   busybox   <span class=s2>&#34;sh&#34;</span>      <span class=m>3</span> seconds ago   Up <span class=m>2</span> seconds             vigilant_herschel
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker exec 8c36253bb43b ip a </span>
+</span></span><span class=line><span class=cl>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class=m>65536</span> qdisc noqueue qlen <span class=m>1000</span>
+</span></span><span class=line><span class=cl>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+</span></span><span class=line><span class=cl>    inet 127.0.0.1/8 scope host lo
+</span></span><span class=line><span class=cl>       valid_lft forever preferred_lft forever
+</span></span><span class=line><span class=cl>       
+</span></span></code></pre></td></tr></table></div></div><p>进入容器 namespace 查看网络配置</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 方法一：获取容器进程ID</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker inspect  2350cedb3238 | grep -i pid</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;Pid&#34;</span>: 20198,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;PidMode&#34;</span>: <span class=s2>&#34;&#34;</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;PidsLimit&#34;</span>: null,
+</span></span><span class=line><span class=cl><span class=c1># 方法二：获取容器进程ID           </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker inspect  -f &#39;{{.State.Pid}}&#39; 2350cedb3238</span>
+</span></span><span class=line><span class=cl><span class=m>20198</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># nsenter  -t 20198 -n ip a </span>
+</span></span><span class=line><span class=cl>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class=m>65536</span> qdisc noqueue state UNKNOWN group default qlen <span class=m>1000</span>
+</span></span><span class=line><span class=cl>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+</span></span><span class=line><span class=cl>    inet 127.0.0.1/8 scope host lo
+</span></span><span class=line><span class=cl>       valid_lft forever preferred_lft forever
+</span></span></code></pre></td></tr></table></div></div><p>创建一个自定义网络 net0</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker network create -d bridge --subnet 172.100.0.0/16 net0</span>
+</span></span><span class=line><span class=cl>ce1dc69bf1f0ac9a059db2e3c2145661f73d5d38ffae94f8989a33331755f0b9
+</span></span></code></pre></td></tr></table></div></div><p>以上命令创建了一个名为 net0 的网桥，网络 ID 是 ce1dc69bf1f0ac9a05&mldr;。该网络使用的是 bridge 模式，网段是 172.100.0.0/16, 该网络的第一个IP地址 172.100.0.1 分配给了网桥，网桥的名字可以通过下面命令查到。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># ip a </span>
+</span></span><span class=line><span class=cl>......
+</span></span><span class=line><span class=cl>26: br-ce1dc69bf1f0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu <span class=m>1500</span> qdisc noqueue state DOWN group default 
+</span></span><span class=line><span class=cl>    link/ether 02:42:ba:8e:49:79 brd ff:ff:ff:ff:ff:ff
+</span></span><span class=line><span class=cl>    inet 172.100.0.1/16 brd 172.100.255.255 scope global br-ce1dc69bf1f0
+</span></span><span class=line><span class=cl>       valid_lft forever preferred_lft forever
+</span></span></code></pre></td></tr></table></div></div><p>如果想查看网桥的详细信息，可以使用 inspect 命令</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker network inspect net0</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>
+</span></span><span class=line><span class=cl>    <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;Name&#34;</span>: <span class=s2>&#34;net0&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;Id&#34;</span>: <span class=s2>&#34;ce1dc69bf1f0ac9a059db2e3c2145661f73d5d38ffae94f8989a33331755f0b9&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;Created&#34;</span>: <span class=s2>&#34;2023-10-22T19:32:42.673939772+08:00&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;Scope&#34;</span>: <span class=s2>&#34;local&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;Driver&#34;</span>: <span class=s2>&#34;bridge&#34;</span>,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;EnableIPv6&#34;</span>: false,
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;IPAM&#34;</span>: <span class=o>{</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;Driver&#34;</span>: <span class=s2>&#34;default&#34;</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;Options&#34;</span>: <span class=o>{}</span>,
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;Config&#34;</span>: <span class=o>[</span>
+</span></span><span class=line><span class=cl>                <span class=o>{</span>
+</span></span><span class=line><span class=cl>                    <span class=s2>&#34;Subnet&#34;</span>: <span class=s2>&#34;172.100.0.0/16&#34;</span>
+</span></span><span class=line><span class=cl>                <span class=o>}</span>
+</span></span><span class=line><span class=cl>            <span class=o>]</span>
+</span></span><span class=line><span class=cl>        <span class=o>}</span>,
+</span></span></code></pre></td></tr></table></div></div><p>为容器绑定 veth pair 网卡，并接入上面创建的网桥上</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>mkdir -p /var/run/netns
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nv>PID</span><span class=o>=</span><span class=k>$(</span>docker inspect  -f <span class=s1>&#39;{{.State.Pid}}&#39;</span> fa228d33773c<span class=k>)</span>
+</span></span><span class=line><span class=cl><span class=nv>IPADDR</span><span class=o>=</span>172.100.0.2
+</span></span><span class=line><span class=cl><span class=nv>NETMASK</span><span class=o>=</span>255.255.0.0
+</span></span><span class=line><span class=cl><span class=nv>GATEWAY</span><span class=o>=</span>172.100.0.1
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>ln -s /proc/<span class=nv>$PID</span>/ns/net /var/run/netns/<span class=nv>$PID</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>ip netns  ls 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 创建一对veth pair，vetha 和 vethb </span>
+</span></span><span class=line><span class=cl>ip link add vetha <span class=nb>type</span> veth peer name vethb
+</span></span><span class=line><span class=cl><span class=c1># 将 vetha 绑定到网桥 br-ce1dc69bf1f0 </span>
+</span></span><span class=line><span class=cl>brctl addif br-ce1dc69bf1f0 vetha
+</span></span><span class=line><span class=cl><span class=c1># 启用 vetha </span>
+</span></span><span class=line><span class=cl>ip link <span class=nb>set</span> vetha up 
+</span></span><span class=line><span class=cl><span class=c1># vethb 放入指定的网络命名空间</span>
+</span></span><span class=line><span class=cl>ip link <span class=nb>set</span> vethb netns <span class=nv>$PID</span>
+</span></span><span class=line><span class=cl><span class=c1># 在指定的命名空间中将 vethb 改名为 eth0 </span>
+</span></span><span class=line><span class=cl>ip netns <span class=nb>exec</span> <span class=nv>$PID</span> ip link <span class=nb>set</span> dev vethb name eth0
+</span></span><span class=line><span class=cl><span class=c1># 启用 eth0 </span>
+</span></span><span class=line><span class=cl>ip netns <span class=nb>exec</span> <span class=nv>$PID</span> ip link <span class=nb>set</span> eth0 up 
+</span></span><span class=line><span class=cl><span class=c1># 为 eth0 添加 IP 地址</span>
+</span></span><span class=line><span class=cl>ip netns <span class=nb>exec</span> <span class=nv>$PID</span> ip addr add <span class=nv>$IPADDR</span>/<span class=nv>$NETMASK</span> dev eth0
+</span></span><span class=line><span class=cl><span class=c1># 添加默认网关</span>
+</span></span><span class=line><span class=cl>ip netns <span class=nb>exec</span> <span class=nv>$PID</span> ip route add default via <span class=nv>$GATEWAY</span>
+</span></span></code></pre></td></tr></table></div></div><p>验证容器内IP地址可以与外界正常通信 。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker ps </span>
+</span></span><span class=line><span class=cl>CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS     NAMES
+</span></span><span class=line><span class=cl>2928e880ee43   nginx:1.22.1   <span class=s2>&#34;/bin/sh -c /usr/sbi…&#34;</span>   <span class=m>9</span> minutes ago   Up <span class=m>9</span> minutes             hardcore_mirzakhani
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker exec 2928e880ee43 ip a </span>
+</span></span><span class=line><span class=cl>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class=m>65536</span> qdisc noqueue state UNKNOWN group default qlen <span class=m>1000</span>
+</span></span><span class=line><span class=cl>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+</span></span><span class=line><span class=cl>    inet 127.0.0.1/8 scope host lo
+</span></span><span class=line><span class=cl>       valid_lft forever preferred_lft forever
+</span></span><span class=line><span class=cl>27: eth0@if28: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu <span class=m>1500</span> qdisc noqueue state UP group default qlen <span class=m>1000</span>
+</span></span><span class=line><span class=cl>    link/ether aa:66:e4:26:a4:92 brd ff:ff:ff:ff:ff:ff link-netnsid <span class=m>0</span>
+</span></span><span class=line><span class=cl>    inet 172.100.0.2/16 scope global eth0
+</span></span><span class=line><span class=cl>       valid_lft forever preferred_lft forever
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># ping -c2 172.100.0.2</span>
+</span></span><span class=line><span class=cl>PING 172.100.0.2 <span class=o>(</span>172.100.0.2<span class=o>)</span> 56<span class=o>(</span>84<span class=o>)</span> bytes of data.
+</span></span><span class=line><span class=cl><span class=m>64</span> bytes from 172.100.0.2: <span class=nv>icmp_seq</span><span class=o>=</span><span class=m>1</span> <span class=nv>ttl</span><span class=o>=</span><span class=m>64</span> <span class=nv>time</span><span class=o>=</span>0.069 ms
+</span></span><span class=line><span class=cl><span class=m>64</span> bytes from 172.100.0.2: <span class=nv>icmp_seq</span><span class=o>=</span><span class=m>2</span> <span class=nv>ttl</span><span class=o>=</span><span class=m>64</span> <span class=nv>time</span><span class=o>=</span>0.053 ms
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>--- 172.100.0.2 ping statistics ---
+</span></span><span class=line><span class=cl><span class=m>2</span> packets transmitted, <span class=m>2</span> received, 0% packet loss, <span class=nb>time</span> 999ms
+</span></span><span class=line><span class=cl>rtt min/avg/max/mdev <span class=o>=</span> 0.053/0.061/0.069/0.008 ms
+</span></span></code></pre></td></tr></table></div></div><h2 id=附录>附录：</h2><p>修改 docker0 网桥IP地址段，打开 /etc/docker/daemon.json 文件，修改如下</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;bip&#34;</span>: <span class=s2>&#34;192.168.1.1/24&#34;</span>,
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;fixed-cidr&#34;</span>: <span class=s2>&#34;192.168.1.0/25&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>配置文件修改后需要 重启 docker 才生效</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl><span class=c1># 查看宿主机网格</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># ip a </span>
+</span></span><span class=line><span class=cl>3: docker0: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; mtu <span class=m>1500</span> qdisc noqueue state DOWN group default 
+</span></span><span class=line><span class=cl>    link/ether 02:42:b0:8d:ee:0e brd ff:ff:ff:ff:ff:ff
+</span></span><span class=line><span class=cl>    inet 192.168.1.1/24 brd 192.168.1.255 scope global docker0
+</span></span><span class=line><span class=cl>       valid_lft forever preferred_lft forever
+</span></span><span class=line><span class=cl>       
+</span></span><span class=line><span class=cl><span class=c1># 启动容器测试       </span>
+</span></span><span class=line><span class=cl><span class=o>[</span>root@docker ~<span class=o>]</span><span class=c1># docker run -it busybox </span>
+</span></span><span class=line><span class=cl>/ <span class=c1># </span>
+</span></span><span class=line><span class=cl>/ <span class=c1># ip a </span>
+</span></span><span class=line><span class=cl>1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu <span class=m>65536</span> qdisc noqueue qlen <span class=m>1000</span>
+</span></span><span class=line><span class=cl>    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+</span></span><span class=line><span class=cl>    inet 127.0.0.1/8 scope host lo
+</span></span><span class=line><span class=cl>       valid_lft forever preferred_lft forever
+</span></span><span class=line><span class=cl>4: eth0@if5: &lt;BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN&gt; mtu <span class=m>1500</span> qdisc noqueue 
+</span></span><span class=line><span class=cl>    link/ether 02:42:c0:a8:01:02 brd ff:ff:ff:ff:ff:ff
+</span></span><span class=line><span class=cl>    inet 192.168.1.2/24 brd 192.168.1.255 scope global eth0
+</span></span><span class=line><span class=cl>       valid_lft forever preferred_lft forever
+</span></span><span class=line><span class=cl>/ <span class=c1># ping -c2 www.baidu.com </span>
+</span></span><span class=line><span class=cl>PING www.baidu.com <span class=o>(</span>103.235.47.103<span class=o>)</span>: <span class=m>56</span> data bytes
+</span></span><span class=line><span class=cl><span class=m>64</span> bytes from 103.235.47.103: <span class=nv>seq</span><span class=o>=</span><span class=m>0</span> <span class=nv>ttl</span><span class=o>=</span><span class=m>54</span> <span class=nv>time</span><span class=o>=</span>1.581 ms
+</span></span><span class=line><span class=cl><span class=m>64</span> bytes from 103.235.47.103: <span class=nv>seq</span><span class=o>=</span><span class=m>1</span> <span class=nv>ttl</span><span class=o>=</span><span class=m>54</span> <span class=nv>time</span><span class=o>=</span>1.604 ms
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>--- www.baidu.com ping statistics ---
+</span></span><span class=line><span class=cl><span class=m>2</span> packets transmitted, <span class=m>2</span> packets received, 0% packet loss
+</span></span><span class=line><span class=cl>round-trip min/avg/max <span class=o>=</span> 1.581/1.592/1.604 ms
+</span></span></code></pre></td></tr></table></div></div><p><a class=link href=https://docs.docker.com/network/drivers/bridge/ target=_blank rel=noopener>https://docs.docker.com/network/drivers/bridge/</a></p><h3 id=镜像地址>镜像地址</h3><p>MySQL:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>registry.cn-beijing.aliyuncs.com/xxhf/mysql:8.0
+</span></span></code></pre></td></tr></table></div></div><p>WordPress:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-Bash data-lang=Bash><span class=line><span class=cl>registry.cn-beijing.aliyuncs.com/xxhf/wordpress:php7.4
+</span></span><span class=line><span class=cl>ccr.ccs.tencentyun.com/chijinjing/wordpress:php7.4
+</span></span></code></pre></td></tr></table></div></div><h2 id=来源>来源</h2><ul><li><a class=link href=https://rcnmegz4pby5.feishu.cn/wiki/HFTPwTpKVi0v1hk5fnecg6qunUe target=_blank rel=noopener>飞书原文</a></li><li>导入日期：2026-06-22</li></ul></section><footer class=article-footer><section class=article-tags><a href=/fuyou/tags/docker/>Docker</a>
+<a href=/fuyou/tags/obsidian/>Obsidian</a></section><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>本作品采用 CC BY-NC-SA 4.0 许可协议</span></section><section class=article-lastmod><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<span>最后更新于 2026-07-11 16:45 +0800</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/fuyou/p/docker-01/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-01/1200/675 loading=lazy data-key=docker-01 data-hash=https://picsum.photos/seed/fuyou-docker-01/1200/675></div><div class=article-details><h2 class=article-title>Docker Compose 使用指南</h2></div></a></article><article class=has-image><a href=/fuyou/p/docker-14/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-14/1200/675 loading=lazy data-key=docker-14 data-hash=https://picsum.photos/seed/fuyou-docker-14/1200/675></div><div class=article-details><h2 class=article-title>Docker 基础概念入门</h2></div></a></article><article class=has-image><a href=/fuyou/p/docker-07/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-07/1200/675 loading=lazy data-key=docker-07 data-hash=https://picsum.photos/seed/fuyou-docker-07/1200/675></div><div class=article-details><h2 class=article-title>Docker 存储与 Volume 管理</h2></div></a></article><article class=has-image><a href=/fuyou/p/docker-15/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-15/1200/675 loading=lazy data-key=docker-15 data-hash=https://picsum.photos/seed/fuyou-docker-15/1200/675></div><div class=article-details><h2 class=article-title>Docker 学习索引</h2></div></a></article><article class=has-image><a href=/fuyou/p/docker-04/><div class=article-image><img src=https://picsum.photos/seed/fuyou-docker-04/1200/675 loading=lazy data-key=docker-04 data-hash=https://picsum.photos/seed/fuyou-docker-04/1200/675></div><div class=article-details><h2 class=article-title>Docker 安装与初始化配置</h2></div></a></article></div></div></aside>...<div class=comment></div><footer class=site-footer><section class=copyright>&copy;
+2020 -
+2026 小杨</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.26.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/fuyou/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script><style>body{background:url(https://luckycloveryh.github.io/fuyou/background/jinlin.png)no-repeat 50% 0;background-size:cover;background-attachment:fixed}@media(max-width:767px){body{background-attachment:scroll;background-position:50% 0}}.article-details{position:relative;z-index:1}.article-title,.article-title a{color:var(--card-text-color-main)!important}.search-form input{background-color:var(--card-background)!important;color:var(--card-text-color-main)!important;border-color:var(--card-separator-color)!important}.search-form button{background-color:transparent!important;color:var(--card-text-color-secondary)!important}.left-sidebar .site-name,.left-sidebar .site-name a,.left-sidebar .site-description,.left-sidebar #main-menu li a,.left-sidebar #main-menu li.current a,.left-sidebar #dark-mode-toggle,.left-sidebar #i18n-switch,.left-sidebar .menu-social svg,.right-sidebar .widget-icon svg,.right-sidebar .widget-title,.site-footer{color:#fff!important;stroke:#fff!important;text-shadow:0 1px 4px rgba(0,0,0,.65)}.left-sidebar #main-menu li a:hover,.left-sidebar .site-name a:hover{color:#fff!important;opacity:.9}</style><script src=https://luckycloveryh.github.io/fuyou/background/sakura.js></script><div id=particles-js></div><script src=https://luckycloveryh.github.io/fuyou/background/particles.min.js></script><script>window.matchMedia("(min-width: 768px)").matches&&particlesJS.load("particles-js","https://luckycloveryh.github.io/fuyou/background/particlesjs-config.json",function(){console.log("particles.js loaded - callback")})</script><style>#particles-js{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}#particles-js canvas{pointer-events:none!important}@media(max-width:767px){#particles-js,#canvas_sakura{display:none!important}}</style><style>:root{--base-font-family:"Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC", "Segoe UI", Arial, sans-serif;--article-font-family:var(--base-font-family);--code-font-family:"Cascadia Mono", "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei UI", monospace}</style><style>#TableOfContents>ul,ol{ul, ol { display: none; } .open { display: block; }}</style><script>function initTocHide(){let e=document.querySelector(".widget--toc");if(!e)return;window.fuyouTocScrollHandler&&window.removeEventListener("scroll",window.fuyouTocScrollHandler),window.fuyouTocScrollHandler=function(){let n=document.querySelectorAll(".open");n.length>0&&n.forEach(e=>{e.classList.remove("open")});let t=document.querySelector(".active-class");if(!t)return;t.children.length>1&&t.children[1].classList.add("open");let e=t.parentElement;do e.classList.add("open"),e=e.parentElement.parentElement;while(e!==void 0&&(e.localName==="ul"||e.localName==="ol"))},window.addEventListener("scroll",window.fuyouTocScrollHandler,{passive:!0})}initTocHide()</script><style>#backTopBtn{display:none;position:fixed;right:30px;bottom:30px;z-index:99;cursor:pointer;width:30px;height:30px;background-image:url(https://luckycloveryh.github.io/fuyou/icons/backTop.svg);background-repeat:no-repeat;background-position:50%;background-size:contain}@media(max-width:767px){#backTopBtn{right:14px;bottom:calc(82px + env(safe-area-inset-bottom));width:42px;height:42px;border:0;border-radius:50%;background-color:rgba(35,35,35,.74);background-size:22px 22px;box-shadow:0 8px 20px rgba(0,0,0,.28)}}</style><script>function initScrollTop(){let e=document.getElementById("backTopBtn");e||(e=document.createElement("button"),e.id="backTopBtn",e.type="button",e.setAttribute("aria-label","Back to top"),e.onclick=backToTop,document.body.appendChild(e)),window.fuyouBackTopHandler&&window.removeEventListener("scroll",window.fuyouBackTopHandler),window.fuyouBackTopHandler=function(){document.body.scrollTop>20||document.documentElement.scrollTop>20?e.style.display="block":e.style.display="none"},window.addEventListener("scroll",window.fuyouBackTopHandler,{passive:!0}),window.fuyouBackTopHandler()}function backToTop(){window.scrollTo({top:0,behavior:"smooth"})}initScrollTop()</script><style>.highlight{max-height:400px;overflow:hidden}.code-show{max-height:none!important}.code-more-box{width:100%;padding-top:78px;background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(255,255,255,0)),to(#fff));position:absolute;left:0;right:0;bottom:0;z-index:1}.code-more-btn{display:block;margin:auto;width:44px;height:22px;background:#f0f0f5;border-top-left-radius:8px;border-top-right-radius:8px;padding-top:6px;cursor:pointer}.code-more-img{cursor:pointer!important;display:block;margin:auto;width:22px;height:16px}</style><script>function initCodeMoreBox(){let e=document.querySelectorAll(".highlight");if(!e)return;e.forEach(e=>{if(e.scrollHeight<=e.clientHeight)return;let t=document.createElement("div");t.classList.add("code-more-box");let n=document.createElement("span");n.classList.add("code-more-btn"),n.addEventListener("click",()=>{e.classList.add("code-show"),t.style.display="none",window.dispatchEvent(new Event("resize"))});let s=document.createElement("img");s.classList.add("code-more-img"),s.src="https://luckycloveryh.github.io/fuyou/icons/codeMore.png",n.appendChild(s),t.appendChild(n),e.appendChild(t)})}initCodeMoreBox()</script><script>const cdnPath="https://cdn.jsdelivr.net/gh/letere-gzj/live2d-widget-v3@main",config={path:{homePath:"/",modelPath:cdnPath+"/Resources/",cssPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu.css",tipsJsonPath:"https://luckycloveryh.github.io/fuyou/waifu/waifu-tips.json",tipsJsPath:cdnPath+"/waifu-tips.js",live2dCorePath:cdnPath+"/Core/live2dcubismcore.js",live2dSdkPath:cdnPath+"/live2d-sdk.js"},tools:["hitokoto","asteroids","express","switch-model","switch-texture","photo","info","quit"],drag:{enable:!0,direction:["x","y"]},switchType:"order"};function loadExternalResource(e,t){return new Promise((n,s)=>{let o;t==="css"?(o=document.createElement("link"),o.rel="stylesheet",o.href=e):t==="js"&&(o=document.createElement("script"),o.src=e),o&&(o.onload=()=>n(e),o.onerror=()=>s(e),document.head.appendChild(o))})}let live2dInitialized=!1;function initLive2d(){if(live2dInitialized)return;window.matchMedia("(min-width: 768px)").matches&&Promise.all([loadExternalResource(config.path.cssPath,"css"),loadExternalResource(config.path.live2dCorePath,"js"),loadExternalResource(config.path.live2dSdkPath,"js"),loadExternalResource(config.path.tipsJsPath,"js")]).then(()=>{initWidget({waifuPath:config.path.tipsJsonPath,cdnPath:config.path.modelPath,tools:config.tools,dragEnable:config.drag.enable,dragDirection:config.drag.direction,switchType:config.switchType}),live2dInitialized=!0}).catch(e=>{console.error("Failed to load live2d:",e)})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",initLive2d):initLive2d()</script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css><style>@media(max-width:767px){.aplayer.aplayer-fixed,.aplayer.aplayer-fixed .aplayer-body{max-width:100vw}.aplayer.aplayer-fixed .aplayer-body{padding-right:18px;padding-bottom:env(safe-area-inset-bottom)}.aplayer.aplayer-fixed .aplayer-info{width:calc(100vw - 66px)}.aplayer.aplayer-fixed .aplayer-lrc{display:none!important}}</style><div id=aplayer></div><script src=https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js></script><script>(function(){const e="https://luckycloveryh.github.io/fuyou/",t=document.getElementById("aplayer");if(!t||window.ap)return;window.ap=new APlayer({container:t,fixed:!0,lrcType:3,audio:[{name:"归期",artist:"钱润玉",url:e+"music/归期-钱润玉/song.mp3",cover:e+"music/归期-钱润玉/cover.jpg"}]})})()</script><script>window.addEventListener("beforeunload",()=>{if(!window.ap)return;const e={index:window.ap.list.index,currentTime:window.ap.audio.currentTime,paused:window.ap.paused};sessionStorage.setItem("playInfo",JSON.stringify(e))}),window.addEventListener("load",()=>{if(!window.ap)return;if(window._pjaxNavigating)return;const e=JSON.parse(sessionStorage.getItem("playInfo"));if(!e)return;window.ap.list.switch(e.index),setTimeout(()=>{if(window.ap.seek(e.currentTime),!e.paused){const e=window.ap.play();e&&typeof e.catch=="function"&&e.catch(()=>{})}},500)}),document.addEventListener("pjax:send",()=>{window._pjaxNavigating=!0}),document.addEventListener("pjax:complete",()=>{window._pjaxNavigating=!1})</script><script>window.fuyouPjaxInitialized=window.fuyouPjaxInitialized||!1;function reinitFuyouPageScripts(){try{window.Stack&&window.Stack.init&&window.Stack.init()}catch(e){console.warn("Stack初始化失败:",e)}try{typeof initTocHide=="function"&&initTocHide(),typeof initScrollTop=="function"&&initScrollTop(),typeof initCodeMoreBox=="function"&&initCodeMoreBox(),typeof showHideView=="function"&&showHideView(),typeof renderKaTeX=="function"&&renderKaTeX()}catch(e){console.warn("页面脚本重新初始化失败:",e)}try{typeof RENDERER!="undefined"&&RENDERER.setup()}catch(e){console.warn("底部小鱼初始化失败:",e)}}function shouldFuyouHandleLink(e,t){if(!t||e.defaultPrevented)return!1;if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return!1;if(t.target&&t.target!=="_self")return!1;if(t.hasAttribute("download"))return!1;const n=new URL(t.href,window.location.href);return n.origin===window.location.origin&&!!n.pathname.startsWith("/fuyou/")&&(n.pathname!==window.location.pathname||n.search!==window.location.search)&&!(n.hash&&n.pathname===window.location.pathname&&n.search===window.location.search)}async function fuyouLoadPage(e,t){document.dispatchEvent(new CustomEvent("pjax:send")),window._pjaxNavigating=!0;try{const s=await fetch(e,{headers:{"X-Requested-With":"fuyou-pjax"},credentials:"same-origin"});if(!s.ok)throw new Error("HTTP "+s.status);const r=await s.text(),n=(new DOMParser).parseFromString(r,"text/html"),o=n.querySelector(".main-container"),i=document.querySelector(".main-container");if(!o||!i){window.location.href=e;return}document.title=n.title,document.body.className=n.body.className,i.replaceWith(o);const c=document.querySelectorAll(".js-Pjax"),a=n.querySelectorAll(".js-Pjax");c.forEach((e,t)=>{a[t]&&e.replaceWith(a[t])}),t&&history.pushState({fuyouPjax:!0},"",e),window.scrollTo({top:0,behavior:"auto"}),reinitFuyouPageScripts(),document.dispatchEvent(new CustomEvent("pjax:complete"))}catch(t){console.warn("无刷新切换失败，回退到普通跳转:",t),window.location.href=e}finally{window._pjaxNavigating=!1}}window.addEventListener("load",()=>{if(window.fuyouPjaxInitialized)return;window.fuyouPjaxInitialized=!0,history.replaceState({fuyouPjax:!0},"",window.location.href),document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("a[href]");if(!shouldFuyouHandleLink(e,t))return;e.preventDefault(),fuyouLoadPage(t.href,!0)}),window.addEventListener("popstate",()=>{fuyouLoadPage(window.location.href,!1)}),window.pjax={refresh:function(){},loadUrl:function(e){fuyouLoadPage(e,!0)}}})</script><div class=js-Pjax><script>(function(){let t=document.querySelector(".comment");if(!t)return;let e=document.createElement("script");e.setAttribute("src","https://giscus.app/client.js"),e.setAttribute("data-repo",""),e.setAttribute("data-repo-id",""),e.setAttribute("data-category",""),e.setAttribute("data-category-id",""),e.setAttribute("data-mapping",""),e.setAttribute("data-strict",""),e.setAttribute("data-reactions-enabled","1"),e.setAttribute("data-emit-metadata","0"),e.setAttribute("data-input-position",""),e.setAttribute("data-theme",""),e.setAttribute("data-lang",""),e.async=!0,e.crossOrigin="anonymous",t.appendChild(e)})(document)</script></div><script>async function renderKaTeX(){let e=document.querySelector(".math-katex");if(!e)return;for(;typeof renderMathInElement!="function";)await delay(500);renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],ignoredClasses:["gist"]})}function delay(e){return new Promise(t=>{setTimeout(t,e)})}document.addEventListener("pjax:complete",()=>{renderKaTeX()})</script><script src=https://luckycloveryh.github.io/fuyou/js/topbar.min.js></script><script>topbar.config({barColors:{0:"rgba(255, 255, 255, 1)",1.0:"rgba(0, 149, 234, 1)"}}),document.addEventListener("pjax:send",()=>{topbar.show()}),document.addEventListener("pjax:complete",()=>{topbar.hide()})</script><script defer src=https://cn.vercount.one/js></script><script>function showHideView(){let e=document.querySelectorAll("#viewCount");if(e){let t=document.querySelector(".article-page");t||e.forEach(e=>{e.style.display="none"})}}showHideView()</script><div id=jsi-flying-fish-container class=flying-fish-container></div><style>.flying-fish-container{width:100%;height:200px;position:fixed;z-index:0;pointer-events:none;bottom:0;left:0;opacity:.6}.flying-fish-container canvas{display:block;pointer-events:none}@media(max-width:767px){.flying-fish-container{height:96px;opacity:.38}}</style><script src=https://luckycloveryh.github.io/fuyou/js/flying-fish.js></script><script>window.addEventListener("load",function(){typeof RENDERER!="undefined"&&document.getElementById("jsi-flying-fish-container")&&RENDERER.init()}),document.addEventListener("pjax:complete",function(){typeof RENDERER!="undefined"&&RENDERER.setup()})</script></body></html>
