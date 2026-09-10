@@ -28,6 +28,7 @@
   justify-content: center;
   z-index: 999999;
   transition: opacity 1.2s ease;
+  pointer-events: none;
 }
 
 /* 卡片样式 */
@@ -102,27 +103,32 @@
 </style>
 
 <script>
-// ======================================
-// 只在第一次进入网站显示 Loading
-// ======================================
-document.addEventListener('DOMContentLoaded', () => {
-  const container = document.querySelector('.loading-container');
-  const visited = sessionStorage.getItem('visited');
-
-  if (visited) {
+(function () {
+  const hideLoading = () => {
+    const container = document.querySelector('.loading-container');
+    if (!container) return;
+    container.classList.add('fade-out');
     container.style.display = 'none';
+    container.style.pointerEvents = 'none';
+  };
+
+  const visited = sessionStorage.getItem('visited');
+  if (visited) {
+    hideLoading();
     return;
   }
 
-  // 第一次访问：显示 2.5 秒后淡出
-  setTimeout(() => {
+  const finish = () => {
+    const container = document.querySelector('.loading-container');
+    if (!container) return;
     container.classList.add('fade-out');
-
-    // 淡出完成后彻底隐藏，防止占用空间
     setTimeout(() => {
-      container.style.display = 'none';
+      hideLoading();
       sessionStorage.setItem('visited', 'true');
-    }, 1200);   // 与 transition 时间匹配
-  }, 2500);
-});
+    }, 400);
+  };
+
+  setTimeout(finish, 1200);
+  window.addEventListener('load', finish, { once: true });
+})();
 </script>

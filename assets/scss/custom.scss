@@ -56,6 +56,22 @@ input:hover,
   body {
     padding-bottom: calc(82px + env(safe-area-inset-bottom));
     overflow-x: hidden;
+    cursor: auto !important;
+  }
+
+  a, button, .article-list article, .article-title a {
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0.18);
+    touch-action: manipulation;
+  }
+
+  .article-list article {
+    position: relative;
+    z-index: 2;
+  }
+
+  .article-list article a {
+    display: block;
   }
 
   .main-container {
@@ -120,6 +136,8 @@ input:hover,
     padding: 9px 6px;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.1);
+    z-index: 130;
+    pointer-events: auto;
   }
 
   #toggle-menu .hamburger-inner,
