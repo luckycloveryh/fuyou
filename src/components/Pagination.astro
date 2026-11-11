@@ -1,0 +1,9 @@
+---
+import { pageUrl } from '../utils/blog';
+const { current, total, section = '' } = Astro.props as { current: number; total: number; section?: string };
+---
+{total > 1 && <nav class="pagination" aria-label="分页">
+  {current > 1 ? <a href={pageUrl(current - 1, section)}>← 上一页</a> : <span></span>}
+  <span>第 {current} / {total} 页</span>
+  {current < total ? <a href={pageUrl(current + 1, section)}>下一页 →</a> : <span></span>}
+</nav>}

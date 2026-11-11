@@ -1,0 +1,2 @@
+import rss from '@astrojs/rss';import {getPosts,postUrl} from '../utils/blog';import type {APIRoute} from 'astro';
+export const GET:APIRoute=async({site})=>{const posts=await getPosts();return rss({title:'小杨的博客',description:'技术分享，日常分享',site:site!,items:posts.map(post=>({title:post.data.title,description:post.data.description,pubDate:post.data.date,link:postUrl(post),categories:post.data.tags})),customData:'<language>zh-CN</language>'});};

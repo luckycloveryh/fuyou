@@ -1,0 +1,4 @@
+---
+import {getCollection,render} from 'astro:content';import BaseLayout from '../layouts/BaseLayout.astro';const page=(await getCollection('page')).find(p=>p.data.title==='技术链接 | Links');if(!page)throw new Error('链接页面不存在');const {Content}=await render(page);
+---
+<BaseLayout title={page.data.title}><article class="panel article-content"><Content/></article><div class="link-grid">{page.data.links?.map(link=><a class="link-card" href={link.website} target="_blank" rel="noreferrer"><img src={link.image} alt="" width="48" height="48" loading="lazy"/><div><strong>{link.title}</strong><p>{link.description}</p></div></a>)}</div></BaseLayout>

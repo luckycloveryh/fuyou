@@ -1,0 +1,46 @@
+---
+import { url } from '../utils/blog';
+import '../styles/global.css';
+interface Props { title?: string; description?: string; image?: string; }
+const { title = '小杨的博客', description = '技术分享，日常分享', image } = Astro.props;
+const pageTitle = title === '小杨的博客' ? title : `${title} · 小杨的博客`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const nav = [['', '首页 | Home'], ['archives', '归档 | Archives'], ['搜索', '搜索 | Search'], ['更新日志-logs', '更新日志 | Logs'], ['技术链接-links', '技术链接 | Links'], ['关于', '关于 | About']];
+---
+<!doctype html>
+<html lang="zh-CN" data-type="software" data-radius="soft">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{pageTitle}</title><meta name="description" content={description} />
+  <meta name="page-type" content="software" /><meta name="site-kind" content="software" /><meta name="theme-color" content="#0f1f10" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..500&family=Geist+Mono:wght@400..500&display=swap" rel="stylesheet" />
+  <link rel="canonical" href={canonical} /><link rel="icon" href={url('favicon.png')} />
+  <link rel="alternate" type="application/rss+xml" title="小杨的博客" href={url('index.xml')} />
+  <meta property="og:title" content={pageTitle} /><meta property="og:description" content={description} /><meta property="og:type" content="website" /><meta name="twitter:card" content="summary_large_image" />
+  {image && <meta property="og:image" content={image} />}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" />
+  <script is:inline>const saved=localStorage.getItem('theme');document.documentElement.dataset.theme=saved==='light'?'light':'dark';</script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+  <button id="menu-toggle" class="menu-toggle" aria-label="打开菜单" aria-controls="site-sidebar" aria-expanded="false">☰</button>
+  <aside class="sidebar" id="site-sidebar">
+    <a class="brand" href={url()}><img src="https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/muzimi.gif" alt="小杨的头像" width="108" height="108" /><h1>小杨的博客</h1><span>🌸</span><p>技术分享，日常分享</p></a>
+    <nav aria-label="主导航">{nav.map(([path,label]) => <a href={url(path)} aria-current={Astro.url.pathname === url(path) ? 'page' : undefined}>{label}</a>)}</nav>
+    <div class="sidebar-bottom"><a href="https://github.com/luckycloveryh" target="_blank" rel="noreferrer">GitHub ↗</a><button id="theme-toggle" aria-label="切换明暗主题">◐ 明暗切换</button></div>
+  </aside>
+  <main class="main-container" id="main-content"><slot /><footer>© 2020–2026 小杨 · Powered by <a href="https://astro.build" target="_blank" rel="noreferrer">Astro</a> · <a href={url('index.xml')}>RSS</a></footer></main>
+  <button id="back-top" aria-label="返回顶部">↑</button><div id="music-player"></div>
+  <script is:inline src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script>
+  <script is:inline define:vars={{ musicUrl: url('music/归期-钱润玉/song.mp3'), coverUrl: url('music/归期-钱润玉/cover.jpg') }}>
+    window.addEventListener('load',()=>{if(window.APlayer)new window.APlayer({container:document.getElementById('music-player'),fixed:true,mini:true,audio:[{name:'归期',artist:'钱润玉',url:musicUrl,cover:coverUrl}]});});
+  </script>
+  <script>
+    const root=document.documentElement;document.getElementById('theme-toggle')?.addEventListener('click',()=>{const dark=root.dataset.theme==='dark';root.dataset.theme=dark?'light':'dark';localStorage.setItem('theme',dark?'light':'dark');});
+    const sidebar=document.querySelector('.sidebar');const menuButton=document.getElementById('menu-toggle');const closeMenu=()=>{sidebar?.classList.remove('open');menuButton?.setAttribute('aria-expanded','false');};closeMenu();menuButton?.addEventListener('click',()=>{const open=sidebar?.classList.toggle('open');menuButton.setAttribute('aria-expanded',String(Boolean(open)));});sidebar?.querySelectorAll('a').forEach(link=>link.addEventListener('click',closeMenu));document.addEventListener('keydown',event=>{if(event.key==='Escape')closeMenu();});
+    document.querySelectorAll('.article-content pre').forEach(pre=>{const button=document.createElement('button');button.className='copy-code';button.textContent='复制';button.onclick=async()=>{await navigator.clipboard.writeText(pre.querySelector('code')?.textContent||'');button.textContent='已复制';setTimeout(()=>button.textContent='复制',1600);};pre.appendChild(button);});
+    const top=document.getElementById('back-top');top?.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));addEventListener('scroll',()=>top?.classList.toggle('show',scrollY>500),{passive:true});
+    document.querySelectorAll('.toc a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();document.querySelector(a.getAttribute('href')||'')?.scrollIntoView({behavior:'smooth'});}));
+  </script>
+</body></html>
