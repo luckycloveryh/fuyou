@@ -131,7 +131,7 @@ $ dnf -y install langpacks-zh_CN glibc-langpack-zh
 $ systemctl enable --now zabbix-server zabbix-agent httpd php-fpm
 ```
 
-使用浏览器访问：http://ip/zabbix，测试登录，<font color='red'>默认：用户名：Admin ， 密码：zabbix</font>
+使用浏览器访问：http://ip/zabbix，测试登录，<strong class="notice">默认：用户名：Admin ， 密码：zabbix</strong>
 
 #### 8. 中文乱码解决方案
 
@@ -336,7 +336,7 @@ $ systemctl enable --now zabbix-agent
 
 web管理界面添加代理，并设置zabbix agent指向zabbix proxy
 
-<font color='red'>注意：每次操作完之后都要点击更新才会生效，最后重启zabbix server端，变更数据源为zabbix proxy</font>
+<strong class="notice">注意：每次操作完之后都要点击更新才会生效，最后重启zabbix server端，变更数据源为zabbix proxy</strong>
 
 ### 五、报警设置
 

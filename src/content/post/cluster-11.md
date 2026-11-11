@@ -252,7 +252,7 @@ $ netstat -antp | grep LISTEN | grep :9100
 tcp6       0      0 :::9100                 :::*                    LISTEN      38150/node_exporter
 ```
 
-<font color='red'>注意：以上安装除了在Prometheus Server服务器端安装也可以单独安装在其他被监控节点上</font>
+<strong class="notice">注意：以上安装除了在Prometheus Server服务器端安装也可以单独安装在其他被监控节点上</strong>
 
 4. 配置文件修改（修改Prometheus配置文件实现metrics数据获取）
 
