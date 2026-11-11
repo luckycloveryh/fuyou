@@ -1,8 +1,8 @@
 ---
 import { url } from '../utils/blog';
 import '../styles/global.css';
-interface Props { title?: string; description?: string; image?: string; }
-const { title = '小杨的博客', description = '技术分享，日常分享', image } = Astro.props;
+interface Props { title?: string; description?: string; image?: string; article?: boolean; }
+const { title = '小杨的博客', description = '技术分享，日常分享', image, article = false } = Astro.props;
 const pageTitle = title === '小杨的博客' ? title : `${title} · 小杨的博客`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const nav = [['', '首页 | Home'], ['archives', '归档 | Archives'], ['搜索', '搜索 | Search'], ['更新日志-logs', '更新日志 | Logs'], ['技术链接-links', '技术链接 | Links'], ['关于', '关于 | About']];
@@ -22,7 +22,7 @@ const nav = [['', '首页 | Home'], ['archives', '归档 | Archives'], ['搜索'
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" />
   <script is:inline>const saved=localStorage.getItem('theme');document.documentElement.dataset.theme=saved==='light'?'light':'dark';</script>
 </head>
-<body>
+<body class:list={{ 'article-page': article }}>
   <a class="skip-link" href="#main-content">跳到正文</a>
   <button id="menu-toggle" class="menu-toggle" aria-label="打开菜单" aria-controls="site-sidebar" aria-expanded="false">☰</button>
   <aside class="sidebar" id="site-sidebar">
