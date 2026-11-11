@@ -153,7 +153,9 @@ window.onresize = function () {
 }
 
 img.onload = function () {
-	if (window.matchMedia && window.matchMedia('(max-width: 767px)').matches) {
+	if ((window.matchMedia && window.matchMedia('(max-width: 767px)').matches) ||
+		window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+		localStorage.getItem('effects') === 'off') {
 		return;
 	}
 	startSakura();
