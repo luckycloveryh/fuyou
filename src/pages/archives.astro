@@ -1,0 +1,4 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';import {getPosts,postUrl,formatDate} from '../utils/blog';const posts=await getPosts();const years=[...new Set(posts.map(p=>p.data.date.getFullYear()))];
+---
+<BaseLayout title="归档"><header class="page-header"><h1>归档</h1><p>按时间回顾 {posts.length} 篇文章</p></header><div class="panel">{years.map(year=><section class="archive-year"><h2>{year} <small>{posts.filter(p=>p.data.date.getFullYear()===year).length} 篇</small></h2>{posts.filter(p=>p.data.date.getFullYear()===year).map(p=><div class="archive-item"><time>{formatDate(p.data.date)}</time><a href={postUrl(p)}>{p.data.title}</a></div>)}</section>)}</div></BaseLayout>

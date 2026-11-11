@@ -1,0 +1,4 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';import {getPosts,taxonomySlug,url} from '../../utils/blog';const posts=await getPosts();const names=[...new Set(posts.flatMap(p=>p.data.categories))].sort();
+---
+<BaseLayout title="分类"><header class="page-header"><h1>文章分类</h1></header><div class="taxonomy-grid">{names.map(name=><a class="taxonomy-card" href={url(`categories/${taxonomySlug(name)}`)}><strong>{name}</strong><span>{posts.filter(p=>p.data.categories.includes(name)).length} 篇</span></a>)}</div></BaseLayout>

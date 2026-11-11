@@ -1,0 +1,18 @@
+---
+import type { Post } from '../utils/blog';
+import { formatDate, postUrl, taxonomySlug, url } from '../utils/blog';
+const { post, compact = false } = Astro.props as { post: Post; compact?: boolean };
+const category = post.data.categories[0];
+---
+<article class:list={["post-card", { compact }]}>
+  {post.data.image && <a class="card-cover" href={postUrl(post)} style={`background-image:url('${post.data.image}')`} aria-label={post.data.title}></a>}
+  <div class="card-body">
+    <div class="card-meta">
+      {category && <a href={url(`categories/${taxonomySlug(category)}`)}>{category}</a>}
+      <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+    </div>
+    <h2><a href={postUrl(post)}>{post.data.title}</a></h2>
+    {post.data.description && <p>{post.data.description}</p>}
+    <div class="tags">{post.data.tags.slice(0, 4).map(tag => <a href={url(`tags/${taxonomySlug(tag)}`)}>#{tag}</a>)}</div>
+  </div>
+</article>

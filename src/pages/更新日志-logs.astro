@@ -1,0 +1,4 @@
+---
+import {getCollection,render} from 'astro:content';import BaseLayout from '../layouts/BaseLayout.astro';const page=(await getCollection('page')).find(p=>p.data.title==='更新日志 | Logs');if(!page)throw new Error('日志页面不存在');const {Content}=await render(page);
+---
+<BaseLayout title={page.data.title}><article class="panel article-content"><Content/></article></BaseLayout>

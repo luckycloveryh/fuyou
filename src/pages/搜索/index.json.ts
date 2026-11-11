@@ -1,0 +1,2 @@
+import type {APIRoute} from 'astro';import {getPosts,postUrl,plainText} from '../../utils/blog';
+export const GET:APIRoute=async()=>{const posts=await getPosts();return new Response(JSON.stringify(posts.map(p=>({title:p.data.title,date:p.data.date.toISOString(),permalink:postUrl(p),image:p.data.image||'',content:plainText(p.body || '')}))),{headers:{'Content-Type':'application/json; charset=utf-8'}});};
