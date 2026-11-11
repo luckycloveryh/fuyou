@@ -28,13 +28,15 @@ const nav = [['', '首页 | Home'], ['archives', '归档 | Archives'], ['搜索'
   <aside class="sidebar" id="site-sidebar">
     <a class="brand" href={url()}><img src="https://cdn.jsdelivr.net/gh/luckycloveryh/picgo-bed@main/images/muzimi.gif" alt="小杨的头像" width="108" height="108" /><h1>小杨的博客</h1><span>🌸</span><p>技术分享，日常分享</p></a>
     <nav aria-label="主导航">{nav.map(([path,label]) => <a href={url(path)} aria-current={Astro.url.pathname === url(path) ? 'page' : undefined}>{label}</a>)}</nav>
-    <div class="sidebar-bottom"><a href="https://github.com/luckycloveryh" target="_blank" rel="noreferrer">GitHub ↗</a><button id="theme-toggle" aria-label="切换明暗主题">◐ 明暗切换</button></div>
+    <div class="sidebar-bottom"><a href="https://github.com/luckycloveryh" target="_blank" rel="noreferrer">GitHub ↗</a><button id="theme-toggle" aria-label="切换明暗主题">◐ 明暗切换</button><button id="effects-toggle" aria-label="开关背景特效">✦ 特效</button></div>
   </aside>
   <main class="main-container" id="main-content"><slot /><footer>© 2020–2026 小杨 · Powered by <a href="https://astro.build" target="_blank" rel="noreferrer">Astro</a> · <a href={url('index.xml')}>RSS</a></footer></main>
+  <div class="universe-clock" aria-label="当前时间"><div class="clock-face" aria-hidden="true"><i class="clock-hand hour"></i><i class="clock-hand minute"></i><i class="clock-hand second"></i><b></b></div><time id="clock-digital">--:--:--</time><span id="clock-date"></span></div>
+  <button id="music-orb" class="music-orb" aria-label="播放或暂停音乐" title="播放 / 暂停"><img class="music-disc" src={url('music/归期-钱润玉/cover.jpg')} alt="" /><span>♪</span></button>
   <button id="back-top" aria-label="返回顶部">↑</button><div id="music-player"></div>
   <script is:inline src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script>
   <script is:inline define:vars={{ musicUrl: url('music/归期-钱润玉/song.mp3'), coverUrl: url('music/归期-钱润玉/cover.jpg') }}>
-    window.addEventListener('load',()=>{if(window.APlayer)new window.APlayer({container:document.getElementById('music-player'),fixed:true,mini:true,audio:[{name:'归期',artist:'钱润玉',url:musicUrl,cover:coverUrl}]});});
+    window.addEventListener('load',()=>{if(window.APlayer){window.ap=new window.APlayer({container:document.getElementById('music-player'),fixed:true,mini:true,audio:[{name:'归期',artist:'钱润玉',url:musicUrl,cover:coverUrl}]});const orb=document.getElementById('music-orb');window.ap.on('play',()=>orb?.classList.add('playing'));window.ap.on('pause',()=>orb?.classList.remove('playing'));orb?.addEventListener('click',()=>window.ap.toggle());}});
   </script>
   <script>
     const root=document.documentElement;document.getElementById('theme-toggle')?.addEventListener('click',()=>{const dark=root.dataset.theme==='dark';root.dataset.theme=dark?'light':'dark';localStorage.setItem('theme',dark?'light':'dark');});
@@ -42,5 +44,28 @@ const nav = [['', '首页 | Home'], ['archives', '归档 | Archives'], ['搜索'
     document.querySelectorAll('.article-content pre').forEach(pre=>{const button=document.createElement('button');button.className='copy-code';button.textContent='复制';button.onclick=async()=>{await navigator.clipboard.writeText(pre.querySelector('code')?.textContent||'');button.textContent='已复制';setTimeout(()=>button.textContent='复制',1600);};pre.appendChild(button);});
     const top=document.getElementById('back-top');top?.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));addEventListener('scroll',()=>top?.classList.toggle('show',scrollY>500),{passive:true});
     document.querySelectorAll('.toc a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();document.querySelector(a.getAttribute('href')||'')?.scrollIntoView({behavior:'smooth'});}));
+  </script>
+  <script is:inline>
+    const updateClock=()=>{const now=new Date();document.querySelector('.clock-hand.hour')?.style.setProperty('transform',`rotate(${(now.getHours()%12)*30+now.getMinutes()/2}deg)`);document.querySelector('.clock-hand.minute')?.style.setProperty('transform',`rotate(${now.getMinutes()*6+now.getSeconds()/10}deg)`);document.querySelector('.clock-hand.second')?.style.setProperty('transform',`rotate(${now.getSeconds()*6}deg)`);const digital=document.getElementById('clock-digital');if(digital){digital.textContent=now.toLocaleTimeString('zh-CN',{hour12:false});digital.setAttribute('datetime',now.toISOString());}const date=document.getElementById('clock-date');if(date)date.textContent=now.toLocaleDateString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'});};updateClock();setInterval(updateClock,1000);
+  </script>
+  <div id="particles-js" aria-hidden="true"></div><div id="jsi-flying-fish-container" class="flying-fish-container" aria-hidden="true"></div>
+  <script is:inline src={url('background/particles.min.js')}></script><script is:inline src={url('background/sakura.js')}></script><script is:inline src={url('js/flying-fish.js')}></script>
+  <script is:inline define:vars={{ particlesConfig: url('background/particlesjs-config.json'), fishScript: url('js/flying-fish.js') }}>
+    window.fuyouEffectsAllowed=matchMedia('(min-width: 768px)').matches&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&localStorage.getItem('effects')!=='off';
+    document.body.classList.toggle('effects-off',!window.fuyouEffectsAllowed);
+    document.getElementById('effects-toggle')?.addEventListener('click',()=>{localStorage.setItem('effects',localStorage.getItem('effects')==='off'?'on':'off');location.reload();});
+    if(window.fuyouEffectsAllowed){
+      window.addEventListener('load',()=>{
+        if(window.particlesJS)window.particlesJS.load('particles-js',particlesConfig);
+        if(window.RENDERER)window.RENDERER.init();
+      });
+    }
+  </script>
+  <script is:inline define:vars={{ waifuCss: url('waifu/waifu.css'), waifuTips: url('waifu/waifu-tips.json') }}>
+    if(window.fuyouEffectsAllowed){
+      const cdn='https://cdn.jsdelivr.net/gh/letere-gzj/live2d-widget-v3@main';
+      const load=(src,type)=>new Promise((resolve,reject)=>{const el=document.createElement(type==='css'?'link':'script');if(type==='css'){el.rel='stylesheet';el.href=src;}else{el.src=src;}el.onload=resolve;el.onerror=reject;document.head.appendChild(el);});
+      Promise.all([load(waifuCss,'css'),load(cdn+'/Core/live2dcubismcore.js','js'),load(cdn+'/live2d-sdk.js','js'),load(cdn+'/waifu-tips.js','js')]).then(()=>window.initWidget({waifuPath:waifuTips,cdnPath:cdn+'/Resources/',tools:['hitokoto','express','switch-model','switch-texture','photo','info','quit'],dragEnable:true,dragDirection:['x','y'],switchType:'order'})).catch(error=>console.warn('Live2D 资源加载失败，博客内容不受影响。',error));
+    }
   </script>
 </body></html>
